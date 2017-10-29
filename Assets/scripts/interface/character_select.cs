@@ -1,0 +1,43 @@
+﻿using UnityEngine;
+using System.Collections;
+
+public class character_select : MonoBehaviour {
+	public bool tankSelected = false;
+	public bool healerSelected = true;
+	public bool dpsSelected = false;      
+
+	//returns what character is selected as a ?
+	public string GetClassRole(){
+		if( tankSelected ){
+			return "Guardian";
+		} else if( healerSelected){
+			return "Walker";
+		} else if( dpsSelected ){
+			return "Stalker";
+		}
+		return null;
+	}
+
+	public string GetClassRoleCaps(){
+		if( tankSelected ){
+			return "Tank";
+		} else if( healerSelected){
+			return "Healer";
+		} else if( dpsSelected ){
+			return "Dps";
+		}
+		return null;
+	}
+
+    public 
+
+	// Use this for initialization
+	void Start () {
+
+	}
+	
+	// Update is called once per frame
+	void Update () {
+	
+	}
+}

@@ -1,0 +1,139 @@
+
+skeleton.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BasicUndead_0001s_0000_Layer-4
+  rotate: false
+  xy: 422, 434
+  size: 70, 74
+  orig: 70, 74
+  offset: 0, 0
+  index: -1
+BasicUndead_0001s_0000s_0000_Layer-14
+  rotate: true
+  xy: 152, 139
+  size: 25, 40
+  orig: 25, 40
+  offset: 0, 0
+  index: -1
+BasicUndead_0002s_0000s_0000_Layer-17
+  rotate: false
+  xy: 126, 71
+  size: 17, 71
+  orig: 17, 71
+  offset: 0, 0
+  index: -1
+BasicUndead_0002s_0001s_0000_Layer-6
+  rotate: false
+  xy: 43, 54
+  size: 29, 179
+  orig: 29, 179
+  offset: 0, 0
+  index: -1
+BasicUndead_0002s_0001s_0000s_0000_Rectangle-1-copy-2
+  rotate: true
+  xy: 74, 76
+  size: 157, 50
+  orig: 157, 50
+  offset: 0, 0
+  index: -1
+BasicUndead_0002s_0002s_0000_Layer-18
+  rotate: true
+  xy: 146, 247
+  size: 42, 56
+  orig: 42, 56
+  offset: 0, 0
+  index: -1
+BasicUndead_0003s_0000_Layer-16
+  rotate: false
+  xy: 43, 235
+  size: 101, 117
+  orig: 101, 117
+  offset: 0, 0
+  index: -1
+BasicUndead_0003s_0000s_0000_Rectangle-1-copy-2
+  rotate: true
+  xy: 260, 359
+  size: 149, 160
+  orig: 149, 160
+  offset: 0, 0
+  index: -1
+BasicUndead_0003s_0001s_0000_Layer-15
+  rotate: true
+  xy: 2, 2
+  size: 19, 24
+  orig: 19, 24
+  offset: 0, 0
+  index: -1
+BasicUndead_0004s_0000_Layer-7
+  rotate: false
+  xy: 2, 354
+  size: 256, 154
+  orig: 256, 154
+  offset: 0, 0
+  index: -1
+BasicUndead_0005s_0000_Layer-8
+  rotate: false
+  xy: 422, 377
+  size: 63, 55
+  orig: 63, 55
+  offset: 0, 0
+  index: -1
+BasicUndead_0005s_0001_Layer-9
+  rotate: false
+  xy: 126, 144
+  size: 24, 89
+  orig: 24, 89
+  offset: 0, 0
+  index: -1
+BasicUndead_0005s_0002_Layer-10
+  rotate: true
+  xy: 207, 284
+  size: 68, 50
+  orig: 68, 50
+  offset: 0, 0
+  index: -1
+BasicUndead_0005s_0003_Layer-19
+  rotate: true
+  xy: 74, 40
+  size: 34, 44
+  orig: 34, 44
+  offset: 0, 0
+  index: -1
+BasicUndead_0006s_0000_Layer-11
+  rotate: false
+  xy: 152, 166
+  size: 37, 79
+  orig: 37, 79
+  offset: 0, 0
+  index: -1
+BasicUndead_0006s_0000s_0000_Layer-20
+  rotate: true
+  xy: 204, 255
+  size: 27, 59
+  orig: 27, 59
+  offset: 0, 0
+  index: -1
+BasicUndead_0006s_0001_Layer-13
+  rotate: false
+  xy: 422, 341
+  size: 43, 34
+  orig: 43, 34
+  offset: 0, 0
+  index: -1
+BasicUndead_0006s_0002_Layer-12
+  rotate: false
+  xy: 146, 291
+  size: 59, 61
+  orig: 59, 61
+  offset: 0, 0
+  index: -1
+shadow
+  rotate: true
+  xy: 2, 23
+  size: 329, 39
+  orig: 329, 39
+  offset: 0, 0
+  index: -1

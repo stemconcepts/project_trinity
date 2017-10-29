@@ -1,0 +1,19 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:45cbea2a36a75e238480f5403311014b:a30fbe204149aeba207b3883a6a70571:2e05265a54b3dbf6d9ba85a7d3d0360d$
+#
+:format=40000
+:texture=hitFx.png
+:size=1024x1024
+:pivotpoints=enabled
+
+hitFXWhite_0000_Frame-5;1;410;340;210;0.7764705882352941;0.37142857142857144
+hitFXWhite_0001_Frame-4;482;418;395;267;0.6810126582278481;0.41947565543071164
+hitFXWhite_0002_Frame-3;482;687;406;336;0.6724137931034483;0.4464285714285714
+hitFXWhite_0003_Frame-2;1;622;479;401;0.5782881002087683;0.47381546134663344
+hitFXWhite_0004_Frame-1;1;154;281;254;1.0676156583629892;0.6141732283464567
+hitFXWhite_0005_Frame-0;890;926;92;97;3.1847826086956523;1.0515463917525774

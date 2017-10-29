@@ -1,0 +1,304 @@
+
+skeleton.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+cannon
+  rotate: false
+  xy: 2, 3
+  size: 256, 74
+  orig: 256, 74
+  offset: 0, 0
+  index: -1
+dpsHQ_0001s_0000_Shape-1
+  rotate: true
+  xy: 747, 363
+  size: 282, 261
+  orig: 282, 261
+  offset: 0, 0
+  index: -1
+dpsHQ_0001s_0001_Layer-6
+  rotate: true
+  xy: 488, 18
+  size: 139, 171
+  orig: 139, 171
+  offset: 0, 0
+  index: -1
+dpsHQ_0001s_0002_Layer-4
+  rotate: true
+  xy: 747, 647
+  size: 374, 274
+  orig: 374, 274
+  offset: 0, 0
+  index: -1
+dpsHQ_0004s_0001_Layer-14
+  rotate: true
+  xy: 2, 79
+  size: 340, 484
+  orig: 340, 484
+  offset: 0, 0
+  index: -1
+dpsHQ_0005s_0000_Layer-19
+  rotate: false
+  xy: 883, 51
+  size: 127, 310
+  orig: 127, 310
+  offset: 0, 0
+  index: -1
+dpsHQ_0005s_0001_Layer-18
+  rotate: false
+  xy: 735, 48
+  size: 146, 313
+  orig: 146, 313
+  offset: 0, 0
+  index: -1
+dpsHQ_0007s_0002_Layer-20
+  rotate: false
+  xy: 488, 159
+  size: 245, 260
+  orig: 245, 260
+  offset: 0, 0
+  index: -1
+hair_dangle
+  rotate: true
+  xy: 260, 3
+  size: 74, 188
+  orig: 74, 188
+  offset: 0, 0
+  index: -1
+rHandFront
+  rotate: false
+  xy: 661, 101
+  size: 49, 56
+  orig: 49, 56
+  offset: 0, 0
+  index: -1
+shadow
+  rotate: false
+  xy: 661, 7
+  size: 329, 39
+  orig: 329, 39
+  offset: 0, 0
+  index: -1
+sideslashup
+  rotate: false
+  xy: 2, 421
+  size: 743, 600
+  orig: 743, 600
+  offset: 0, 0
+  index: -1
+
+skeleton2.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+claw
+  rotate: false
+  xy: 924, 566
+  size: 73, 150
+  orig: 73, 150
+  offset: 0, 0
+  index: -1
+dpsHQ_0000s_0000_Layer-3
+  rotate: false
+  xy: 747, 798
+  size: 266, 220
+  orig: 266, 220
+  offset: 0, 0
+  index: -1
+dpsHQ_0001s_0000_Layer-5
+  rotate: true
+  xy: 646, 247
+  size: 169, 372
+  orig: 169, 372
+  offset: 0, 0
+  index: -1
+dpsHQ_0002s_0000_Layer-16
+  rotate: false
+  xy: 747, 626
+  size: 175, 170
+  orig: 175, 170
+  offset: 0, 0
+  index: -1
+dpsHQ_0002s_0002_Layer-4
+  rotate: true
+  xy: 2, 14
+  size: 402, 292
+  orig: 402, 292
+  offset: 0, 0
+  index: -1
+dpsHQ_0003s_0000_Layer-11
+  rotate: true
+  xy: 646, 33
+  size: 212, 170
+  orig: 212, 170
+  offset: 0, 0
+  index: -1
+dpsHQ_0005s_0002_Layer-20
+  rotate: false
+  xy: 747, 420
+  size: 137, 144
+  orig: 137, 144
+  offset: 0, 0
+  index: -1
+face
+  rotate: true
+  xy: 346, 31
+  size: 385, 298
+  orig: 385, 298
+  offset: 0, 0
+  index: -1
+hair1
+  rotate: false
+  xy: 296, 27
+  size: 48, 389
+  orig: 48, 389
+  offset: 0, 0
+  index: -1
+headfront
+  rotate: true
+  xy: 886, 455
+  size: 109, 119
+  orig: 109, 119
+  offset: 0, 0
+  index: -1
+rForarmFront
+  rotate: false
+  xy: 924, 718
+  size: 82, 78
+  orig: 82, 78
+  offset: 0, 0
+  index: -1
+ringFX
+  rotate: false
+  xy: 818, 65
+  size: 180, 180
+  orig: 180, 180
+  offset: 0, 0
+  index: -1
+sideslashupdouble
+  rotate: false
+  xy: 2, 418
+  size: 743, 600
+  orig: 743, 600
+  offset: 0, 0
+  index: -1
+
+skeleton3.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+dpsHQ_0002s_0001_Layer-7
+  rotate: false
+  xy: 590, 38
+  size: 317, 362
+  orig: 317, 362
+  offset: 0, 0
+  index: -1
+dpsHQ_0003s_0002_Layer-9
+  rotate: false
+  xy: 2, 564
+  size: 634, 452
+  orig: 634, 452
+  offset: 0, 0
+  index: -1
+dpsHQ_0004s_0002_Layer-12
+  rotate: false
+  xy: 2, 28
+  size: 421, 534
+  orig: 421, 534
+  offset: 0, 0
+  index: -1
+dpsHQ_0006s_0000_Layer-2
+  rotate: false
+  xy: 638, 402
+  size: 324, 614
+  orig: 324, 614
+  offset: 0, 0
+  index: -1
+hair2
+  rotate: false
+  xy: 425, 53
+  size: 163, 509
+  orig: 163, 509
+  offset: 0, 0
+  index: -1
+rBackarmFront
+  rotate: false
+  xy: 909, 284
+  size: 107, 116
+  orig: 107, 116
+  offset: 0, 0
+  index: -1
+
+skeleton4.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bodyFront
+  rotate: true
+  xy: 747, 688
+  size: 137, 142
+  orig: 137, 142
+  offset: 0, 0
+  index: -1
+dpsHQ_0002s_0002_Layer-8
+  rotate: true
+  xy: 221, 141
+  size: 280, 367
+  orig: 280, 367
+  offset: 0, 0
+  index: -1
+dpsHQ_0003s_0000_Layer-21
+  rotate: false
+  xy: 747, 827
+  size: 170, 131
+  orig: 170, 131
+  offset: 0, 0
+  index: -1
+dpsHQ_0003s_0001_Layer-10
+  rotate: false
+  xy: 2, 138
+  size: 217, 583
+  orig: 217, 583
+  offset: 0, 0
+  index: -1
+dpsHQ_0004s_0000_Layer-17
+  rotate: false
+  xy: 2, 2
+  size: 162, 134
+  orig: 162, 134
+  offset: 0, 0
+  index: -1
+hood
+  rotate: false
+  xy: 221, 423
+  size: 385, 298
+  orig: 385, 298
+  offset: 0, 0
+  index: -1
+sideslash0
+  rotate: false
+  xy: 2, 723
+  size: 743, 97
+  orig: 743, 97
+  offset: 0, 0
+  index: -1
+sideslashClaw
+  rotate: false
+  xy: 2, 822
+  size: 743, 136
+  orig: 743, 136
+  offset: 0, 0
+  index: -1
+throw
+  rotate: true
+  xy: 608, 177
+  size: 544, 119
+  orig: 544, 119
+  offset: 0, 0
+  index: -1

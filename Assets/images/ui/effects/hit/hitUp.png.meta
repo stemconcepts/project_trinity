@@ -1,0 +1,102 @@
+fileFormatVersion: 2
+guid: cd8cd3325d67e45e6889f8a0952e521f
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: hitUp_0001_Frame-4
+    21300002: hitUp_0002_Frame-3
+    21300004: hitUp_0003_Frame-2
+    21300006: hitUp_0004_Frame-1
+    21300008: hitUp_0005_Frame-0
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 1024
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: -1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: hitUp_0001_Frame-4
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 347
+        width: 244
+        height: 164
+      alignment: 9
+      pivot: {x: .385245889, y: .329268306}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: hitUp_0002_Frame-3
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 118
+        width: 227
+        height: 227
+      alignment: 9
+      pivot: {x: .50660795, y: .374449342}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: hitUp_0003_Frame-2
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 166
+        width: 161
+        height: 179
+      alignment: 9
+      pivot: {x: .645962715, y: .391061455}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: hitUp_0004_Frame-1
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 382
+        width: 97
+        height: 129
+      alignment: 9
+      pivot: {x: .958762884, y: .4108527}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: hitUp_0005_Frame-0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 435
+        width: 90
+        height: 76
+      alignment: 9
+      pivot: {x: .955555558, y: .447368413}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 

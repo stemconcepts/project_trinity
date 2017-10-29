@@ -1,0 +1,18 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# $TexturePacker:SmartUpdate:c517dd8bf8cba4b5792db53f3d1ff29f:d9db12177c4903bf64056661f6429a03:dbd7db1939de77d142c82920fa298f44$
+#
+:format=40000
+:texture=hitUp.png
+:size=512x512
+:pivotpoints=enabled
+
+hitUp_0001_Frame-4;192;347;244;164;0.38524590163934425;0.3292682926829268
+hitUp_0002_Frame-3;164;118;227;227;0.5066079295154186;0.3744493392070485
+hitUp_0003_Frame-2;1;166;161;179;0.6459627329192547;0.3910614525139665
+hitUp_0004_Frame-1;93;382;97;129;0.9587628865979382;0.4108527131782945
+hitUp_0005_Frame-0;1;435;90;76;0.9555555555555556;0.4473684210526315
