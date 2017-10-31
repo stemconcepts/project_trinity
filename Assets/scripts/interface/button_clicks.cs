@@ -17,7 +17,7 @@ public class button_clicks : MonoBehaviour {
 	private Task overlapUITimer;
 	private soundController soundContScript;
 	public AudioClip audioClip;
-    private string swapToChar = "guardian";
+  //  public string selectedChar = "tank";
     classState guardian; 
     classState walker; 
     classState stalker;    
@@ -142,17 +142,19 @@ bool isAlive( string charObj ){
         public string Name; //{ get; set; } 
         public bool Alive; //{ get; set; } 
         public bool Selected;
-        public classState( string name, bool alive, bool selected ){
+        public bool LastSelected;
+        public classState( string name, bool alive, bool selected, bool lastSelected ){
             Name = name;
             Alive = alive;
             Selected = selected;
+            LastSelected = lastSelected;
         } 
     }
 
 //Get a character that is alive and not selected and return it
 string GetAlive( classState[] charClass ){
     for( int i=0; i < charClass.Length ; i++ ){
-        if( charClass[i].Alive && !charClass[i].Selected ){
+        if( charClass[i].Alive && !charClass[i].Selected && !charClass[i].LastSelected ){
             return charClass[i].Name;
         }
     }
@@ -174,21 +176,24 @@ void CharSwap(){
         
         switch( swapTo ){
             case "guardian":
-            characterSelectScript.tankSelected = guardian.Selected = true;
+            characterSelectScript.tankSelected = guardian.Selected = walker.LastSelected = true;
             characterSelectScript.dpsSelected = stalker.Selected = false;
-            characterSelectScript.healerSelected = walker.Selected = false;
-            DisplaySkillsSecond();
-            break;
-            case "stalker":
-            characterSelectScript.healerSelected = walker.Selected = true;
-            characterSelectScript.tankSelected = guardian.Selected = false;
-            characterSelectScript.dpsSelected = stalker.Selected = false;
+            characterSelectScript.healerSelected = walker.Selected = stalker.LastSelected = false;
+            //selectedChar = "tank";
             DisplaySkillsSecond();
             break;
             case "walker":
-            characterSelectScript.dpsSelected = stalker.Selected = true;
+            characterSelectScript.healerSelected = walker.Selected = stalker.LastSelected = true;
             characterSelectScript.tankSelected = guardian.Selected = false;
+            characterSelectScript.dpsSelected = stalker.Selected = guardian.LastSelected = false;
+           // selectedChar = "healer";
+            DisplaySkillsSecond();
+            break;
+            case "stalker":
+            characterSelectScript.dpsSelected = stalker.Selected = guardian.LastSelected = true;
+            characterSelectScript.tankSelected = guardian.Selected = walker.LastSelected = false;
             characterSelectScript.healerSelected = walker.Selected = false;
+            //selectedChar = "dps";
             DisplaySkillsSecond();
             break;
         }
@@ -197,9 +202,9 @@ void CharSwap(){
 }
 	
 	void Start(){
-         guardian = new classState( "guardian", characterScript.isAlive, characterSelectScript.tankSelected );
-         stalker = new classState( "stalker", characterScript.isAlive, characterSelectScript.dpsSelected );
-         walker = new classState( "walker", characterScript.isAlive, characterSelectScript.healerSelected );
+         guardian = new classState( "guardian", characterScript.isAlive, characterSelectScript.tankSelected, false );
+         stalker = new classState( "stalker", characterScript.isAlive, characterSelectScript.dpsSelected, false );
+         walker = new classState( "walker", characterScript.isAlive, characterSelectScript.healerSelected, true );
 		 DisplaySkillsSecond();
 	}
 
@@ -221,7 +226,7 @@ void CharSwap(){
 	// Update is called once per frame
 	void Update () {
 		//recieve Tab press
-		if( Input.GetKeyUp( KeyCode.Tab ) && !skillCdScript.skillActive  ){
+        if( Input.GetKeyUp( KeyCode.Tab ) && !skillCdScript.skillActive && gameObject.name == "Guardian" ){
 			CharSwap();
 		}
 

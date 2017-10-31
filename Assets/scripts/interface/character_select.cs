@@ -2,8 +2,8 @@
 using System.Collections;
 
 public class character_select : MonoBehaviour {
-	public bool tankSelected = false;
-	public bool healerSelected = true;
+	public bool tankSelected = true;
+	public bool healerSelected = false;
 	public bool dpsSelected = false;      
 
 	//returns what character is selected as a ?
