@@ -67,7 +67,7 @@ public class class_skillSelection : MonoBehaviour {
 
 	//Run skill On Key Press 4
 	void KeyPressSkill( string role ){
-		/*skillLoaderScript.PrepSkill(role, 0, true );*/
+        skillLoaderScript.PrepSkillNew( sortButtonsScript.GetClassSkill(role), false );
 	}
 
 	void Awake(){

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class button_clicks : MonoBehaviour {
@@ -84,7 +85,7 @@ void OnMouseUp(){
 }
 
 void OnMouseEnter(){
-	if( selectionOverlapScript.overlappedObj != null && !GameObject.Find("CharSelectUI(Clone)") && GetClassRole() != "Boss" ){
+    if( Input.GetKeyDown( KeyCode.LeftShift ) && selectionOverlapScript.overlappedObj != null && !GameObject.Find("CharSelectUI(Clone)") && GetClassRole() != "Boss" ){
 		var partnerRowOccupied = GetComponent<movement_script>().IsParnetRowOccupied( selectionOverlapScript.overlappedObj );
 		if( partnerRowOccupied ){
 			//GameObject.Find("Panel-CharOverlapUI").SetActive(true);
@@ -101,13 +102,17 @@ void OnMouseEnter(){
 		if( overlapUITimer != null && overlapUITimer.Running ){
 			overlapUITimer.Stop();
 		}
-	}
+    } else {
+        characterScript.currentPanel.GetComponent<Image>().color = new Color( 1f, 0.3f, 0.3f, 1f );
+    }
 }
 
 void OnMouseExit(){
 	if( GameObject.Find("CharSelectUI(Clone)") && GetClassRole() != "Boss" ){
 		overlapUITimer = new Task( overlapTimer( 5f ) );
-	}
+    } else {
+        characterScript.currentPanel.GetComponent<Image>().color = characterScript.currentPanel.GetComponent<movementPanelController>().panelColor;
+    }
 }
 
 IEnumerator overlapTimer( float waitTime ){

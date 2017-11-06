@@ -256,8 +256,14 @@ public class skill_selection : MonoBehaviour {
 
 	//Run skill On Key Press 1,2,3
 	void KeyPressSkill( string role, int keyNumber ){
-		/*PrepSkill(role, keyNumber );*/
-	}
+        if( role == "Healer" ){
+            PrepSkillNew( sortButtonsScript.healerSkillClass[keyNumber] );
+        } else if ( role == "Tank" ){
+		    PrepSkillNew( sortButtonsScript.tankSkillClass[keyNumber] );
+	    } else if ( role == "Dps" ){
+            PrepSkillNew( sortButtonsScript.dpsSkillClass[keyNumber] );
+        }
+    }
 
 	//Check if character is ready to perform Skill
 	bool IsCharBusy( GameObject character ){
