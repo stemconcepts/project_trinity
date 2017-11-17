@@ -108,10 +108,17 @@ void OnMouseEnter(){
 }
 
 void OnMouseExit(){
+    var currentPanel = characterScript.currentPanel;
 	if( GameObject.Find("CharSelectUI(Clone)") && GetClassRole() != "Boss" ){
 		overlapUITimer = new Task( overlapTimer( 5f ) );
     } else {
-        characterScript.currentPanel.GetComponent<Image>().color = characterScript.currentPanel.GetComponent<movementPanelController>().panelColor;
+        if ( currentPanel.GetComponent<movementPanelController>().isVoidZone ){
+            currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<movementPanelController>().voidZoneColor;
+        } else if ( currentPanel.GetComponent<movementPanelController>().isVoidCounter ){
+            currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<movementPanelController>().counterZoneColor;
+        } else {
+            currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<movementPanelController>().panelColor;
+        }
     }
 }
 

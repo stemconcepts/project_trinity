@@ -11,6 +11,8 @@ public class movementPanelController : MonoBehaviour {
 	public bool isVoidCounter;
 	public bool isThreatPanel;
 	public Color panelColor;
+    public Color voidZoneColor;
+    public Color counterZoneColor;
 	public GameObject currentOccupier;
 	public bool friendlyPanel;
 	private bool dragging = false;
@@ -79,7 +81,8 @@ public class movementPanelController : MonoBehaviour {
 
 	public void VoidZoneMark(){
 		//if( type == "All" ){
-			imageScript.color = new Color(0.9f, 0.1f, 0.1f, 0.8f);
+		//	imageScript.color = new Color(0.9f, 0.1f, 0.1f, 0.8f);
+            imageScript.color = voidZoneColor;
 			//print ("Void Zone Mark");
 			isVoidZone = true;
 			if( isOccupied ){
@@ -106,7 +109,8 @@ public class movementPanelController : MonoBehaviour {
 	}
 
 	public void SafePanel(){
-		imageScript.color = new Color(0.1f,0.9f,0.1f,0.8f);
+	//	imageScript.color = new Color(0.1f,0.9f,0.1f,0.8f);
+        imageScript.color = counterZoneColor;
 		isVoidZone = false;
 		isVoidCounter = true;
 		if( isOccupied && currentOccupier.GetComponent<character_data>().role == "tank" ){
