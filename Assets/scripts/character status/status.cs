@@ -73,10 +73,9 @@ public class status : MonoBehaviour {
 			//statuscount += 1;
 			//buffposition += 1;
 			//check if the status is a buff or debuff
-			if ( singleStatus.buff && singleStatus.name != "haste" ){
+			if ( singleStatus.buff && singleStatus.attributeName != "ATKspd" ){
 				newStat = currentStat + buffedStat;
-			} else if ( singleStatus.buff && singleStatus.name == "haste" ) {
-				print("haste");
+			} else if ( singleStatus.buff && singleStatus.attributeName == "ATKspd" ) {
 				newStat = currentStat - buffedStat;
 			} else {
 				newStat = currentStat - buffedStat;
