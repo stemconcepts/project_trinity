@@ -250,7 +250,6 @@ public class status : MonoBehaviour {
             if( animName == "toDeath" ){
 			    //set InAnimation to true... to stop "hit" event cancelling the status animation
                 SkeletonAnimation targetAnimData = transform.Find("Animations").GetComponent<SkeletonAnimation>();
-			    animationControl animControl = this.transform.Find("Animations").GetComponent<animationControl>();
                 targetAnimData.state.SetAnimation( 0, "toDeath", false);
 			    //anim Control.inAnimation = true;
             } else {
@@ -265,7 +264,6 @@ public class status : MonoBehaviour {
 			SkeletonAnimation skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
 			skeletonAnimation.state.SetAnimation(0, "stunToIdle", true );
 			//set InAnimation to true... to stop "hit" event cancelling the status animation
-			animationControl animControl = this.transform.Find("Animations").GetComponent<animationControl>();
 			calculateDMGScript.hitAnimation = "";		
 			calculateDMGScript.animationHold = addStatus;
 			//set animation back to idle after recovery animation is complete

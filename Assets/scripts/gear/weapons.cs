@@ -27,6 +27,6 @@ public class weapons : ScriptableObject {
 	};
 	public weaponType type;
 	//public classSkills skillOne;
-	public classSkills skillTwo;
+    public classSkills skillTwo;
 	public classSkills skillThree;
 }
