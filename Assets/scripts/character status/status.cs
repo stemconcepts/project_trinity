@@ -304,7 +304,6 @@ public class status : MonoBehaviour {
 					var statusLabelScript = statusPanel.GetChild(x).GetComponent<statussinglelabel>();
 					if( statusLabelScript.singleStatus == status ){
 						return true;
-						break;
 					} 
 				}
 			}

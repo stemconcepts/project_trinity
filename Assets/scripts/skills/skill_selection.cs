@@ -57,7 +57,7 @@ public class skill_selection : MonoBehaviour {
 
 	#region PrepSkill functions
 	private List<GameObject> finalTargets = new List<GameObject>();
-    private new List<GameObject> GetTargets( classSkills classSkill, bool randomTarget = false, bool weaponSkill = true ){
+    private void GetTargets( classSkills classSkill, bool randomTarget = false, bool weaponSkill = true ){
 		var player = GameObject.Find( classSkill.Class.ToString() );
 		GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 		GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -68,28 +68,32 @@ public class skill_selection : MonoBehaviour {
 			skill_targetting.instance.currentTarget = null;
 			print ("select a Target");
 			if ( player.GetComponent<status>().DoesStatusExist("stun") ){
-				SkillCancel();
-				return null;
+                SkillActiveSet( classSkill, false );
+				return;
 			} else {
-				waitForTargetTaskNew = new Task( waitForTargetNew(0.2f, classSkill, weaponSkill) );
-				return finalTargets;
+				waitForTargetTaskNew = new Task( waitForTargetNew( classSkill, player, weaponSkill ) );
+                return;
 			}
 		} else {
-			return finalTargets;
+			SkillComplete( classSkill, finalTargets, weaponSkill );
+            return;
 		}
 	}
-    IEnumerator waitForTargetNew( float waitTime, classSkills classSkill, bool weaponSkill = true )
+    IEnumerator waitForTargetNew( classSkills classSkill, GameObject player, bool weaponSkill = true )
 	{
 		waitingForSelection = true;
 		gameEffectsScript.SlowMo(0.01f);
 		while( skill_targetting.instance.currentTarget == null ) {
+            if( player.GetComponent<status>().DoesStatusExist("stun") ){
+                SkillActiveSet( classSkill, false );
+            }
 			yield return 0;
-		}
+        } 
 		finalTargets.Add( skill_targetting.instance.currentTarget );
 		skill_targetting.instance.currentTarget = null;
-		PrepSkillNew( classSkill, weaponSkill );
+		//PrepSkillNew( classSkill, weaponSkill );
 		Time.timeScale = 1f;
-		//yield break;
+        SkillComplete( classSkill, finalTargets, weaponSkill );
 	}
 
 	private void SetAnimations( classSkills classSkill ){
@@ -161,45 +165,59 @@ public class skill_selection : MonoBehaviour {
 
 	private void SkillActiveSet( classSkills classSkill, bool setActive ){
 		skillCdScript.skillActive = setActive;
-		if (setActive){ classSkill.skillActive = setActive; }
+		if ( setActive ){ 
+            classSkill.skillActive = setActive; 
+        }
+        if( waitForTargetTaskNew != null ){
+            waitForTargetTaskNew.Stop();
+            Time.timeScale = 1f;
+        } 
 		classSkill.skillConfirm = setActive;
 		skillinprogress = setActive;
-		if (!setActive){ targets.Clear(); }
+		if (!setActive){ finalTargets.Clear(); }
 	}
+
+    //function to cancel skill
+    public void SkillCancel(){
+        if( waitForTargetTaskNew != null ){
+            waitForTargetTaskNew.Stop();
+            Time.timeScale = 1f;
+        } 
+        skillCdScript.skillActive = false;
+        skillinprogress = false;
+    }
+
 	#endregion
 
 	bool waitingForSelection = false;
 	float power; //Set Power
-	List<GameObject> targets = new List<GameObject>();
+	//List<GameObject> targets = new List<GameObject>();
 	public void PrepSkillNew( classSkills classSkill, bool weaponSkill = true ){
-		if( CheckSkillAvail( classSkill ) || waitingForSelection ){
+		if( CheckSkillAvail( classSkill ) ){
 			if( !waitingForSelection ){
 				SkillActiveSet( classSkill, true ); //Set that skill has being used or waiting to be used
-				targets = GetTargets(classSkill, weaponSkill:weaponSkill);
-				//if ( targets == null ){ return; } //Stop function if There are no targets
-			}
-			if( targets.Count == 0 || targets == null ){
-				return;
-			} else {
-				waitingForSelection = false;
-				if( classSkill.isFlat ){ //Set Power to spell or skill type
-					power = classSkill.isSpell ? classSkill.magicPower : classSkill.skillPower;
-				} else {
-					power = classSkill.isSpell ? classSkill.newMP : classSkill.newSP;
-				}
-				Data data = new Data(); 
-				data.target = targets;
-				data.classSkill = classSkill;
-				if( classSkill.ExtraEffect.ToString() != "None" ){ classSkill.RunExtraEffect(data); };//Run Extra Effects if there are any
-				DealHealDmg( classSkill, targets, power * data.modifier ); //Deal or Heal Damage to Targets, Also adds Status Effects
-				SetAnimations( classSkill ); //Play Animations
-				SkillActiveSet( classSkill, false ); //Set that skill is ready to be used again
-				StartCoroutine(cooldown( classSkill.skillCooldown, classSkill ));
-				CoolDownTask = new Task( cooldownTimer( classSkill.skillCooldown, classSkill, classSkill.Class.ToString(), weaponSkill ) );
+				GetTargets(classSkill, weaponSkill:weaponSkill);
 			}
 		}
 	}
 
+    public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true ){
+                waitingForSelection = false;
+                if( classSkill.isFlat ){ //Set Power to spell or skill type
+                    power = classSkill.isSpell ? classSkill.magicPower : classSkill.skillPower;
+                } else {
+                    power = classSkill.isSpell ? classSkill.newMP : classSkill.newSP;
+                }
+                Data data = new Data(); 
+                data.target = targets;
+                data.classSkill = classSkill;
+                if( classSkill.ExtraEffect.ToString() != "None" ){ classSkill.RunExtraEffect(data); };//Run Extra Effects if there are any
+                DealHealDmg( classSkill, targets, power * data.modifier ); //Deal or Heal Damage to Targets, Also adds Status Effects
+                SetAnimations( classSkill ); //Play Animations
+                SkillActiveSet( classSkill, false ); //Set that skill is ready to be used again
+                StartCoroutine(cooldown( classSkill.skillCooldown, classSkill ));
+                CoolDownTask = new Task( cooldownTimer( classSkill.skillCooldown, classSkill, classSkill.Class.ToString(), weaponSkill ) );
+    }
 
 	IEnumerator busyAnimation(float waitTime, GameObject player)
 	{
@@ -215,43 +233,6 @@ public class skill_selection : MonoBehaviour {
 	{
 		yield return new WaitForSeconds(waitTime);
 		skill.skillActive = false;
-	}
-	
-	/*
-	IEnumerator waitForTarget(float waitTime, string charClass, int skillNumber, GameObject currentTarget, bool classSkill = false )
-	{
-		gameEffectsScript.SlowMo(0.1f);
-		var tankPlayer = GameObject.FindGameObjectWithTag("Tank");
-		var healPlayer = GameObject.FindGameObjectWithTag("Healer");
-		var dpsPlayer = GameObject.FindGameObjectWithTag("Dps");
-		while( currentTarget == null || currentTarget == tankPlayer || currentTarget == healPlayer || currentTarget == dpsPlayer ) {
-			currentTarget = skill_targetting.instance.currentTarget;
-			yield return 0;
-		}
-		Time.timeScale = 1f;
-		PrepSkill(charClass, skillNumber, classSkill);
-	}
-
-	IEnumerator waitForFriendlyTarget(float waitTime, string charClass, int skillNumber, GameObject currentTarget, bool classSkill = false )
-	{
-		gameEffectsScript.SlowMo(0.01f);
-		var enemy = GameObject.FindGameObjectWithTag("Enemy");
-		while( currentTarget == null || currentTarget == enemy ) {
-			currentTarget = skill_targetting.instance.currentTarget;
-			yield return 0;
-		}
-		Time.timeScale = 1f;
-		PrepSkill(charClass, skillNumber, classSkill);
-	}*/
-
-	//function to cancel skill
-	public void SkillCancel(){
-		if( waitForTargetTaskNew != null ){
-			waitForTargetTaskNew.Stop();
-			Time.timeScale = 1f;
-		} 
-		skillCdScript.skillActive = false;
-		skillinprogress = false;
 	}
 
 	//Run skill On Key Press 1,2,3

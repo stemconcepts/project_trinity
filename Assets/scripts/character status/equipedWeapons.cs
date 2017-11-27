@@ -34,7 +34,7 @@ public class equipedWeapons : MonoBehaviour {
 			print ("no Secondary weapons" + gameObject);
 		}
 		if( classSkill != null ){
-			skillEffectScript.classskill = classSkill;
+			skillEffectScript.classskill = Object.Instantiate( classSkill ) as classSkills;
 		}
 	}
 
