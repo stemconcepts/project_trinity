@@ -85,7 +85,7 @@ public class class_skillSelection : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		CanAffordSkill();
+		//CanAffordSkill();
 		if( Input.GetKeyDown( KeyCode.Alpha3 ) && !IsCharBusy( GameObject.Find( selectedRole.GetClassRole() ) ) ){
 			KeyPressSkill( selectedRole.GetClassRoleCaps() );
 		}

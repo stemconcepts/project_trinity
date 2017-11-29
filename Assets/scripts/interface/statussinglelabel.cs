@@ -38,7 +38,7 @@ public class statussinglelabel : MonoBehaviour {
 			var statusDesc = liveStatusHoverObj.transform.Find("statusDesc").GetComponent<Text>();
 			liveStatusHoverObj.transform.SetParent( GameObject.Find("Canvas - UI").transform );
 			liveStatusHoverObj.transform.localScale = new Vector3(1f,1f,1f);
-			statusName.text = singleStatus.displayName;
+			statusName.text = "<b>" + singleStatus.displayName + " <i>" + singleStatus.selectedStatusClass.ToString() + "</i></b>";
 			statusDesc.text = singleStatus.statusDesc;
 	}
 	public void OnMouseExit(){

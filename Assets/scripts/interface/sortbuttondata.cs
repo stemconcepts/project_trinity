@@ -63,10 +63,10 @@ public class sortbuttondata : MonoBehaviour {
 			List<classSkills> activeSkills;
 			if( tankSkillData.weaponSlot.ToString() == "Main" ){
 				activeSkills = tankSkillData.skilllistMain;
-				print("main skills set");
+			//	print("main skills set");
 			} else {
 				activeSkills = tankSkillData.skilllistAlt;
-				print("alt skills set");
+				//print("alt skills set");
 			}
 					tankSkillNames.Add( activeSkills[i].displayName );
 					tankSkillIcons.Add( activeSkills[i].skillIcon );

@@ -8,7 +8,6 @@ public class status : MonoBehaviour {
 	public GameObject globalObject;
 	private character_data characterScript;
 	private calculateDmg calculateDMGScript;
-	private SpriteRenderer statusIndicator;
 	private button_clicks buttonClickScript;
 	private spawnUI spawnUIscript;
 	private skill_effects skillEffectsScript;
@@ -315,11 +314,9 @@ public class status : MonoBehaviour {
 	public singleStatus GetStatus( string statusName ){
 		Type statusData = Type.GetType("status");
 		var statusList = (List<singleStatus>)statusData.GetField("statusListSO").GetValue( this );
-		singleStatus status;
 		for( int i = 0; i < statusList.Count; i++ ){			
 			if( statusList[i].name == statusName  ){
 				return statusList[i];
-				break;
 			}	
 		}
 		return null;
@@ -345,7 +342,6 @@ public class status : MonoBehaviour {
 					var statusLabelScript = statusPanel.GetChild(x).GetComponent<statussinglelabel>();
 					if( statusLabelScript.singleStatus == status ){
 						return statusLabelScript;
-						break;
 					} 
 				}
 			}
@@ -355,7 +351,7 @@ public class status : MonoBehaviour {
 
 	public List<statussinglelabel> GetAllStatusIfExist( bool buff ){
 		currentStatusList.Clear();
-		Type statusData = Type.GetType("status");
+		//Type statusData = Type.GetType("status");
 		//var statusList = (List<singleStatus>)statusData.GetField("statusListSO").GetValue( this );
 		var statusHolderObject = GameObject.Find( buttonClickScript.GetClassRole() + "status" );
 		Transform statusPanel;
@@ -411,7 +407,7 @@ public class status : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         globalObject = GameObject.Find("Main Camera");
-		statusIndicator = GetComponent<SpriteRenderer>();
+		//statusIndicator = GetComponent<SpriteRenderer>();
 		characterScript = GetComponent<character_data>();
 		spawnUIscript = GetComponent<spawnUI>();
 		calculateDMGScript = GetComponent<calculateDmg>();

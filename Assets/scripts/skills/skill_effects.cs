@@ -41,12 +41,12 @@ public class skill_effects : MonoBehaviour {
 		{
 			//Reset Skill use - Main weapon
 			skilllistMain[i].skillActive = false;
-			skilllistMain[i].skillConfirm = false;
+			//skilllistMain[i].skillConfirm = false;
 			skilllistMain[i].currentCDAmount = 0;
 
 			//Reset Skill use - Alt weapon
 			skilllistAlt[i].skillActive = false;
-			skilllistAlt[i].skillConfirm = false;
+			//skilllistAlt[i].skillConfirm = false;
 			skilllistAlt[i].currentCDAmount = 0;
 
 			//Reset calculated Power
@@ -58,7 +58,7 @@ public class skill_effects : MonoBehaviour {
 
 		//Reset Skill use - class skill
 		classskill.skillActive = false;
-		classskill.skillConfirm = false;
+		//classskill.skillConfirm = false;
 		classskill.currentCDAmount = 0;
 		//Reset calculated Power
 		classskill.newSP = 0;

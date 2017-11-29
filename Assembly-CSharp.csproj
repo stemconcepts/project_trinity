@@ -92,6 +92,7 @@
      <Compile Include="Assets\scripts\character status\status\singleStatus.cs" />
      <Compile Include="Assets\scripts\character status\status\statusDataControl.cs" />
      <Compile Include="Assets\scripts\character status\status\statusHolder.cs" />
+     <Compile Include="Assets\scripts\character status\status\subStatus\subStatus.cs" />
      <Compile Include="Assets\scripts\counter events\counterEvents.cs" />
      <Compile Include="Assets\scripts\effects controller\effectsController.cs" />
      <Compile Include="Assets\scripts\effects controller\globalEffectsController.cs" />

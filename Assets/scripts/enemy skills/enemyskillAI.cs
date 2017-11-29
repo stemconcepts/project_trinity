@@ -88,7 +88,7 @@ public class enemyskillAI : MonoBehaviour {
 			//}
 		}
 		else {
-										print("skill reset");
+			//print("skill reset");
 			StartCoroutine( skillReset( 5f )); 
 		}
 	}

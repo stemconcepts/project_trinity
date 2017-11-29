@@ -62,6 +62,12 @@ public class classSkills : ScriptableObject {
 		Dispel,
 		BonusDamage
 	}
+    public BonusDmgReqEnum BnsDmgReq;
+    public enum BonusDmgReqEnum{
+        None,
+        Afflicted,
+        Weakened
+    }
 
 	//public UnityEvent extraEffectMethods;
 	//public GameObject extraSkillObject;

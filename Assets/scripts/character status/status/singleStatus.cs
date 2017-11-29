@@ -15,6 +15,12 @@ public class singleStatus : ScriptableObject {
 	public bool active;
 	public string hitAnim;
 	public string holdAnim;
+    public statusSubClass selectedStatusClass;
+    public enum statusSubClass {
+        Normal,
+        Weakened,
+        Afflicted
+    } 
 	public statusFunction selectedStatusFunction;
 	public enum statusFunction {
 		AttributeChange,

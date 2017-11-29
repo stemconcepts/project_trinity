@@ -22,12 +22,12 @@ public class gearSwapping : MonoBehaviour {
 				var currentWeaponData = allRoles[i].GetComponent<equipedWeapons>();
 				if( currentWSlot.weaponSlot == skill_effects.weaponSlotEnum.Main ){
 					currentWSlot.weaponSlot = skill_effects.weaponSlotEnum.Alt;
-					print( currentWeaponData.secondaryWeapon.type.ToString() );
+					//print( currentWeaponData.secondaryWeapon.type.ToString() );
 					currentWeaponData.currentWeaponEnum = equipedWeapons.currentWeapon.Secondary;
 					//CheckGearType();
 				} else {
 					currentWSlot.weaponSlot = skill_effects.weaponSlotEnum.Main;
-					print( currentWeaponData.primaryWeapon.type.ToString() );
+					//print( currentWeaponData.primaryWeapon.type.ToString() );
 					currentWeaponData.currentWeaponEnum = equipedWeapons.currentWeapon.Primary;
 					//CheckGearType();
 				}
