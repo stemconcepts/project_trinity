@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class classSkills : ScriptableObject {
+public class subStatus : ScriptableObject {
     public string subStatusLabel;
     public float modifierAmount;
-    
 }

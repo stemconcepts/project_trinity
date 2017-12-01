@@ -27,6 +27,7 @@ public class status : MonoBehaviour {
 	//Status with scriptableObjects
 	public List<singleStatus> statusListSO = new List<singleStatus>();
 	public List<statussinglelabel> currentStatusList;
+    public List<subStatus> currentSubStatusList;
 
 	public void OnHit( singleStatus singleStatus, classSkills onHitSkill, float duration = 0, bool dispellable = true, bool turnOff = false ){
 		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
@@ -372,7 +373,6 @@ public class status : MonoBehaviour {
 		//}
 		return currentStatusList;
 	}	
-
 
 	//--------------------------------------Event Status Effects Start ----------------------------------------------//
 

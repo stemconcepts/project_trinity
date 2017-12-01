@@ -62,12 +62,7 @@ public class classSkills : ScriptableObject {
 		Dispel,
 		BonusDamage
 	}
-    public BonusDmgReqEnum BnsDmgReq;
-    public enum BonusDmgReqEnum{
-        None,
-        Afflicted,
-        Weakened
-    }
+    public subStatus subStatus;
 
 	//public UnityEvent extraEffectMethods;
 	//public GameObject extraSkillObject;
@@ -87,9 +82,10 @@ public class classSkills : ScriptableObject {
 	public List<singleStatus> singleStatusGroupFriendly = new List<singleStatus>();
 	public bool statusFriendlyDispellable = true;
 		//attach status to target
-	public void AttachStatus( List<singleStatus> singleStatusGroup, status targetStatus, float power, float duration ){
+	public void AttachStatus( List<singleStatus> singleStatusGroup, status targetStatus, float power, classSkills classSkill ){
         for( int i = 0; i < singleStatusGroup.Count; i++ ){
-			targetStatus.RunStatusFunction( singleStatusGroup[i], power, duration );
+          //  singleStatusGroup[i].subStatus = classSkill.subStatus != null ? classSkill.subStatus : null;
+			targetStatus.RunStatusFunction( singleStatusGroup[i], power, classSkill.duration );
 		}
 	}
 	public enemySkill onhitSkilltoRun;
@@ -132,19 +128,22 @@ public class classSkills : ScriptableObject {
 		}
 	}
 
-	//Does extra damage based on status effect
+	//Does extra damage based on status effect      
 	public void BonusDamage( Data data ){ 
 		data.modifier = 1f;
 		List<GameObject> targets = data.target;
 		foreach (var target in targets) {
-			//target = skill_targetting.instance.currentTarget;
 			var targetStatus = target.GetComponent<status>();
-			//var multiplier;
-			//checks if poison is on the target
-			if( targetStatus.DoesStatusExist("poison") ){
+            var statusList = targetStatus.GetAllStatusIfExist( false );
+            foreach( var status in statusList ){
+                if ( status.singleStatus.subStatus == data.classSkill.subStatus ){
+                    data.modifier = data.classSkill.subStatus.modifierAmount;
+                }
+            }
+            /*if( targetStatus.DoesStatusExist("poison")){
 				data.modifier = 1.8f;
 				//targetStatus.PoisonOn( 4, true, 0 );
-			}
+			}*/
 		}
 		//return multiplier;
 	}

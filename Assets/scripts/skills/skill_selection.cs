@@ -175,14 +175,14 @@ public class skill_selection : MonoBehaviour {
 				}
 				targetData.incomingDmg = power;
 				if( classSkill.doesDamage ){ calculateDmgScript.calculatedamage( classSkill.skillName , dmgSourceObj.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar: dmgSourceObj ); };
-				classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<status>(), power, classSkill.duration );
+				classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<status>(), power, classSkill );
             } else if( target.tag == "Player" && targetData.isAlive ){ 
 				foreach (var status in classSkill.singleStatusGroupFriendly) {
 					status.debuffable = classSkill.statusFriendlyDispellable;
 				}
 				targetData.incomingHeal = power;
 				if( classSkill.healsDamage ){ calculateDmgScript.calculateHdamage(); };
-				classSkill.AttachStatus( classSkill.singleStatusGroupFriendly, target.GetComponent<status>(), power, classSkill.duration );
+				classSkill.AttachStatus( classSkill.singleStatusGroupFriendly, target.GetComponent<status>(), power, classSkill );
 			}
 		}
 		dmgSourceObj.GetComponent<character_data>().actionPoints -= classSkill.skillCost;
