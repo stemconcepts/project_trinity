@@ -18,6 +18,7 @@ public class status : MonoBehaviour {
 	//Duration
 	//private float buffDuration = 30f;
 	public Task tickTimer;
+    public Task durationTimer;
 	//public float buffedPdef;
 	//public float buffedPAtk;
 	[Header("Immunity List:")]
@@ -30,9 +31,9 @@ public class status : MonoBehaviour {
     public List<subStatus> currentSubStatusList;
 
 	public void OnHit( singleStatus singleStatus, classSkills onHitSkill, float duration = 0, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
-			var onHitStatus = GetStatusIfExist( singleStatus.name );
+			var onHitStatus = GetStatusIfExist( singleStatus.statusName );
 			onHitStatus.onHitSkillPlayer = onHitSkill;
 			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
 				ForceStatusOff( singleStatus );
@@ -43,9 +44,9 @@ public class status : MonoBehaviour {
 		}
 	}
 	public void OnHitEnemy( singleStatus singleStatus, enemySkill onHitSkill, float duration = 0, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
-			var onHitStatus = GetStatusIfExist( singleStatus.name );
+			var onHitStatus = GetStatusIfExist( singleStatus.statusName );
 			onHitStatus.onHitSkillEnemy = onHitSkill;
 			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
 				ForceStatusOff( singleStatus );
@@ -61,13 +62,13 @@ public class status : MonoBehaviour {
 		var currentStat = characterScript.GetAttributeValue( singleStatus.attributeName );
 		var originalStat = characterScript.GetAttributeValue( "original" + singleStatus.attributeName );
 		float buffedStat;
-		if( singleStatus.name == "thorns" ){
+		if( singleStatus.statusName == "thorns" ){
 			buffedStat = (power / 20) + originalStat;
 		} else {
 			buffedStat = (power / 100) * originalStat;
 		}
 		float newStat;
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
 			//statuscount += 1;
 			//buffposition += 1;
@@ -97,28 +98,28 @@ public class status : MonoBehaviour {
 
 	//Tumor set Timer then do damage
 	public void Tumor( singleStatus singleStatus, float duration, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
 			//statuscount += 1;
 			//buffposition += 1;
 			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
-				characterScript.incomingMDmg = GetStatusIfExist( singleStatus.name ).buffPower;
-				calculateDMGScript.calculateMdamage( singleStatus.name );
-				//print( "tumor damage" + " " + GetStatusIfExist( singleStatus.name ).buffPower );
+				characterScript.incomingMDmg = GetStatusIfExist( singleStatus.statusName ).buffPower;
+				calculateDMGScript.calculateMdamage( singleStatus.statusName );
+				//print( "tumor damage" + " " + GetStatusIfExist( singleStatus.statusName ).buffPower );
 			} ) );
 		} else 
 		if( turnOff ){
 			ForceStatusOff( singleStatus, ()=> {
-				characterScript.incomingMDmg = GetStatusIfExist( singleStatus.name ).buffPower;
-				calculateDMGScript.calculateMdamage( singleStatus.name );
-				//print( "tumor damage" + " " + GetStatusIfExist( singleStatus.name ).buffPower );
+				characterScript.incomingMDmg = GetStatusIfExist( singleStatus.statusName ).buffPower;
+				calculateDMGScript.calculateMdamage( singleStatus.statusName );
+				//print( "tumor damage" + " " + GetStatusIfExist( singleStatus.statusName ).buffPower );
 			});
 		}
 	}
 
 	//set Immunity
 	public void SetImmunity( singleStatus singleStatus, float duration, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			immunityList.Add( GetStatus( singleStatus.attributeName ) );
 			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
 				ForceStatusOff( singleStatus );
@@ -128,7 +129,7 @@ public class status : MonoBehaviour {
 		if( turnOff ){
 			ForceStatusOff( singleStatus );
 			immunityList.Remove( GetStatus( singleStatus.attributeName ) );
-			if( singleStatus.hitAnim != "" ){
+			if( singleStatus.hitAnim != "" ){ 
 				AddStatusAnimation( false, singleStatus.hitAnim, singleStatus.holdAnim, false );
 			}
 		}
@@ -146,7 +147,7 @@ public class status : MonoBehaviour {
 
 	//Turn Status On and Change stat permanently
 	public void StatusOn( singleStatus singleStatus, float duration, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) && !CheckImmunity( singleStatus.attributeName ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) && !CheckImmunity( singleStatus.attributeName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
 			//statuscount += 1;
 			//buffposition += 1;
@@ -168,7 +169,7 @@ public class status : MonoBehaviour {
 
 	//Add to stat permanently
 	public void AddToStatus( singleStatus singleStatus, float duration, float power = 0, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
+		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
 			//statuscount += 1;
 			//buffposition += 1;
@@ -186,21 +187,23 @@ public class status : MonoBehaviour {
 
 	//Stat changes - use for Ticking Stat changes 
 	public void StatChanges( singleStatus singleStatus, float power, float duration, bool regenOn = true, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.name ) ){ 
-			spawnUIscript.ShowLabel( singleStatus );
-			//set status item in list to active
-			//singleStatus.active = true;
-			//adds 1 to buffposition
-			//statuscount += 1;
-			//buffposition += 1;
-			//set buffposition to list item
-			//singleStatus.statusposition = buffposition;
-			tickTimer = new Task( ChangePoints( singleStatus, power, singleStatus.attributeName, regenOn ));
-			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
-				tickTimer.Stop ();
-			} ) );
-		} else 
-		if( turnOff ){
+		if( !turnOff ){ 
+            statussinglelabel status = GetStatusIfExist( singleStatus.statusName );
+            if( !DoesStatusExist( singleStatus.statusName ) ){
+                spawnUIscript.ShowLabel( singleStatus );
+                tickTimer = new Task( ChangePoints( singleStatus, power, singleStatus.attributeName, regenOn ));
+            } else {
+                if( singleStatus.canStack ){ 
+                    status.stacks = status.stacks < singleStatus.maxStacks ? status.stacks + 1 : status.stacks;
+                }
+                durationTimer.Stop();
+                tickTimer.Stop();
+                tickTimer = new Task( ChangePoints( singleStatus, power * status.stacks, singleStatus.attributeName, regenOn ));
+            }
+            durationTimer = new Task( DurationTimer( duration, singleStatus, ()=> {
+                tickTimer.Stop ();
+            } ) );
+		} else {
 			ForceStatusOff( singleStatus, ()=> {
 				tickTimer.Stop ();
 			});
@@ -215,7 +218,7 @@ public class status : MonoBehaviour {
 				calculateDMGScript.calculateHdamage();
 			} else { 
 				characterScript.incomingDmg = power;
-				calculateDMGScript.calculatedamage( singleStatus.name );
+				calculateDMGScript.calculatedamage( singleStatus.statusName );
 			}
 			yield return new WaitForSeconds(5f);
 		} 
@@ -229,7 +232,7 @@ public class status : MonoBehaviour {
 			statusAction();
 		}
 		//singleStatus.statusposition = 0;
-		spawnUIscript.RemoveLabel( singleStatus.name , true );
+		spawnUIscript.RemoveLabel( singleStatus.statusName , true );
 		if( singleStatus.hitAnim != "" ){
 				AddStatusAnimation( false, singleStatus.hitAnim, singleStatus.holdAnim, false );
 			}
@@ -241,7 +244,7 @@ public class status : MonoBehaviour {
 		if( statusAction != null ){
 			statusAction();
 		}
-        spawnUIscript.RemoveLabel( singleStatus.name, singleStatus.buff );
+        spawnUIscript.RemoveLabel( singleStatus.statusName, singleStatus.buff );
 	}
 
 	public void AddStatusAnimation( bool addStatus, string animName, string holdAnim, bool animHold ){

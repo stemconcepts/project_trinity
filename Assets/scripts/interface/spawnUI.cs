@@ -23,7 +23,10 @@ public class spawnUI : MonoBehaviour {
 	public Transform combatDataPosition;
 	//public List<GameObject> datalist = new List<GameObject>();
 	public GameObject live_dataObject;
+    
+    public void AddStacks(){
 
+    }
 
 	//controls damage/healing/absorb numbers
 	public void ShowDamageNumber( float dmgValue, string dmgValueSource ){

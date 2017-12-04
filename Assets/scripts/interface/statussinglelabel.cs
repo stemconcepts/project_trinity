@@ -12,6 +12,7 @@ public class statussinglelabel : MonoBehaviour {
 	public int positionid;
 	public bool buff;
 	public float buffPower;
+    public int stacks = 1;
 	public classSkills onHitSkillPlayer;
 	public enemySkill onHitSkillEnemy;
 	private GameObject liveStatusHoverObj;

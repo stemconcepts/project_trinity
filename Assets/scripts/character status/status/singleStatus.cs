@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 public class singleStatus : ScriptableObject {
 
-	public string name;
+	public string statusName;
 	public string displayName;
 	public string statusDesc;
 	public Sprite labelIcon;
+    public bool canStack;
+    public int maxStacks = 3;
 	public bool debuffable;
 	public bool buff;
 	public float buffpower;
