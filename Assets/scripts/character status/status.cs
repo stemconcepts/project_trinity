@@ -195,6 +195,7 @@ public class status : MonoBehaviour {
             } else {
                 if( singleStatus.canStack ){ 
                     status.stacks = status.stacks < singleStatus.maxStacks ? status.stacks + 1 : status.stacks;
+                    spawnUIscript.AddStacks( status );
                 }
                 durationTimer.Stop();
                 tickTimer.Stop();

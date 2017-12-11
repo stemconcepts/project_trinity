@@ -24,8 +24,9 @@ public class spawnUI : MonoBehaviour {
 	//public List<GameObject> datalist = new List<GameObject>();
 	public GameObject live_dataObject;
     
-    public void AddStacks(){
-
+    public void AddStacks( statussinglelabel singleStatusLabel ){
+        var stackLabel = singleStatusLabel.gameObject.GetComponentInChildren<Text>();
+        stackLabel.text = singleStatusLabel.stacks < 1 ? "" : singleStatusLabel.stacks.ToString();
     }
 
 	//controls damage/healing/absorb numbers
