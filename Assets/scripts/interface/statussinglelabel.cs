@@ -26,7 +26,7 @@ public class statussinglelabel : MonoBehaviour {
 	public GameObject statusHoverObj;
 
 	public void OnMouseEnter(){
-			Vector3 rayPoint = Camera.current.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 rayPoint = Input.mousePosition != null ? Camera.current.ScreenToWorldPoint(Input.mousePosition) : new Vector3();
 			rayPoint.z = 0f;
 			rayPoint.x += 4f;
 			if( gameObject.transform.parent.gameObject.transform.parent.gameObject != GameObject.Find("Bossstatus") ){

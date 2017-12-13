@@ -115,15 +115,17 @@ public class classSkills : ScriptableObject {
 			var debuffPower = data.enemySkill == null ? data.classSkill.skillPower : data.enemySkill.skillPower;
 
 			//print ("running" + target);
+            var positionId = 0;
 			foreach( statussinglelabel activeStatus in targetStatus.GetAllStatusIfExist( true ) ) {
-				if( activeStatus.positionid <= debuffPower && activeStatus.buff && activeStatus.dispellable ) {
-						targetSpawnUI.RemoveLabel( activeStatus.name, activeStatus.buff );
+				if( positionId < debuffPower && activeStatus.buff && activeStatus.dispellable ) {
+						targetSpawnUI.RemoveLabel( activeStatus.statusname, activeStatus.buff );
 						targetStatus.RunStatusFunction( activeStatus.singleStatus, statusOff:true );
 						//singlestatus.ChosenStatusToTurnOff();
 						//print ("Successfully Debuffed " + singlestatus.name);
-				} else if ( activeStatus.positionid <= (debuffPower + 1) && activeStatus.buff && !activeStatus.dispellable && !activeStatus.singleStatus.active ){
+				} else if ( positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable && !activeStatus.singleStatus.active ){
 						//print ("Failed to Debuff " + singlestatus.name);
 				}
+                positionId++;
 			} 
 		}
 	}
