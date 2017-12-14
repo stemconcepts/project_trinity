@@ -261,6 +261,8 @@ public class enemySkillSelection : MonoBehaviour {
 				SetAnimations( enemySkill );
                 if( enemySkill.ExtraEffect.ToString() != "None" ){ enemySkill.RunExtraEffect(data); };//Run Extra Effects if there are any
 				SkillActiveSet( enemySkill, false ); //Set that skill is ready to be used again
+                StartCoroutine(cooldown( enemySkill.skillCooldown, enemySkill ));
+                CoolDownTask = new Task( cooldown( enemySkill.skillCooldown, enemySkill ) );
 			}
 		}
 	}
