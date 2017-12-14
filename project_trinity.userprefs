@@ -1,12 +1,13 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/skills/skill_selection.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/skills/mainSkills/classSkills.cs">
     <Files>
-      <File FileName="Assets/scripts/skills/skill_selection.cs" Line="236" Column="3" />
-      <File FileName="Assets/scripts/character status/status.cs" Line="242" Column="4" />
-      <File FileName="Assets/scripts/skills/class_skillSelection.cs" Line="19" Column="22" />
-      <File FileName="Assets/scripts/interface/button_clicks.cs" Line="118" Column="117" />
-      <File FileName="Assets/scripts/character status/equipedWeapons.cs" Line="36" Column="28" />
+      <File FileName="Assets/scripts/skills/mainSkills/classSkills.cs" Line="116" Column="1" />
+      <File FileName="Assets/scripts/interface/statussinglelabel.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/skills/skill_selection.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/interface/spawnUI.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/character status/status/singleStatus.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/enemy skills/enemySkill.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -26,3 +26,9 @@
 /Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/UnityEngine.Timeline.dll
 /Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/ExCSS.Unity.dll
 /Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/Unity.Legacy.NRefactory.dll
+/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/UnityEngine.UIAutomation.dll
+/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/UnityEngine.GoogleAudioSpatializer.dll
+/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/UnityEngine.SpatialTracking.dll
+/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/Unity.Cecil.dll
+/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/Unity.Cecil.Pdb.dll
+/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Temp/bin/Debug/Unity.Cecil.Mdb.dll
