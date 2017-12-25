@@ -17,7 +17,7 @@ public class weapons : ScriptableObject {
 		Legendary
 	};
 	public itemQuality quality;
-		public enum weaponType {
+    public enum weaponType {
 		bladeAndBoard,
 		heavyHanded,
 		dualBlades,

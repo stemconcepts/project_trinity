@@ -72,6 +72,7 @@ public class enemySkill : ScriptableObject {
 		BonusDamage,
 		RunSkill
 	}
+    public enemySkill ExtraSkillToRun;
 	[Header("Enemy Skill Variables:")]
 	public bool monsterPanel = false;
 	public voidZoneType voidZoneTypes;
@@ -87,7 +88,6 @@ public class enemySkill : ScriptableObject {
 	public bool hasVoidzone;
 	public float eventDuration;
 	public counterEventCallBack counterEventCallBackMethod;
-	public enemySkill ExtraSkillToRun;
 
 	//New Status System
 	[Header("Status Effects:")]
@@ -116,16 +116,19 @@ public class enemySkill : ScriptableObject {
 				BonusDamage(data);
 				break;
 			case ExtraEffectEnum.RunSkill:
-				RunExtraSkill( data.enemySkill, caster );
+                RunExtraSkill( data, caster );
 				break;
 			}
 
 	}
 
 	//Run Extra Skill
-	public void RunExtraSkill( enemySkill enemySkill, GameObject caster ){
-		var casterSkillSelection = caster.transform.parent.GetComponent<enemySkillSelection>(); 
-		casterSkillSelection.PrepSkillNew( enemySkill );
+    public void RunExtraSkill( Data data, GameObject caster = null ){
+        var casterSkillSelection = caster != null ? caster.GetComponent<enemySkillSelection>(): null; 
+        if( caster != null ){
+            casterSkillSelection.PrepSkillNew( data.enemySkill.ExtraSkillToRun );
+           // casterSkillSelection.StartCasting( data.enemySkill.ExtraSkillToRun, data );
+        }
 	}
 
 	//summon object

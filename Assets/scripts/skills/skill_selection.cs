@@ -98,7 +98,10 @@ public class skill_selection : MonoBehaviour {
         } 
        // classSkill.skillConfirm = setActive;
         skillinprogress = setActive;
-        if (!setActive){ finalTargets.Clear(); }
+        if (!setActive || skillCancel ){ 
+            finalTargets.Clear(); 
+            waitingForSelection = false;
+        }
     }
 
 	private List<GameObject> finalTargets = new List<GameObject>();

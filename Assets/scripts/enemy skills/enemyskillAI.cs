@@ -38,7 +38,7 @@ public class enemyskillAI : MonoBehaviour {
 		var bossSkillList = boss.transform.parent.GetComponent<enemySkill_effects>().enemySkilllist;
 		var randomSkill = SkillToRun( bossSkillList );
 				//print( randomNumber );
-		if( !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphaseone == true && randomSkill != null ){
+		if( !skillSelectionScript.skillinprogress && !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphaseone == true && randomSkill != null ){
 			//for( int i=0; i < bossSkillList.Count; i++ ){
 				if( !skillInProgress && randomSkill.bossOnlyP1 && !skillSelectionScript.skillinprogress ){
 				//	print (bossSkillList[randomNumber].displayName + " starting");
@@ -55,7 +55,7 @@ public class enemyskillAI : MonoBehaviour {
 				} 
 			//}
 		} else 
-		if( !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphasetwo == true && randomSkill != null ){
+		if( !skillSelectionScript.skillinprogress && !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphasetwo == true && randomSkill != null ){
 			//for( int i=0; i < bossSkillList.Count; i++ ){
 				if( skillInProgress == false && randomSkill.bossOnlyP2 == true){
 					//print (bossSkillList[(int)randomNumber].displayName + " starting");
@@ -71,7 +71,7 @@ public class enemyskillAI : MonoBehaviour {
 				}
 			//}
 		} else
-		if( !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphasethree == true && randomSkill != null ){
+		if( !skillSelectionScript.skillinprogress && !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphasethree == true && randomSkill != null ){
 			//for( int i=0; i < bossSkillList.Count; i++ ){
 				if( skillInProgress == false && randomSkill.bossOnlyP3 == true ){
 					//print (bossSkillList[(int)randomNumber].displayName + " starting");

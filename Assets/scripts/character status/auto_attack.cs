@@ -9,14 +9,16 @@ public class auto_attack : MonoBehaviour {
 	private attackMovement attackMovementScript;
 	public float attackMovementSpeed;
 	private character_data characterScript;
-	private calculateDmg calculateDmgScript;
+	//private calculateDmg calculateDmgScript;
 	public int damage;
 	private status statusScript;
 	public GameObject skillConfirmObject;
 	private skill_cd skillCdScript;
+    private Task AABusyTask;
+    private Task AATask;
 	public string AAanimation;
-	private attackChecker attackCheckerScript;
-	private soundController soundContScript;
+	//private attackChecker attackCheckerScript;
+	//private soundController soundContScript;
 	//temp way to check stun - needs a function that pulls specific status
 	//public singleStatus stunSO;
 
@@ -28,14 +30,14 @@ public class auto_attack : MonoBehaviour {
 	void Awake() {
 		// After naming the object, get the components within those game objects.
 		characterScript = GetComponent<character_data>();
-		calculateDmgScript = GetComponent<calculateDmg>();
+		//calculateDmgScript = GetComponent<calculateDmg>();
 		statusScript = GetComponent<status>();
 		attackMovementScript = GetComponent<attackMovement>();
 		//skillCdScript = skillConfirmObject.GetComponent<skill_cd>();
 		// Use this to do timed events -attack- is the name of the timer 
 		skillCdScript = skillConfirmObject.GetComponent<skill_cd>();
-		attackCheckerScript = GetComponent<attackChecker>();
-		soundContScript = GetComponent<soundController>();
+		//attackCheckerScript = GetComponent<attackChecker>();
+		//soundContScript = GetComponent<soundController>();
 		if ( this.transform.Find("Animations") ){
 			skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
 			playerAnimationControl = this.transform.Find("Animations").GetComponent<animationControl>();
@@ -75,7 +77,8 @@ public class auto_attack : MonoBehaviour {
 						enemyCalculation.calculatedamage("N.A", skeletonAnimationVar:this.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar:this.gameObject );
 					//skeletonAnimation.state.AddAnimation(0, "hop", false, -0.06f );
 						//skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );
-						StartCoroutine( busyAnimation( animationDuration ));
+                        AABusyTask = new Task( busyAnimation( animationDuration ) );
+						//StartCoroutine( busyAnimation( animationDuration ));
 					}
 					if( characterScript.target.incomingDmg > 0 ){
 						//print ( characterScript.objectName + " sending " + characterScript.target.incomingDmg + " damage to " + characterScript.target );
@@ -83,7 +86,8 @@ public class auto_attack : MonoBehaviour {
 			}
 			else {
 				print ( characterScript.objectName + " cannot attack");
-				StartCoroutine( busyAnimation( 5f ));
+                AABusyTask = new Task( busyAnimation( 5f ) );
+				//StartCoroutine( busyAnimation( 5f ));
 			}
 	}
 		//}
@@ -100,7 +104,8 @@ public class auto_attack : MonoBehaviour {
 		yield return new WaitForSeconds(waitTime);
 		characterScript.isAttacking = false;
 		gameObject.transform.Find("Animations").GetComponent<animationControl>().inAnimation = false;
-		StartCoroutine( AutoAttackCD() );
+		//StartCoroutine( AutoAttackCD() );
+        AATask = new Task( AutoAttackCD() );
 	}
 	
 }

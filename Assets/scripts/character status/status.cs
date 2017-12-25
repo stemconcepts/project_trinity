@@ -92,14 +92,14 @@ public class status : MonoBehaviour {
 			//buffposition += 1;
 			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
 				characterScript.incomingMDmg = GetStatusIfExist( singleStatus.statusName ).buffPower;
-				calculateDMGScript.calculateMdamage( singleStatus.statusName );
+				calculateDMGScript.calculateMdamge( singleStatus.statusName );
 				//print( "tumor damage" + " " + GetStatusIfExist( singleStatus.statusName ).buffPower );
 			} ) );
 		} else 
 		if( turnOff ){
 			ForceStatusOff( singleStatus, ()=> {
 				characterScript.incomingMDmg = GetStatusIfExist( singleStatus.statusName ).buffPower;
-				calculateDMGScript.calculateMdamage( singleStatus.statusName );
+				calculateDMGScript.calculateMdamge( singleStatus.statusName );
 				//print( "tumor damage" + " " + GetStatusIfExist( singleStatus.statusName ).buffPower );
 			});
 		}

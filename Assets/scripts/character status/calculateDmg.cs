@@ -101,6 +101,9 @@ public class calculateDmg : MonoBehaviour {
 				}
 			}
 			dueDmg = false;
+
+            //send Event to EventManager
+            EventManager.BuildEvent( "OnTakingDmg", dmgSource, this.gameObject );
 		} 
 		state.Event -= OnEventHit;
 		characterScript.incomingDmg = 0;
@@ -151,25 +154,39 @@ public class calculateDmg : MonoBehaviour {
 		}*/
 	}
 
-	public void calculateMdamage ( string skillSource ) {
-		MdamageTaken = characterScript.incomingMDmg - characterScript.MDef;
-		if ( MdamageTaken > 0 ) {
+	public void calculateFlatDmg ( string skillSource, float FdmgTaken = 0 ) {
+		if ( FdmgTaken > 0 ) {
 			if( characterScript.absorbPoints > 0 ){
-				characterScript.absorbPoints -= MdamageTaken;
+				characterScript.absorbPoints -= FdmgTaken;
 			} else {
-				characterScript.Health = characterScript.Health - MdamageTaken;
-				combatDisplayScript.getDmg( MdamageTaken, skillSource );
+				characterScript.Health = characterScript.Health - FdmgTaken;
+				combatDisplayScript.getDmg( FdmgTaken, skillSource );
 			}
 			characterScript.incomingMDmg = 0;
-			MdamageTaken = 0;
-		} else if ( MdamageTaken <= 0 ){
-			MdamageTaken = 0;
+		} else if ( FdmgTaken <= 0 ){
 			characterScript.incomingMDmg = 0;
 		}
 	}
 
-	public void calculateHdamage () {
-		healAmountTaken = characterScript.incomingHeal;
+    public void calculateMdamge ( string skillSource, float? MdmgTaken = null ) {
+        MdamageTaken = characterScript.incomingMDmg - characterScript.MDef;
+        if ( MdamageTaken > 0 ) {
+            if( characterScript.absorbPoints > 0 ){
+                characterScript.absorbPoints -= MdamageTaken;
+            } else {
+                characterScript.Health = characterScript.Health - MdamageTaken;
+                combatDisplayScript.getDmg( MdamageTaken, skillSource );
+            }
+            characterScript.incomingMDmg = 0;
+            MdamageTaken = 0;
+        } else if ( MdamageTaken <= 0 ){
+            MdamageTaken = 0;
+            characterScript.incomingMDmg = 0;
+        }
+    }
+
+    public void calculateHdamage ( float healAmount = 0) {
+		healAmountTaken = healAmount == 0 ? characterScript.incomingHeal : healAmount;
 		if ( healAmountTaken > 0 ) {
 			characterScript.Health += healAmountTaken;
 			combatDisplayScript.getHeal( healAmountTaken );
