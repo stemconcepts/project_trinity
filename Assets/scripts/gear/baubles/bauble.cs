@@ -7,8 +7,11 @@ public class bauble : ScriptableObject {
     public string baubleName;
     public bool owned;
     public bool isEquipped;
+    public string focusAttribute;
     public float flatAmount;
     public float duration;
+    public float coolDown;
+    public float triggerChance;
     public triggerGrp trigger;
     public enum triggerGrp {
         None,
@@ -16,7 +19,8 @@ public class bauble : ScriptableObject {
         OnTakingDmg,
         OnDealingDmg,
         OnHeal,
-        OnMove
+        OnMove,
+        OnSkillCast
     };
     [Multiline]
     public string baubleDesc;

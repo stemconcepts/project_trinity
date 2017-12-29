@@ -30,10 +30,11 @@ public class spawnUI : MonoBehaviour {
     }
 
 	//controls damage/healing/absorb numbers
-	public void ShowDamageNumber( float dmgValue, string dmgValueSource ){
+    public void ShowDamageNumber( float dmgValue, string dmgValueSource, string extraInfo = "" ){
 			live_dataObject = (GameObject)Instantiate( dataObject, new Vector2 ( combatDataPosition.position.x , combatDataPosition.position.y + 6f ) , combatDataPosition.rotation );
 			var damageData = live_dataObject.GetComponent<damagDataBehaviour>();
 			damageData.damageData = (int)dmgValue;
+            damageData.extraInfo = extraInfo;
 			//damageData.damageData = (int)combatDisplayScript.displayDamageData;
 			damageData.isDmg = true;
 		damageData.skillLabel = dmgValueSource;

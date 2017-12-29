@@ -42,22 +42,22 @@ public class calculateDmg : MonoBehaviour {
 				Instantiate( hitEffect, new Vector2 ( hitEffectPositionScript.transform.position.x , hitEffectPositionScript.transform.position.y ), hitEffectPositionScript.transform.rotation );
 			}
 
-			if( characterScript.blockPoints > 0 ){
+            if( characterScript.absorbPoints > 0 ){
+                var absorbedDmg = characterScript.absorbPoints -= damageTaken;
+                characterScript.absorbPoints -= damageTaken;
+                if( absorbedDmg < 0 ){
+                    absorbedDmg -= (absorbedDmg *= 2);
+                    characterScript.Health = characterScript.Health - absorbedDmg;
+                    combatDisplayScript.getDmg( absorbedDmg, skillSource );
+                }
+                var absorbAmount = characterScript.absorbPoints - damageTaken;
+                combatDisplayScript.getAbsorb( damageTaken, skillSource );
+            }else if( characterScript.blockPoints > 0 ){
 				characterScript.blockPoints -= 1f;	
 				var damageBlocked = damageTaken * 0.25f;
 				damageTaken -= damageBlocked;
 				characterScript.Health = characterScript.Health - damageTaken;
-				combatDisplayScript.getDmg( damageTaken, skillSource + "(" + damageBlocked + ")" );
-			} else if( characterScript.absorbPoints > 0 ){
-				var absorbedDmg = characterScript.absorbPoints -= damageTaken;
-				characterScript.absorbPoints -= damageTaken;
-				if( absorbedDmg < 0 ){
-					absorbedDmg -= (absorbedDmg *= 2);
-					characterScript.Health = characterScript.Health - absorbedDmg;
-					combatDisplayScript.getDmg( absorbedDmg, skillSource );
-				}
-				var absorbAmount = characterScript.absorbPoints - damageTaken;
-				combatDisplayScript.getAbsorb( damageTaken, skillSource );
+				combatDisplayScript.getDmg( damageTaken, skillSource, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>" );
 			}else {
 				characterScript.Health = characterScript.Health - damageTaken;
 				combatDisplayScript.getDmg( damageTaken, skillSource );
@@ -103,7 +103,9 @@ public class calculateDmg : MonoBehaviour {
 			dueDmg = false;
 
             //send Event to EventManager
-            EventManager.BuildEvent( "OnTakingDmg", dmgSource, this.gameObject );
+            EventManager.BuildEvent( "OnTakingDmg", extTargetVar: dmgSource, eventCallerVar: this.gameObject );
+            EventManager.BuildEvent( "OnDealingDmg", extTargetVar: this.gameObject, eventCallerVar: dmgSource, extraInfoVar: damageTaken );
+            
 		} 
 		state.Event -= OnEventHit;
 		characterScript.incomingDmg = 0;

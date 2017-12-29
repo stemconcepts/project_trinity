@@ -121,15 +121,20 @@ public class character_data : MonoBehaviour {
 
 	//Return Attribute Value of choice
 	public float GetAttributeValue( string attributeName ){
-		Type charData = Type.GetType("character_data");
-		var attributeValue = (float)charData.GetField(attributeName).GetValue( this );
-		return attributeValue;
-	}
+        if( attributeName != "" ){
+		    Type charData = Type.GetType("character_data");
+		    var attributeValue = (float)charData.GetField(attributeName).GetValue( this );
+		    return attributeValue;
+	    }
+        return 0;
+    }
 
 	//Set Attribute Value of choice
 	public void SetAttribute( string attributeName, float value ){
-		Type charData = Type.GetType("character_data");
-		charData.GetField(attributeName).SetValue( this, value );
+        if( attributeName != "" ){
+		    Type charData = Type.GetType("character_data");
+		    charData.GetField(attributeName).SetValue( this, value );
+        }
 	}
 
 	// Use this for initialization
@@ -143,6 +148,7 @@ public class character_data : MonoBehaviour {
 		originalPDef = PDef;
 		originalMDef = MDef;
 		originalPAtk = PAtk;
+        originalMAtk = MAtk;
 		originalMDef = MDef;
 		originalATKspd = ATKspd;
 		originalactionPoints = actionPoints;

@@ -156,13 +156,14 @@ public class status : MonoBehaviour {
 	}
 
 	//Add to stat permanently
-	public void AddToStatus( singleStatus singleStatus, float duration, float power = 0, bool dispellable = true, bool turnOff = false ){
-		if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
+	public void AddToStatus( singleStatus singleStatus, float duration, float power = 0, bool dispellable = true, bool turnOff = false, string targetStat = "" ){
+        var attributeName = targetStat == "" ? singleStatus.attributeName : targetStat;
+        if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
 			spawnUIscript.ShowLabel( singleStatus );
 			//statuscount += 1;
 			//buffposition += 1;
 			if( singleStatus.attributeName != null ){
-				characterScript.SetAttribute( singleStatus.attributeName, power );
+				characterScript.SetAttribute( attributeName, power );
 			}
 			//singleStatus.active = true;
 			//StartCoroutine(stunTimer( stunPower ));
@@ -415,7 +416,7 @@ public class status : MonoBehaviour {
 	}
 
 	//Status Function Selected - Turns status Off
-		public void RunStatusFunction( singleStatus singleStatus, float power = 0, float duration = 0, bool statusOff = false, classSkills onHitSkillPlayer = null, enemySkill onHitSkillEnemy = null ){
+    public void RunStatusFunction( singleStatus singleStatus, float power = 0, float duration = 0, bool statusOff = false, classSkills onHitSkillPlayer = null, enemySkill onHitSkillEnemy = null, string stat = "" ){
         //makes duration infinite if set to 0
         duration = duration == 0 ? Mathf.Infinity : duration;
         switch ( singleStatus.selectedStatusFunction ) {
@@ -423,7 +424,7 @@ public class status : MonoBehaviour {
 			AttributeChange( singleStatus, power, duration, turnOff:statusOff );
 			break;
 		case singleStatus.statusFunction.AddToStat:
-			AddToStatus( singleStatus, duration, power, statusOff );
+			AddToStatus( singleStatus, duration, power, statusOff, targetStat: stat );
 			break;
 		case singleStatus.statusFunction.StatChange:
 			StatChanges( singleStatus, power, duration, singleStatus.buff, statusOff );

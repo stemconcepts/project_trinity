@@ -8,14 +8,22 @@ public class equipedBauble : MonoBehaviour {
 
     private void CalculatePower(){
         if( bauble ){
-            List<EffectOnEvent> baubleEffects = new List<EffectOnEvent>(bauble.effectsOnEvent);
+            List<EffectOnEvent> baubleEffects = new List<EffectOnEvent>();
+            foreach (var effect in bauble.effectsOnEvent)
+            {
+                baubleEffects.Add( Object.Instantiate( effect ) as EffectOnEvent );
+            }
+        
             foreach (var effect in baubleEffects)
             {
-                var stat = bauble.flatAmount != 0 ? 0 : characterScript.GetAttributeValue( effect.focusAttribute );
+                var stat = bauble.flatAmount != 0 ? 0 : characterScript.GetAttributeValue( bauble.focusAttribute );
                 effect.power = bauble.flatAmount != 0 ? bauble.flatAmount : stat * 0.25f;
                 effect.duration = bauble.duration;
                 effect.trigger = bauble.trigger.ToString();
+                effect.triggerChance = bauble.triggerChance;
+                effect.focusAttribute = bauble.focusAttribute;
                 effect.owner = gameObject;
+                effect.coolDown = bauble.coolDown;
                 EventManager.EventAction += effect.RunEffect;
             }
         }

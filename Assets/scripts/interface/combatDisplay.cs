@@ -22,11 +22,11 @@ public class combatDisplay : MonoBehaviour {
 	public float previousHealth;
 	public float Health;
 
-	public void getDmg( float dmgValue, string skillSource ){
+    public void getDmg( float dmgValue, string skillSource, string extraInfo = "" ){
 		//Damage text
 		//if( previousHealth != Health && previousHealth > Health ){
 			//displayDamageData = (int)previousHealth - (int)Health;
-		spawnUIScript.ShowDamageNumber( dmgValue, skillSource );
+		spawnUIScript.ShowDamageNumber( dmgValue, skillSource, extraInfo: extraInfo );
 		previousHealth = Health;
 		//} 
 		Health = characterScript.Health;

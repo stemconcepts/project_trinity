@@ -1,13 +1,14 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/skills/mainSkills/classSkills.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/gear/baubles/eventeffects/EffectOnEvent.cs">
     <Files>
-      <File FileName="Assets/scripts/skills/mainSkills/classSkills.cs" Line="116" Column="1" />
-      <File FileName="Assets/scripts/interface/statussinglelabel.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/skills/skill_selection.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/interface/spawnUI.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/character status/status/singleStatus.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/enemy skills/enemySkill.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/gear/baubles/eventeffects/EffectOnEvent.cs" Line="16" Column="31" />
+      <File FileName="Assets/scripts/gear/baubles/bauble.cs" Line="12" Column="27" />
+      <File FileName="Assets/scripts/gear/baubles/equipedBauble.cs" Line="19" Column="51" />
+      <File FileName="Assets/scripts/events/EventManager.cs" Line="12" Column="5" />
+      <File FileName="Assets/scripts/character status/calculateDmg.cs" Line="107" Column="4" />
+      <File FileName="Assets/scripts/character status/status.cs" Line="159" Column="2" />
+      <File FileName="Assets/scripts/gear/equipedWeapons.cs" Line="17" Column="57" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

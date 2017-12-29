@@ -12,6 +12,7 @@ public class damagDataBehaviour : MonoBehaviour {
 	public int healData;
 	public int absorbData;
 	public int damageData;
+    public string extraInfo;
 	public int fixedData;
 	public GameObject textObject;
 	private Text displayText;
@@ -33,7 +34,7 @@ public class damagDataBehaviour : MonoBehaviour {
 		//fixedData = damageData;
 		if( isDmg ){
 			//displayText.text = skillLabel + ": -" + damageData.ToString();
-			displayText.text = damageData.ToString();
+			displayText.text = extraInfo == "" ? damageData.ToString() : damageData.ToString() + extraInfo;
 		} else 
 		if ( isAbsorb ) {
 			//displayText.text = skillLabel + ":" + absorbData.ToString();

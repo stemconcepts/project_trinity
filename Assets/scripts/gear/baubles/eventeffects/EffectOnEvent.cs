@@ -8,17 +8,20 @@ public class EffectOnEvent : ScriptableObject {
     public GameObject target;
     public bool affectSelf;
     public float power;
-    public string focusAttribute;
     public float coolDown;
+    public bool ready;
     public float duration;
     public effectGrp effect;
+    private Task effectCDTask;
     public enum effectGrp {
         None,
         Heal,
         Damage,
         Status
     };
+    public string focusAttribute;
     public string trigger;
+    public float triggerChance = 1.0f;
     [Header("Status Effects:")]
     public List<singleStatus> singleStatusGroup = new List<singleStatus>();
     public bool statusDispellable = true;
@@ -26,16 +29,24 @@ public class EffectOnEvent : ScriptableObject {
     public List<singleStatus> singleStatusGroupFriendly = new List<singleStatus>();
     public bool statusFriendlyDispellable = true;
 
+    public bool CheckChance( float chance ){
+        var chanceNum = Random.Range( 0.0f, 1.0f );
+        bool result = chance >= chanceNum ? true : false;
+        return result;
+    }
+
     public void RunEffect(){
-        if ( EventManager.eventName == trigger.ToString() && owner == EventManager.eventCaller ){
+        if ( EventManager.eventName == trigger.ToString() && owner == EventManager.eventCaller && ready && CheckChance( triggerChance ) ){
             target = affectSelf ? EventManager.eventCaller : EventManager.extTarget;
+            var extraPower = EventManager.extraInfo != 0 ? EventManager.extraInfo * power : power;
             var targetDmgCalc = target.GetComponent<calculateDmg>();
             var targetStatus = target.GetComponent<status>();
             switch( effect ) {
             case effectGrp.None:
                     break;
             case effectGrp.Heal:
-                    targetDmgCalc.calculateHdamage( power );
+                    var finalPower = extraPower != 0 ? extraPower : power;
+                    targetDmgCalc.calculateHdamage( finalPower );
                     break;
             case effectGrp.Damage:
                     targetDmgCalc.calculateFlatDmg( "event: "+effect.ToString(), power );
@@ -43,7 +54,7 @@ public class EffectOnEvent : ScriptableObject {
             case effectGrp.Status:
                     if( singleStatusGroupFriendly.Count > 0 ){
                         for( int i = 0; i < singleStatusGroupFriendly.Count; i++ ){
-                            targetStatus.RunStatusFunction( singleStatusGroupFriendly[i], power, duration );
+                            targetStatus.RunStatusFunction( singleStatusGroupFriendly[i], power, duration, stat: focusAttribute );
                         }
                     }
                     if( singleStatusGroup.Count > 0 ){
@@ -53,7 +64,15 @@ public class EffectOnEvent : ScriptableObject {
                     }
                     break;
             }
+            effectCDTask = new Task( cooldown( coolDown ) );
         }
+    }
+
+    IEnumerator cooldown(float waitTime)
+    {
+        ready = false;
+        yield return new WaitForSeconds(waitTime);
+        ready = true;
     }
 
 	// Use this for initialization

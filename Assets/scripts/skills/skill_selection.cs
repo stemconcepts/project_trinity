@@ -54,6 +54,7 @@ public class skill_selection : MonoBehaviour {
 	private Task waitForTargetTask;
 	private Task waitForTargetTaskNew;
 	private gameEffects gameEffectsScript;
+    private classSkills skillInWaiting;
 
 	#region PrepSkill functions
     bool waitingForSelection = false;
@@ -67,7 +68,10 @@ public class skill_selection : MonoBehaviour {
         }
     }
 
-    public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true ){
+    public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true, GameObject player = null ){
+                //send Event to EventManager
+                EventManager.BuildEvent( "OnSkillCast", eventCallerVar: player );
+
                 waitingForSelection = false;
                 if( classSkill.isFlat ){ //Set Power to spell or skill type
                     power = classSkill.isSpell ? classSkill.magicPower : classSkill.skillPower;
@@ -91,6 +95,7 @@ public class skill_selection : MonoBehaviour {
         skillCdScript.skillActive = setActive; //globally sets a skill in progress
         if ( setActive || skillCancel ){ //turn skill active on begin but inactive on cancel
             classSkill.skillActive = setActive;
+            skillInWaiting = classSkill;
         }
         if( waitForTargetTaskNew != null ){
             waitForTargetTaskNew.Stop();
@@ -101,6 +106,7 @@ public class skill_selection : MonoBehaviour {
         if (!setActive || skillCancel ){ 
             finalTargets.Clear(); 
             waitingForSelection = false;
+            skillInWaiting = null;
         }
     }
 
@@ -118,7 +124,7 @@ public class skill_selection : MonoBehaviour {
 			waitForTargetTaskNew = new Task( waitForTargetNew( classSkill, player, weaponSkill ) );
             return;
 		} else {
-			SkillComplete( classSkill, finalTargets, weaponSkill );
+			SkillComplete( classSkill, finalTargets, weaponSkill, player: player );
             return;
 		}
 	}
@@ -137,7 +143,7 @@ public class skill_selection : MonoBehaviour {
 		skill_targetting.instance.currentTarget = null;
 		//PrepSkillNew( classSkill, weaponSkill );
 		Time.timeScale = 1f;
-        SkillComplete( classSkill, finalTargets, weaponSkill );
+        SkillComplete( classSkill, finalTargets, weaponSkill, player: player );
 	}
 
 	private void SetAnimations( classSkills classSkill ){
@@ -213,8 +219,12 @@ public class skill_selection : MonoBehaviour {
             waitForTargetTaskNew.Stop();
             Time.timeScale = 1f;
         } 
+        if( skillInWaiting != null ){
+            SkillActiveSet( skillInWaiting, false, true );
+        }
+        /*skillInWaiting.skillActive = false;
         skillCdScript.skillActive = false;
-        skillinprogress = false;
+        skillinprogress = false;*/
     }
 
 	#endregion
