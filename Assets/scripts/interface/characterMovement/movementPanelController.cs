@@ -32,6 +32,7 @@ public class movementPanelController : MonoBehaviour {
 		VerticalC
 	};
 	public bool moved = false;
+    public int panelNumber;
 	//Clear all Panels
 //	public void ClearPanels( string role ){
 //		var panels = GameObject.FindGameObjectsWithTag("movementPanels");
@@ -140,6 +141,8 @@ public class movementPanelController : MonoBehaviour {
     public IEnumerator DelayedSetStartingPanel( ){
         yield return new WaitForEndOfFrame();
         SetStartingPanel();
+        //send Event to EventManager
+        EventManager.BuildEvent( "Passive", eventCallerVar: this.gameObject );
     }
 
 	void Awake(){

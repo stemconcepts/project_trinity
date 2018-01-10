@@ -11,14 +11,6 @@ public class panelArrowBehaviour : MonoBehaviour {
 	void OnTriggerStay2D(Collider2D coll) {
 		hoveredPanel = coll.gameObject.tag == "movementPanels" ? coll.gameObject : null;
 	}
-	
-	void OnTriggerExit2D(Collider2D coll) {
-		//if( coll.gameObject.GetComponent<movementPanelController>().currentOccupier = null ){
-		
-		//} else {
-		//	coll.gameObject.GetComponent<movementPanelController>().currentOccupier = null;
-		//}
-	}
 
 	public void SetPanelandDestroy(){
 		dragging = false;

@@ -98,11 +98,9 @@ public class skill_effects : MonoBehaviour {
 
 	void Start () {
 		if( gameObject.tag == "Player" ){
-			ClearSkillData();
-			CalculateMagicPower();
-			CalculateSkillPower();
+            ClearSkillData();
+            StartCoroutine( DelayedSetStartingPanel() );
 		} 
-
 		/*if(statusScript && gameObject.tag != "Player")
 		{
 			for(int i = 0; i < skilllist.Count; i++)
@@ -112,6 +110,14 @@ public class skill_effects : MonoBehaviour {
 		}*/
 
 	}
+
+    public IEnumerator DelayedSetStartingPanel( ){
+        yield return new WaitForEndOfFrame();
+        //send Event to EventManager
+        EventManager.BuildEvent( "Passive", eventCallerVar: this.gameObject );
+        CalculateMagicPower();
+        CalculateSkillPower();
+    }
 
 	// Update is called once per frame
 	void Update () {
