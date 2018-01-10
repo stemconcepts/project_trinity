@@ -16,24 +16,25 @@ public class characterMovementController : MonoBehaviour {
 
     public void ForcedMove( GameObject currentPanel, string direction = "back" ){
         var currentPanelNum = currentPanel.GetComponent<movementPanelController>().panelNumber;
-        int targetPanelNum;
+        int targetPanelNum = currentPanelNum;
         if( direction == "back" ){
             targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum++;
         } else if ( direction == "forward" ){
             targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum--;
         }
-        var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum);
+        var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
         MoveToPanel( targetPanel, "hit" );
     }
 
-    public void MoveToPanel( GameObject targetPanel, string hopAnim = hopAnim ){
+    public void MoveToPanel( GameObject targetPanel, string hopAnimVar = "" ){
+        hopAnimVar = string.IsNullOrEmpty(hopAnimVar) ? hopAnim : hopAnimVar;
 		Vector2 panelPos = targetPanel.transform.position;
 		panelPos.y = panelPos.y + 6f;
 		if( movementTask != null ){
 			movementTask.Stop();
 		} 
 		movementTask = new Task( StartMove( 0.009f, panelPos, 50f) );
-		skeletonAnimation.state.SetAnimation(0, hopAnim, false );
+		skeletonAnimation.state.SetAnimation(0, hopAnimVar, false );
 		skeletonAnimation.state.AddAnimation(0, idleAnim, true, 0 );
 		//characterScript.target.GetComponent<character_data>().incomingDmg = 0;
 		//characterScript.target.GetComponent<calculateDmg>().damageTaken = 0;
