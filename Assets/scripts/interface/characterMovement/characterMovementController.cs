@@ -14,19 +14,26 @@ public class characterMovementController : MonoBehaviour {
 	public string idleAnim = "idle";
 	Task movementTask;
 
-    public void ForcedMove( GameObject currentPanel, string direction = "back" ){
+    public void ForcedMove( string direction = "Back", int moveAmount = 1 ){
+        var currentPanel = this.gameObject.GetComponent<character_data>().currentPanel;
         var currentPanelNum = currentPanel.GetComponent<movementPanelController>().panelNumber;
         int targetPanelNum = currentPanelNum;
-        if( direction == "back" ){
-            targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum++;
-        } else if ( direction == "forward" ){
-            targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum--;
+        if( direction == "Back" ){
+            targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + moveAmount;
+        } else if ( direction == "Forward" ){
+            targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - moveAmount;
         }
+        targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
+        targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
         var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
         MoveToPanel( targetPanel, "hit" );
     }
 
     public void MoveToPanel( GameObject targetPanel, string hopAnimVar = "" ){
+        var playerData = this.gameObject.GetComponent<character_data>();
+        playerData.currentPanel = targetPanel;
+        playerData.inVoidZone = playerData.currentPanel.GetComponent<movementPanelController>().isVoidZone;
+        
         hopAnimVar = string.IsNullOrEmpty(hopAnimVar) ? hopAnim : hopAnimVar;
 		Vector2 panelPos = targetPanel.transform.position;
 		panelPos.y = panelPos.y + 6f;

@@ -112,9 +112,10 @@ public class calculateDmg : MonoBehaviour {
 		
 	}
 
-	public void calculatedamage ( string skillSourcevar, SkeletonAnimation skeletonAnimationVar = null, GameObject dmgSourceVar = null, bool trueDmg = false ) {
+    public void calculatedamage ( string skillSourcevar, SkeletonAnimation skeletonAnimationVar = null, GameObject dmgSourceVar = null, bool trueDmg = false, bool isSpell = false ) {
 		skillSource = skillSourcevar;
-		damageTaken = ( characterScript.incomingDmg - characterScript.PDef ) < 0 ? 0 : characterScript.incomingDmg - characterScript.PDef ;
+        var defences = isSpell ? characterScript.MDef : characterScript.PDef;
+		damageTaken = ( characterScript.incomingDmg - defences ) < 0 ? 0 : characterScript.incomingDmg - defences ;
 		damageTaken = trueDmg ? characterScript.incomingDmg : damageTaken;
 		dmgSource = dmgSourceVar;
 		/*if ( damageTaken > 0 ) {*/

@@ -183,7 +183,7 @@ public class skill_selection : MonoBehaviour {
 					status.debuffable = classSkill.statusDispellable;
 				}
 				targetData.incomingDmg = power;
-				if( classSkill.doesDamage ){ calculateDmgScript.calculatedamage( classSkill.skillName , dmgSourceObj.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar: dmgSourceObj ); };
+				if( classSkill.doesDamage ){ calculateDmgScript.calculatedamage( classSkill.skillName , dmgSourceObj.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar: dmgSourceObj, isSpell:classSkill.isSpell ); };
 				classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<status>(), power, classSkill );
             } else if( target.tag == "Player" && targetData.isAlive ){ 
 				foreach (var status in classSkill.singleStatusGroupFriendly) {

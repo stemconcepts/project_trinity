@@ -122,6 +122,11 @@ public class enemySkillSelection : MonoBehaviour {
 		}
 	}
 
+    private void ForcedMove( GameObject target, enemySkill enemySkill ){
+        var movementScript = target.GetComponent<characterMovementController>();
+        movementScript.ForcedMove( enemySkill.forcedMove.ToString(), enemySkill.forcedMoveAmount );
+    }
+
 	private void SetAnimations( enemySkill enemySkill ){
 		GameObject target = this.gameObject;
 		SkeletonAnimation targetAnimData = target.transform.Find("Animations").GetComponent<SkeletonAnimation>();
@@ -164,16 +169,19 @@ public class enemySkillSelection : MonoBehaviour {
 				if( enemySkill.hasVoidzone && !tankData.inVoidCounter ){
 					targetData.incomingDmg = power;
 					if( enemySkill.doesDamage && targetData.inVoidZone ){ 
-						calculateDmgScript.calculatedamage( enemySkill.skillName , this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>() ); };
+						calculateDmgScript.calculatedamage( enemySkill.skillName , this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell ); };
 					if( targetData.inVoidZone ){ enemySkill.AttachStatus( enemySkill.singleStatusGroup, target.GetComponent<status>(), power, enemySkill.duration ); }
 				} else if( enemySkill.hasVoidzone && tankData.inVoidCounter ){
 					tankData.incomingDmg = ( power * 1.5f);
-					tankCalDmg.calculatedamage( enemySkill.displayName, this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>() );
+					tankCalDmg.calculatedamage( enemySkill.displayName, this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell );
 				} else {
 					targetData.incomingDmg = power;
-					if( enemySkill.doesDamage ){ calculateDmgScript.calculatedamage( enemySkill.skillName , this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>() ); };
+					if( enemySkill.doesDamage ){ calculateDmgScript.calculatedamage( enemySkill.skillName , this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell ); };
 					enemySkill.AttachStatus( enemySkill.singleStatusGroup, target.GetComponent<status>(), power, enemySkill.duration ); 
 				}
+                if( enemySkill.forcedMoveAmount > 0 ){
+                    ForcedMove( target, enemySkill );
+                }
 			} else if( target.tag == "Enemy" && targetData.isAlive ){ 
 				foreach (var status in enemySkill.singleStatusGroupFriendly) {
 					status.debuffable = enemySkill.statusFriendlyDispellable;
@@ -219,56 +227,10 @@ public class enemySkillSelection : MonoBehaviour {
             data.enemySkill = enemySkill;
             SkillActiveSet( enemySkill, true ); //Set that skill has being used or waiting to be used
 			if( enemySkill.castTime <= 0 ){
-				/*if ( targets == null ){ return; } //Stop function if There are no targets
-				if( enemySkill.isFlat ){ //Set Power to spell or skill type
-					power = enemySkill.isSpell ? enemySkill.magicPower : enemySkill.skillPower;
-				} else {
-					power = enemySkill.isSpell ? enemySkill.newMP : enemySkill.newSP;
-				}*/
                 SkillComplete( enemySkill, targets, data );
             } else {
                 StartCasting( enemySkill, data );
             }
-			/*if( !enemySkill.hasVoidzone ) {
-                SkillComplete( enemySkill, targets, data );
-				DealHealDmg( enemySkill, targets, power ); //Deal or Heal Damage to Targets, Also adds Status Effects
-				SetAnimations( enemySkill ); //Play Animations
-				if( enemySkill.ExtraEffect.ToString() != "None" ){ enemySkill.RunExtraEffect(data); };//Run Extra Effects if there are any
-				SkillActiveSet( enemySkill, false ); //Set that skill is ready to be used again
-				StartCoroutine(cooldown( enemySkill.skillCooldown, enemySkill ));
-				CoolDownTask = new Task( cooldown( enemySkill.skillCooldown, enemySkill ) );
-			} else if ( !enemySkill.castTimeReady && enemySkill.castTime > 0 ) {
-                StartCasting( enemySkill, data );
-				casting = true;
-				StartCoroutine(castTime( enemySkill.castTime, enemySkill ));
-				//call voidzone if true
-				voidzoneData voidData = new voidzoneData();
-				voidData.voidZoneDuration = enemySkill.castTime;
-				enemySkill.ShowVoidPanel( enemySkill.voidZoneTypes, enemySkill.monsterPanel );
-
-				//call animation variable
-				if( enemySkill.animationType != null ){
-					enemyAnimationControl.inAnimation = true;
-					skeletonAnimation.state.SetAnimation(0, enemySkill.animationCastingType, false);
-					skeletonAnimation.state.AddAnimation(0, enemySkill.animationRepeatCasting, true, 0 );
-				}
-				print ("casting ability");
-			} else if ( enemySkill.castTimeReady ){
-                SkillComplete( enemySkill, targets, data );
-                Set Data
-                Data data = new Data(); 
-                data.target = targets;
-                data.enemySkill = enemySkill;
-
-				casting = false;
-				enemySkill.castTimeReady = false;
-				DealHealDmg( enemySkill, targets, power );
-				SetAnimations( enemySkill );
-                if( enemySkill.ExtraEffect.ToString() != "None" ){ enemySkill.RunExtraEffect(data, this.gameObject); };//Run Extra Effects if there are any
-				SkillActiveSet( enemySkill, false ); //Set that skill is ready to be used again
-                StartCoroutine(cooldown( enemySkill.skillCooldown, enemySkill ));
-                CoolDownTask = new Task( cooldown( enemySkill.skillCooldown, enemySkill ) );
-			}*/
 		}
 	}
     

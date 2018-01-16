@@ -73,6 +73,14 @@ public class enemySkill : ScriptableObject {
 		RunSkill
 	}
     public enemySkill ExtraSkillToRun;
+    [Header("Forced Movement:")]
+    public int forcedMoveAmount;
+    public forcedMoveType forcedMove;
+    public enum forcedMoveType{
+        None,
+        Back,
+        Forward
+    }
 	[Header("Enemy Skill Variables:")]
 	public bool monsterPanel = false;
 	public voidZoneType voidZoneTypes;
@@ -222,42 +230,33 @@ public class enemySkill : ScriptableObject {
 	}
 
 	public void ShowVoidPanel( voidZoneType voidZoneEnumVar, bool monsterPanels = false ){
-		var allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
-		//var randomPanelNumber = Random.Range (0,allPanels.Length);
-		//var safePanelScript = allPanels[randomPanelNumber].GetComponent<movementPanelController>();
-
-		//for( int i = 0; allPanels.Length > i; i++ ){
-		//	var panelScript = allPanels[i].GetComponent<movementPanelController>();
+        var randomRowNumber = Random.Range (0, 3 );
 			switch( voidZoneEnumVar ){
 				case voidZoneType.All:
+                    var allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
 					for( int i = 0; allPanels.Length > i; i++ ){
 						var panelScript = allPanels[i].GetComponent<movementPanelController>();
 						panelScript.VoidZoneMark();
 					}
+                    GetSafePanel( allPanels ).GetComponent<movementPanelController>().SafePanel();
 				break;
 				case voidZoneType.Hline:
-					//print("success VoidZone Horizontal Line");
+                    var HPanel = !monsterPanels ? GameObject.Find("FriendlyMovementPanel") : GameObject.Find("EnemyMovementPanel");
+                    var HRow = HPanel.transform.GetChild( randomRowNumber );
+                    foreach (Transform panel in HRow.transform )
+                    {   
+                        var panelScript = panel.GetComponent<movementPanelController>();
+                        panelScript.VoidZoneMark();   
+                    }
 				break;
 				case voidZoneType.Vline:
-					//print("success VoidZone Vertical Line");
+					
 				break;
 				case voidZoneType.Random:
+                    allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
                     GetRandomPanel( allPanels ).GetComponent<movementPanelController>().VoidZoneMark();
                 break;
 			}
-		//}
-		switch( voidZoneEnumVar ){
-		case voidZoneType.All:
-			GetSafePanel( allPanels ).GetComponent<movementPanelController>().SafePanel();
-			//safePanelScript.SafePanel();
-			break;
-		case voidZoneType.Hline:
-			//print("success VoidZone Horizontal Line");
-			break;
-		case voidZoneType.Vline:
-			//print("success VoidZone Vertical Line");
-			break;
-		}
 	}
 
 	public void ClearVoidPanel(){

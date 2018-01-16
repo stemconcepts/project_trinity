@@ -20,7 +20,7 @@ public class panelArrowBehaviour : MonoBehaviour {
 				hoveredPanel.GetComponent<movementPanelController>().currentOccupier = classOccupier;
 				hoveredPanel.GetComponent<movementPanelController>().isOccupied = true;
 				classOccupier.GetComponent<character_data>().isMoving = true;
-				classOccupier.GetComponent<character_data>().currentPanel = hoveredPanel;
+				//classOccupier.GetComponent<character_data>().currentPanel = hoveredPanel;
 				classOccupier.GetComponent<characterMovementController>().MoveToPanel(hoveredPanel);
 				if( hoveredPanel.GetComponent<movementPanelController>().isVoidZone ){
 					classOccupier.GetComponent<character_data>().inVoidZone = true;
