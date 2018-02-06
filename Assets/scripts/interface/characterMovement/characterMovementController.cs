@@ -69,16 +69,16 @@ public class characterMovementController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if ( this.transform.Find("Animations") ){
-			skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
-			playerAnimationControl = this.transform.Find("Animations").GetComponent<animationControl>();
-		}
-		calculateDmgScript = GetComponent<calculateDmg>();
 		//SetStartingPanel( characterScript.currentPanel );
 	}
 
 	// Use this for initialization
 	void Awake () {
+        if ( this.transform.Find("Animations") ){
+            skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
+            playerAnimationControl = this.transform.Find("Animations").GetComponent<animationControl>();
+        }
+        calculateDmgScript = GetComponent<calculateDmg>();
 		characterScript = GetComponent<character_data>();
 		skillEffectsScript = GetComponent<skill_effects>();
 		equipedWeaponScript = GetComponent<equipedWeapons>();

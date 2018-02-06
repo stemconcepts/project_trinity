@@ -140,6 +140,7 @@ public class skill_selection : MonoBehaviour {
 			yield return 0;
         } 
 		finalTargets.Add( skill_targetting.instance.currentTarget );
+        characterSelectScript.GetClassObject().GetComponent<character_data>().target = skill_targetting.instance.currentTarget.GetComponent<character_data>();
 		skill_targetting.instance.currentTarget = null;
 		//PrepSkillNew( classSkill, weaponSkill );
 		Time.timeScale = 1f;

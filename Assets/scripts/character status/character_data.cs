@@ -54,6 +54,7 @@ public class character_data : MonoBehaviour {
 	public Vector2 currentPosition;
 	public Quaternion currentRotation;
 	public GameObject posMarker;
+    public GameObject posMarkerMin;
 	public Vector2 attackedPos;
 	public GameObject currentPanel;
 	public int rowNumber;

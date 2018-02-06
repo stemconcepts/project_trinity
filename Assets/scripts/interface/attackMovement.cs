@@ -8,6 +8,7 @@ public class attackMovement : MonoBehaviour {
 	private effectsController effectControllerScript;
 	public GameObject dashEffect;
 	public float movementSpeed;
+    public float moveToHomeSpeed;
 	SkeletonAnimation skeletonAnimation;
 	private animationControl playerAnimationControl;
 	public int origSortingOrder;
@@ -16,13 +17,23 @@ public class attackMovement : MonoBehaviour {
 	Task movementTask;
 	private soundController soundContScript;
 
+    public Vector2 GetAttackPos( GameObject target ){
+        Vector2 attackedPos = new Vector2();
+        if( target != null ){
+            attackedPos.x = gameObject.name.IndexOf("Minion") > -1 ? target.GetComponent<character_data>().posMarkerMin.transform.position.x : target.GetComponent<character_data>().posMarker.transform.position.x;
+            attackedPos.y = gameObject.name.IndexOf("Minion") > -1 ? target.GetComponent<character_data>().posMarkerMin.transform.position.y : target.GetComponent<character_data>().posMarker.transform.position.y;
+        }
+        return attackedPos;
+    }
+
 	public void moveToTarget( float movementSpeed ){
 		var getEnemy = characterScript.target;
 		var enemyAnim = characterScript.target.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>();
 		targetSortingOrder = enemyAnim.GetComponent<MeshRenderer>().sortingOrder;
 		skeletonAnimation.gameObject.GetComponent<MeshRenderer>().sortingOrder = targetSortingOrder;
 		//print( targetSortingOrder );
-		var targetpos = getEnemy.GetComponent<character_data>().attackedPos;
+        //var targetpos = getEnemy.GetComponent<character_data>().attackedPos;
+        var targetpos = GetAttackPos( getEnemy.gameObject );
 		if( movementTask != null ){
 			movementTask.Stop();
 		} 
@@ -49,11 +60,10 @@ public class attackMovement : MonoBehaviour {
 		if( movementTask != null ){
 			movementTask.Stop();
 		} 
-		//movementTask = new Task( moveBackward( 0.009f, origPos ) );
-
+		var moveHomeSpeed = moveToHomeSpeed == 0f ? 50f : moveToHomeSpeed;
 		var panelPos = characterScript.currentPanel.transform.position;
 		panelPos.y = panelPos.y + 6f;
-		movementTask = new Task( characterMovementScript.StartMove( 0.009f, panelPos, 50f) );
+		movementTask = new Task( characterMovementScript.StartMove( 0.009f, panelPos, moveHomeSpeed) );
 		var hopAnim = gameObject.tag == "Enemy" ? "hop" : characterMovementScript.hopAnim;
 		var idleAnim = gameObject.tag == "Enemy" ? "idle" : characterMovementScript.idleAnim;
 		

@@ -29,7 +29,16 @@ public class character_select : MonoBehaviour {
 		return null;
 	}
 
-    public 
+    public GameObject GetClassObject(){
+        if( tankSelected ){
+            return GameObject.Find("Guardian");
+        } else if( healerSelected){
+            return GameObject.Find("Walker");
+        } else if( dpsSelected ){
+            return GameObject.Find("Stalker");
+        }
+        return null;
+    }
 
 	// Use this for initialization
 	void Start () {
