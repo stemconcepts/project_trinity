@@ -13,6 +13,7 @@ public class enemySkillSelection : MonoBehaviour {
 	public bool bossphasetwo = false;
 	public bool bossphasethree = false;
 	private character_data enemyCharData;
+    private calculateDmg calculateDmgScript;
 	private enemySkills skillScript;
 	private enemyskillAI skillAIScript;
 	//private skill_selection skillSelectionScript;
@@ -69,7 +70,7 @@ public class enemySkillSelection : MonoBehaviour {
 		effectsControllerScript = GetComponent<effectsController>();
 		enemyCharData = GetComponent<character_data>();
 		enemyskillConfirmScript = GetComponent<enemyskill_confirm>();
-		//enemySkillScript = GetComponent<enemySkills>();
+		calculateDmgScript = GetComponent<calculateDmg>();
 		skillAIScript = GetComponent<enemyskillAI>();
 		soundContScript = GetComponent<soundController>();
 	}
@@ -156,9 +157,11 @@ public class enemySkillSelection : MonoBehaviour {
 		var tank = GameObject.Find("Guardian");
 		var tankData = tank.GetComponent<character_data>();
 		var tankCalDmg = tank.GetComponent<calculateDmg>();
+        calculateDmgScript.dueDmgTargets.AddRange(targets);
+        //this.gameObject.GetComponent<calculateDmg>().dueDmgTargets = targets;
 		foreach (var target in targets) {
 			var targetData = target.GetComponent<character_data>();
-			var calculateDmgScript = target.GetComponent<calculateDmg>();
+			var targetCalculateDmgScript = target.GetComponent<calculateDmg>();
 			if ( enemySkill.fxObject != null ){
 				effectsControllerScript.callEffectTarget( target, enemySkill.fxObject, enemySkill.fxPos.ToString() );
 			}
@@ -169,14 +172,15 @@ public class enemySkillSelection : MonoBehaviour {
 				if( enemySkill.hasVoidzone && !tankData.inVoidCounter ){
 					targetData.incomingDmg = power;
 					if( enemySkill.doesDamage && targetData.inVoidZone ){ 
-						calculateDmgScript.calculatedamage( enemySkill.skillName , this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell ); };
+						targetCalculateDmgScript.calculatedamage( enemySkill:enemySkill, skeletonAnimationVar:this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell ); };
 					if( targetData.inVoidZone ){ enemySkill.AttachStatus( enemySkill.singleStatusGroup, target.GetComponent<status>(), power, enemySkill.duration ); }
 				} else if( enemySkill.hasVoidzone && tankData.inVoidCounter ){
 					tankData.incomingDmg = ( power * 1.5f);
-					tankCalDmg.calculatedamage( enemySkill.displayName, this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell );
+					tankCalDmg.calculatedamage( enemySkill:enemySkill, skeletonAnimationVar:this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell );
 				} else {
 					targetData.incomingDmg = power;
-					if( enemySkill.doesDamage ){ calculateDmgScript.calculatedamage( enemySkill.skillName , this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell ); };
+					if( enemySkill.doesDamage ){ 
+                    targetCalculateDmgScript.calculatedamage( enemySkill:enemySkill, skeletonAnimationVar:this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell ); };
 					enemySkill.AttachStatus( enemySkill.singleStatusGroup, target.GetComponent<status>(), power, enemySkill.duration ); 
 				}
                 if( enemySkill.forcedMoveAmount > 0 ){

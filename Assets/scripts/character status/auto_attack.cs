@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Spine.Unity;
 
 public class auto_attack : MonoBehaviour {
@@ -9,7 +10,7 @@ public class auto_attack : MonoBehaviour {
 	private attackMovement attackMovementScript;
 	public float attackMovementSpeed;
 	private character_data characterScript;
-	//private calculateDmg calculateDmgScript;
+	private calculateDmg calculateDmgScript;
 	public int damage;
 	private status statusScript;
 	public GameObject skillConfirmObject;
@@ -30,7 +31,7 @@ public class auto_attack : MonoBehaviour {
 	void Awake() {
 		// After naming the object, get the components within those game objects.
 		characterScript = GetComponent<character_data>();
-		//calculateDmgScript = GetComponent<calculateDmg>();
+		calculateDmgScript = GetComponent<calculateDmg>();
 		statusScript = GetComponent<status>();
 		attackMovementScript = GetComponent<attackMovement>();
 		//skillCdScript = skillConfirmObject.GetComponent<skill_cd>();
@@ -58,6 +59,10 @@ public class auto_attack : MonoBehaviour {
 			yield return new WaitForSeconds(waitTime);
 			//if not disabled or busy in some way then attack as normal*/
 	void RunAttackLoop(){	
+        List<GameObject> targets = new List<GameObject>{
+            characterScript.target.gameObject
+        };
+            calculateDmgScript.dueDmgTargets = targets;
 			if( characterScript.isAlive && characterScript.canAutoAttack && !characterScript.isAttacking && !statusScript.DoesStatusExist( "stun" ) && !skillCdScript.skillActive ){
 					characterScript.isAttacking = true;
 					characterScript.target.incomingDmg = characterScript.PAtk;
@@ -74,7 +79,7 @@ public class auto_attack : MonoBehaviour {
 						//soundContScript.playSound();
 						skeletonAnimation.state.SetAnimation(0, AAanimation, false);
 						gameObject.transform.Find("Animations").GetComponent<animationControl>().inAnimation = true;
-						enemyCalculation.calculatedamage("N.A", skeletonAnimationVar:this.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar:this.gameObject );
+						enemyCalculation.calculatedamage(skeletonAnimationVar:this.transform.Find("Animations").GetComponent<SkeletonAnimation>() );
 					//skeletonAnimation.state.AddAnimation(0, "hop", false, -0.06f );
 						//skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );
                         AABusyTask = new Task( busyAnimation( animationDuration ) );

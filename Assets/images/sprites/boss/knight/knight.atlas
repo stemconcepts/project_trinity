@@ -6,182 +6,203 @@ filter: Linear,Linear
 repeat: none
 Layer 10
   rotate: true
-  xy: 113, 116
+  xy: 757, 11
   size: 81, 155
   orig: 81, 155
   offset: 0, 0
   index: -1
 Layer 11
   rotate: true
-  xy: 494, 271
+  xy: 747, 873
   size: 149, 251
   orig: 149, 251
   offset: 0, 0
   index: -1
 Layer 12
   rotate: true
-  xy: 365, 187
+  xy: 143, 4
   size: 58, 137
   orig: 58, 137
   offset: 0, 0
   index: -1
 Layer 13
-  rotate: false
-  xy: 866, 736
+  rotate: true
+  xy: 747, 442
   size: 69, 154
   orig: 69, 154
   offset: 0, 0
   index: -1
 Layer 14
   rotate: false
-  xy: 866, 709
+  xy: 126, 64
   size: 34, 25
   orig: 34, 25
   offset: 0, 0
   index: -1
 Layer 15
   rotate: false
-  xy: 610, 86
+  xy: 282, 3
   size: 101, 89
   orig: 101, 89
   offset: 0, 0
   index: -1
-Layer 6
-  rotate: false
-  xy: 795, 701
-  size: 69, 189
-  orig: 69, 189
-  offset: 0, 0
-  index: -1
 Layer 7
-  rotate: false
-  xy: 2, 43
+  rotate: true
+  xy: 747, 513
   size: 109, 154
   orig: 109, 154
   offset: 0, 0
   index: -1
-Layer 8
-  rotate: false
-  xy: 795, 892
-  size: 143, 130
-  orig: 143, 130
-  offset: 0, 0
-  index: -1
 Layer 9
-  rotate: false
-  xy: 940, 871
+  rotate: true
+  xy: 451, 10
   size: 82, 151
   orig: 82, 151
   offset: 0, 0
   index: -1
 Layer-10-flipped
   rotate: true
-  xy: 113, 33
+  xy: 747, 707
   size: 81, 155
   orig: 81, 155
   offset: 0, 0
   index: -1
 Layer-9-flipped
-  rotate: false
-  xy: 937, 718
+  rotate: true
+  xy: 604, 10
   size: 82, 151
   orig: 82, 151
   offset: 0, 0
   index: -1
 dreadwall-bottom
-  rotate: false
-  xy: 713, 85
+  rotate: true
+  xy: 51, 4
   size: 53, 90
   orig: 53, 90
   offset: 0, 0
   index: -1
 dreadwall-middle
-  rotate: false
-  xy: 543, 85
+  rotate: true
+  xy: 914, 25
   size: 65, 101
   orig: 65, 101
   offset: 0, 0
   index: -1
 dreadwall-top
-  rotate: true
-  xy: 795, 635
+  rotate: false
+  xy: 385, 7
   size: 64, 85
   orig: 64, 85
   offset: 0, 0
   index: -1
+dustcircle0
+  rotate: true
+  xy: 247, 94
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle1
+  rotate: true
+  xy: 355, 94
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle2
+  rotate: true
+  xy: 463, 94
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle3
+  rotate: true
+  xy: 571, 94
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle4
+  rotate: true
+  xy: 679, 94
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle5
+  rotate: true
+  xy: 139, 94
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
 forearmFront
   rotate: false
-  xy: 504, 188
+  xy: 787, 790
   size: 116, 81
   orig: 116, 81
   offset: 0, 0
   index: -1
 hand-side
-  rotate: false
-  xy: 270, 42
+  rotate: true
+  xy: 747, 624
   size: 81, 155
   orig: 81, 155
   offset: 0, 0
   index: -1
 hang-foreshortened
-  rotate: false
-  xy: 353, 78
+  rotate: true
+  xy: 914, 746
   size: 125, 107
   orig: 125, 107
   offset: 0, 0
   index: -1
 jaw
-  rotate: true
-  xy: 2, 4
+  rotate: false
+  xy: 747, 823
   size: 37, 48
   orig: 37, 48
   offset: 0, 0
   index: -1
 ribbon
   rotate: false
-  xy: 52, 15
+  xy: 98, 63
   size: 26, 26
   orig: 26, 26
   offset: 0, 0
   index: -1
 ribbon1
   rotate: false
-  xy: 788, 439
+  xy: 787, 115
   size: 44, 99
   orig: 44, 99
   offset: 0, 0
   index: -1
 ribbon2
-  rotate: false
-  xy: 788, 364
+  rotate: true
+  xy: 833, 170
   size: 44, 73
   orig: 44, 73
   offset: 0, 0
   index: -1
 shadow
   rotate: true
-  xy: 747, 330
+  xy: 98, 91
   size: 329, 39
   orig: 329, 39
   offset: 0, 0
   index: -1
 sheildHand
   rotate: false
-  xy: 747, 273
+  xy: 2, 2
   size: 47, 55
   orig: 47, 55
   offset: 0, 0
   index: -1
-sheildbackArm
-  rotate: true
-  xy: 788, 540
-  size: 93, 71
-  orig: 93, 71
-  offset: 0, 0
-  index: -1
 shoulder_ArmFront
   rotate: false
-  xy: 622, 177
+  xy: 787, 348
   size: 113, 92
   orig: 113, 92
   offset: 0, 0
@@ -193,45 +214,142 @@ sideslashup
   orig: 743, 600
   offset: 0, 0
   index: -1
+slam0
+  rotate: true
+  xy: 914, 488
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam1
+  rotate: true
+  xy: 914, 356
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam2
+  rotate: true
+  xy: 914, 224
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam3
+  rotate: true
+  xy: 914, 92
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam4
+  rotate: true
+  xy: 787, 216
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
 spine1
   rotate: true
-  xy: 353, 15
+  xy: 914, 683
   size: 61, 104
   orig: 61, 104
   offset: 0, 0
   index: -1
 spine2
-  rotate: false
-  xy: 480, 81
+  rotate: true
+  xy: 914, 620
   size: 61, 104
   orig: 61, 104
   offset: 0, 0
   index: -1
 sword
   rotate: true
-  xy: 747, 661
+  xy: 2, 59
   size: 361, 46
   orig: 361, 46
   offset: 0, 0
   index: -1
 sword-half
-  rotate: false
-  xy: 2, 199
+  rotate: true
+  xy: 50, 59
   size: 361, 46
   orig: 361, 46
   offset: 0, 0
   index: -1
-sword-slash
-  rotate: false
-  xy: 2, 247
-  size: 490, 173
-  orig: 490, 173
-  offset: 0, 0
-  index: -1
 thumb
   rotate: false
-  xy: 788, 330
+  xy: 1000, 990
   size: 19, 32
   orig: 19, 32
+  offset: 0, 0
+  index: -1
+
+knight2.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Layer 6
+  rotate: false
+  xy: 2, 2
+  size: 69, 189
+  orig: 69, 189
+  offset: 0, 0
+  index: -1
+Layer 8
+  rotate: false
+  xy: 2, 193
+  size: 143, 130
+  orig: 143, 130
+  offset: 0, 0
+  index: -1
+sheildbackArm
+  rotate: true
+  xy: 411, 230
+  size: 93, 71
+  orig: 93, 71
+  offset: 0, 0
+  index: -1
+slam5
+  rotate: false
+  xy: 147, 220
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam6
+  rotate: false
+  xy: 279, 220
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam7
+  rotate: true
+  xy: 73, 61
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam8
+  rotate: false
+  xy: 178, 115
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+slam9
+  rotate: false
+  xy: 310, 115
+  size: 130, 103
+  orig: 130, 103
+  offset: 0, 0
+  index: -1
+sword-slash
+  rotate: false
+  xy: 2, 325
+  size: 490, 173
+  orig: 490, 173
   offset: 0, 0
   index: -1

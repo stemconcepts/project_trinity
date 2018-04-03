@@ -62,9 +62,12 @@
      <Compile Include="Assets\Examples\Getting Started\Scripts\SpineboyTargetController.cs" />
      <Compile Include="Assets\Examples\Scripts\AttackSpineboy.cs" />
      <Compile Include="Assets\Examples\Scripts\DataAssetsFromExportsExample.cs" />
+     <Compile Include="Assets\Examples\Scripts\DraggableTransform.cs" />
      <Compile Include="Assets\Examples\Scripts\FootSoldierExample.cs" />
      <Compile Include="Assets\Examples\Scripts\Goblins.cs" />
+     <Compile Include="Assets\Examples\Scripts\HandleEventWithAudioExample.cs" />
      <Compile Include="Assets\Examples\Scripts\HurtFlashEffect.cs" />
+     <Compile Include="Assets\Examples\Scripts\MaterialPropertyBlockExample.cs" />
      <Compile Include="Assets\Examples\Scripts\MixAndMatch.cs" />
      <Compile Include="Assets\Examples\Scripts\MixAndMatchGraphic.cs" />
      <Compile Include="Assets\Examples\Scripts\RaggedySpineboy.cs" />
@@ -72,11 +75,16 @@
      <Compile Include="Assets\Examples\Scripts\Sample Components\BoneLocalOverride.cs" />
      <Compile Include="Assets\Examples\Scripts\Sample Components\CombinedSkin.cs" />
      <Compile Include="Assets\Examples\Scripts\Sample Components\Sample VertexEffects\JitterEffectExample.cs" />
+     <Compile Include="Assets\Examples\Scripts\Sample Components\SkeletonAnimationMulti\SkeletonAnimationMulti.cs" />
      <Compile Include="Assets\Examples\Scripts\Sample Components\SkeletonColorInitialize.cs" />
      <Compile Include="Assets\Examples\Scripts\Sample Components\SlotTintBlackFollower.cs" />
      <Compile Include="Assets\Examples\Scripts\Sample Components\SpineEventUnityHandler.cs" />
      <Compile Include="Assets\Examples\Scripts\SpawnFromSkeletonDataExample.cs" />
      <Compile Include="Assets\Examples\Scripts\Spineboy.cs" />
+     <Compile Include="Assets\Examples\Scripts\SpineboyBodyTilt.cs" />
+     <Compile Include="Assets\Examples\Scripts\SpineboyFacialExpression.cs" />
+     <Compile Include="Assets\Examples\Scripts\SpineboyFootplanter.cs" />
+     <Compile Include="Assets\Examples\Scripts\SpineboyFreeze.cs" />
      <Compile Include="Assets\Examples\Scripts\SpineboyPole.cs" />
      <Compile Include="Assets\Examples\Scripts\SpineGauge.cs" />
      <Compile Include="Assets\First.cs" />
@@ -169,6 +177,8 @@
      <Compile Include="Assets\scripts\TaskManager.cs" />
      <Compile Include="Assets\Second.cs" />
      <Compile Include="Assets\sound\soundController.cs" />
+     <Compile Include="Assets\Spine\spine-unity\Asset Types\RegionlessAttachmentLoader.cs" />
+     <Compile Include="Assets\Spine\spine-unity\Components\PointFollower.cs" />
      <Compile Include="Assets\spine-csharp\Animation.cs" />
      <Compile Include="Assets\spine-csharp\AnimationState.cs" />
      <Compile Include="Assets\spine-csharp\AnimationStateData.cs" />
@@ -296,6 +306,7 @@
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\Contrast Stretch\MinMaxReduction.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\SSAA.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\RadialBlur.shader" />
+     <None Include="Assets\spine-unity\Modules\Shaders\Straight Alpha\Spine-Straight-Skeleton-Tint.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_DepthOfField\DepthOfFieldDX11.shader" />
      <None Include="Assets\Examples\Spine\Hero\license.txt" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\ContrastComposite.shader" />
@@ -382,6 +393,7 @@
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\ColorCorrection3DLut.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\LensFlareCreate.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\EdgeDetectNormals.shader" />
+     <None Include="Assets\Examples\Spine\spineboy-pro\spineboy-pro.atlas.txt" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\PrepareSunShaftsBlur.shader" />
      <None Include="Assets\Examples\Spine\Spineunitygirl\Doi.atlas.txt" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\Blend.shader" />
@@ -400,6 +412,7 @@
      <None Include="Assets\codeandweb.com\Readme.txt" />
      <None Include="Assets\spine-unity\Shaders\SkeletonLit.shader" />
      <None Include="Assets\spine-unity\Modules\Shaders\Sprite\CGIncludes\SpriteSpecular.cginc" />
+     <None Include="Assets\spine-unity\Modules\Shaders\Straight Alpha\Spine-Straight-Skeleton-Fill.shader" />
      <None Include="Assets\images\sprites\dps\skeleton.atlas.txt" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_Antialiasing\FXAAPreset2.shader" />
      <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlurAndFlares.shader" />

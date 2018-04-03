@@ -7,6 +7,8 @@ public class FXcontroller : MonoBehaviour {
     private ParticleSystem particleSystem;
 	[Header("Custom Sounds:")]
 	public List<AudioClip> sounds;
+    public GameObject destroyMeTrigger;
+    private ParticleSystem childTrigger;
 
 	void DestroyMe(){
 		Destroy(gameObject);
@@ -17,6 +19,7 @@ public class FXcontroller : MonoBehaviour {
 		if( soundContScript != null ){
 			soundContScript.playSounds( sounds );
 		}
+        childTrigger = destroyMeTrigger ? destroyMeTrigger.GetComponent<ParticleSystem>() : null;
 	}
 
 	void Awake(){
@@ -27,6 +30,8 @@ public class FXcontroller : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         if( particleSystem && !particleSystem.IsAlive() ){
+            DestroyMe();
+        } else if ( childTrigger && !childTrigger.IsAlive() ){
             DestroyMe();
         }
 	}

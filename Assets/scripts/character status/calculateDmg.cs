@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Spine.Unity;
 
 public class calculateDmg : MonoBehaviour {
@@ -17,7 +18,8 @@ public class calculateDmg : MonoBehaviour {
 	public float MdamageTaken;
 	public float healAmountTaken;
 	private string skillSource;
-	public GameObject hitEffect;
+    public GameObject hitEffect;
+    public GameObject customHitFX;
 	private Transform hitEffectPositionScript;
 	public GameObject hitEffectPosition;
 	private GameObject effectObject;
@@ -26,21 +28,22 @@ public class calculateDmg : MonoBehaviour {
 	public string hitAnimNormal = "hit";
 	public bool animationHold;
 	public string holdAnimation;
-	public bool dueDmg;
+    public List<GameObject> dueDmgTargets;
 	private soundController soundContScript;
+    private classSkills classSkill;
+    private enemySkill enemySkill;
 	//public singleStatus damageImmune;
 	//public singleStatus damageAbsorb;
 
-	public void OnEventHit(Spine.TrackEntry state, Spine.Event e ){
-		//var dmgSourceTarget = dmgSource.GetComponent<character_data>().target;
-		if( e.Data.name == "hit" && dueDmg ){
-			
-			gameEffectsScript.ScreenShake( 1f );
-			if( gameObject.tag == "Player" ){
-				effectObject = (GameObject)Instantiate( hitEffect, new Vector2 ( hitEffectPositionScript.transform.position.x , hitEffectPositionScript.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
-			} else {
-				Instantiate( hitEffect, new Vector2 ( hitEffectPositionScript.transform.position.x , hitEffectPositionScript.transform.position.y ), hitEffectPositionScript.transform.rotation );
-			}
+    public void TakeDmg(string eventName){
+        
+            GameObject skillHitEffect = customHitFX != null ? customHitFX : hitEffect; 
+            gameEffectsScript.ScreenShake( 1f );
+            if( gameObject.tag == "Player" && eventName == "hit" ){
+                effectObject = (GameObject)Instantiate( skillHitEffect, new Vector2 ( hitEffectPositionScript.transform.position.x , hitEffectPositionScript.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
+            } else if( eventName == "hit" ) {
+                effectObject = (GameObject)Instantiate( skillHitEffect, new Vector2 ( hitEffectPositionScript.transform.position.x , hitEffectPositionScript.transform.position.y ), hitEffectPositionScript.transform.rotation );
+            }
 
             if( characterScript.absorbPoints > 0 ){
                 var absorbedDmg = characterScript.absorbPoints -= damageTaken;
@@ -53,108 +56,128 @@ public class calculateDmg : MonoBehaviour {
                 var absorbAmount = characterScript.absorbPoints - damageTaken;
                 combatDisplayScript.getAbsorb( damageTaken, skillSource );
             }else if( characterScript.blockPoints > 0 ){
-				characterScript.blockPoints -= 1f;	
-				var damageBlocked = damageTaken * 0.25f;
-				damageTaken -= damageBlocked;
-				characterScript.Health = characterScript.Health - damageTaken;
-				combatDisplayScript.getDmg( damageTaken, skillSource, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>" );
-			}else {
-				characterScript.Health = characterScript.Health - damageTaken;
-				combatDisplayScript.getDmg( damageTaken, skillSource );
-			}
+                characterScript.blockPoints -= 1f;  
+                var damageBlocked = damageTaken * 0.25f;
+                damageTaken -= damageBlocked;
+                characterScript.Health = characterScript.Health - damageTaken;
+                combatDisplayScript.getDmg( damageTaken, skillSource, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>" );
+            }else {
+                characterScript.Health = characterScript.Health - damageTaken;
+                combatDisplayScript.getDmg( damageTaken, skillSource );
+            }
 
-			if ( playerAnimationControl.inAnimation == false && characterScript.isAttacking == false ) {
-				if( hitAnimation != "" ){
-					skeletonAnimation.state.SetAnimation(0, hitAnimation, false);
-					skeletonAnimation.state.AddAnimation(0, holdAnimation, true, 0);
-					playerAnimationControl.inAnimation = true;
-				} else {
-					var hitAnim = gameObject.tag == "Enemy" ? "hit" : hitAnimNormal;
-					var idleAnim = gameObject.tag == "Enemy" ? "idle" : characterMovementScript.idleAnim;
-					skeletonAnimation.state.SetAnimation(0, hitAnim, false );
-					skeletonAnimation.state.AddAnimation(0, idleAnim, true, 0 );
-				}
-			}
-			//if tumor on player
-			if ( statusScript.DoesStatusExist( "tumor" ) && dmgSource != null){
-				var tumor = statusScript.GetStatusIfExist( "tumor" );
-				tumor.buffPower += damageTaken * 0.70f;
-			}
-			//if thorns on player
-			if ( statusScript.DoesStatusExist( "thorns" ) && dmgSource != null ){
-				//var thorns = statusScript.GetStatusIfExist( "thorns" );
-				var sourceCalDmg = dmgSource.GetComponent<calculateDmg>();
-				var sourceCharData = dmgSource.GetComponent<character_data>();
-				//SourceDmgCalc.calculatedamage( "Thorns" );
-				sourceCharData.incomingDmg = characterScript.thornsDmg;
-				sourceCalDmg.calculatedamage( "Thorns", trueDmg: true );
-			}
+            if ( playerAnimationControl.inAnimation == false && characterScript.isAttacking == false ) {
+                if( hitAnimation != "" ){
+                    skeletonAnimation.state.SetAnimation(0, hitAnimation, false);
+                    skeletonAnimation.state.AddAnimation(0, holdAnimation, true, 0);
+                    playerAnimationControl.inAnimation = true;
+                } else {
+                    var hitAnim = gameObject.tag == "Enemy" ? "hit" : hitAnimNormal;
+                    var idleAnim = gameObject.tag == "Enemy" ? "idle" : characterMovementScript.idleAnim;
+                    skeletonAnimation.state.SetAnimation(0, hitAnim, false );
+                    skeletonAnimation.state.AddAnimation(0, idleAnim, true, 0 );
+                }
+            }
+            //if tumor on player
+            if ( statusScript.DoesStatusExist( "tumor" ) && dmgSource != null){
+                var tumor = statusScript.GetStatusIfExist( "tumor" );
+                tumor.buffPower += damageTaken * 0.70f;
+            }
+            //if thorns on player
+            if ( statusScript.DoesStatusExist( "thorns" ) && dmgSource != null ){
+                //var thorns = statusScript.GetStatusIfExist( "thorns" );
+                var sourceCalDmg = dmgSource.GetComponent<calculateDmg>();
+                var sourceCharData = dmgSource.GetComponent<character_data>();
+                //SourceDmgCalc.calculatedamage( "Thorns" );
+                sourceCharData.incomingDmg = characterScript.thornsDmg;
+                sourceCalDmg.calculatedamage( "Thorns", trueDmg: true, dmgSourceVar: this.gameObject );
+            }
 
-			//if On hit
-			if( statusScript.DoesStatusExist("onHit") && dmgSource != null ){
-				var onHitSkill = statusScript.GetStatusIfExist( "onHit" );
-				print("attempt" + characterScript.role );
-				if( characterScript.characterType == "enemy" ){
-					//enemySkillScript.PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillEnemy );
-				} else {
-					//this.GetComponent<enemySkillSelection>().PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillPlayer );
-				}
-			}
-			dueDmg = false;
-
+            //if On hit
+            if( statusScript.DoesStatusExist("onHit") && dmgSource != null ){
+                var onHitSkill = statusScript.GetStatusIfExist( "onHit" );
+                print("attempt" + characterScript.role );
+                if( characterScript.characterType == "enemy" ){
+                    //enemySkillScript.PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillEnemy );
+                } else {
+                    //this.GetComponent<enemySkillSelection>().PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillPlayer );
+                }
+            }
+            //dueDmg = false;
+            customHitFX = null;
             //send Event to EventManager
             EventManager.BuildEvent( "OnTakingDmg", extTargetVar: dmgSource, eventCallerVar: this.gameObject );
-            EventManager.BuildEvent( "OnDealingDmg", extTargetVar: this.gameObject, eventCallerVar: dmgSource, extraInfoVar: damageTaken );
-            
-		} 
-		state.Event -= OnEventHit;
-		characterScript.incomingDmg = 0;
-		
+        //state.Event -= OnEventHit;
+        //characterScript.incomingDmg = 0;
+    }
+
+	public void OnEventHit(Spine.TrackEntry state, Spine.Event e ){
+        if( e.Data.name == "hit" || e.Data.name == "SFXhit"){
+            foreach (var target in dueDmgTargets)
+            {
+                var calculateDmg = target.GetComponent<calculateDmg>();
+                calculateDmg.TakeDmg( e.Data.name );
+                EventManager.BuildEvent( "OnDealingDmg", extTargetVar: this.gameObject, eventCallerVar: dmgSource, extraInfoVar: damageTaken );
+            }
+            dueDmgTargets.RemoveAll(t => t);
+        }
 	}
 
-    public void calculatedamage ( string skillSourcevar, SkeletonAnimation skeletonAnimationVar = null, GameObject dmgSourceVar = null, bool trueDmg = false, bool isSpell = false ) {
-		skillSource = skillSourcevar;
-        var defences = isSpell ? characterScript.MDef : characterScript.PDef;
-		damageTaken = ( characterScript.incomingDmg - defences ) < 0 ? 0 : characterScript.incomingDmg - defences ;
-		damageTaken = trueDmg ? characterScript.incomingDmg : damageTaken;
-		dmgSource = dmgSourceVar;
-		/*if ( damageTaken > 0 ) {*/
-			//if( characterScript.absorbPoints > 0 ){
-			//	characterScript.absorbPoints -= damageTaken;
-			//	var absorbAmount = characterScript.absorbPoints - damageTaken;
-			//	combatDisplayScript.getAbsorb( absorbAmount, skillSource );
-			//} else 
-			if( statusScript.DoesStatusExist( "damageImmune" ) ){
-				combatDisplayScript.Immune( skillSource );
-			} else {
-				if( skeletonAnimationVar == null ){
-					characterScript.Health = characterScript.Health - damageTaken;
+    public void calculatedamage ( string skillSource = "N/A", enemySkill enemySkill = null, classSkills classSkill = null, SkeletonAnimation skeletonAnimationVar = null, GameObject dmgSourceVar = null, bool trueDmg = false, bool isSpell = false ) {
+        if( classSkill != null ){
+            skillSource = classSkill != null ? classSkill.skillName : skillSource; 
+        } else if( enemySkill != null ){
+            skillSource = enemySkill != null ? enemySkill.skillName : skillSource; 
+        }
 
-					//if tumor on player
-					if ( statusScript.DoesStatusExist( "tumor" ) ){
-						var tumor = statusScript.GetStatusIfExist( "tumor" );
-						tumor.buffPower += damageTaken * 0.70f;
-					}
-
-					combatDisplayScript.getDmg( damageTaken, skillSource );
-					//dueDmg = false;
-				} else {
-					dueDmg = true;
-					skeletonAnimationVar.state.Event += OnEventHit;
-				//	skeletonAnimationVar.state.Event -= OnEventHit;
-				}
-				//characterScript.Health = characterScript.Health - damageTaken;
-				//combatDisplayScript.getDmg( damageTaken, skillSource );
-			}
-		/*} else if ( damageTaken <= 0 ){
-			damageTaken = 0;
-			characterScript.incomingDmg = 0;
-			if( skeletonAnimationVar == null ){
-				combatDisplayScript.getDmg( damageTaken, skillSource );
-			} else {
-				skeletonAnimationVar.state.Event += OnEventHit;
-			}
-		}*/
+        if( characterScript != null ){
+            var defences = isSpell ? characterScript.MDef : characterScript.PDef;
+    		damageTaken = ( characterScript.incomingDmg - defences ) < 0 ? 0 : characterScript.incomingDmg - defences ;
+    		damageTaken = trueDmg ? characterScript.incomingDmg : damageTaken;
+    		dmgSource = dmgSourceVar;
+    		/*if ( damageTaken > 0 ) {*/
+    			//if( characterScript.absorbPoints > 0 ){
+    			//	characterScript.absorbPoints -= damageTaken;
+    			//	var absorbAmount = characterScript.absorbPoints - damageTaken;
+    			//	combatDisplayScript.getAbsorb( absorbAmount, skillSource );
+    			//} else 
+    			if( statusScript.DoesStatusExist( "damageImmune" ) ){
+    				combatDisplayScript.Immune( skillSource );
+    			} else {
+    				if( skeletonAnimationVar == null ){
+    					characterScript.Health = characterScript.Health - damageTaken;
+    
+    					//if tumor on player
+    					if ( statusScript.DoesStatusExist( "tumor" ) ){
+    						var tumor = statusScript.GetStatusIfExist( "tumor" );
+    						tumor.buffPower += damageTaken * 0.70f;
+    					}
+    
+    					combatDisplayScript.getDmg( damageTaken, skillSource );
+    					//dueDmg = false;
+    				} else {
+    					//dueDmg = true;
+                        //dueDmgTarget = null;
+                        if( classSkill != null ){
+                            customHitFX = classSkill.hitEffect;
+                        } else if( enemySkill != null ){
+                            customHitFX = enemySkill.hitEffect;
+                        }
+    					//skeletonAnimationVar.state.Event += OnEventHit;
+    				}
+    				//characterScript.Health = characterScript.Health - damageTaken;
+    				//combatDisplayScript.getDmg( damageTaken, skillSource );
+    			}
+    		/*} else if ( damageTaken <= 0 ){
+    			damageTaken = 0;
+    			characterScript.incomingDmg = 0;
+    			if( skeletonAnimationVar == null ){
+    				combatDisplayScript.getDmg( damageTaken, skillSource );
+    			} else {
+    				skeletonAnimationVar.state.Event += OnEventHit;
+    			}
+    		}*/
+        }
 	}
 
 	public void calculateFlatDmg ( string skillSource, float FdmgTaken = 0 ) {

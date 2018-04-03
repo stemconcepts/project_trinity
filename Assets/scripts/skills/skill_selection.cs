@@ -31,7 +31,6 @@ public class skill_selection : MonoBehaviour {
 	public skillOne selectedSkill;
 	public tankSkills selectedTankSkill;
 	public dpsSkills selectedDpsSkill;
-	private calculateDmg calculateDmgScript;
 	public GameObject skillConfirmObject;
 	private character_select selectedRole;
 	private skill_confirm skillConfirmScript;
@@ -69,6 +68,7 @@ public class skill_selection : MonoBehaviour {
     }
 
     public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true, GameObject player = null ){
+                player.GetComponent<calculateDmg>().dueDmgTargets.AddRange( targets );
                 //send Event to EventManager
                 EventManager.BuildEvent( "OnSkillCast", eventCallerVar: player );
 
@@ -84,8 +84,9 @@ public class skill_selection : MonoBehaviour {
                 //if( classSkill.ExtraEffect.ToString() != "None" ){ 
                 classSkill.RunExtraEffect(data); 
                 //};//Run Extra Effects if there are any
-                DealHealDmg( classSkill, targets, power * data.modifier ); //Deal or Heal Damage to Targets, Also adds Status Effects
+                
                 SetAnimations( classSkill ); //Play Animations
+                DealHealDmg( classSkill, targets, power * data.modifier, player ); //Deal or Heal Damage to Targets, Also adds Status Effects
                 SkillActiveSet( classSkill, false ); //Set that skill is ready to be used again
                 StartCoroutine(cooldown( classSkill.skillCooldown, classSkill ));
                 CoolDownTask = new Task( cooldownTimer( classSkill.skillCooldown, classSkill, classSkill.Class.ToString(), weaponSkill ) );
@@ -171,27 +172,32 @@ public class skill_selection : MonoBehaviour {
 		
 	}
 
-	private void DealHealDmg( classSkills classSkill, List<GameObject> targets, float power ){
-		GameObject dmgSourceObj = GameObject.Find( classSkill.Class.ToString() );
-		foreach (var target in targets) {
+	private void DealHealDmg( classSkills classSkill, List<GameObject> targets, float power, GameObject player ){
+		//GameObject dmgSourceObj = GameObject.Find( classSkill.Class.ToString() );
+		GameObject dmgSourceObj = player;
+       // player.GetComponent<calculateDmg>().dueDmgTargets = targets;
+        foreach (var target in targets) {
 			var targetData = target.GetComponent<character_data>();
-			var calculateDmgScript = target.GetComponent<calculateDmg>();
+			var targetCalculateDmgScript = target.GetComponent<calculateDmg>();
 			/*if ( enemySkill.fxObject != null ){
 				effectsControllerScript.callEffectTarget( target, enemySkill.fxObject );
 			}*/
 			if( target.tag == "Enemy" && targetData.isAlive ){
 				foreach (var status in classSkill.singleStatusGroup) {
+
 					status.debuffable = classSkill.statusDispellable;
 				}
 				targetData.incomingDmg = power;
-				if( classSkill.doesDamage ){ calculateDmgScript.calculatedamage( classSkill.skillName , dmgSourceObj.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar: dmgSourceObj, isSpell:classSkill.isSpell ); };
+                if( classSkill.doesDamage ){ 
+                    targetCalculateDmgScript.calculatedamage( classSkill:classSkill, skeletonAnimationVar:dmgSourceObj.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar: dmgSourceObj, isSpell:classSkill.isSpell ); 
+                };
 				classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<status>(), power, classSkill );
             } else if( target.tag == "Player" && targetData.isAlive ){ 
 				foreach (var status in classSkill.singleStatusGroupFriendly) {
 					status.debuffable = classSkill.statusFriendlyDispellable;
 				}
 				targetData.incomingHeal = power;
-				if( classSkill.healsDamage ){ calculateDmgScript.calculateHdamage(); };
+				if( classSkill.healsDamage ){ targetCalculateDmgScript.calculateHdamage(); };
 				classSkill.AttachStatus( classSkill.singleStatusGroupFriendly, target.GetComponent<status>(), power, classSkill );
 			}
 		}

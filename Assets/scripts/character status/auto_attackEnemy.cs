@@ -105,7 +105,11 @@ public class auto_attackEnemy : MonoBehaviour {
 	//{
 	//	while( characterScript.Health > 0 ){
 	void RunAttackLoop(){
-			Target = GetTarget().GetComponent<character_data>();
+        Target = GetTarget().GetComponent<character_data>();
+        List<GameObject> targets = new List<GameObject>{
+            Target.gameObject
+        };
+        calculateDmgScript.dueDmgTargets = targets;
 			if( !characterScript.isAttacking && !statusScript.DoesStatusExist( "stun" ) && !enemySkillSelectionScripts.casting && !enemySkillSelectionScripts.skillinprogress ){
 				characterScript.isAttacking = true;
 				//CheckHit();
@@ -120,7 +124,7 @@ public class auto_attackEnemy : MonoBehaviour {
 					//play sounds
 					//soundContScript.playSound();
 					skeletonAnimation.state.SetAnimation(0, AAanimation, false);
-					enemyCalculation.calculatedamage("N.A", this.transform.Find("Animations").GetComponent<SkeletonAnimation>(), dmgSourceVar:this.gameObject );
+					enemyCalculation.calculatedamage(skeletonAnimationVar:this.transform.Find("Animations").GetComponent<SkeletonAnimation>() );
 					//skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );
 					StartCoroutine( busyAnimation( animationDuration ));
 				} else {

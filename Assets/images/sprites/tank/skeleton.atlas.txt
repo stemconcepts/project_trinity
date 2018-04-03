@@ -5,8 +5,8 @@ format: RGBA8888
 filter: Linear,Linear
 repeat: none
 arm_backangle
-  rotate: true
-  xy: 543, 148
+  rotate: false
+  xy: 940, 33
   size: 65, 130
   orig: 65, 130
   offset: 0, 0
@@ -18,44 +18,65 @@ basicHeavy
   orig: 502, 56
   offset: 0, 0
   index: -1
-chestback
+dustcircle0
   rotate: true
-  xy: 333, 12
-  size: 137, 163
-  orig: 137, 163
+  xy: 487, 210
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle1
+  rotate: false
+  xy: 595, 132
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle2
+  rotate: false
+  xy: 559, 24
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle5
+  rotate: false
+  xy: 2, 45
+  size: 326, 106
+  orig: 326, 106
   offset: 0, 0
   index: -1
 leftfist
   rotate: false
-  xy: 574, 5
+  xy: 979, 357
   size: 37, 40
   orig: 37, 40
   offset: 0, 0
   index: -1
 lefthand
   rotate: false
-  xy: 987, 342
+  xy: 979, 399
   size: 35, 45
   orig: 35, 45
   offset: 0, 0
   index: -1
 ringFX
   rotate: false
-  xy: 302, 151
+  xy: 595, 240
   size: 180, 180
   orig: 180, 180
   offset: 0, 0
   index: -1
 shadow
   rotate: false
-  xy: 2, 52
+  xy: 2, 4
   size: 329, 39
   orig: 329, 39
   offset: 0, 0
   index: -1
 sheildFront
   rotate: true
-  xy: 2, 5
+  xy: 333, 4
   size: 45, 224
   orig: 45, 224
   offset: 0, 0
@@ -97,14 +118,14 @@ sideslashup
   index: -1
 sidesword
   rotate: true
-  xy: 769, 262
+  xy: 777, 262
   size: 226, 58
   orig: 226, 58
   offset: 0, 0
   index: -1
 skirt
-  rotate: true
-  xy: 599, 275
+  rotate: false
+  xy: 302, 163
   size: 145, 168
   orig: 145, 168
   offset: 0, 0
@@ -116,16 +137,9 @@ skirtback
   orig: 298, 178
   offset: 0, 0
   index: -1
-slamArm
-  rotate: false
-  xy: 829, 259
-  size: 83, 79
-  orig: 83, 79
-  offset: 0, 0
-  index: -1
 tank_0000s_0000_Rectangle-1
-  rotate: false
-  xy: 2, 93
+  rotate: true
+  xy: 837, 242
   size: 276, 58
   orig: 276, 58
   offset: 0, 0
@@ -138,134 +152,78 @@ tank_0001s_0000_Layer-36
   offset: 0, 0
   index: -1
 tank_0002s_0000_Layer-30
-  rotate: false
-  xy: 720, 234
+  rotate: true
+  xy: 923, 192
   size: 46, 39
   orig: 46, 39
   offset: 0, 0
   index: -1
 tank_0002s_0000s_0000_Layer-35
   rotate: false
-  xy: 675, 141
+  xy: 523, 136
   size: 67, 72
   orig: 67, 72
   offset: 0, 0
   index: -1
 tank_0002s_0001s_0000_Layer-22
   rotate: false
-  xy: 280, 93
+  xy: 449, 275
   size: 32, 56
   orig: 32, 56
   offset: 0, 0
   index: -1
-tank_0003s_0000s_0000_Layer-29
-  rotate: true
-  xy: 498, 100
-  size: 46, 135
-  orig: 46, 135
-  offset: 0, 0
-  index: -1
 tank_0003s_0001s_0000_Layer-17
-  rotate: true
-  xy: 635, 88
+  rotate: false
+  xy: 887, 23
   size: 51, 107
   orig: 51, 107
   offset: 0, 0
   index: -1
 tank_0004s_0000s_0000_Layer-25
-  rotate: false
-  xy: 498, 2
+  rotate: true
+  xy: 979, 446
   size: 74, 43
   orig: 74, 43
   offset: 0, 0
   index: -1
-tank_0004s_0000s_0000s_0000_Layer-24
-  rotate: true
-  xy: 498, 47
-  size: 51, 125
-  orig: 51, 125
-  offset: 0, 0
-  index: -1
-tank_0004s_0001s_0000_Layer-18
-  rotate: false
-  xy: 911, 389
-  size: 104, 131
-  orig: 104, 131
-  offset: 0, 0
-  index: -1
 tank_0005s_0000s_0000_Layer-21
   rotate: false
-  xy: 829, 340
+  xy: 897, 342
   size: 80, 178
   orig: 80, 178
   offset: 0, 0
   index: -1
-tank_0005s_0001s_0000_Layer-27
-  rotate: true
-  xy: 768, 196
-  size: 64, 59
-  orig: 64, 59
-  offset: 0, 0
-  index: -1
 tank_0005s_0002s_0000_Layer-26
-  rotate: true
-  xy: 543, 215
+  rotate: false
+  xy: 964, 165
   size: 58, 175
   orig: 58, 175
   offset: 0, 0
   index: -1
 tank_0006s_0000s_0000_Layer-20
-  rotate: false
-  xy: 487, 345
+  rotate: true
+  xy: 330, 51
   size: 110, 191
   orig: 110, 191
   offset: 0, 0
   index: -1
-tank_0006s_0001s_0000_Layer-32
-  rotate: false
-  xy: 484, 155
-  size: 57, 176
-  orig: 57, 176
-  offset: 0, 0
-  index: -1
-tank_0006s_0002s_0000_Layer-33
-  rotate: true
-  xy: 228, 4
-  size: 46, 66
-  orig: 46, 66
-  offset: 0, 0
-  index: -1
 tank_0007s_0000s_0000_Layer-34
   rotate: false
-  xy: 829, 217
+  xy: 449, 168
   size: 37, 40
   orig: 37, 40
   offset: 0, 0
   index: -1
 tank_0007s_0001s_0000_Layer-31
   rotate: false
-  xy: 914, 239
+  xy: 897, 240
   size: 65, 100
   orig: 65, 100
   offset: 0, 0
   index: -1
-tank_0007s_0002s_0000_Layer-19
-  rotate: true
-  xy: 625, 27
-  size: 59, 101
-  orig: 59, 101
-  offset: 0, 0
-  index: -1
-tank_Rarmside
-  rotate: false
-  xy: 911, 341
-  size: 74, 46
-  orig: 74, 46
-  offset: 0, 0
-  index: -1
 tank_fist
   rotate: true
-  xy: 296, 12
+  xy: 523, 96
   size: 38, 32
   orig: 38, 32
   offset: 0, 0
@@ -275,5 +233,95 @@ thrust
   xy: 766, 490
   size: 532, 37
   orig: 532, 37
+  offset: 0, 0
+  index: -1
+
+skeleton2.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+chestback
+  rotate: false
+  xy: 330, 347
+  size: 137, 163
+  orig: 137, 163
+  offset: 0, 0
+  index: -1
+dustcircle3
+  rotate: false
+  xy: 2, 404
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+dustcircle4
+  rotate: false
+  xy: 2, 296
+  size: 326, 106
+  orig: 326, 106
+  offset: 0, 0
+  index: -1
+slamArm
+  rotate: true
+  xy: 55, 78
+  size: 83, 79
+  orig: 83, 79
+  offset: 0, 0
+  index: -1
+tank_0003s_0000s_0000_Layer-29
+  rotate: true
+  xy: 330, 299
+  size: 46, 135
+  orig: 46, 135
+  offset: 0, 0
+  index: -1
+tank_0004s_0000s_0000s_0000_Layer-24
+  rotate: false
+  xy: 2, 36
+  size: 51, 125
+  orig: 51, 125
+  offset: 0, 0
+  index: -1
+tank_0004s_0001s_0000_Layer-18
+  rotate: false
+  xy: 2, 163
+  size: 104, 131
+  orig: 104, 131
+  offset: 0, 0
+  index: -1
+tank_0005s_0001s_0000_Layer-27
+  rotate: false
+  xy: 211, 176
+  size: 64, 59
+  orig: 64, 59
+  offset: 0, 0
+  index: -1
+tank_0006s_0001s_0000_Layer-32
+  rotate: true
+  xy: 108, 237
+  size: 57, 176
+  orig: 57, 176
+  offset: 0, 0
+  index: -1
+tank_0006s_0002s_0000_Layer-33
+  rotate: false
+  xy: 286, 228
+  size: 46, 66
+  orig: 46, 66
+  offset: 0, 0
+  index: -1
+tank_0007s_0002s_0000_Layer-19
+  rotate: true
+  xy: 108, 176
+  size: 59, 101
+  orig: 59, 101
+  offset: 0, 0
+  index: -1
+tank_Rarmside
+  rotate: true
+  xy: 55, 2
+  size: 74, 46
+  orig: 74, 46
   offset: 0, 0
   index: -1

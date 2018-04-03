@@ -45,6 +45,7 @@ public class classSkills : ScriptableObject {
 	public float currentCDAmount;
 	public bool isSpell;
 	public bool isFlat;
+    public GameObject hitEffect;
 	public bool doesDamage;
 	public bool movesToTarget;
 	public bool healsDamage;
@@ -63,6 +64,15 @@ public class classSkills : ScriptableObject {
 		BonusDamage
 	}
     public subStatus subStatus;
+    [Header("FX Animation:")]
+    public GameObject fxObject;
+    public fxPosEnum fxPos;
+    public enum fxPosEnum{
+        center,
+        bottom,
+        front,
+        top
+    }
 
 	//public UnityEvent extraEffectMethods;
 	//public GameObject extraSkillObject;

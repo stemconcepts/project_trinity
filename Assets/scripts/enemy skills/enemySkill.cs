@@ -43,6 +43,7 @@ public class enemySkill : ScriptableObject {
 	public float currentCDAmount;
 	public bool isSpell;
 	public bool isFlat;
+    public GameObject hitEffect;
 	public bool doesDamage;
 	public bool movesToTarget;
 	public bool healsDamage;

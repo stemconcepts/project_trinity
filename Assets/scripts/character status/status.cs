@@ -208,7 +208,7 @@ public class status : MonoBehaviour {
 				calculateDMGScript.calculateHdamage();
 			} else { 
 				characterScript.incomingDmg = power;
-				calculateDMGScript.calculatedamage( singleStatus.statusName );
+                calculateDMGScript.calculatedamage( singleStatus.statusName );
 			}
 			yield return new WaitForSeconds(5f);
 		} 
