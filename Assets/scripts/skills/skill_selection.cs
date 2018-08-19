@@ -59,7 +59,7 @@ public class skill_selection : MonoBehaviour {
     bool waitingForSelection = false;
     float power; //Set Power
     public void PrepSkillNew( classSkills classSkill, bool weaponSkill = true ){
-        if( CheckSkillAvail( classSkill ) ){
+        if( CheckSkillAvail( classSkill ) && battleManager.battleReady ){
             if( !waitingForSelection ){
                 SkillActiveSet( classSkill, true ); //Set that skill has being used or waiting to be used
                 GetTargets(classSkill, weaponSkill:weaponSkill);
@@ -68,7 +68,6 @@ public class skill_selection : MonoBehaviour {
     }
 
     public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true, GameObject player = null ){
-                player.GetComponent<calculateDmg>().dueDmgTargets.AddRange( targets );
                 //send Event to EventManager
                 EventManager.BuildEvent( "OnSkillCast", eventCallerVar: player );
 
@@ -175,13 +174,16 @@ public class skill_selection : MonoBehaviour {
 	private void DealHealDmg( classSkills classSkill, List<GameObject> targets, float power, GameObject player ){
 		//GameObject dmgSourceObj = GameObject.Find( classSkill.Class.ToString() );
 		GameObject dmgSourceObj = player;
-       // player.GetComponent<calculateDmg>().dueDmgTargets = targets;
+        var effectsControllerScript = player.GetComponent<effectsController>();
+        var playerCalculateDmg = player.GetComponent<calculateDmg>();
+        playerCalculateDmg.dueDmgTargets.RemoveAll(t => t);
+        playerCalculateDmg.dueDmgTargets.AddRange(targets);
         foreach (var target in targets) {
 			var targetData = target.GetComponent<character_data>();
 			var targetCalculateDmgScript = target.GetComponent<calculateDmg>();
-			/*if ( enemySkill.fxObject != null ){
-				effectsControllerScript.callEffectTarget( target, enemySkill.fxObject );
-			}*/
+			if ( classSkill.fxObject != null ){
+				effectsControllerScript.callEffectTarget( target, classSkill.fxObject );
+			}
 			if( target.tag == "Enemy" && targetData.isAlive ){
 				foreach (var status in classSkill.singleStatusGroup) {
 

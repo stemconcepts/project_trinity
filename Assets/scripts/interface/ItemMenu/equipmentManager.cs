@@ -8,25 +8,23 @@ public class equipmentManager: MonoBehaviour {
 
 	public static equipmentManager _Instance;
 
-	public string tankWeapon;
 	public weapons tankWeaponObject;
 	public weapons tankSecondWeaponObject;
-	public classSkills tankSkillsObject;
+    public bauble tankBaubleObject;
 	public List<string> tankSkills = new List<string>();
-	public string tankClassSkill;
+	public classSkills tankClassSkill;
 
-	public string healerWeapon;
 	public weapons healerWeaponObject;
 	public weapons healerSecondWeaponObject;
+    public bauble healerBaubleObject;
 	public List<string> healerSkills = new List<string>();
-	public string healerClassSkill;
+	public classSkills healerClassSkill;
 
-	public string dpsWeapon;
 	public weapons dpsWeaponObject;
 	public weapons dpsSecondWeaponObject;
-	//public string dpsPassives;
+	public bauble dpsBaubleObject;
 	public List<string> dpsSkills = new List<string>();
-	public string dpsClassSkill;
+	public classSkills dpsClassSkill;
 
 	public static equipmentManager Instance
 	{
@@ -64,13 +62,13 @@ public class equipmentManager: MonoBehaviour {
 	}
 
 	void Update(){
-		if( tankWeapon != "" && tankClassSkill != "" ){
+		if( tankWeaponObject && tankSecondWeaponObject && tankClassSkill != null ){
 			sceneControlScript.tankReady = true;
 		}
-		if( healerWeapon != "" && healerClassSkill != "" ){
+		if( healerWeaponObject && healerSecondWeaponObject && healerClassSkill != null ){
 			sceneControlScript.healerReady = true;
 		}
-		if( dpsWeapon != "" && dpsClassSkill != "" ){
+		if( dpsWeaponObject && dpsSecondWeaponObject && dpsClassSkill != null ){
 			sceneControlScript.dpsReady = true;
 		}
 	}

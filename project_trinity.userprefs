@@ -1,15 +1,16 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/skills/skill_selection.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/interface/skillMenu/skillItemBehaviour.cs">
     <Files>
-      <File FileName="Assets/scripts/character status/calculateDmg.cs" Line="31" Column="5" />
-      <File FileName="Assets/scripts/enemy skills/enemySkillSelection.cs" Line="160" Column="28" />
-      <File FileName="Assets/scripts/skills/skill_selection.cs" Line="182" Column="7" />
-      <File FileName="Assets/scripts/character status/auto_attack.cs" Line="65" Column="52" />
-      <File FileName="Assets/scripts/character status/auto_attackEnemy.cs" Line="112" Column="28" />
-      <File FileName="Assets/scripts/character status/status.cs" Line="215" Column="1" />
-      <File FileName="Assets/scripts/TaskManager.cs" Line="185" Column="1" />
-      <File FileName="Assets/scripts/interface/combatDisplay.cs" Line="25" Column="5" />
+      <File FileName="Assets/scripts/interface/skillMenu/skillSlotManager.cs" Line="62" Column="79" />
+      <File FileName="Assets/scripts/interface/ItemMenu/slotManager.cs" Line="23" Column="5" />
+      <File FileName="Assets/scripts/interface/skillMenu/skillItemBehaviour.cs" Line="144" Column="67" />
+      <File FileName="Assets/scripts/interface/ItemMenu/itemBehaviour.cs" Line="213" Column="27" />
+      <File FileName="Assets/scripts/interface/ItemMenu/slotBehaviour.cs" Line="20" Column="32" />
+      <File FileName="Assets/baubleItems.cs" Line="6" Column="1" />
+      <File FileName="Assets/scripts/interface/skillMenu/skillItems.cs" Line="10" Column="27" />
+      <File FileName="Assets/scripts/interface/movement_script.cs" Line="59" Column="2" />
+      <File FileName="Assets/scripts/interface/ItemMenu/equipControl.cs" Line="10" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

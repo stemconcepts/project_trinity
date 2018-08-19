@@ -117,9 +117,8 @@ public class calculateDmg : MonoBehaviour {
             {
                 var calculateDmg = target.GetComponent<calculateDmg>();
                 calculateDmg.TakeDmg( e.Data.name );
-                EventManager.BuildEvent( "OnDealingDmg", extTargetVar: this.gameObject, eventCallerVar: dmgSource, extraInfoVar: damageTaken );
+                EventManager.BuildEvent( "OnDealingDmg", extTargetVar: target, eventCallerVar: this.gameObject, extraInfoVar: calculateDmg.damageTaken );
             }
-            dueDmgTargets.RemoveAll(t => t);
         }
 	}
 

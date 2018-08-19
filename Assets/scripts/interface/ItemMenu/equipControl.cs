@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class equipControl : MonoBehaviour {
 	hoverManager hoverControlScript;
 	public GameObject equippedWeapon;
+    public GameObject equippedBauble;
+    public classSkills equippedSkill;
 	public Image imageScript;
 	public bool activeSlot;
 

@@ -29,6 +29,7 @@ public class classSkills : ScriptableObject {
 	public string animationCastingType;
 	public string animationRepeatCasting;
 	public bool loopAnimation;
+    [Multiline]
 	public string skillDesc;
 	public bool skillActive;
 	public bool skillConfirm;

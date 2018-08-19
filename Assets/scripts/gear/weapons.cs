@@ -6,6 +6,7 @@ public class weapons : ScriptableObject {
 	public string WeaponName;
 	public string DisplayName;
 	public bool owned;
+    public Sprite itemIcon;
 	public bool isEquipped;
 	public int itemNumber;
 	[Multiline]
@@ -26,7 +27,6 @@ public class weapons : ScriptableObject {
 		cursedGlove
 	};
 	public weaponType type;
-	//public classSkills skillOne;
     public classSkills skillTwo;
 	public classSkills skillThree;
 }

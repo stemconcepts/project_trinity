@@ -5,7 +5,7 @@ public class equipedWeapons : MonoBehaviour {
 	public weapons primaryWeapon;
 	public weapons secondaryWeapon;
     public classSkills classSkill;
-	private skill_effects skillEffectScript;
+    private skill_effects skillEffectScript;
 	public currentWeapon currentWeaponEnum;
 	public enum currentWeapon{
 		Primary,
@@ -13,6 +13,7 @@ public class equipedWeapons : MonoBehaviour {
 	}
 
 	public void PopulateSkills( ){
+        skillEffectScript = GetComponent<skill_effects>();
 		if ( primaryWeapon != null ){
             classSkills intPSkill2 = Object.Instantiate( primaryWeapon.skillTwo ) as classSkills;
             classSkills intPSkill3 = Object.Instantiate( primaryWeapon.skillThree ) as classSkills;
@@ -39,8 +40,7 @@ public class equipedWeapons : MonoBehaviour {
 	}
 
 	void Awake(){
-		skillEffectScript = GetComponent<skill_effects>();
-		PopulateSkills();
+		//skillEffectScript = GetComponent<skill_effects>();
 	}
 
 }

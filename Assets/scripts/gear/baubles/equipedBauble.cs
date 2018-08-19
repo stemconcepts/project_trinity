@@ -16,8 +16,9 @@ public class equipedBauble : MonoBehaviour {
         
             foreach (var effect in baubleEffects)
             {
-                var stat = bauble.flatAmount != 0 ? 0 : characterScript.GetAttributeValue( bauble.focusAttribute );
-                effect.power = bauble.flatAmount != 0 ? bauble.flatAmount : stat * 0.25f;
+                var attrValue = characterScript.GetAttributeValue( bauble.focusAttribute );
+                var stat = bauble.flatAmount != 0 ? 0 : attrValue;
+                effect.power = bauble.flatAmount != 0 ? bauble.flatAmount + attrValue : stat * 0.25f;
                 effect.duration = bauble.duration;
                 effect.trigger = bauble.trigger.ToString();
                 effect.triggerChance = bauble.triggerChance;
@@ -36,7 +37,6 @@ public class equipedBauble : MonoBehaviour {
 
     void Start(){
         CalculatePower();
-        
     }
 	
 	// Update is called once per frame

@@ -53,6 +53,7 @@
   <ItemGroup>
      <Compile Include="Assets\Editor\ScriptableObjectFactory.cs" />
      <Compile Include="Assets\Editor\ScriptableObjectWindow.cs" />
+     <Compile Include="Assets\spine-unity\Editor\AnimationReferenceAssetEditor.cs" />
      <Compile Include="Assets\spine-unity\Editor\AssetDatabaseAvailabilityDetector.cs" />
      <Compile Include="Assets\spine-unity\Editor\AtlasAssetInspector.cs" />
      <Compile Include="Assets\spine-unity\Editor\BoneFollowerInspector.cs" />

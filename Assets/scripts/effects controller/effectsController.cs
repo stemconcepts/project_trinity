@@ -16,7 +16,15 @@ public class effectsController : MonoBehaviour {
 		}
 		if( gameObject.tag != "Player" ){
 			var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
-		} else {
+		    var particles = fx.GetComponents<ParticleSystem>();
+            if( particles != null ){
+                foreach (var particle in particles)
+                {
+                    var main = particle.main;
+                    main.randomizeRotationDirection = 1.0f;
+                }
+            }
+        } else {
 			var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), fxposition.transform.rotation );
 			//fx.transform.SetParent(position.transform);
 		}	
@@ -29,8 +37,16 @@ public class effectsController : MonoBehaviour {
 		} else if ( position == "front" ){
 			fxposition = target.transform.Find("FXpositions").transform.Find("FXfront").gameObject;
 		}
-		if( gameObject.tag != "Player" ){
+		if( target.tag != "Player" ){
 			var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
+            var particles = fx.GetComponents<ParticleSystem>();
+            if( particles != null ){
+                foreach (var particle in particles)
+                {
+                    var main = particle.main;
+                    main.randomizeRotationDirection = 1.0f;
+                }
+            }
 			//fx.transform.SetParent(position.transform);
 		} else {
 			var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), fxposition.transform.rotation );

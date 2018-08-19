@@ -59,9 +59,10 @@ public class auto_attack : MonoBehaviour {
 			yield return new WaitForSeconds(waitTime);
 			//if not disabled or busy in some way then attack as normal*/
 	void RunAttackLoop(){	
-        List<GameObject> targets = new List<GameObject>{
-            characterScript.target.gameObject
-        };
+        if( battleManager.battleReady ){
+            List<GameObject> targets = new List<GameObject>{
+                characterScript.target.gameObject
+            };
             calculateDmgScript.dueDmgTargets = targets;
 			if( characterScript.isAlive && characterScript.canAutoAttack && !characterScript.isAttacking && !statusScript.DoesStatusExist( "stun" ) && !skillCdScript.skillActive ){
 					characterScript.isAttacking = true;
@@ -94,7 +95,10 @@ public class auto_attack : MonoBehaviour {
                 AABusyTask = new Task( busyAnimation( 5f ) );
 				//StartCoroutine( busyAnimation( 5f ));
 			}
-	}
+        } else {
+            AATask = new Task( AutoAttackCD() );
+	    }
+    }
 		//}
 	//}
 

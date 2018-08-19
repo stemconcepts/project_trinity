@@ -57,7 +57,7 @@ public class movement_script : MonoBehaviour {
 		}
 	}
 	IEnumerator holdtime( float waitTime, Ray rayVar, float distanceVar ){
-		while( dragging == false ){
+		while( !dragging ){
 			yield return new WaitForSeconds( waitTime );
 			//if( !floorPanels ){
 			//	floorPanels.gameObject.SetActive(true);

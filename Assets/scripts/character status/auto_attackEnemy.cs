@@ -105,6 +105,7 @@ public class auto_attackEnemy : MonoBehaviour {
 	//{
 	//	while( characterScript.Health > 0 ){
 	void RunAttackLoop(){
+        if( battleManager.battleReady ){
         Target = GetTarget().GetComponent<character_data>();
         List<GameObject> targets = new List<GameObject>{
             Target.gameObject
@@ -137,7 +138,10 @@ public class auto_attackEnemy : MonoBehaviour {
 			}
 			//yield return new WaitForSeconds(waitTime);
 		//}
-	}
+        } else {
+            StartCoroutine( AutoAttackCD() );
+	    }
+    }
 
 	IEnumerator AutoAttackCD()
 	{

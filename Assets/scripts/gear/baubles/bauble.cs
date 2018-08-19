@@ -6,6 +6,7 @@ using UnityEngine;
 public class bauble : ScriptableObject {
     public string baubleName;
     public bool owned;
+    public Sprite itemIcon;
     public bool isEquipped;
     public string focusAttribute;
     public float flatAmount;

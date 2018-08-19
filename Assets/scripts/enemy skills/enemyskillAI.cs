@@ -37,6 +37,10 @@ public class enemyskillAI : MonoBehaviour {
 		var boss = GameObject.FindGameObjectWithTag("Boss");
 		var bossSkillList = boss.transform.parent.GetComponent<enemySkill_effects>().enemySkilllist;
 		var randomSkill = SkillToRun( bossSkillList );
+        if( !battleManager.battleReady ){
+            StartCoroutine( skillReset( 5f )); 
+            return;
+        }
 				//print( randomNumber );
 		if( !skillSelectionScript.skillinprogress && !statusScript.DoesStatusExist( "stun" ) && !characterScript.isAttacking && skillSelectionScript.bossphaseone == true && randomSkill != null ){
 			//for( int i=0; i < bossSkillList.Count; i++ ){

@@ -6,22 +6,27 @@ using UnityEngine.UI;
 public class itemBehaviour : MonoBehaviour {
 	hoverManager hoverControlScript;
 	equipmentManager equipmentManagerScript;
-	weaponItems weaponItemScript;
-	public int itemID;
+    public weapons weaponItemScript;
+    public bauble baubleItemScript;
+    public Sprite itemIcon;
 	public string itemName;
+    public GameObject itemHoverObj;
+    public GameObject liveItemHoverObj;
 	public enum weaponType {
 		bladeAndBoard,
 		heavyHanded,
 		dualBlades,
 		clawAndPistol,
 		glove,
-		cursedGlove
+		cursedGlove,
+        bauble
 	};
 	public weaponType type;
 	GameObject currentSlot;
 	itemDetailsControl detailsControlScript;
 	float distance;
 	public bool dragging = false;
+    public bool hovered = false;
 	public bool equipped = false;
 	Task holdTimeTask;
 	BoxCollider2D colliderScript;
@@ -46,7 +51,7 @@ public class itemBehaviour : MonoBehaviour {
 				this.transform.parent.GetComponent<slotBehaviour>().imageScript.color = this.transform.parent.GetComponent<slotBehaviour>().inactiveColor;
 				this.transform.parent.GetComponent<slotBehaviour>().currentSlot = false;
 			} else {
-				this.transform.parent.GetComponent<slotBehaviour>().imageScript.color = Color.blue;
+                this.transform.parent.GetComponent<slotBehaviour>().imageScript.color = new Color(0,0,0, 0.9f);
 				this.transform.parent.GetComponent<slotBehaviour>().currentSlot = true;
 			}
 		}  
@@ -54,7 +59,11 @@ public class itemBehaviour : MonoBehaviour {
 		//if( this.transform.FindChild("Panel-item(Clone)") ){
 			//this.transform.parent.GetComponent<slotBehaviour>().currentItemID = this.itemID;
 		if( !equipped){
-			detailsControlScript.DisplayWeaponData(itemID);
+            if( weaponItemScript != null) {
+			    detailsControlScript.DisplayWeaponData(weaponItemScript);
+            } else {
+                detailsControlScript.DisplayBaubleData(baubleItemScript);
+            }
 		}
 		//}
 		//preps drag
@@ -125,10 +134,9 @@ public class itemBehaviour : MonoBehaviour {
 			if( hoverControlScript.hoveredEquipSlot.name == "Panel-tankweapon" || hoverControlScript.hoveredEquipSlot.name == "Panel-secondTankWeapon" ){
 				if( hoveredWeaponType == weaponType.heavyHanded || hoveredWeaponType == weaponType.bladeAndBoard  ){
 					if( hoverControlScript.hoveredEquipSlot.name == "Panel-tankweapon" ){
-						equipmentManagerScript.tankWeaponObject = weaponItemScript.weaponList[itemID];
-						//equipmentManagerScript.tankWeapon = itemName;
+						equipmentManagerScript.tankWeaponObject = weaponItemScript;
 					} else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-secondTankWeapon" ) {
-						equipmentManagerScript.tankSecondWeaponObject = weaponItemScript.weaponList[itemID];
+						equipmentManagerScript.tankSecondWeaponObject = weaponItemScript;
 					}
 					hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
 					hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
@@ -139,10 +147,9 @@ public class itemBehaviour : MonoBehaviour {
 			} else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-dpsweapon" || hoverControlScript.hoveredEquipSlot.name == "Panel-secondDpsweapon" ) {
 				if( hoveredWeaponType == weaponType.clawAndPistol || hoveredWeaponType == weaponType.dualBlades  ){
 					if( hoverControlScript.hoveredEquipSlot.name == "Panel-dpsweapon" ){
-						equipmentManagerScript.dpsWeaponObject = weaponItemScript.weaponList[itemID];
-						equipmentManagerScript.dpsWeapon = itemName;
+						equipmentManagerScript.dpsWeaponObject = weaponItemScript;
 					} else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-secondDpsweapon" ) {
-						equipmentManagerScript.dpsSecondWeaponObject = weaponItemScript.weaponList[itemID];
+						equipmentManagerScript.dpsSecondWeaponObject = weaponItemScript;
 					}
 					hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
 					hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
@@ -153,10 +160,9 @@ public class itemBehaviour : MonoBehaviour {
 			} else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-healerweapon" || hoverControlScript.hoveredEquipSlot.name == "Panel-secondHealerweapon" ) {
 				if( hoveredWeaponType == weaponType.glove || hoveredWeaponType == weaponType.cursedGlove  ){
 					if( hoverControlScript.hoveredEquipSlot.name == "Panel-healerweapon" ){
-						equipmentManagerScript.healerWeaponObject = weaponItemScript.weaponList[itemID];
-						equipmentManagerScript.healerWeapon = itemName;
+						equipmentManagerScript.healerWeaponObject = weaponItemScript;
 					} else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-secondHealerweapon" ) {
-						equipmentManagerScript.healerSecondWeaponObject = weaponItemScript.weaponList[itemID];
+						equipmentManagerScript.healerSecondWeaponObject = weaponItemScript;
 					}
 					hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
 					hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
@@ -164,33 +170,95 @@ public class itemBehaviour : MonoBehaviour {
 				} else {
 						print ("cannot equip this weapon");
 				}
-			}
-			this.transform.SetParent( hoverControlScript.OriginalSlot.transform );
-			soundContScript.playSound( audioclip );
-			particleSystem.Play();
+			} else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-tankAccessorySlot" ) {
+                if( hoveredWeaponType == weaponType.bauble ){
+                    equipmentManagerScript.tankBaubleObject = baubleItemScript;
+                    hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
+                    hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
+                    this.transform.SetParent( hoverControlScript.hoveredEquipSlot.transform );
+                } else {
+                        print ("cannot equip this weapon");
+                }
+            } else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-dpsAccessorySlot" ) {
+                if( hoveredWeaponType == weaponType.bauble ){
+                    equipmentManagerScript.dpsBaubleObject = baubleItemScript;
+                    hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
+                    hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
+                    this.transform.SetParent( hoverControlScript.hoveredEquipSlot.transform );
+                } else {
+                        print ("cannot equip this weapon");
+                }
+            } else if ( hoverControlScript.hoveredEquipSlot.name == "Panel-healerAccessorySlot" ) {
+                if( hoveredWeaponType == weaponType.bauble ){
+                    equipmentManagerScript.healerBaubleObject = baubleItemScript;
+                    hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
+                    hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
+                    this.transform.SetParent( hoverControlScript.hoveredEquipSlot.transform );
+                } else {
+                        print ("cannot equip this weapon");
+                }
+            }
 
+			this.transform.SetParent( hoverControlScript.OriginalSlot.transform );
+            soundContScript.playSound( audioclipEquip );
+			particleSystem.Play();
 		}
 		this.transform.parent.GetComponent<HorizontalLayoutGroup>().enabled = true;
 		dragging = false; 
 	}
+
+    public void OnMouseEnter(){
+        Vector3 rayPoint = Camera.current != null ? Camera.current.ScreenToWorldPoint(Input.mousePosition) : new Vector3();
+        rayPoint.z = 0f;
+        rayPoint.x += 20f;
+        rayPoint.y += 10f;
+        liveItemHoverObj = (GameObject)Instantiate( itemHoverObj, rayPoint, Quaternion.identity );
+        var itemHoverName = liveItemHoverObj.transform.GetChild(0).GetComponent<Text>();
+        liveItemHoverObj.transform.SetParent( GameObject.Find("Canvas - Main").transform );
+        liveItemHoverObj.transform.localScale = new Vector3(1f,1f,1f);
+        itemHoverName.text = "<b>" + itemName + "</b>";
+        hovered = true;
+    }
+    public void OnMouseExit(){
+        hovered = false;
+        Destroy(liveItemHoverObj);
+    }
 
 	void Awake(){
 		colliderScript = GetComponent<BoxCollider2D>();
 		detailsControlScript = GameObject.FindGameObjectWithTag("Panel-item-details").GetComponent<itemDetailsControl>();
 		hoverControlScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<hoverManager>();
 		equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<equipmentManager>();
-		weaponItemScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<weaponItems>();
 		soundContScript = GetComponent<soundController>();
 		particleSystem = GetComponent<ParticleSystem>();
 	}
 
+    void Start(){
+        if( itemIcon != null ){
+            gameObject.GetComponent<Image>().sprite = itemIcon;
+        }
+        if( baubleItemScript != null ){
+            itemName = baubleItemScript.baubleName;
+        } else {
+            itemName = weaponItemScript.DisplayName;
+        }
+    }
+
 	// Update is called once per frame
 	void Update () {
-		if (dragging)
+		if (hovered)
 		{
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			Vector2 rayPoint = ray.GetPoint(distance);
-			transform.position = rayPoint;
+            rayPoint.y += 9;
+			liveItemHoverObj.transform.position = rayPoint;
 		}
+        if (dragging)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Vector2 rayPoint = ray.GetPoint(distance);
+            rayPoint.y += 9;
+            transform.position = rayPoint;
+        }
 	}
 }

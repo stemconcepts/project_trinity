@@ -157,8 +157,8 @@ public class enemySkillSelection : MonoBehaviour {
 		var tank = GameObject.Find("Guardian");
 		var tankData = tank.GetComponent<character_data>();
 		var tankCalDmg = tank.GetComponent<calculateDmg>();
+        calculateDmgScript.dueDmgTargets.RemoveAll(t => t);
         calculateDmgScript.dueDmgTargets.AddRange(targets);
-        //this.gameObject.GetComponent<calculateDmg>().dueDmgTargets = targets;
 		foreach (var target in targets) {
 			var targetData = target.GetComponent<character_data>();
 			var targetCalculateDmgScript = target.GetComponent<calculateDmg>();
@@ -176,6 +176,8 @@ public class enemySkillSelection : MonoBehaviour {
 					if( targetData.inVoidZone ){ enemySkill.AttachStatus( enemySkill.singleStatusGroup, target.GetComponent<status>(), power, enemySkill.duration ); }
 				} else if( enemySkill.hasVoidzone && tankData.inVoidCounter ){
 					tankData.incomingDmg = ( power * 1.5f);
+                    calculateDmgScript.dueDmgTargets.RemoveAll(t => t);
+                    calculateDmgScript.dueDmgTargets.Add(tankData.gameObject);
 					tankCalDmg.calculatedamage( enemySkill:enemySkill, skeletonAnimationVar:this.gameObject.transform.Find("Animations").GetComponent<SkeletonAnimation>(), isSpell:enemySkill.isSpell );
 				} else {
 					targetData.incomingDmg = power;

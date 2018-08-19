@@ -2,58 +2,91 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public class OwnedItems {
+    public List<weapons> weapons = new List<weapons>();
+    public List<bauble> baubles = new List<bauble>();
+}
+
 public class slotManager : MonoBehaviour {
 	public List<GameObject> slots = new List<GameObject>();
 	public List<GameObject> items = new List<GameObject>();
-	public List<weapons> ownedItems = new List<weapons>();
-	//public List<itemData> ownedItems = new List<itemData>();
+    //public Sprite tempItemIcon;
+    public OwnedItems ownedItems = new OwnedItems();
 	public GameObject slotPrefab;
 	public GameObject itemPrefab;
 	public GameObject menuManager;
 	weaponItems weaponDataScript;
+    baubleItems baubleDataScript;
+
 	public int slotAmount;
+
+    void AddSlot( int i ){
+        var newSlot = (GameObject)Instantiate( slotPrefab );
+            newSlot.GetComponent<slotBehaviour>().currentSlotID = i;
+            slots.Add( newSlot );
+            slots[i].transform.SetParent ( this.transform );
+    }
+
+    Transform AddItemToSlot( int slotID ){
+        foreach (var slot in slots)
+        {
+            if( slot.transform.childCount == 0 ){
+                return slot.transform;
+            }
+        }
+        return null;
+    }
 
 	// Use this for initialization
 	void Awake(){
 		weaponDataScript = menuManager.GetComponent<weaponItems>();
-	}
+        weaponDataScript.GetAllWeapons();
+        baubleDataScript = menuManager.GetComponent<baubleItems>();
+	    baubleDataScript.GetAllBaubles();
+   // }
 
-	void Start () {
+	//void Start () {
 		slotAmount = 54;
 
-		//for( int i = 0; i < weaponDataScript.itemList.Count; i++ ){
-		//	if( weaponDataScript.itemList[i].owned ){
-		//		ownedItems.Add( weaponDataScript.itemList[i] );
-		//	}
-		//}
-		for( int i = 0; i < weaponDataScript.weaponList.Count; i++ ){
-			if( weaponDataScript.weaponList[i].owned ){
-				ownedItems.Add( weaponDataScript.weaponList[i] );
-				if( i < ownedItems.Count ){
-					ownedItems[i].itemNumber = i;
-				}
-			}
+		for( int i = 0; i < weaponDataScript.weapons.Count; i++ ){
+				ownedItems.weapons.Add( weaponDataScript.weapons[i] );
 		}
-		
+
+        for( int i = 0; i < baubleDataScript.baubles.Count; i++ ){
+                ownedItems.baubles.Add( baubleDataScript.baubles[i] );
+        }
 
 		for( int i = 0; i < slotAmount; i++ ){
-			//add Slots
-			var newSlot = (GameObject)Instantiate( slotPrefab );
-			newSlot.GetComponent<slotBehaviour>().currentSlotID = i;
-			slots.Add( newSlot );
-			slots[i].transform.SetParent ( this.transform );
-			if( i < ownedItems.Count ){
-					var newitem = (GameObject)Instantiate( itemPrefab );
-					newitem.GetComponent<itemBehaviour>().itemID = i;
-					newitem.GetComponent<itemBehaviour>().itemName = ownedItems[i].WeaponName;
-					newitem.GetComponent<itemBehaviour>().type = (itemBehaviour.weaponType)ownedItems[i].type;
-					items.Add( newitem );
-					//print( ownedItems[i].WeaponName + i );
-					newitem.transform.SetParent( slots[i].transform );
-				}
+            AddSlot(i);
 		}
 
-		
+        foreach (var item in ownedItems.weapons)
+        {
+            var newitem = (GameObject)Instantiate( itemPrefab );
+                var newItemBehaviour = newitem.GetComponent<itemBehaviour>();
+                newItemBehaviour.weaponItemScript = item;
+                newItemBehaviour.type = (itemBehaviour.weaponType)item.type;
+                newItemBehaviour.itemIcon = item.itemIcon;
+                items.Add( newitem );
+                var slotTran = AddItemToSlot(item.GetInstanceID());
+                if( slotTran != null ){
+                    newitem.transform.SetParent( slotTran );
+                }
+        }
+
+        foreach (var item in ownedItems.baubles)
+        {
+            var newitem = (GameObject)Instantiate( itemPrefab );
+                var newItemBehaviour = newitem.GetComponent<itemBehaviour>();
+                newItemBehaviour.baubleItemScript = item;
+                newItemBehaviour.type = itemBehaviour.weaponType.bauble;
+                newItemBehaviour.itemIcon = item.itemIcon;
+                items.Add( newitem );
+                var slotTran = AddItemToSlot(item.GetInstanceID());
+                if( slotTran != null ){
+                    newitem.transform.SetParent( slotTran );
+                }
+        }
 	}
 	
 	// Update is called once per frame

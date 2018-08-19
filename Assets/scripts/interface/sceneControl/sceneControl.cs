@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class sceneControl : MonoBehaviour {
@@ -10,7 +11,8 @@ public class sceneControl : MonoBehaviour {
 
 	public void LoadBattle(){
 		if( tankReady && healerReady && dpsReady ){
-			Application.LoadLevel("mockupbattle");
+			//Application.LoadLevel("mockupbattle");
+            SceneManager.LoadScene("mockupbattle", LoadSceneMode.Single);
 		} else if( tankReady == false ){
 			print ("Please equip a weapon and/or skill to the Guardian");
 		} else if( healerReady == false ){

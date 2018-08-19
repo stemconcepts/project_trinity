@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\baubleItems.cs" />
      <Compile Include="Assets\Examples\Getting Started\Scripts\BasicPlatformerController.cs" />
      <Compile Include="Assets\Examples\Getting Started\Scripts\ConstrainedCamera.cs" />
      <Compile Include="Assets\Examples\Getting Started\Scripts\Raptor.cs" />
@@ -115,6 +116,7 @@
      <Compile Include="Assets\scripts\gear\baubles\bauble.cs" />
      <Compile Include="Assets\scripts\gear\baubles\equipedBauble.cs" />
      <Compile Include="Assets\scripts\gear\baubles\eventeffects\EffectOnEvent.cs" />
+     <Compile Include="Assets\scripts\gear\equipedSkill.cs" />
      <Compile Include="Assets\scripts\gear\equipedWeapons.cs" />
      <Compile Include="Assets\scripts\gear\gearSwapping.cs" />
      <Compile Include="Assets\scripts\gear\weapons.cs" />
@@ -163,7 +165,9 @@
      <Compile Include="Assets\scripts\interface\statussinglelabel.cs" />
      <Compile Include="Assets\scripts\interface\voidzoneBehaviour.cs" />
      <Compile Include="Assets\scripts\interface\voidzoneSpawner.cs" />
+     <Compile Include="Assets\scripts\levelBuilder\battleManager.cs" />
      <Compile Include="Assets\scripts\levelBuilder\characterManager.cs" />
+     <Compile Include="Assets\scripts\Models\sceneModels\battleModel.cs" />
      <Compile Include="Assets\scripts\skills\class_skillLabelDisplay.cs" />
      <Compile Include="Assets\scripts\skills\class_skillSelection.cs" />
      <Compile Include="Assets\scripts\skills\extra_skill_effects.cs" />
@@ -177,6 +181,8 @@
      <Compile Include="Assets\scripts\TaskManager.cs" />
      <Compile Include="Assets\Second.cs" />
      <Compile Include="Assets\sound\soundController.cs" />
+     <Compile Include="Assets\Spine\spine-unity\Asset Types\AnimationReferenceAsset.cs" />
+     <Compile Include="Assets\Spine\spine-unity\Asset Types\EventDataReferenceAsset.cs" />
      <Compile Include="Assets\Spine\spine-unity\Asset Types\RegionlessAttachmentLoader.cs" />
      <Compile Include="Assets\Spine\spine-unity\Components\PointFollower.cs" />
      <Compile Include="Assets\spine-csharp\Animation.cs" />

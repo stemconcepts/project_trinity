@@ -10,6 +10,7 @@ public class slotBehaviour : MonoBehaviour {
 	hoverManager hoverControlScript;
 	public Image imageScript;
 	public Color inactiveColor;
+    public Color origColor;
 	public BoxCollider2D colliderScript;
 
 	void OnMouseOver(){
@@ -20,6 +21,7 @@ public class slotBehaviour : MonoBehaviour {
 	void Start() {
 		colliderScript.enabled = false;
 		inactiveColor = new Vector4(1, 1, 1, 1f);
+        origColor = inactiveColor;
 		this.transform.localScale = new Vector3(1f,1f,1f);
 	}
 

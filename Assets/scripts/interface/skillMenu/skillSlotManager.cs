@@ -12,36 +12,61 @@ public class skillSlotManager : MonoBehaviour {
 	skillItems skillDataScript;
 	public int slotAmount;
 
+    Transform AddItemToSlot( int slotID ){
+        foreach (var slot in slots)
+        {
+            if( slot.transform.childCount == 0 ){
+                return slot.transform;
+            }
+        }
+        return null;
+    }
+
+    void AddSlot( int i ){
+        var newSlot = (GameObject)Instantiate( slotPrefab );
+            newSlot.GetComponent<slotBehaviour>().currentSlotID = i;
+            slots.Add( newSlot );
+            slots[i].transform.SetParent ( this.transform );
+    }
+
 	// Use this for initialization
 	void Awake(){
 		skillDataScript = menuManager.GetComponent<skillItems>();
-	}
+        skillDataScript.GetAllSkills();
+	//}
 
 	// Use this for initialization
-	void Start () {
+	//void Start () {
 		slotAmount = 60;
 		
-		for( int i = 0; i < skillDataScript.itemList.Count ; i++ ){
-			if( skillDataScript.itemList[i].learned ){
-				ownedSkills.Add( skillDataScript.itemList[i] );
+		for( int i = 0; i < skillDataScript.skills.Count ; i++ ){
+			if( skillDataScript.skills[i].learned ){
+				ownedSkills.Add( skillDataScript.skills[i] );
 			}
 		}
-		
+	
 		for( int i = 0; i < slotAmount; i++ ){
-			//add Slots
-			var newSlot = (GameObject)Instantiate( slotPrefab );
-			newSlot.GetComponent<slotBehaviour>().currentSlotID = i;
-			slots.Add( newSlot );
-			slots[i].transform.SetParent(this.transform);
-			if( i < ownedSkills.Count ){
-				var newitem = (GameObject)Instantiate( skillPrefab );
-				newitem.GetComponent<skillItemBehaviour>().skillID = i;
-				newitem.GetComponent<skillItemBehaviour>().skillName = ownedSkills[i].skillName;
-				newitem.GetComponent<skillItemBehaviour>().type = (skillItemBehaviour.classType)ownedSkills[i].Class;
-				skills.Add( newitem );
-				newitem.transform.SetParent(slots[i].transform);
-			}
+            AddSlot(i);
 		}
+
+        foreach (var item in ownedSkills)
+        {
+            var newitem = (GameObject)Instantiate( skillPrefab );
+                var newItemBehaviour = newitem.GetComponent<skillItemBehaviour>();
+                newItemBehaviour.classSkill = item;
+                if( item.Class == classSkills.ClassEnum.Guardian){
+                    newItemBehaviour.type = skillItemBehaviour.classType.guardian;
+                } else if( item.Class == classSkills.ClassEnum.Stalker){
+                    newItemBehaviour.type = skillItemBehaviour.classType.stalker;
+                } else if( item.Class == classSkills.ClassEnum.Walker){
+                    newItemBehaviour.type = skillItemBehaviour.classType.walker;
+                }
+                skills.Add( newitem );
+                var slotTran = AddItemToSlot(item.GetInstanceID());
+                if( slotTran != null ){
+                    newitem.transform.SetParent( slotTran );
+                }
+        }
 	}
 	
 	// Update is called once per frame
