@@ -96,7 +96,6 @@ public class calculateDmg : MonoBehaviour {
             //if On hit
             if( statusScript.DoesStatusExist("onHit") && dmgSource != null ){
                 var onHitSkill = statusScript.GetStatusIfExist( "onHit" );
-                print("attempt" + characterScript.role );
                 if( characterScript.characterType == "enemy" ){
                     //enemySkillScript.PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillEnemy );
                 } else {
@@ -107,8 +106,6 @@ public class calculateDmg : MonoBehaviour {
             customHitFX = null;
             //send Event to EventManager
             EventManager.BuildEvent( "OnTakingDmg", extTargetVar: dmgSource, eventCallerVar: this.gameObject );
-        //state.Event -= OnEventHit;
-        //characterScript.incomingDmg = 0;
     }
 
 	public void OnEventHit(Spine.TrackEntry state, Spine.Event e ){

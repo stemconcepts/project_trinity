@@ -217,7 +217,7 @@ void CharSwap(){
          guardian = new classState( "guardian", characterScript.isAlive, characterSelectScript.tankSelected, false );
          stalker = new classState( "stalker", characterScript.isAlive, characterSelectScript.dpsSelected, false );
          walker = new classState( "walker", characterScript.isAlive, characterSelectScript.healerSelected, true );
-		 DisplaySkillsSecond();
+		 //DisplaySkillsSecond();
 	}
 
 	// Use this for initialization

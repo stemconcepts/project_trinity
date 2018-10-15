@@ -67,12 +67,18 @@ public class gearSwapping : MonoBehaviour {
 			var currentWSlot = playerRole.GetComponent<skill_effects>();
 			var weaponType = currentWSlot.weaponSlot == skill_effects.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
 			if( weaponType.type != weapons.weaponType.heavyHanded && weaponType.type != weapons.weaponType.cursedGlove && weaponType.type != weapons.weaponType.clawAndCannon ){
-				playerSkeletonAnim.state.AddAnimation(0, "idle", true, 0 );
+                if( playerRole.name == "Stalker" ){
+                    playerSkeletonAnim.skeleton.SetSkin("light");
+                }
+                playerSkeletonAnim.state.AddAnimation(0, "idle", true, 0 );
 				AAutoAttack.AAanimation = "attack1";
 				charMovementScript.idleAnim = "idle";
 				charMovementScript.hopAnim = "hop";
 				calculateDmgScript.hitAnimNormal = "hit";
 			} else {
+                if( playerRole.name == "Stalker" ){
+                    playerSkeletonAnim.skeleton.SetSkin("heavy");
+                }
 				playerSkeletonAnim.state.SetAnimation(0, "toHeavy", false );
 				playerSkeletonAnim.state.AddAnimation(0, "idleHeavy", true, 0 );
 				AAutoAttack.AAanimation = "attack1Heavy";

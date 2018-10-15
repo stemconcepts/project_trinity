@@ -6,6 +6,7 @@ public class skillBuilder : MonoBehaviour {
 	public GameObject tankData;
 	public GameObject healerData;
 	public GameObject dpsData;
+    public bool skillsReady;
 
 	/*public void BuildSkillList( List<string> equippedSkills, List<skill_properties> skillList  ){
 		foreach( string skillName in equippedSkills ){

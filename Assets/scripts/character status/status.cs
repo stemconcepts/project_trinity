@@ -4,6 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 using Spine.Unity;
 
+public class StatusDetail {
+    public singleStatus singleStatus { get; set; } 
+    public classSkills onHitSkill { get; set; } 
+    public float duration { get; set; }
+    public float power {get; set;}
+    public bool dispellable { get; set; }
+    public bool turnOff { get; set; }
+    public float triggerChance {get; set;}
+}
+
 public class status : MonoBehaviour {
 	public GameObject globalObject;
     private character_data characterScript;
@@ -34,52 +44,63 @@ public class status : MonoBehaviour {
         }*/
     }	
 
-	public void OnHitEnemy( singleStatus singleStatus, enemySkill onHitSkill, float duration = 0, bool dispellable = true, bool turnOff = false ){
-		/*if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
-			spawnUIscript.ShowLabel( singleStatus );
-			var onHitStatus = GetStatusIfExist( singleStatus.statusName );
-			onHitStatus.onHitSkillEnemy = onHitSkill;
-			StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
-				ForceStatusOff( singleStatus );
+	public void OnTakeDmg( StatusDetail statusDetail ){
+        if( !statusDetail.turnOff && !DoesStatusExist( statusDetail.singleStatus.statusName ) ){ 
+            spawnUIscript.ShowLabel( statusDetail.singleStatus );
+			var attrValue = characterScript.GetAttributeValue( statusDetail.singleStatus.attributeName );
+            var stat = attrValue;
+            var effect = ScriptableObject.CreateInstance<EffectOnEvent>();
+            effect.power = stat * 0.25f;
+            effect.duration = statusDetail.duration;
+            effect.trigger = "OnTakingDmg";
+            effect.triggerChance = 1; //comes from status
+            effect.ready = true;
+            effect.effect = EffectOnEvent.effectGrp.Status;
+            effect.affectSelf = true; //comes from status
+            effect.owner = gameObject;
+            effect.coolDown = 0;
+            EventManager.EventAction += effect.RunEffect;
+			StartCoroutine( DurationTimer( statusDetail.duration, statusDetail.singleStatus, ()=> {
+				ForceStatusOff( statusDetail.singleStatus );
 			} ) );
 		} else 
-		if( turnOff ){
-			ForceStatusOff( singleStatus );
-		}*/
+		if( statusDetail.turnOff ){
+			ForceStatusOff( statusDetail.singleStatus );
+		}
 	}
 
 	//Attribute mutations - Use for Attribute buffs and debuff
-    public void AttributeChange( singleStatus singleStatus, float power = 0, float duration = 0, bool dispellable = true, bool turnOff = false ){
-        var currentStat = characterScript.GetAttributeValue( singleStatus.attributeName );
-        var originalStat = characterScript.GetAttributeValue( "original" + singleStatus.attributeName );
+    public void AttributeChange( StatusDetail statusDetail ){
+        var currentStat = characterScript.GetAttributeValue( statusDetail.singleStatus.attributeName );
+        var originalStat = characterScript.GetAttributeValue( "original" + statusDetail.singleStatus.attributeName );
         float buffedStat;
-        if( singleStatus.statusName == "thorns" ){
-            buffedStat = (power / 20) + originalStat;
+        if( statusDetail.singleStatus.statusName == "thorns" ){
+            buffedStat = (statusDetail.power / 20) + originalStat;
         } else {
-            buffedStat = (power / 100) * originalStat;
+            buffedStat = (statusDetail.power / 100) * originalStat;
         }
         float newStat;
-        if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
-            spawnUIscript.ShowLabel( singleStatus );
-            if ( singleStatus.buff ){
-                newStat = singleStatus.attributeName != "ATKspd" ? currentStat + buffedStat : currentStat - buffedStat;
+        if( !statusDetail.turnOff && !DoesStatusExist( statusDetail.singleStatus.statusName ) ){ 
+            spawnUIscript.ShowLabel( statusDetail.singleStatus );
+            if ( statusDetail.singleStatus.buff ){
+                newStat = statusDetail.singleStatus.attributeName != "ATKspd" ? currentStat + buffedStat : currentStat - buffedStat;
             } else {
-                newStat = singleStatus.attributeName != "ATKspd" ? currentStat - buffedStat : currentStat + buffedStat;
+                newStat = statusDetail.singleStatus.attributeName != "ATKspd" ? currentStat - buffedStat : currentStat + buffedStat;
             } 
 
             //set New stat to character
-            characterScript.SetAttribute( singleStatus.attributeName, newStat);
+            characterScript.SetAttribute( statusDetail.singleStatus.attributeName, newStat);
 
             //Remove status 
-            StartCoroutine( DurationTimer( duration, singleStatus, ()=> {
-                    characterScript.SetAttribute( singleStatus.attributeName, originalStat);
+            StartCoroutine( DurationTimer( statusDetail.duration, statusDetail.singleStatus, ()=> {
+                    characterScript.SetAttribute( statusDetail.singleStatus.attributeName, originalStat);
                 })
             );
-            print ( characterScript.objectName + " " + singleStatus.attributeName + " is now " + newStat );         
+            print ( characterScript.objectName + " " + statusDetail.singleStatus.attributeName + " is now " + newStat );         
         } else 
-        if( turnOff ){
-            ForceStatusOff( singleStatus, ()=> {
-                characterScript.SetAttribute( singleStatus.attributeName, originalStat);
+        if( statusDetail.turnOff ){
+            ForceStatusOff( statusDetail.singleStatus, ()=> {
+                characterScript.SetAttribute( statusDetail.singleStatus.attributeName, originalStat);
             });
         }
     }
@@ -419,9 +440,15 @@ public class status : MonoBehaviour {
     public void RunStatusFunction( singleStatus singleStatus, float power = 0, float duration = 0, bool statusOff = false, classSkills onHitSkillPlayer = null, enemySkill onHitSkillEnemy = null, string stat = "" ){
         //makes duration infinite if set to 0
         duration = duration == 0 ? Mathf.Infinity : duration;
+        var statusDetail = new StatusDetail(){
+                singleStatus = singleStatus,
+                power = power,
+                duration = duration,
+                turnOff = statusOff
+        };
         switch ( singleStatus.selectedStatusFunction ) {
 		case singleStatus.statusFunction.AttributeChange:
-			AttributeChange( singleStatus, power, duration, turnOff:statusOff );
+			AttributeChange( statusDetail );
 			break;
 		case singleStatus.statusFunction.AddToStat:
 			AddToStatus( singleStatus, duration, power, statusOff, targetStat: stat );
@@ -439,7 +466,7 @@ public class status : MonoBehaviour {
 			OnHit( singleStatus, onHitSkillPlayer, duration, statusOff );
 			break;
 		case singleStatus.statusFunction.OnHitEnemy:
-			OnHitEnemy( singleStatus, onHitSkillEnemy, duration, statusOff );
+			OnTakeDmg( statusDetail );
 			break;
 		case singleStatus.statusFunction.Immune:
 			SetImmunity( singleStatus, duration, statusOff );

@@ -138,6 +138,9 @@ namespace Spine {
 
 			bool finished = UpdateMixingFrom(from, delta);
 
+			from.animationLast = from.nextAnimationLast;
+			from.trackLast = from.nextTrackLast;
+
 			// Require mixTime > 0 to ensure the mixing from entry was applied at least once.
 			if (to.mixTime > 0 && (to.mixTime >= to.mixDuration || to.timeScale == 0)) {
 				// Require totalAlpha == 0 to ensure mixing is complete, unless mixDuration == 0 (the transition is a single frame).
@@ -149,8 +152,6 @@ namespace Spine {
 				return finished;
 			}
 
-			from.animationLast = from.nextAnimationLast;
-			from.trackLast = from.nextTrackLast;
 			from.trackTime += delta * from.timeScale;
 			to.mixTime += delta * to.timeScale;
 			return false;
@@ -321,10 +322,10 @@ namespace Spine {
 			// Mix between rotations using the direction of the shortest route on the first frame while detecting crosses.
 			float r1 = pose == MixPose.Setup ? bone.data.rotation : bone.rotation;
 			float total, diff = r2 - r1;
+			diff -= (16384 - (int)(16384.499999999996 - diff / 360)) * 360;
 			if (diff == 0) {
 				total = timelinesRotation[i];
 			} else {
-				diff -= (16384 - (int)(16384.499999999996 - diff / 360)) * 360;
 				float lastTotal, lastDiff;
 				if (firstFrame) {
 					lastTotal = 0;
@@ -366,10 +367,12 @@ namespace Spine {
 			}
 
 			// Queue complete if completed a loop iteration or the animation.
-			if (entry.loop ? (trackLastWrapped > entry.trackTime % duration)
-				: (animationTime >= animationEnd && entry.animationLast < animationEnd)) {
-				queue.Complete(entry);
-			}
+			bool complete = false;
+			if (entry.loop)
+				complete = duration == 0 || (trackLastWrapped > entry.trackTime % duration);
+			else
+				complete = animationTime >= animationEnd && entry.animationLast < animationEnd;
+			if (complete) queue.Complete(entry);
 
 			// Queue events after complete.
 			for (; i < n; i++) {

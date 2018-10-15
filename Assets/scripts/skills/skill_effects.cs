@@ -63,7 +63,7 @@ public class skill_effects : MonoBehaviour {
 		//Reset calculated Power
 		classskill.newSP = 0;
 		classskill.newMP = 0;
-
+        gameObject.GetComponent<button_clicks>().DisplaySkillsSecond();
 	}
 
 	public void CalculateSkillPower(){
@@ -98,7 +98,7 @@ public class skill_effects : MonoBehaviour {
 
 	void Start () {
 		if( gameObject.tag == "Player" ){
-            ClearSkillData();
+            //ClearSkillData();
             StartCoroutine( DelayedSetStartingPanel() );
 		} 
 		/*if(statusScript && gameObject.tag != "Player")
@@ -115,6 +115,7 @@ public class skill_effects : MonoBehaviour {
         yield return new WaitForEndOfFrame();
         //send Event to EventManager
         EventManager.BuildEvent( "Passive", eventCallerVar: this.gameObject );
+        ClearSkillData();
         CalculateMagicPower();
         CalculateSkillPower();
     }

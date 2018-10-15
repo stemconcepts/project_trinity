@@ -1284,7 +1284,13 @@ namespace Spine.Unity {
 		internal Material[] sharedMaterials = new Material[0];
 
 		public void Initialize () {
-			doubleBufferedMesh = new DoubleBuffered<SmartMesh>();
+			if (doubleBufferedMesh != null) {
+				doubleBufferedMesh.GetNext().Clear();
+				doubleBufferedMesh.GetNext().Clear();
+				submeshMaterials.Clear();
+			} else {
+				doubleBufferedMesh = new DoubleBuffered<SmartMesh>();
+			}
 		}
 
 		public Material[] GetUpdatedSharedMaterialsArray () {
@@ -1343,6 +1349,11 @@ namespace Spine.Unity {
 			public Mesh mesh = SpineMesh.NewSkeletonMesh();
 			public SkeletonRendererInstruction instructionUsed = new SkeletonRendererInstruction();		
 
+			public void Clear () {
+				mesh.Clear();
+				instructionUsed.Clear();
+			}
+
 			public void Dispose () {
 				if (mesh != null) {
 					#if UNITY_EDITOR
@@ -1397,7 +1408,7 @@ namespace Spine.Unity {
 				var instruction = instructionsItems[startSubmesh + i];
 				submeshesItems[i] = instruction;
 				#if SPINE_TRIANGLECHECK
-				this.hasActiveClipping = instruction.hasClipping;
+				this.hasActiveClipping |= instruction.hasClipping;
 				submeshesItems[i].rawFirstVertexIndex = runningVertexCount; // Ensure current instructions have correct cached values.
 				runningVertexCount += instruction.rawVertexCount; // vertexCount will also be used for the rest of this method.
 				#endif

@@ -37,6 +37,17 @@ public class singleStatus : ScriptableObject {
 		Normal
 	}
     public subStatus subStatus;
+    public triggerGrp trigger;
+    public enum triggerGrp {
+        None,
+        Passive,
+        OnTakingDmg,
+        OnDealingDmg,
+        OnHeal,
+        OnMove,
+        OnSkillCast
+    };
+    public List<EffectOnEvent> effectsOnEvent = new List<EffectOnEvent>();
 	//public classSkills statusSkillPlayer;
 	//public enemySkill statusSkillEnemy;
 

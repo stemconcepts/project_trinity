@@ -63,8 +63,15 @@ namespace Spine.Unity.Editor {
 		public override void OnInspectorGUI () {
 			animationNameProperty = animationNameProperty ?? serializedObject.FindProperty("animationName");
 			string animationName = animationNameProperty.stringValue;
-			Animation animation = ThisSkeletonDataAsset.GetSkeletonData(true).FindAnimation(animationName);
-			bool animationNotFound = animation == null;
+
+			Animation animation = null;
+			if (ThisSkeletonDataAsset != null) {
+				var skeletonData = ThisSkeletonDataAsset.GetSkeletonData(true);
+				if (skeletonData != null) {
+					animation = skeletonData.FindAnimation(animationName);
+				}
+			} 
+			bool animationNotFound = (animation == null);
 
 			if (changeNextFrame) {
 				changeNextFrame = false;
@@ -152,7 +159,8 @@ namespace Spine.Unity.Editor {
 
 		public override GUIContent GetPreviewTitle () { return SpineInspectorUtility.TempContent("Preview"); }
 		public override void OnPreviewSettings () { preview.HandleDrawSettings(); }
-		public override Texture2D RenderStaticPreview (string assetPath, UnityEngine.Object[] subAssets, int width, int height) { return preview.GetStaticPreview(width, height); }
+
+		//public override Texture2D RenderStaticPreview (string assetPath, UnityEngine.Object[] subAssets, int width, int height) { return preview.GetStaticPreview(width, height); }
 		#endregion
 	}
 
