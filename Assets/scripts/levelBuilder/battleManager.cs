@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class battleManager : MonoBehaviour  {
-    static public battleModel battleModel;
+public class BattleManager : MonoBehaviour  {
+    static public BattleModel battleModel;
     static Task battleStartTask;
     public static bool battleReady = false;
 

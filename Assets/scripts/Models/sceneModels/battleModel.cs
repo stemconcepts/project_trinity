@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class battleModel : MonoBehaviour {
+public class BattleModel : MonoBehaviour {
     public List<GameObject> friendlyPlayers = new List<GameObject>();
     public List<GameObject> enemyPlayers = new List<GameObject>();
     public int difficulty = 1;

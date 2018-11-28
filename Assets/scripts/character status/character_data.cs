@@ -88,8 +88,6 @@ public class character_data : MonoBehaviour {
 	}
 
 	void ResetAbsorbPoints(){
-	//make sure characters have the status scriptObject in their status group
-		//reset absorb points 
 		if( absorbPoints <= 0 && statusScript.DoesStatusExist( "damageAbsorb" ) ){
 			absorbPoints = 0;
 			statusScript.ForceStatusOff( statusScript.GetStatus( "damageAbsorb" ) );
