@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -12,7 +10,6 @@ namespace AssemblyCSharp
         BattleModel battleModel {get; set;}
         Game_Manager gameManager {get; set;}
         public static Task_Manager taskManager {get; set;}
-        public static Battle_Details_Manager battleDetailsManager {get; set;}
 
         public static List<character_Manager> friendlyCharacters {get; set;} 
         public static List<character_Manager> enemyCharacters {get; set;} 
@@ -50,4 +47,3 @@ namespace AssemblyCSharp
         }
     }
 }
-

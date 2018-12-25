@@ -490,6 +490,8 @@
     <Compile Include="Assets\scripts\Managers\Status Manager.cs" />
     <Compile Include="Assets\scripts\Models\statusModels\StatusModel.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Battle Details Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\Damage_Manager.cs" />
+    <Compile Include="Assets\scripts\Models\damageModels\DamageModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
@@ -510,5 +512,6 @@
     <Folder Include="Assets\scripts\Managers\Helpers\" />
     <Folder Include="Assets\scripts\Models\characterModels\" />
     <Folder Include="Assets\scripts\Models\statusModels\" />
+    <Folder Include="Assets\scripts\Models\damageModels\" />
   </ItemGroup>
 </Project>

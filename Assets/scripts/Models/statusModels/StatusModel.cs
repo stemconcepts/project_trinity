@@ -12,10 +12,20 @@ namespace AssemblyCSharp
         public bool turnOff { get; set; }
         public float triggerChance { get; set; }
         public string targetStat { get; set; }
-
+        public statusFunction selectedStatusFunction;
+        public enum statusFunction
+        {
+            AttributeChange,
+            StatChange,
+            AddToStat,
+            StatusOn,
+            Tumor,
+            OnHit,
+            OnHitEnemy,
+            Immune
+        }
         public StatusModel()
         {
         }
     }
 }
-

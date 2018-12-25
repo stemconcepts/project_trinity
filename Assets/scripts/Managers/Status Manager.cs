@@ -6,7 +6,6 @@ namespace AssemblyCSharp
 {
     public class Status_Manager : BasicManager
     {
-        Battle_Details_Manager battleDetailsManager = new Battle_Details_Manager();
         public Status_Manager()
         {
             
@@ -32,18 +31,61 @@ namespace AssemblyCSharp
     
                 //set New stat to character
                 GetComponent<character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, newStat);
-    
-                //Remove status 
-                Battle_Manager.taskManager.CallStatusTask( statusModel.duration, statusModel.singleStatus );
 
-                StartCoroutine( DurationTimer( statusModel.duration, statusModel.singleStatus, ()=> {
-                        GetComponent<character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, originalStat);
-                    })
-                );        
+                //Remove status 
+                Battle_Manager.taskManager.CallTask(statusModel.duration, statusModel.singleStatus, () =>
+                {
+                    GetComponent<character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
+                });      
             } else 
             if( statusModel.turnOff ){
-                ForceStatusOff( statusDetail.singleStatus, ()=> {
+                ForceStatusOff(statusModel.singleStatus, ()=> {
                     GetComponent<character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, originalStat);
+                });
+            }
+        }
+
+        //Add to stat permanently
+        public void AddToStatus( StatusModel statusModel ){
+            var attributeName = statusModel.targetStat == "" ? singleStatus.attributeName : statusModel.targetStat;
+            var originalStat = GetComponent<character_Manager>().GetAttributeValue( "original" + statusModel.singleStatus.attributeName );
+            if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
+                battleDetailsManager.ShowLabel( singleStatus );
+                if( singleStatus.attributeName != null ){
+                    GetComponent<character_Manager>().SetAttribute( attributeName, power );
+                }
+                Battle_Manager.taskManager.CallTask(duration, statusModel.singleStatus, () =>
+                {
+                    GetComponent<character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
+                });
+            } else 
+            if( turnOff ){
+                ForceStatusOff( singleStatus );
+            }
+        }
+
+        //Stat changes - use for Ticking Stat changes 
+        public void StatChanges( singleStatus singleStatus, float power, float duration, bool regenOn = true, bool dispellable = true, bool turnOff = false ){
+            if( !turnOff ){ 
+                statussinglelabel status = GetStatusIfExist( singleStatus.statusName );
+                if( !DoesStatusExist( singleStatus.statusName ) ){
+                    battleDetailsManager.ShowLabel( singleStatus );
+                    tickTimer = new Task( ChangePoints( singleStatus, power, singleStatus.attributeName, regenOn ));
+                } else {
+                    if( singleStatus.canStack ){ 
+                        status.stacks = status.stacks < singleStatus.maxStacks ? status.stacks + 1 : status.stacks;
+                        spawnUIscript.AddStacks( status ); 
+                    }
+                    durationTimer.Stop();
+                    tickTimer.Stop();
+                    tickTimer = new Task( ChangePoints( singleStatus, power * status.stacks, singleStatus.attributeName, regenOn ));
+                }
+                durationTimer = new Task( DurationTimer( duration, singleStatus, ()=> {
+                    tickTimer.Stop ();
+                } ) );
+            } else {
+                ForceStatusOff( singleStatus, ()=> {
+                    tickTimer.Stop ();
                 });
             }
         }
@@ -100,10 +142,24 @@ namespace AssemblyCSharp
             return null;
         }
 
+        public void ForceStatusOff(singleStatus singleStatus, System.Action statusAction = null)
+        {
+            if (statusAction != null)
+            {
+                statusAction();
+            }
+            battleDetailsManager.RemoveLabel(singleStatus.statusName, true);
+            if (singleStatus.hitAnim != "")
+            {
+                var animationManager = GetComponent<Animation_Manager>();
+                animationManager.AddStatusAnimation(false, singleStatus.hitAnim, singleStatus.holdAnim, false);
+            }
+        }
+
         public void RunStatusFunction( StatusModel statusModel ){
             //makes duration infinite if set to 0
             statusModel.duration = statusModel.duration == 0 ? Mathf.Infinity : statusModel.duration;
-            switch ( singleStatus.selectedStatusFunction ) {
+            switch ( statusModel.selectedStatusFunction ) {
             case singleStatus.statusFunction.AttributeChange:
                 AttributeChange( statusModel );
                 break;
@@ -132,4 +188,6 @@ namespace AssemblyCSharp
         }
     }
 }
+
+
 
