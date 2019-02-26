@@ -6,9 +6,12 @@ namespace AssemblyCSharp
 {
     public class Status_Manager : BasicManager
     {
+        public Battle_Details_Manager battleDetailsManager { get; set; }
+        public Button_Click_Manager buttonClickManager { get; set; }
         public Status_Manager()
         {
-            
+            battleDetailsManager = Battle_Manager.battleDetailsManager;
+            buttonClickManager = this.gameObject.GetComponents<Button_Click_Manager>();
         }
 
         public void AttributeChange( StatusModel statusModel ){
@@ -46,46 +49,60 @@ namespace AssemblyCSharp
         }
 
         //Add to stat permanently
-        public void AddToStatus( StatusModel statusModel ){
-            var attributeName = statusModel.targetStat == "" ? singleStatus.attributeName : statusModel.targetStat;
-            var originalStat = GetComponent<character_Manager>().GetAttributeValue( "original" + statusModel.singleStatus.attributeName );
-            if( !turnOff && !DoesStatusExist( singleStatus.statusName ) ){ 
-                battleDetailsManager.ShowLabel( singleStatus );
-                if( singleStatus.attributeName != null ){
-                    GetComponent<character_Manager>().SetAttribute( attributeName, power );
+        public void AddToStatus(StatusModel statusModel)
+        {
+            var attributeName = statusModel.targetStat == "" ? statusModel.singleStatus.attributeName : statusModel.targetStat;
+            var originalStat = GetComponent<character_Manager>().GetAttributeValue("original" + statusModel.singleStatus.attributeName);
+            if (!statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName))
+            {
+                battleDetailsManager.ShowLabel(statusModel.singleStatus);
+                if (statusModel.singleStatus.attributeName != null)
+                {
+                    GetComponent<character_Manager>().SetAttribute(attributeName, statusModel.power);
                 }
-                Battle_Manager.taskManager.CallTask(duration, statusModel.singleStatus, () =>
+                Battle_Manager.taskManager.CallTask(statusModel.duration, statusModel.singleStatus, () =>
                 {
                     GetComponent<character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
                 });
-            } else 
-            if( turnOff ){
-                ForceStatusOff( singleStatus );
+            }
+            else
+            if (statusModel.turnOff)
+            {
+                ForceStatusOff(statusModel.singleStatus);
             }
         }
 
         //Stat changes - use for Ticking Stat changes 
-        public void StatChanges( singleStatus singleStatus, float power, float duration, bool regenOn = true, bool dispellable = true, bool turnOff = false ){
-            if( !turnOff ){ 
-                statussinglelabel status = GetStatusIfExist( singleStatus.statusName );
-                if( !DoesStatusExist( singleStatus.statusName ) ){
-                    battleDetailsManager.ShowLabel( singleStatus );
-                    tickTimer = new Task( ChangePoints( singleStatus, power, singleStatus.attributeName, regenOn ));
-                } else {
-                    if( singleStatus.canStack ){ 
-                        status.stacks = status.stacks < singleStatus.maxStacks ? status.stacks + 1 : status.stacks;
-                        spawnUIscript.AddStacks( status ); 
-                    }
-                    durationTimer.Stop();
-                    tickTimer.Stop();
-                    tickTimer = new Task( ChangePoints( singleStatus, power * status.stacks, singleStatus.attributeName, regenOn ));
+        public void StatChanges(StatusModel statusModel)
+        {
+            if (!statusModel.turnOff)
+            {
+                statussinglelabel status = GetStatusIfExist(statusModel.singleStatus.statusName);
+                if (!DoesStatusExist(statusModel.singleStatus.statusName))
+                {
+                    battleDetailsManager.ShowLabel(statusModel.singleStatus);
+                    status.tickTimer = Battle_Manager.taskManager.CallChangePointsTask(statusModel);
                 }
-                durationTimer = new Task( DurationTimer( duration, singleStatus, ()=> {
-                    tickTimer.Stop ();
-                } ) );
-            } else {
-                ForceStatusOff( singleStatus, ()=> {
-                    tickTimer.Stop ();
+                else
+                {
+                    if (statusModel.singleStatus.canStack)
+                    {
+                        status.stacks = status.stacks < singleStatus.maxStacks ? status.stacks + 1 : status.stacks;
+                        battleDetailsManager.AddStacks(status);
+                        statusModel.stacks = status.stacks;
+                    }
+                    status.tickTimer.Stop();
+                    status.tickTimer = Battle_Manager.taskManager.CallChangePointsTask(statusModel);
+                }
+                Battle_Manager.taskManager.CallDurationTask(statusModel, () =>
+                {
+                    status.tickTimer.Stop();
+                });
+            }
+            else
+            {
+                ForceStatusOff(statusModel.singleStatus, () => {
+                    status.tickTimer.Stop();
                 });
             }
         }
@@ -93,7 +110,7 @@ namespace AssemblyCSharp
         public bool DoesStatusExist( string statusName ){
             Type statusModel = Type.GetType("statusModel");
             var statusList = (List<singleStatus>)statusModel.GetField("statusListSO").GetValue( this );
-            var statusHolderObject = GameObject.Find( buttonClickScript.GetClassRole() + "status" );
+            var statusHolderObject = GameObject.Find( buttonClickManager.GetClassRole() + "status" );
             Transform statusPanel;
             singleStatus status;
             for( int i = 0; i < statusList.Count; i++ ){            
@@ -116,10 +133,21 @@ namespace AssemblyCSharp
             return false;
         }
 
+        public singleStatus GetStatus( string statusName ){
+            Type statusData = Type.GetType("status");
+            var statusList = (List<singleStatus>)statusData.GetField("statusListSO").GetValue( this );
+            for( int i = 0; i < statusList.Count; i++ ){            
+                if( statusList[i].name == statusName  ){
+                    return statusList[i];
+                }   
+            }
+            return null;
+        }
+
         public statussinglelabel GetStatusIfExist( string statusName ){
             Type statusData = Type.GetType("status");
             var statusList = (List<singleStatus>)statusData.GetField("statusListSO").GetValue( this );
-            var statusHolderObject = GameObject.Find( buttonClickScript.GetClassRole() + "status" );
+            var statusHolderObject = GameObject.Find( buttonClickManager.GetClassRole() + "status" );
             Transform statusPanel;
             singleStatus status;
             for( int i = 0; i < statusList.Count; i++ ){            
@@ -188,6 +216,9 @@ namespace AssemblyCSharp
         }
     }
 }
+
+
+
 
 
 

@@ -492,6 +492,14 @@
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Battle Details Manager.cs" />
     <Compile Include="Assets\scripts\Managers\Damage_Manager.cs" />
     <Compile Include="Assets\scripts\Models\damageModels\DamageModel.cs" />
+    <Compile Include="Assets\scripts\Managers\Button_Click_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Character_Interactions.cs" />
+    <Compile Include="Assets\scripts\Managers\Character_Select_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\Helpers\Sound_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\Helpers\Game Effects Manager.cs" />
+    <Compile Include="Assets\scripts\Models\eventModels\EventModel.cs" />
+    <Compile Include="Assets\scripts\Managers\Helpers\Event Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Auto Attack Manager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
@@ -513,5 +521,6 @@
     <Folder Include="Assets\scripts\Models\characterModels\" />
     <Folder Include="Assets\scripts\Models\statusModels\" />
     <Folder Include="Assets\scripts\Models\damageModels\" />
+    <Folder Include="Assets\scripts\Models\eventModels\" />
   </ItemGroup>
 </Project>

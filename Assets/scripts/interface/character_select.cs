@@ -39,14 +39,4 @@ public class character_select : MonoBehaviour {
         }
         return null;
     }
-
-	// Use this for initialization
-	void Start () {
-
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

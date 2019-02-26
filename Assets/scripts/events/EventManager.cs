@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using AssemblyCSharp;
 
 public class EventManager : MonoBehaviour {
     public delegate void CheckEvent();

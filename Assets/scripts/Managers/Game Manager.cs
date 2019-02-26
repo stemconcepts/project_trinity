@@ -12,13 +12,18 @@ namespace AssemblyCSharp
         Battle_Manager BattleManager {get; set;}       
         Inventory_Manager InventoryManager {get; set;}
         Explore_Manager ExploreManager {get; set;}
+        public Sound_Manager SoundManager {get; set;}
+        public Game_Effects_Manager GameEffectsManager {get; set;}
         public static ILogger logger = Debug.unityLogger;
 
         public Game_Manager()
         {
-            BattleManager = new Battle_Manager();
             InventoryManager = new Inventory_Manager();
             ExploreManager = new Explore_Manager();
+            SoundManager = new Sound_Manager();
+            BattleManager = new Battle_Manager();
+            GameEffectsManager = new Game_Effects_Manager();
+            BattleManager.gameManager = this;
         }
     }
 }

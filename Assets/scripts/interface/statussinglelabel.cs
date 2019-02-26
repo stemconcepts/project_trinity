@@ -24,6 +24,7 @@ public class statussinglelabel : MonoBehaviour {
 		}
 	}
 	public GameObject statusHoverObj;
+    public Task tickTimer;
 
 	public void OnMouseEnter(){
         Vector3 rayPoint = Input.mousePosition != null ? Camera.current.ScreenToWorldPoint(Input.mousePosition) : new Vector3();

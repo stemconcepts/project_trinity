@@ -9,16 +9,14 @@ namespace AssemblyCSharp
         public Animation_Manager animationManager { get; set; } = new Animation_Manager();
         public Movement_Manager movementManager { get; set; } = new Movement_Manager();
         public Status_Manager statusManager { get; set; } = new Status_Manager();
+        public Damage_Manager damageManager { get; set; } = new Damage_Manager();
 
         public character_Manager()
         {   
-            //characterModel.actionPointsDisplay = null;
-            //characterModel.posMarker = null;
-            //characterModel.currentPanel = null;
             updateBarSize();
             animationManager = GetComponent<Animation_Manager>();
             movementManager = GetComponent<Movement_Manager>();
-
+            damageManager = GetComponent<Damage_Manager>();
             characterModel.currentPanel.GetComponent<movementPanelController>().isOccupied = true;
             characterModel.currentPanel.GetComponent<movementPanelController>().currentOccupier = gameObject;
             characterModel.origPosition = this.transform.position;
