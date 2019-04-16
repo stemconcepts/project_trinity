@@ -49,7 +49,7 @@ public class skillLabeldisplay : MonoBehaviour {
 			var playerData = tankPlayer.transform.parent.GetComponent<skill_effects>();
 			skillSelection.buttonID = orderID;
 			skillSelection.skillID = buttonData.tankSkillIDs[orderID];
-			List<classSkills> playerSkillList;
+			List<classSkills> playerSkillList;+
 			if( playerData.weaponSlot == skill_effects.weaponSlotEnum.Main ){
 				playerSkillList = playerData.skilllistMain;
 			} else {

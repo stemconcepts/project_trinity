@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
     public class StatusModel
     {
+        public StatusModel()
+        {
+        } 
         public singleStatus singleStatus { get; set; }
-        public character_Manager characterManager { get; set; } 
+        public Character_Manager characterManager { get; set; } 
         public classSkills onHitSkill { get; set; } 
         public float duration { get; set; }
         public float power {get; set;}
@@ -28,8 +32,24 @@ namespace AssemblyCSharp
             OnHitEnemy,
             Immune
         }
-        public StatusModel()
-        {
+        public string attributeName;
+        public statusType statusTypeEnum;
+        public enum statusType {
+            Immunity,
+            ValueOverTime,
+            Normal
         }
+        public subStatus subStatus;
+        public triggerGrp trigger;
+        public enum triggerGrp {
+            None,
+            Passive,
+            OnTakingDmg,
+            OnDealingDmg,
+            OnHeal,
+            OnMove,
+            OnSkillCast
+        };
+        public List<EffectOnEvent> effectsOnEvent = new List<EffectOnEvent>();
     }
 }

@@ -15,8 +15,8 @@ namespace AssemblyCSharp
         }
 
         public void AttributeChange( StatusModel statusModel ){
-            var currentStat = GetComponent<character_Manager>().GetAttributeValue( statusModel.singleStatus.attributeName );
-            var originalStat = GetComponent<character_Manager>().GetAttributeValue( "original" + statusModel.singleStatus.attributeName );
+            var currentStat = GetComponent<Character_Manager>().GetAttributeValue( statusModel.singleStatus.attributeName );
+            var originalStat = GetComponent<Character_Manager>().GetAttributeValue( "original" + statusModel.singleStatus.attributeName );
             float buffedStat;
             if( statusModel.singleStatus.statusName == "thorns" ){
                 buffedStat = (statusModel.power / 20) + originalStat;
@@ -33,17 +33,17 @@ namespace AssemblyCSharp
                 } 
     
                 //set New stat to character
-                GetComponent<character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, newStat);
+                GetComponent<Character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, newStat);
 
                 //Remove status 
-                Battle_Manager.taskManager.CallTask(statusModel.duration, statusModel.singleStatus, () =>
+                Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, statusModel.singleStatus, () =>
                 {
-                    GetComponent<character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
+                    GetComponent<Character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
                 });      
             } else 
             if( statusModel.turnOff ){
                 ForceStatusOff(statusModel.singleStatus, ()=> {
-                    GetComponent<character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, originalStat);
+                    GetComponent<Character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, originalStat);
                 });
             }
         }
@@ -52,17 +52,17 @@ namespace AssemblyCSharp
         public void AddToStatus(StatusModel statusModel)
         {
             var attributeName = statusModel.targetStat == "" ? statusModel.singleStatus.attributeName : statusModel.targetStat;
-            var originalStat = GetComponent<character_Manager>().GetAttributeValue("original" + statusModel.singleStatus.attributeName);
+            var originalStat = GetComponent<Character_Manager>().GetAttributeValue("original" + statusModel.singleStatus.attributeName);
             if (!statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName))
             {
                 battleDetailsManager.ShowLabel(statusModel.singleStatus);
                 if (statusModel.singleStatus.attributeName != null)
                 {
-                    GetComponent<character_Manager>().SetAttribute(attributeName, statusModel.power);
+                    GetComponent<Character_Manager>().SetAttribute(attributeName, statusModel.power);
                 }
-                Battle_Manager.taskManager.CallTask(statusModel.duration, statusModel.singleStatus, () =>
+                Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, statusModel.singleStatus, () =>
                 {
-                    GetComponent<character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
+                    GetComponent<Character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
                 });
             }
             else

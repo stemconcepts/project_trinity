@@ -1,0 +1,402 @@
+-debug
+-target:library
+-nowarn:0169
+-langversion:4
+-out:'Temp/Assembly-CSharp.dll'
+-unsafe
+-r:'Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEditor.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.CoreModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AccessibilityModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ParticleSystemModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.PhysicsModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.VehiclesModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ClothModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AnimationModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.TextRenderingModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UIModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.TerrainPhysicsModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.IMGUIModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestAudioModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestTextureModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityWebRequestWWWModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ClusterInputModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ClusterRendererModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UNETModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.DirectorModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityAnalyticsModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.CrashReportingModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.PerformanceReportingModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UnityConnectModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.WebModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ARModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.VRModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.UIElementsModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.StyleSheetsModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AudioModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.GameCenterModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.GridModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ImageConversionModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.InputModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.JSONSerializeModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ParticlesLegacyModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.Physics2DModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.ScreenCaptureModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.SpriteMaskModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.TerrainModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.TilemapModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.VideoModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Managed/UnityEngine/UnityEngine.WindModule.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UIAutomation/UnityEngine.UIAutomation.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityGoogleAudioSpatializer/RuntimeEditor/UnityEngine.GoogleAudioSpatializer.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll'
+-r:'/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll'
+-r:'/Users/seanharper/Library/Unity/cache/packages/packages.unity.com/com.unity.analytics@1.0.1/UnityEngine.Analytics.dll'
+-r:'/Users/seanharper/Library/Unity/cache/packages/packages.unity.com/com.unity.purchasing@1.0.1/UnityEngine.Purchasing.dll'
+-define:UNITY_5_3_OR_NEWER
+-define:UNITY_5_4_OR_NEWER
+-define:UNITY_5_5_OR_NEWER
+-define:UNITY_5_6_OR_NEWER
+-define:UNITY_2017_1_OR_NEWER
+-define:UNITY_2017_2_OR_NEWER
+-define:UNITY_2017_2_1
+-define:UNITY_2017_2
+-define:UNITY_2017
+-define:ENABLE_AUDIO
+-define:ENABLE_CACHING
+-define:ENABLE_CLOTH
+-define:ENABLE_DUCK_TYPING
+-define:ENABLE_GENERICS
+-define:ENABLE_PVR_GI
+-define:ENABLE_MICROPHONE
+-define:ENABLE_MULTIPLE_DISPLAYS
+-define:ENABLE_PHYSICS
+-define:ENABLE_SPRITERENDERER_FLIPPING
+-define:ENABLE_SPRITES
+-define:ENABLE_GRID
+-define:ENABLE_TILEMAP
+-define:ENABLE_TERRAIN
+-define:ENABLE_RAKNET
+-define:ENABLE_DIRECTOR
+-define:ENABLE_UNET
+-define:ENABLE_LZMA
+-define:ENABLE_UNITYEVENTS
+-define:ENABLE_WEBCAM
+-define:ENABLE_WWW
+-define:ENABLE_CLOUD_SERVICES_COLLAB
+-define:ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS
+-define:ENABLE_CLOUD_SERVICES_ADS
+-define:ENABLE_CLOUD_HUB
+-define:ENABLE_CLOUD_PROJECT_ID
+-define:ENABLE_CLOUD_SERVICES_USE_WEBREQUEST
+-define:ENABLE_CLOUD_SERVICES_UNET
+-define:ENABLE_CLOUD_SERVICES_BUILD
+-define:ENABLE_CLOUD_LICENSE
+-define:ENABLE_EDITOR_HUB
+-define:ENABLE_EDITOR_HUB_LICENSE
+-define:ENABLE_WEBSOCKET_CLIENT
+-define:ENABLE_DIRECTOR_AUDIO
+-define:ENABLE_TIMELINE
+-define:ENABLE_EDITOR_METRICS
+-define:ENABLE_EDITOR_METRICS_CACHING
+-define:ENABLE_NATIVE_ARRAY
+-define:ENABLE_SPRITE_MASKING
+-define:INCLUDE_DYNAMIC_GI
+-define:INCLUDE_GI
+-define:ENABLE_MONO_BDWGC
+-define:PLATFORM_SUPPORTS_MONO
+-define:RENDER_SOFTWARE_CURSOR
+-define:INCLUDE_PUBNUB
+-define:ENABLE_PLAYMODE_TESTS_RUNNER
+-define:ENABLE_VIDEO
+-define:ENABLE_RMGUI
+-define:ENABLE_PACKMAN
+-define:ENABLE_CUSTOM_RENDER_TEXTURE
+-define:ENABLE_STYLE_SHEETS
+-define:PLATFORM_STANDALONE_OSX
+-define:PLATFORM_STANDALONE
+-define:UNITY_STANDALONE_OSX
+-define:UNITY_STANDALONE
+-define:ENABLE_SUBSTANCE
+-define:ENABLE_GAMECENTER
+-define:ENABLE_RUNTIME_GI
+-define:ENABLE_MOVIES
+-define:ENABLE_NETWORK
+-define:ENABLE_CRUNCH_TEXTURE_COMPRESSION
+-define:ENABLE_UNITYWEBREQUEST
+-define:ENABLE_CLOUD_SERVICES
+-define:ENABLE_CLOUD_SERVICES_ANALYTICS
+-define:ENABLE_CLOUD_SERVICES_PURCHASING
+-define:ENABLE_CLOUD_SERVICES_CRASH_REPORTING
+-define:ENABLE_VR
+-define:ENABLE_AR
+-define:ENABLE_SPATIALTRACKING
+-define:ENABLE_CLUSTERINPUT
+-define:ENABLE_WEBSOCKET_HOST
+-define:ENABLE_MONO
+-define:NET_2_0_SUBSET
+-define:ENABLE_PROFILER
+-define:DEBUG
+-define:TRACE
+-define:UNITY_ASSERTIONS
+-define:UNITY_EDITOR
+-define:UNITY_EDITOR_64
+-define:UNITY_EDITOR_OSX
+-define:ENABLE_NATIVE_ARRAY_CHECKS
+-define:UNITY_TEAM_LICENSE
+'Assets/baubleItems.cs'
+'Assets/Examples/Getting Started/Scripts/BasicPlatformerController.cs'
+'Assets/Examples/Getting Started/Scripts/ConstrainedCamera.cs'
+'Assets/Examples/Getting Started/Scripts/Raptor.cs'
+'Assets/Examples/Getting Started/Scripts/SpineBeginnerTwo.cs'
+'Assets/Examples/Getting Started/Scripts/SpineBlinkPlayer.cs'
+'Assets/Examples/Getting Started/Scripts/SpineboyBeginnerInput.cs'
+'Assets/Examples/Getting Started/Scripts/SpineboyBeginnerModel.cs'
+'Assets/Examples/Getting Started/Scripts/SpineboyBeginnerView.cs'
+'Assets/Examples/Getting Started/Scripts/SpineboyTargetController.cs'
+'Assets/Examples/Getting Started/Scripts/TransitionDictionaryExample.cs'
+'Assets/Examples/Scripts/AttackSpineboy.cs'
+'Assets/Examples/Scripts/DataAssetsFromExportsExample.cs'
+'Assets/Examples/Scripts/DraggableTransform.cs'
+'Assets/Examples/Scripts/FootSoldierExample.cs'
+'Assets/Examples/Scripts/Goblins.cs'
+'Assets/Examples/Scripts/HandleEventWithAudioExample.cs'
+'Assets/Examples/Scripts/HurtFlashEffect.cs'
+'Assets/Examples/Scripts/MaterialPropertyBlockExample.cs'
+'Assets/Examples/Scripts/Mix and Match Character Customize/EquipAssetExample.cs'
+'Assets/Examples/Scripts/Mix and Match Character Customize/EquipButtonExample.cs'
+'Assets/Examples/Scripts/Mix and Match Character Customize/EquipsVisualsComponentExample.cs'
+'Assets/Examples/Scripts/Mix and Match Character Customize/EquipSystemExample.cs'
+'Assets/Examples/Scripts/MixAndMatch.cs'
+'Assets/Examples/Scripts/MixAndMatchGraphic.cs'
+'Assets/Examples/Scripts/RaggedySpineboy.cs'
+'Assets/Examples/Scripts/ReloadSceneOnKeyDown.cs'
+'Assets/Examples/Scripts/Rotator.cs'
+'Assets/Examples/Scripts/Sample Components/BoneLocalOverride.cs'
+'Assets/Examples/Scripts/Sample Components/CombinedSkin.cs'
+'Assets/Examples/Scripts/Sample Components/Sample VertexEffects/JitterEffectExample.cs'
+'Assets/Examples/Scripts/Sample Components/Sample VertexEffects/TwoByTwoTransformEffectExample.cs'
+'Assets/Examples/Scripts/Sample Components/SkeletonAnimationMulti/SkeletonAnimationMulti.cs'
+'Assets/Examples/Scripts/Sample Components/SkeletonColorInitialize.cs'
+'Assets/Examples/Scripts/Sample Components/SlotTintBlackFollower.cs'
+'Assets/Examples/Scripts/Sample Components/SpineEventUnityHandler.cs'
+'Assets/Examples/Scripts/SpawnFromSkeletonDataExample.cs'
+'Assets/Examples/Scripts/Spineboy.cs'
+'Assets/Examples/Scripts/SpineboyBodyTilt.cs'
+'Assets/Examples/Scripts/SpineboyFacialExpression.cs'
+'Assets/Examples/Scripts/SpineboyFootplanter.cs'
+'Assets/Examples/Scripts/SpineboyFreeze.cs'
+'Assets/Examples/Scripts/SpineboyPole.cs'
+'Assets/Examples/Scripts/SpineGauge.cs'
+'Assets/First.cs'
+'Assets/images/ui/effects/particleSort.cs'
+'Assets/scripts/animationControl.cs'
+'Assets/scripts/character status/attackChecker.cs'
+'Assets/scripts/character status/auto_attack.cs'
+'Assets/scripts/character status/auto_attackEnemy.cs'
+'Assets/scripts/character status/calculateDmg.cs'
+'Assets/scripts/character status/character_data.cs'
+'Assets/scripts/character status/status.cs'
+'Assets/scripts/character status/status/singleStatus.cs'
+'Assets/scripts/character status/status/statusDataControl.cs'
+'Assets/scripts/character status/status/statusHolder.cs'
+'Assets/scripts/character status/status/subStatus/subStatus.cs'
+'Assets/scripts/effects controller/effectsController.cs'
+'Assets/scripts/effects controller/globalEffectsController.cs'
+'Assets/scripts/enemy skills/enemySkill.cs'
+'Assets/scripts/enemy skills/enemyskill_cd.cs'
+'Assets/scripts/enemy skills/enemyskill_confirm.cs'
+'Assets/scripts/enemy skills/enemySkill_effects.cs'
+'Assets/scripts/enemy skills/enemySkill_properties.cs'
+'Assets/scripts/enemy skills/enemyskillAI.cs'
+'Assets/scripts/enemy skills/enemySkills.cs'
+'Assets/scripts/enemy skills/enemySkillSelection.cs'
+'Assets/scripts/events/counterEvents.cs'
+'Assets/scripts/events/eventeffects/EffectOnEvent.cs'
+'Assets/scripts/events/EventManager.cs'
+'Assets/scripts/gear/baubles/bauble.cs'
+'Assets/scripts/gear/baubles/equipedBauble.cs'
+'Assets/scripts/gear/equipedSkill.cs'
+'Assets/scripts/gear/equipedWeapons.cs'
+'Assets/scripts/gear/gearSwapping.cs'
+'Assets/scripts/gear/weapons.cs'
+'Assets/scripts/Helpers/CameraController.cs'
+'Assets/scripts/interface/aoe_collisions.cs'
+'Assets/scripts/interface/attackMovement.cs'
+'Assets/scripts/interface/button_clicks.cs'
+'Assets/scripts/interface/canvasFader.cs'
+'Assets/scripts/interface/character_select.cs'
+'Assets/scripts/interface/characterMovement/characterMovementController.cs'
+'Assets/scripts/interface/characterMovement/movementPanelController.cs'
+'Assets/scripts/interface/characterMovement/panelArrowBehaviour.cs'
+'Assets/scripts/interface/characterMovement/panelProperties.cs'
+'Assets/scripts/interface/characterSelection/charBtnControl.cs'
+'Assets/scripts/interface/characterSelection/OverlapUI.cs'
+'Assets/scripts/interface/characterSelection/selectionOverlapControl.cs'
+'Assets/scripts/interface/collisions.cs'
+'Assets/scripts/interface/collisions_counter.cs'
+'Assets/scripts/interface/combatDisplay.cs'
+'Assets/scripts/interface/damagDataBehaviour.cs'
+'Assets/scripts/interface/dataDisplaytwo.cs'
+'Assets/scripts/interface/floatText.cs'
+'Assets/scripts/interface/FXcontroller.cs'
+'Assets/scripts/interface/gameEffects.cs'
+'Assets/scripts/interface/ItemMenu/equipControl.cs'
+'Assets/scripts/interface/ItemMenu/equipmentManager.cs'
+'Assets/scripts/interface/ItemMenu/hoverManager.cs'
+'Assets/scripts/interface/ItemMenu/itemBehaviour.cs'
+'Assets/scripts/interface/ItemMenu/itemData.cs'
+'Assets/scripts/interface/ItemMenu/itemDetailsControl.cs'
+'Assets/scripts/interface/ItemMenu/skillBuilder.cs'
+'Assets/scripts/interface/ItemMenu/slotBehaviour.cs'
+'Assets/scripts/interface/ItemMenu/slotManager.cs'
+'Assets/scripts/interface/ItemMenu/weaponItems.cs'
+'Assets/scripts/interface/menuBtnConrol.cs'
+'Assets/scripts/interface/movement_script.cs'
+'Assets/scripts/interface/sceneControl/sceneControl.cs'
+'Assets/scripts/interface/skill_targetting.cs'
+'Assets/scripts/interface/skillLabeldisplay.cs'
+'Assets/scripts/interface/skillMenu/skillItemBehaviour.cs'
+'Assets/scripts/interface/skillMenu/skillItemData.cs'
+'Assets/scripts/interface/skillMenu/skillItems.cs'
+'Assets/scripts/interface/skillMenu/skillSlotManager.cs'
+'Assets/scripts/interface/sortbuttondata.cs'
+'Assets/scripts/interface/spawnUI.cs'
+'Assets/scripts/interface/statussinglelabel.cs'
+'Assets/scripts/interface/voidzoneBehaviour.cs'
+'Assets/scripts/interface/voidzoneSpawner.cs'
+'Assets/scripts/levelBuilder/BattleManager.cs'
+'Assets/scripts/levelBuilder/characterManager.cs'
+'Assets/scripts/Managers/BasicManager.cs'
+'Assets/scripts/Managers/Battle Manager.cs'
+'Assets/scripts/Managers/Explore Manager.cs'
+'Assets/scripts/Managers/Inventory Manager.cs'
+'Assets/scripts/Models/sceneModels/BattleModel.cs'
+'Assets/scripts/skills/class_skillLabelDisplay.cs'
+'Assets/scripts/skills/class_skillSelection.cs'
+'Assets/scripts/skills/extra_skill_effects.cs'
+'Assets/scripts/skills/global_status.cs'
+'Assets/scripts/skills/mainSkills/classSkills.cs'
+'Assets/scripts/skills/skill_cd.cs'
+'Assets/scripts/skills/skill_confirm.cs'
+'Assets/scripts/skills/skill_effects.cs'
+'Assets/scripts/skills/skill_properties.cs'
+'Assets/scripts/skills/skill_selection.cs'
+'Assets/scripts/TaskManager.cs'
+'Assets/Second.cs'
+'Assets/sound/soundController.cs'
+'Assets/Spine/spine-unity/Asset Types/AnimationReferenceAsset.cs'
+'Assets/Spine/spine-unity/Asset Types/EventDataReferenceAsset.cs'
+'Assets/Spine/spine-unity/Asset Types/RegionlessAttachmentLoader.cs'
+'Assets/Spine/spine-unity/Components/PointFollower.cs'
+'Assets/spine-csharp/Animation.cs'
+'Assets/spine-csharp/AnimationState.cs'
+'Assets/spine-csharp/AnimationStateData.cs'
+'Assets/spine-csharp/Atlas.cs'
+'Assets/spine-csharp/Attachments/AtlasAttachmentLoader.cs'
+'Assets/spine-csharp/Attachments/Attachment.cs'
+'Assets/spine-csharp/Attachments/AttachmentLoader.cs'
+'Assets/spine-csharp/Attachments/AttachmentType.cs'
+'Assets/spine-csharp/Attachments/BoundingBoxAttachment.cs'
+'Assets/spine-csharp/Attachments/ClippingAttachment.cs'
+'Assets/spine-csharp/Attachments/MeshAttachment.cs'
+'Assets/spine-csharp/Attachments/PathAttachment.cs'
+'Assets/spine-csharp/Attachments/PointAttachment.cs'
+'Assets/spine-csharp/Attachments/RegionAttachment.cs'
+'Assets/spine-csharp/Attachments/VertexAttachment.cs'
+'Assets/spine-csharp/BlendMode.cs'
+'Assets/spine-csharp/Bone.cs'
+'Assets/spine-csharp/BoneData.cs'
+'Assets/spine-csharp/Event.cs'
+'Assets/spine-csharp/EventData.cs'
+'Assets/spine-csharp/ExposedList.cs'
+'Assets/spine-csharp/IConstraint.cs'
+'Assets/spine-csharp/IkConstraint.cs'
+'Assets/spine-csharp/IkConstraintData.cs'
+'Assets/spine-csharp/IUpdatable.cs'
+'Assets/spine-csharp/Json.cs'
+'Assets/spine-csharp/MathUtils.cs'
+'Assets/spine-csharp/PathConstraint.cs'
+'Assets/spine-csharp/PathConstraintData.cs'
+'Assets/spine-csharp/Skeleton.cs'
+'Assets/spine-csharp/SkeletonBinary.cs'
+'Assets/spine-csharp/SkeletonBounds.cs'
+'Assets/spine-csharp/SkeletonClipping.cs'
+'Assets/spine-csharp/SkeletonData.cs'
+'Assets/spine-csharp/SkeletonJson.cs'
+'Assets/spine-csharp/Skin.cs'
+'Assets/spine-csharp/Slot.cs'
+'Assets/spine-csharp/SlotData.cs'
+'Assets/spine-csharp/TransformConstraint.cs'
+'Assets/spine-csharp/TransformConstraintData.cs'
+'Assets/spine-csharp/Triangulator.cs'
+'Assets/spine-unity/AtlasAsset.cs'
+'Assets/spine-unity/AtlasRegionAttacher.cs'
+'Assets/spine-unity/BoneFollower.cs'
+'Assets/spine-unity/BoundingBoxFollower.cs'
+'Assets/spine-unity/CustomSkin.cs'
+'Assets/spine-unity/Ghost/SkeletonGhost.cs'
+'Assets/spine-unity/Ghost/SkeletonGhostRenderer.cs'
+'Assets/spine-unity/Mesh Generation/Arrays/ArraysMeshGenerator.cs'
+'Assets/spine-unity/Mesh Generation/Arrays/ArraysSimpleMeshGenerator.cs'
+'Assets/spine-unity/Mesh Generation/Arrays/ArraysSubmeshedMeshGenerator.cs'
+'Assets/spine-unity/Mesh Generation/Arrays/ArraysSubmeshSetMeshGenerator.cs'
+'Assets/spine-unity/Mesh Generation/DoubleBuffered.cs'
+'Assets/spine-unity/Mesh Generation/DoubleBufferedMesh.cs'
+'Assets/spine-unity/Mesh Generation/ISimpleMeshGenerator.cs'
+'Assets/spine-unity/Mesh Generation/ISubmeshedMeshGenerator.cs'
+'Assets/spine-unity/Mesh Generation/SpineMesh.cs'
+'Assets/spine-unity/Modules/AnimationTools/AnimationTools.cs'
+'Assets/spine-unity/Modules/AttachmentTools/AttachmentTools.cs'
+'Assets/spine-unity/Modules/CustomMaterials/SkeletonRendererCustomMaterials.cs'
+'Assets/spine-unity/Modules/SkeletonGraphic/BoneFollowerGraphic.cs'
+'Assets/spine-unity/Modules/SkeletonGraphic/SkeletonGraphic.cs'
+'Assets/spine-unity/Modules/SkeletonGraphic/SkeletonGraphicMirror.cs'
+'Assets/spine-unity/Modules/SkeletonRenderSeparator/SkeletonPartsRenderer.cs'
+'Assets/spine-unity/Modules/SkeletonRenderSeparator/SkeletonRenderSeparator.cs'
+'Assets/spine-unity/Modules/SlotBlendModes/SlotBlendModes.cs'
+'Assets/spine-unity/Modules/Timeline/PlayableHandle Component/SkeletonAnimationPlayableHandle.cs'
+'Assets/spine-unity/Modules/Timeline/PlayableHandle Component/SpinePlayableHandleBase.cs'
+'Assets/spine-unity/Modules/Timeline/SpineAnimationState/SpineAnimationStateBehaviour.cs'
+'Assets/spine-unity/Modules/Timeline/SpineAnimationState/SpineAnimationStateClip.cs'
+'Assets/spine-unity/Modules/Timeline/SpineAnimationState/SpineAnimationStateMixerBehaviour.cs'
+'Assets/spine-unity/Modules/Timeline/SpineAnimationState/SpineAnimationStateTrack.cs'
+'Assets/spine-unity/Modules/Timeline/SpineSkeletonFlip/SpineSkeletonFlipBehaviour.cs'
+'Assets/spine-unity/Modules/Timeline/SpineSkeletonFlip/SpineSkeletonFlipClip.cs'
+'Assets/spine-unity/Modules/Timeline/SpineSkeletonFlip/SpineSkeletonFlipMixerBehaviour.cs'
+'Assets/spine-unity/Modules/Timeline/SpineSkeletonFlip/SpineSkeletonFlipTrack.cs'
+'Assets/spine-unity/Modules/YieldInstructions/WaitForSpineAnimationComplete.cs'
+'Assets/spine-unity/Modules/YieldInstructions/WaitForSpineEvent.cs'
+'Assets/spine-unity/Modules/YieldInstructions/WaitForSpineTrackEntryEnd.cs'
+'Assets/spine-unity/Ragdoll/SkeletonRagdoll.cs'
+'Assets/spine-unity/Ragdoll/SkeletonRagdoll2D.cs'
+'Assets/spine-unity/SkeletonAnimation.cs'
+'Assets/spine-unity/SkeletonAnimationInterface.cs'
+'Assets/spine-unity/SkeletonAnimator.cs'
+'Assets/spine-unity/SkeletonDataAsset.cs'
+'Assets/spine-unity/SkeletonExtensions.cs'
+'Assets/spine-unity/SkeletonRenderer.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtility.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtilityBone.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtilityConstraint.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtilityEyeConstraint.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtilityGroundConstraint.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtilityKinematicShadow.cs'
+'Assets/spine-unity/SkeletonUtility/SkeletonUtilitySubmeshRenderer.cs'
+'Assets/spine-unity/SpineAttributes.cs'
+'Assets/spine-unity/SpriteAttacher.cs'
+'Assets/spine-unity/SpriteCollectionAttachmentLoader.cs'
+-r:'/Applications/Unity/Unity.app/Contents/Mono/lib/mono/unity/System.Runtime.Serialization.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Mono/lib/mono/unity/System.Xml.Linq.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Mono/lib/mono/unity/UnityScript.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Mono/lib/mono/unity/UnityScript.Lang.dll'
+-r:'/Applications/Unity/Unity.app/Contents/Mono/lib/mono/unity/Boo.Lang.dll'
+-sdk:unity

@@ -68,27 +68,27 @@ public class skill_selection : MonoBehaviour {
     }
 
     public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true, GameObject player = null ){
-                //send Event to EventManager
-                EventManager.BuildEvent( "OnSkillCast", eventCallerVar: player );
+        //send Event to EventManager
+        EventManager.BuildEvent( "OnSkillCast", eventCallerVar: player );
 
-                waitingForSelection = false;
-                if( classSkill.isFlat ){ //Set Power to spell or skill type
-                    power = classSkill.isSpell ? classSkill.magicPower : classSkill.skillPower;
-                } else {
-                    power = classSkill.isSpell ? classSkill.newMP : classSkill.newSP;
-                }
-                Data data = new Data(); 
-                data.target = targets;
-                data.classSkill = classSkill;
-                //if( classSkill.ExtraEffect.ToString() != "None" ){ 
-                classSkill.RunExtraEffect(data); 
-                //};//Run Extra Effects if there are any
-                
-                SetAnimations( classSkill ); //Play Animations
-                DealHealDmg( classSkill, targets, power * data.modifier, player ); //Deal or Heal Damage to Targets, Also adds Status Effects
-                SkillActiveSet( classSkill, false ); //Set that skill is ready to be used again
-                StartCoroutine(cooldown( classSkill.skillCooldown, classSkill ));
-                CoolDownTask = new Task( cooldownTimer( classSkill.skillCooldown, classSkill, classSkill.Class.ToString(), weaponSkill ) );
+        waitingForSelection = false;
+        if( classSkill.isFlat ){ //Set Power to spell or skill type
+            power = classSkill.isSpell ? classSkill.magicPower : classSkill.skillPower;
+        } else {
+            power = classSkill.isSpell ? classSkill.newMP : classSkill.newSP;
+        }
+        Data data = new Data(); 
+        data.target = targets;
+        data.classSkill = classSkill;
+        //if( classSkill.ExtraEffect.ToString() != "None" ){ 
+        classSkill.RunExtraEffect(data); 
+        //};//Run Extra Effects if there are any
+        
+        SetAnimations( classSkill ); //Play Animations
+        DealHealDmg( classSkill, targets, power * data.modifier, player ); //Deal or Heal Damage to Targets, Also adds Status Effects
+        SkillActiveSet( classSkill, false ); //Set that skill is ready to be used again
+        StartCoroutine(cooldown( classSkill.skillCooldown, classSkill ));
+        CoolDownTask = new Task( cooldownTimer( classSkill.skillCooldown, classSkill, classSkill.Class.ToString(), weaponSkill ) );
     }
 
     private void SkillActiveSet( classSkills classSkill, bool setActive, bool skillCancel = false ){

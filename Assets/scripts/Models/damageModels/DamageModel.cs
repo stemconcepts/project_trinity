@@ -10,10 +10,10 @@ namespace AssemblyCSharp
     public class DamageModel : MonoBehaviour
     {
         [SpineAnimation]
-        SkeletonAnimation skeletonAnimation;
-        Animation_Manager playerAnimationManager { get; set; }
+        public SkeletonAnimation skeletonAnimation;
+        public Animation_Manager playerAnimationManager { get; set; }
         private gameEffects gameEffectsScript { get; set; }
-        public character_Manager characterManager { get; set; }
+        public Character_Manager characterManager { get; set; }
         private characterMovementController characterMovementScript { get; set; }
         public combatDisplay combatDisplayScript { get; set; }
         private enemySkillSelection enemySkillScript { get; set; }

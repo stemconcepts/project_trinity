@@ -48,10 +48,11 @@ namespace AssemblyCSharp
         public string characterType {get; set;}
         public string objectName {get; set;}
         public string role {get; set;}
-        public character_data target {get; set;}
+        public Character_Manager target {get; set;}
         public bool damageImmune {get; set;}
         public bool canAutoAttack {get; set;}
         public bool isAttacking {get; set;}
+        public bool isBusy {get; set;}
         public float incomingDmg {get; set;}
         public float incomingMDmg {get; set;}
         public float incomingHeal {get; set;}

@@ -13,9 +13,10 @@ namespace AssemblyCSharp
         public static Game_Effects_Manager gameEffectManager {get; set;}
         public static Task_Manager taskManager {get; set;}
         public static Battle_Details_Manager battleDetailsManager { get; set; }
+        public static List<Battle_Interface_Manager> battleInterfaceManager {get; set;}
         public static Character_Select_Manager characterSelectManager { get; set; }
-        public static List<character_Manager> friendlyCharacters { get; set; } 
-        public static List<character_Manager> enemyCharacters { get; set; } 
+        public static List<Character_Manager> friendlyCharacters { get; set; } 
+        public static List<Character_Manager> enemyCharacters { get; set; } 
         public static classState guardian {get; set;} 
         public static classState walker {get; set;}
         public static classState stalker {get; set;}
@@ -26,6 +27,7 @@ namespace AssemblyCSharp
             taskManager = new Task_Manager();
             battleDetailsManager = new Battle_Details_Manager();
             characterSelectManager = new Character_Select_Manager();
+            battleInterfaceManager = GameObject.FindGameObjectsWithTag("skillDisplayControl");
             soundManager = gameManager.SoundManager;
             gameEffectManager = gameManager.GameEffectsManager;
             charClass.Add( guardian );
@@ -63,7 +65,7 @@ namespace AssemblyCSharp
             return "bla";
         }
 
-        public void LoadCharacters( List<character_Manager> characters ){
+        public void LoadCharacters( List<Character_Manager> characters ){
             foreach (var character in characters)
             {
                 character.characterModel.currentPanel.GetComponent<Panels_Manager>().SetStartingPanel( character.gameObject );
