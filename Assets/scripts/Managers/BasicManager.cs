@@ -5,9 +5,9 @@ namespace AssemblyCSharp
 {
     public class BasicManager : MonoBehaviour
     {
-        
         public BasicManager()
         {
+            
         }
     }
 }

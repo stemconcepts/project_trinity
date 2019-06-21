@@ -58,21 +58,6 @@ namespace AssemblyCSharp
                 //fx.transform.SetParent(position.transform);
             }   
         }
-    
-        //ScreenShake
-        public void ScreenShake( float shakeAmt ){
-            float quakeAmt = Random.value*shakeAmt*2 - shakeAmt;
-            Vector3 pp = mainCamera.transform.position;
-            pp.y+= quakeAmt; // can also add to x and/or z
-            mainCamera.transform.position = pp;
-            CancelShake = new Task( StopShaking( 1f ) );
-            //print ("shake start" + quakeAmt );
-        }
-            
-        IEnumerator StopShaking( float waitTime ){
-            yield return null;
-            mainCamera.transform.position = originalCameraPosition;
-        }
     }
 }
 

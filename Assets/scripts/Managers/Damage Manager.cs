@@ -6,13 +6,14 @@ namespace AssemblyCSharp
 {
     public class Damage_Manager : Base_Character_Manager
     {
-        public DamageModel charDamageModel { get; set; }  = new DamageModel();
-        public Status_Manager statusManager { get; set; }
+        public DamageModel charDamageModel { get; set; }
+        //public Status_Manager statusManager { get; set; }
         public Battle_Details_Manager battleDetailsManager { get; set; }
-        public Character_Manager characterManager {get; set;}
+        //public Character_Manager characterManager {get; set;}
         public Damage_Manager(){
-            characterManager = this.gameObject.GetComponent<Character_Manager>();
-            statusManager = this.gameObject.GetComponent<Status_Manager>();
+            //characterManager = this.gameObject.GetComponent<Character_Manager>();
+            // 'statusManager = this.gameObject.GetComponent<Status_Manager>();
+            charDamageModel = new DamageModel();
             battleDetailsManager = Battle_Manager.battleDetailsManager;
         }
 
@@ -84,8 +85,9 @@ namespace AssemblyCSharp
             if (characterManager.statusManager.DoesStatusExist("thorns") && damageModel.dmgSource != null)
             {
                 var sourceCalDmg = damageModel.dmgSource.GetComponent<Damage_Manager>();
-                var sourceCharManager = damageModel.dmgSource.GetComponent<character_Manager>();
-                sourceCharManager.damageManager.charDamageModel.incomingDmg = characterManager.characterModel.thornsDmg;
+                var dmgModel = new DamageModel{
+                            incomingDmg = characterManager.characterModel.thornsDmg
+                        };
                 sourceCalDmg.calculatedamage(damageModel);
             }
 

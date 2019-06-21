@@ -13,6 +13,8 @@ namespace AssemblyCSharp
         private AudioSource audioSourceScript {get; set;}
         private AudioClip chosenSound {get; set;}
         public AudioClip charSwapSound {get; set;}
+        public AudioClip gearSwapSound {get; set;}
+        public AudioClip gearSwapReady {get; set;}
         [Header("UI Sounds:")]
         public List<AudioClip> uiSounds;
         [Header("Swing Sounds:")]
@@ -81,6 +83,21 @@ namespace AssemblyCSharp
                 audioSourceScript.clip = audioClip;
                 audioSourceScript.Play();
             }
+        }
+
+        public void playSound( string sound ){ 
+            switch (sound)
+            {
+                case "gearSwapSound":
+                    audioSourceScript.clip = gearSwapSound;
+                break;
+                case "gearSwapReady":
+                    audioSourceScript.clip = gearSwapReady;
+                break;
+                default:
+                    break;
+            }
+            audioSourceScript.Play();
         }
     }
 }

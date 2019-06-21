@@ -8,7 +8,7 @@ namespace AssemblyCSharp
         public StatusModel()
         {
         } 
-        public singleStatus singleStatus { get; set; }
+        public SingleStatusModel singleStatus { get; set; }
         public Character_Manager characterManager { get; set; } 
         public classSkills onHitSkill { get; set; } 
         public float duration { get; set; }

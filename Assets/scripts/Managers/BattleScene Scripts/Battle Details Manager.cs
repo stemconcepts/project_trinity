@@ -63,12 +63,6 @@ namespace AssemblyCSharp
         public void Immune( DamageModel damageModel ){
             ShowImmune( damageModel );
         }
-
-            
-        public void AddStacks( statussinglelabel singleStatusLabel ){
-            var stackLabel = singleStatusLabel.gameObject.GetComponentInChildren<Text>();
-            stackLabel.text = singleStatusLabel.stacks < 1 ? "" : singleStatusLabel.stacks.ToString();
-        }
     
         //controls damage/healing/absorb numbers
         public void ShowDamageNumber( DamageModel damageModel, string extraInfo = "" ){

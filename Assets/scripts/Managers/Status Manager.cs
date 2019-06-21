@@ -4,14 +4,20 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public class Status_Manager : BasicManager
+    public class Status_Manager : Base_Character_Manager
     {
         public Battle_Details_Manager battleDetailsManager { get; set; }
         public Button_Click_Manager buttonClickManager { get; set; }
+        public GameObject statusHolderObject { get; set; }
+        [Header("Immunity List:")]
+        public List<SingleStatusModel> immunityList = new List<SingleStatusModel>();
+        [Header("Status List:")]
+        public List<SingleStatusModel> singleStatusList = new List<SingleStatusModel>();
         public Status_Manager()
         {
             battleDetailsManager = Battle_Manager.battleDetailsManager;
             buttonClickManager = this.gameObject.GetComponents<Button_Click_Manager>();
+            statusHolderObject = GameObject.Find( characterManager.characterModel.role + "status" );
         }
 
         public void AttributeChange( StatusModel statusModel ){
@@ -108,14 +114,11 @@ namespace AssemblyCSharp
         }
 
         public bool DoesStatusExist( string statusName ){
-            Type statusModel = Type.GetType("statusModel");
-            var statusList = (List<singleStatus>)statusModel.GetField("statusListSO").GetValue( this );
-            var statusHolderObject = GameObject.Find( buttonClickManager.GetClassRole() + "status" );
             Transform statusPanel;
             singleStatus status;
-            for( int i = 0; i < statusList.Count; i++ ){            
-                if( statusList[i].name == statusName  ){
-                    status = statusList[i];
+            for( int i = 0; i < singleStatusList.Count; i++ ){            
+                if( singleStatusList[i].name == statusName  ){
+                    status = singleStatusList[i];
                     if( status.buff ){
                         statusPanel = statusHolderObject.transform.Find( "Panel buffs" );
                     } else {
@@ -133,26 +136,21 @@ namespace AssemblyCSharp
             return false;
         }
 
-        public singleStatus GetStatus( string statusName ){
-            Type statusData = Type.GetType("status");
-            var statusList = (List<singleStatus>)statusData.GetField("statusListSO").GetValue( this );
-            for( int i = 0; i < statusList.Count; i++ ){            
-                if( statusList[i].name == statusName  ){
-                    return statusList[i];
+        public StatusModel GetStatus( string statusName ){
+            for( int i = 0; i < singleStatusList.Count; i++ ){            
+                if( singleStatusList[i].name == statusName  ){
+                    return singleStatusList[i];
                 }   
             }
             return null;
         }
 
         public statussinglelabel GetStatusIfExist( string statusName ){
-            Type statusData = Type.GetType("status");
-            var statusList = (List<singleStatus>)statusData.GetField("statusListSO").GetValue( this );
-            var statusHolderObject = GameObject.Find( buttonClickManager.GetClassRole() + "status" );
             Transform statusPanel;
             singleStatus status;
-            for( int i = 0; i < statusList.Count; i++ ){            
-                if( statusList[i].name == statusName  ){
-                    status = statusList[i];
+            for( int i = 0; i < singleStatusList.Count; i++ ){            
+                if( singleStatusList[i].name == statusName  ){
+                    status = singleStatusList[i];
                     if( status.buff ){
                         statusPanel = statusHolderObject.transform.Find( "Panel buffs" );
                     } else {
@@ -170,6 +168,16 @@ namespace AssemblyCSharp
             return null;
         }
 
+        //check immunity
+        public bool CheckImmunity( string statusName ){
+            for (int i = 0; i < immunityList.Count; i++) {
+                if( immunityList[i].name == statusName ){
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void ForceStatusOff(singleStatus singleStatus, System.Action statusAction = null)
         {
             if (statusAction != null)
@@ -181,6 +189,98 @@ namespace AssemblyCSharp
             {
                 var animationManager = GetComponent<Animation_Manager>();
                 animationManager.AddStatusAnimation(false, singleStatus.hitAnim, singleStatus.holdAnim, false);
+            }
+        }
+
+        public void StatusOn( StatusModel statusModel ){
+            if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) && !CheckImmunity( statusModel.singleStatus.attributeName ) ){ 
+                battleDetailsManager.ShowLabel( singleStatus );
+                Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, statusModel.singleStatus, () =>
+                {
+                    ForceStatusOff( statusModel.singleStatus );
+                });
+                if( statusModel.singleStatus.hitAnim != "" ){
+                    animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                }
+            } else 
+            if( statusModel.turnOff ){
+                ForceStatusOff( statusModel.singleStatus );
+                if( statusModel.singleStatus.hitAnim != "" ){
+                    animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                }
+            }
+        }
+
+        //Tumor set Timer then do damage
+        public void Tumor( StatusModel statusModel ){
+            if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
+                battleDetailsManager.ShowLabel( statusModel.singleStatus );
+                if( statusModel.singleStatus.hitAnim != "" ){
+                    animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                }
+
+                Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, statusModel.singleStatus, () =>
+                {
+                    var dmgModel = new DamageModel{ 
+                        incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
+                    };
+                    characterManager.damageManager.calculateMdamge( dmgModel );
+                });
+            } else 
+            if( statusModel.turnOff ){
+                ForceStatusOff( statusModel.singleStatus, ()=> {
+                    var dmgModel = new DamageModel{ 
+                        incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
+                    };
+                    characterManager.damageManager.calculateMdamge( dmgModel );
+                });
+            }
+        }
+
+        public void OnTakeDmg( StatusModel statusModel ){
+            if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
+                battleDetailsManager.ShowLabel( statusModel.singleStatus );
+                var attrValue = characterManager.GetAttributeValue( statusModel.singleStatus.attributeName );
+                var effect = ScriptableObject.CreateInstance<EffectOnEventModel>();
+                effect.power = attrValue * 0.25f;
+                effect.duration = statusModel.duration;
+                effect.trigger = "OnTakingDmg";
+                effect.triggerChance = 1; //comes from status
+                effect.ready = true; //statusModel.singleStatus.active
+                effect.effect = EffectOnEventModel.effectGrp.Status;
+                effect.affectSelf = true; //comes from status
+                effect.owner = gameObject;
+                effect.coolDown = 0;
+                EventManager.EventAction += effect.RunEffect;
+
+                Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, statusModel.singleStatus, () =>
+                {
+                    ForceStatusOff( statusModel.singleStatus );
+                });
+            } else 
+            if( statusModel.turnOff ){
+                ForceStatusOff( statusModel.singleStatus );
+            }
+        }
+
+        //set Immunity
+        public void SetImmunity( StatusModel statusModel ){
+            if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
+                immunityList.Add( GetStatus( statusModel.singleStatus.attributeName ) );
+
+                Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, statusModel.singleStatus, () =>
+                {
+                    ForceStatusOff( statusModel.singleStatus );
+                    immunityList.Remove( GetStatus( statusModel.singleStatus.attributeName ) );
+                });
+
+            } else 
+            if( statusModel.turnOff ){
+                ForceStatusOff( singleStatus );
+                immunityList.Remove( GetStatus( singleStatus.attributeName ) );
+                if( singleStatus.hitAnim != "" ){ 
+                    animationManager.AddStatusAnimation( false, singleStatus.hitAnim, singleStatus.holdAnim, false );
+                }
             }
         }
 
@@ -204,7 +304,7 @@ namespace AssemblyCSharp
                 Tumor( statusModel );
                 break;
             case singleStatus.statusFunction.OnHit:
-                OnHit( statusModel);
+                //OnHit( statusModel);
                 break;
             case singleStatus.statusFunction.OnHitEnemy:
                 OnTakeDmg( statusModel );

@@ -11,21 +11,23 @@ namespace AssemblyCSharp
         public bool isSkillactive { get; set; }
         public spawnUI spawnUIscript {get; set;}
         public GameObject currenttarget {get; set; }
-        private classSkills skillInWaiting {get; set;}
+        private SkillModel skillInWaiting {get; set;}
         public enum weaponSlotEnum{
             Main,
             Alt
         };
         public weaponSlotEnum weaponSlot {get; set;}
-        public List<classSkills> primaryWeaponSkills {get; set;} = new List<classSkills>();
-        public List<classSkills> secondaryWeaponSkills {get; set;} = new List<classSkills>();
-        public classSkills classSkill {get; set;}
+        public List<SkillModel> primaryWeaponSkills {get; set;}
+        public List<SkillModel> secondaryWeaponSkills {get; set;}
+        public SkillModel classSkill {get; set;}
         public bool waitingForSelection {get; set;}
         public Skill_Manager()
         {
+            primaryWeaponSkills = new List<SkillModel>();
+            secondaryWeaponSkills = new List<SkillModel>();
         }
 
-        public void PrepSkillNew( classSkills classSkill, bool weaponSkill = true ){
+        public void PrepSkillNew( SkillModel classSkill, bool weaponSkill = true ){
             if( CheckSkillAvail( classSkill ) ){
                 if( !waitingForSelection ){
                     SkillActiveSet( classSkill, true );
@@ -51,7 +53,7 @@ namespace AssemblyCSharp
                 classSkill.newMP = classSkill.magicPower * characterManager.characterModel.MAtk;
             }
         }
-        private void GetTargets( classSkills classSkill, bool randomTarget = false, bool weaponSkill = true ){
+        private void GetTargets( SkillModel classSkill, bool randomTarget = false, bool weaponSkill = true ){
             var player = this.gameObject;
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -67,7 +69,7 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SkillComplete( classSkills classSkill, List<GameObject> targets, bool weaponSkill = true ){
+        public void SkillComplete( SkillModel classSkill, List<GameObject> targets, bool weaponSkill = true ){
             var power = 0;
             Event_Manager.BuildEvent( "OnSkillCast", eventCallerVar: gameObject );
             if( classSkill.isFlat ){ 
@@ -85,7 +87,7 @@ namespace AssemblyCSharp
             Battle_Manager.taskManager.skillcoolDownTask( classSkill );
         }
 
-        private void DealHealDmg( classSkills classSkill, List<GameObject> targets, float power ){
+        private void DealHealDmg( SkillModel classSkill, List<GameObject> targets, float power ){
             var characterManager = gameObject.GetComponent<Character_Manager>();
             characterManager.damageManager.charDamageModel.dueDmgTargets = targets;
             foreach (var target in targets) {
@@ -95,7 +97,7 @@ namespace AssemblyCSharp
                 }
                 if( target.tag == "Enemy" && characterManager.characterModel.isAlive ){
                     foreach (var status in classSkill.singleStatusGroup) {
-                        status.debuffable = classSkill.statusDispellable;
+                        status.dispellable = classSkill.statusDispellable;
                     };
                     if( classSkill.doesDamage ){ 
                         var dmgModel = new DamageModel{
@@ -109,7 +111,7 @@ namespace AssemblyCSharp
                     classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<status>(), power, classSkill );
                 } else if( target.tag == "Player" && characterManager.characterModel.isAlive ){ 
                     foreach (var status in classSkill.singleStatusGroupFriendly) {
-                        status.debuffable = classSkill.statusFriendlyDispellable;
+                        status.dispellable = classSkill.statusFriendlyDispellable;
                     }
                     if( classSkill.healsDamage ){ 
                         var dmgModel = new DamageModel{
@@ -126,7 +128,7 @@ namespace AssemblyCSharp
             characterManager.characterModel.actionPoints -= classSkill.skillCost;
         }
 
-        private void SetAnimations( classSkills classSkill ){
+        private void SetAnimations( SkillModel classSkill ){
             if( classSkill.animationType != null ){
                 characterManager.animationManager.inAnimation = true;
                 characterManager.animationManager.skeletonAnimation.state.SetAnimation(0, classSkill.animationType, classSkill.loopAnimation);
@@ -143,7 +145,7 @@ namespace AssemblyCSharp
             
         }
 
-        public void SkillActiveSet( classSkills classSkill, bool setActive, bool skillCancel = false ){
+        public void SkillActiveSet( SkillModel classSkill, bool setActive, bool skillCancel = false ){
             if ( setActive || skillCancel ){ //turn skill active on begin but inactive on cancel
                 classSkill.skillActive = setActive;
                 skillInWaiting = classSkill;
@@ -159,7 +161,7 @@ namespace AssemblyCSharp
             }
         }
 
-        private bool CheckSkillAvail( classSkills classSkill ){
+        private bool CheckSkillAvail( SkillModel classSkill ){
             var availActionPoints = characterManager.characterModel.actionPoints;
             if ( availActionPoints >= classSkill.skillCost && !classSkill.skillActive )
             {

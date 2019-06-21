@@ -27,7 +27,7 @@ public class singleStatus : ScriptableObject {
 		OnHit,
 		OnHitEnemy,
 		Immune
-	} 
+	}   
 	//public List<string> attributeNameList = new List<string>(); 
 	public string attributeName;
 	public statusType statusTypeEnum;

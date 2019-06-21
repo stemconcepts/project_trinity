@@ -5,14 +5,16 @@ namespace AssemblyCSharp
 {
     public class Character_Manager : Base_Character_Manager
     {
-        public CharacterModel characterModel { get; set; } = new CharacterModel();
-        public Skill_Manager skillManager {get; set; } = new Skill_Manager();
+        public CharacterModel characterModel { get; set; }
+        //public Skill_Manager skillManager {get; set; }
         public Character_Manager()
         {   
             updateBarSize();
+            characterModel = new CharacterModel();
             characterModel.currentPanel.GetComponent<movementPanelController>().isOccupied = true;
             characterModel.currentPanel.GetComponent<movementPanelController>().currentOccupier = gameObject;
             characterModel.origPosition = this.transform.position;
+    
         }
 
         void Update(){

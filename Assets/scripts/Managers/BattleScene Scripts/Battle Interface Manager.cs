@@ -7,9 +7,11 @@ namespace AssemblyCSharp
 {
     public class Battle_Interface_Manager: BasicManager
     {
+        bool swapReady = true;
+        float gearSwapTime {get; set;}
         public int buttonID { get; set; }
         public string skillNames {get; set;}
-        public classSkills skill {get; set;}
+        public SkillModel skill {get; set;}
         public string skillName { get; set; }
         public Sprite skillIcon { get; set; }
         private Image iconImageScript { get; set; }
@@ -36,12 +38,14 @@ namespace AssemblyCSharp
 
         public void RunClassSkill(){
             if( !IsCharBusy() ){
-                skillLoaderScript.PrepSkillNew( skill );
+                var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
+                charSelected.GetComponent<Skill_Manager>().PrepSkillNew(skill);
             }
         }
 
         void KeyPressSkill(){
-            skillLoaderScript.PrepSkillNew( skill );
+            var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
+            charSelected.GetComponent<Skill_Manager>().PrepSkillNew(skill);
         }
     
         //For skill : Run to check if skills are on Cooldown - if so set the fill amount to the remaining time left
@@ -102,52 +106,50 @@ namespace AssemblyCSharp
                 buttonDataScript.SkillSet();
                 allRoles[0].GetComponent<button_clicks>().DisplaySkillsSecond();
                 swapReady = false;
-                GearSwapTimer(time);
-                soundContScript.playSound( gearSwapSound );
+                GearSwapTimer(gearSwapTime);
+                Battle_Manager.soundManager.playSound("gearSwapSound");
             } else {
                 print ("Gear Swap not Ready");
             }
         }
     
         void GearSwapTimer( float time ){
-            swapTimer = new Task( SwapTimer( time ) );
-            soundContScript.playSound( gearSwapReady );
-        }
-    
-        IEnumerator SwapTimer( float time){
-            yield return new WaitForSeconds(time);
-            swapReady = true;
+            Battle_Manager.taskManager.CallTask( time, () => {
+                swapReady = true;
+            });
+            Battle_Manager.soundManager.playSound( "gearSwapReady" );
         }
     
         private void CheckGearType(){
             var allRoles = GameObject.FindGameObjectsWithTag("Player"); 
-            foreach (var playerRole in allRoles) {
-                var currentWeaponData = playerRole.GetComponent<equipedWeapons>();  
-                var playerSkeletonAnim = playerRole.GetComponentInChildren<SkeletonAnimation>();
-                var AAutoAttack = playerRole.GetComponent<auto_attack>();
-                var charMovementScript = playerRole.GetComponent<characterMovementController>();
-                var calculateDmgScript = playerRole.GetComponent<calculateDmg>();
-                var currentWSlot = playerRole.GetComponent<skill_effects>();
+            foreach (var playerRole in Battle_Manager.friendlyCharacters ) {
+                var characterManager = playerRole.GetComponent<Character_Manager>(); 
+                var currentWeaponData = characterManager.equipmentManager;
+                var playerSkeletonAnim = characterManager.animationManager;
+                var AAutoAttack = characterManager.autoAttackManager;
+                var charMovementScript = characterManager.movementManager;
+                var calculateDmgScript = characterManager.damageManager;
+                var currentWSlot = characterManager.skillManager;
                 var weaponType = currentWSlot.weaponSlot == skill_effects.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
                 if( weaponType.type != weapons.weaponType.heavyHanded && weaponType.type != weapons.weaponType.cursedGlove && weaponType.type != weapons.weaponType.clawAndCannon ){
                     if( playerRole.name == "Stalker" ){
-                        playerSkeletonAnim.skeleton.SetSkin("light");
+                        playerSkeletonAnim.skeletonAnimation.skeleton.SetSkin("light");
                     }
-                    playerSkeletonAnim.state.AddAnimation(0, "idle", true, 0 );
+                    playerSkeletonAnim.skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );
                     AAutoAttack.AAanimation = "attack1";
                     charMovementScript.idleAnim = "idle";
                     charMovementScript.hopAnim = "hop";
                     calculateDmgScript.hitAnimNormal = "hit";
                 } else {
                     if( playerRole.name == "Stalker" ){
-                        playerSkeletonAnim.skeleton.SetSkin("heavy");
+                        playerSkeletonAnim.skeletonAnimation.skeleton.SetSkin("heavy");
                     }
-                    playerSkeletonAnim.state.SetAnimation(0, "toHeavy", false );
-                    playerSkeletonAnim.state.AddAnimation(0, "idleHeavy", true, 0 );
+                    playerSkeletonAnim.skeletonAnimation.state.SetAnimation(0, "toHeavy", false );
+                    playerSkeletonAnim.skeletonAnimation.state.AddAnimation(0, "idleHeavy", true, 0 );
                     AAutoAttack.AAanimation = "attack1Heavy";
                     charMovementScript.idleAnim = "idleHeavy";
                     charMovementScript.hopAnim = "hopHeavy";
-                    calculateDmgScript.hitAnimNormal = "hitHeavy";
+                    calculateDmgScript.charDamageModel.hitAnimNormal = "hitHeavy";
                 }
             }   
         }
