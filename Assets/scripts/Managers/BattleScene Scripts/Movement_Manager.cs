@@ -18,6 +18,8 @@ namespace AssemblyCSharp
         public GameObject currentPanel { get; set; }
         public Movement_Manager()
         {
+            hopAnim = "hop";
+            idleAnim = "idle";
             currentPosition = (Vector2)this.gameObject.transform.position;
             movementSpeed = moveToHomeSpeed = 6f;
             animationManager.GetComponent<SkeletonAnimation>().state.Event += OnEventMove;
@@ -47,14 +49,14 @@ namespace AssemblyCSharp
         public void moveToHome(){
             var origPos = currentPanel.transform.position;
             animationManager.GetComponent<MeshRenderer>().sortingOrder = origSortingOrder;
-            var moveHomeSpeed = moveToHomeSpeed == 0f ? 50f : moveToHomeSpeed;
+            //var moveHomeSpeed = moveToHomeSpeed == 0f ? 50f : moveToHomeSpeed;
             var panelPos = currentPanel.transform.position;
             panelPos.y = panelPos.y + 6f;
-            Battle_Manager.taskManager.StartMoveTask( 0.009f, panelPos, moveHomeSpeed, currentPosition );
-            var hopAnim = gameObject.tag == "Enemy" ? "hop" : hopAnim;
-            var idleAnim = gameObject.tag == "Enemy" ? "idle" : idleAnim;
-            animationManager.GetComponent<SkeletonAnimation>().state.SetAnimation(0, hopAnim, false );
-            animationManager.GetComponent<SkeletonAnimation>().state.AddAnimation(0, idleAnim, true, 0 );
+            Battle_Manager.taskManager.moveBackTask( 0.009f, panelPos, currentPosition );
+            //var hopAnim = gameObject.tag == "Enemy" ? "hop" : hopAnim;
+            //var idleAnim = gameObject.tag == "Enemy" ? "idle" : idleAnim;
+            animationManager.GetComponent<SkeletonAnimation>().state.SetAnimation(0, gameObject.tag == "Enemy" ? "hop" : hopAnim, false );
+            animationManager.GetComponent<SkeletonAnimation>().state.AddAnimation(0, gameObject.tag == "Enemy" ? "idle" : idleAnim, true, 0 );
         }
 
         /*public void StartMovement( float movementSpeedVar ) {
@@ -65,7 +67,7 @@ namespace AssemblyCSharp
     
         public void OnEventMove(Spine.TrackEntry state, Spine.Event e ){
             if( e.Data.name == "movementStart" ){
-                moveToTarget( movementSpeed );
+                moveToTarget( movementSpeed, characterManager.gameObject );
             } else if( e.Data.name == "movementBack" && characterManager.characterModel.currentPosition != characterManager.characterModel.origPosition ){
                 moveToHome();
             }

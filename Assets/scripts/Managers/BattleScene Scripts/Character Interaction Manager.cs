@@ -13,7 +13,7 @@ namespace AssemblyCSharp
 
         public void DisplaySkills(){
             for( int x = 0; x < Battle_Manager.battleInterfaceManager.Count ; x++ ){
-                Battle_Manager.battleInterfaceManager[x].SkillSet();
+                Battle_Manager.battleInterfaceManager[x].SkillSet( skillManager );
             }
         }
         
@@ -46,7 +46,7 @@ namespace AssemblyCSharp
         }
         
         void ToggleThroughLiveCharacters(){
-            string swapTo = Battle_Manager.GetAlive( Battle_Manager.charClass );
+            var swapTo = Battle_Manager.characterSelectManager.GetAlive();
             Battle_Manager.characterSelectManager.SetSelectedCharacter(swapTo);
             Battle_Manager.soundManager.playSound( Battle_Manager.soundManager.charSwapSound );
         }

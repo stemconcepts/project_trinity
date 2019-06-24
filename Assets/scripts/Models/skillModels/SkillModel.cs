@@ -74,15 +74,17 @@ public class SkillModel : ScriptableObject {
         public List<StatusModel> singleStatusGroupFriendly = new List<StatusModel>();
         public bool statusFriendlyDispellable = true;
 
-        public void AttachStatus( List<StatusModel> singleStatusGroup, status targetStatus, float power, SkillModel skill ){
+        public void AttachStatus( List<StatusModel> singleStatusGroup, Status_Manager targetStatus, float power, SkillModel skill ){
             for( int i = 0; i < singleStatusGroup.Count; i++ ){
-                targetStatus.RunStatusFunction( singleStatusGroup[i], power, skill.duration );
+                singleStatusGroup[i].power = power;
+                singleStatusGroup[i].duration = skill.duration;
+                targetStatus.RunStatusFunction( singleStatusGroup[i] );
             }
         }
         public enemySkill onhitSkilltoRun;
     
         //Run Extra Skill Effects
-        public void RunExtraEffect( Data data ){
+        public void RunExtraEffect( SkillData data ){
             switch( ExtraEffect ){
                 case ExtraEffectEnum.None:
                     break;
@@ -97,7 +99,7 @@ public class SkillModel : ScriptableObject {
         }
     
         //removes x buffs from an enemy
-        public void Dispel( Data data ){
+        public void Dispel( SkillData data ){
             //target = skill_targetting.instance.currentTarget;
             List<GameObject> targets = data.target;
             foreach (var target in targets) {
@@ -107,13 +109,13 @@ public class SkillModel : ScriptableObject {
     
                 //print ("running" + target);
                 var positionId = 0;
-                foreach( statussinglelabel activeStatus in targetStatus.GetAllStatusIfExist( true ) ) {
+                foreach( StatusLabelModel activeStatus in targetStatus.GetAllStatusIfExist( true ) ) {
                     if( positionId < debuffPower && activeStatus.buff && activeStatus.dispellable ) {
                             targetSpawnUI.RemoveLabel( activeStatus.statusname, activeStatus.buff );
-                            targetStatus.RunStatusFunction( activeStatus.singleStatus, statusOff:true );
+                            targetStatus.RunStatusFunction( activeStatus.statusModel );
                             //singlestatus.ChosenStatusToTurnOff();
                             //print ("Successfully Debuffed " + singlestatus.name);
-                    } else if ( positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable && !activeStatus.singleStatus.active ){
+                    } else if ( positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable ){
                             //print ("Failed to Debuff " + singlestatus.name);
                     }
                     positionId++;
@@ -122,7 +124,7 @@ public class SkillModel : ScriptableObject {
         }
     
         //Does extra damage based on status effect      
-        public void BonusDamage( Data data ){ 
+        public void BonusDamage( SkillData data ){ 
             data.modifier = 1f;
             List<GameObject> targets = data.target;
             foreach (var target in targets) {

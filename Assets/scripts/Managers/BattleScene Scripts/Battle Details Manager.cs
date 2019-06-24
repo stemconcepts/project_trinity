@@ -11,41 +11,33 @@ namespace AssemblyCSharp
         public GameObject buffParent { get; set; }
         public GameObject debuffParent { get; set; }
         public GameObject gameDetailsObject {get; set; }
-        public Status_Manager statusManager {get; set;}
-        public Battle_Details_Manager()
-        {
-            statusManager = GetComponent<Status_Manager>();
-        }
 
-        public void AddStacks(statussinglelabel singleStatusLabel)
+        public void AddStacks(StatusLabelModel singleStatusLabel)
         {
             var stackLabel = singleStatusLabel.gameObject.GetComponentInChildren<Text>();
             stackLabel.text = singleStatusLabel.stacks < 1 ? "" : singleStatusLabel.stacks.ToString();
         }
 
-        public void ShowLabel( singleStatus status ){
-            GameObject live_object = status.buff ? 
+        public void ShowLabel( StatusModel status ){
+            GameObject live_object = status.singleStatus.buff ? 
                 (GameObject)Instantiate( status_symbol, new Vector3 ( status_position.position.x, 0.5f + status_position.position.y, status_position.position.z ) , status_position.rotation ) : 
                 (GameObject)Instantiate( status_symbol, new Vector3 ( status_position.position.x, status_position.position.y, status_position.position.z  ) , status_position.rotation );
             Image iconImageScript = live_object.GetComponent<Image>();
-            iconImageScript.sprite = status.labelIcon;
-            if( buffParent && status.buff ){
+            iconImageScript.sprite = status.singleStatus.labelIcon;
+            if( buffParent && status.singleStatus.buff ){
                 live_object.transform.SetParent( buffParent.transform, true );
-            } else if( debuffParent && !status.buff  ){
+            } else if( debuffParent && !status.singleStatus.buff  ){
                 live_object.transform.SetParent( debuffParent.transform, true );
             }
-            var getprefab = live_object.GetComponent<statussinglelabel>();
-            getprefab.buff = status.buff;
-            getprefab.singleStatus = status;
-            getprefab.statusname = status.name;
-            getprefab.dispellable = status.debuffable;
+            var getprefab = live_object.GetComponent<StatusLabelModel>();
+            getprefab.buff = status.singleStatus.buff;
+            getprefab.statusModel = status;
+            getprefab.statusname = status.singleStatus.name;
+            getprefab.dispellable = status.singleStatus.debuffable;
         }
 
-        public void RemoveLabel( string statuslabel, bool isbuff ){
-            if ( statusManager.DoesStatusExist(statuslabel) ){
-                var chosenStatus = statusManager.GetStatusIfExist( statuslabel );
-                chosenStatus.DestroyMe();
-            }
+        public void RemoveLabel( StatusLabelModel statusLabel ){
+            statusLabel.DestroyMe();
         }
 
         public void getDmg( DamageModel damageModel, string extraInfo = "" ){
@@ -57,7 +49,7 @@ namespace AssemblyCSharp
         }
     
         public void getAbsorb( float absorbValue, DamageModel damageModel ){
-            ShowAbsorbNumber( damageModel.dmgSource, absorbValue );
+            ShowAbsorbNumber( damageModel );
         }
     
         public void Immune( DamageModel damageModel ){
@@ -83,13 +75,13 @@ namespace AssemblyCSharp
             damageData.isDmg = false;
         }
     
-        public void ShowAbsorbNumber( DamageModel damageModel, float absorbValue ){
+        public void ShowAbsorbNumber( DamageModel damageModel ){
             GameObject charObject = damageModel.characterManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<damagDataBehaviour>();
-            damageData.absorbData = (int)absorbValue;
+            damageData.absorbData = (int)damageModel.absorbAmount;
             damageData.isAbsorb = true;
-            damageData.skillLabel = damageModel.dmgSource;
+            damageData.skillLabel = damageModel.skillSource;
         }
     
         public void ShowImmune( DamageModel damageModel){
@@ -97,7 +89,7 @@ namespace AssemblyCSharp
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<damagDataBehaviour>();
             damageData.isImmune = true;
-            damageData.skillLabel = damageModel.dmgSource;
+            damageData.skillLabel = damageModel.skillSource;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -17,22 +18,24 @@ namespace AssemblyCSharp
         public static Character_Select_Manager characterSelectManager { get; set; }
         public static List<Character_Manager> friendlyCharacters { get; set; } 
         public static List<Character_Manager> enemyCharacters { get; set; } 
-        public static classState guardian {get; set;} 
-        public static classState walker {get; set;}
-        public static classState stalker {get; set;}
-        public static List<classState> charClass {get; set;}
+        //public static List<classState> classStates {get; set;}
+        //public static classState guardian {get; set;} 
+        //public static classState walker {get; set;}
+        // static classState stalker {get; set;}
+        //public static List<classState> charClass {get; set;}
 
         public Battle_Manager()
         {
             taskManager = new Task_Manager();
             battleDetailsManager = new Battle_Details_Manager();
             characterSelectManager = new Character_Select_Manager();
-            battleInterfaceManager = GameObject.FindGameObjectsWithTag("skillDisplayControl");
+            var bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
+            battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
             soundManager = gameManager.SoundManager;
             gameEffectManager = gameManager.GameEffectsManager;
-            charClass.Add( guardian );
+            /*charClass.Add( guardian );
             charClass.Add( walker );
-            charClass.Add( stalker );
+            charClass.Add( stalker );*/
         }
 
         public class classState{
@@ -54,15 +57,6 @@ namespace AssemblyCSharp
         
         public void LoadStatBonuses(){
             
-        }
-
-        public string GetAlive( classState[] charClass ){
-            for( int i=0; i < charClass.Length ; i++ ){
-                if( charClass[i].Alive && !charClass[i].Selected && !charClass[i].LastSelected ){
-                    return charClass[i].Name;
-                }
-            }
-            return "bla";
         }
 
         public void LoadCharacters( List<Character_Manager> characters ){

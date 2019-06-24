@@ -42,7 +42,7 @@ namespace AssemblyCSharp
                     characterManager.characterModel.Health = characterManager.characterModel.Health - absorbedDmg;
                      battleDetailsManager.getDmg(damageModel);
                 }
-                var absorbAmount = characterManager.characterModel.absorbPoints - damageModel.damageTaken;
+                damageModel.absorbAmount = characterManager.characterModel.absorbPoints - damageModel.damageTaken;
                 Battle_Manager.battleDetailsManager.ShowAbsorbNumber(damageModel);
             }
             else if (characterManager.characterModel.blockPoints > 0)
@@ -109,7 +109,7 @@ namespace AssemblyCSharp
                 extTarget = damageModel.dmgSource,
                 eventCaller = this.gameObject
             };
-            EventManager.BuildEvent(eventModel);
+            Battle_Manager.eventManager.BuildEvent(eventModel);
         }
 
         public void OnEventHit(Spine.TrackEntry state, Spine.Event e)
@@ -119,14 +119,15 @@ namespace AssemblyCSharp
                 foreach (var target in charDamageModel.dueDmgTargets)
                 {
                     var targetDamageManager = target.GetComponent<Damage_Manager>();
-                    targetDamageManager.TakeDmg(e.Data.name);
+                    var dM = new DamageModel();
+                    targetDamageManager.TakeDmg(dM, e.Data.name);
                     var eventModel = new EventModel{
                         eventName = "OnDealingDmg",
                         extTarget = target,
                         eventCaller = this.gameObject,
                         extraInfo = targetDamageManager.charDamageModel.damageTaken
                     };
-                    EventManager.BuildEvent(eventModel);
+                    Battle_Manager.eventManager.BuildEvent(eventModel);
                 }
             }
         }
@@ -137,11 +138,11 @@ namespace AssemblyCSharp
             var isSpell = damageModel.classSkill == null ? damageModel.enemySkill.isSpell : damageModel.classSkill.isSpell;
             if (damageModel.classSkill != null)
             {
-                skillSource = damageModel.classSkill != null ? damageModel.classSkill.skillName : damageModel.skillSource;
+                damageModel.skillSource = damageModel.classSkill != null ? damageModel.classSkill.skillName : damageModel.skillSource;
             }
             else if (damageModel.enemySkill != null)
             {
-                skillSource = damageModel.enemySkill != null ? damageModel.enemySkill.skillName : damageModel.skillSource;
+                damageModel.skillSource = damageModel.enemySkill != null ? damageModel.enemySkill.skillName : damageModel.skillSource;
             }
 
             if (damageModel.characterManager != null)
@@ -154,7 +155,7 @@ namespace AssemblyCSharp
                 damageModel.dmgSource = this.gameObject;
                 if (statusManager.DoesStatusExist("damageImmune"))
                 {
-                    battleDetailsManager.Immune(skillSource);
+                    battleDetailsManager.Immune(damageModel);
                 }
                 else
                 {
@@ -169,7 +170,7 @@ namespace AssemblyCSharp
                             tumor.buffPower += damageTaken * 0.70f;
                         }
 
-                        battleDetailsManager.getDmg(damageTaken, skillSource);
+                        battleDetailsManager.getDmg(damageModel);
                     }
                     else
                     {
@@ -177,7 +178,7 @@ namespace AssemblyCSharp
                         {
                             damageModel.customHitFX = damageModel.classSkill.hitEffect;
                         }
-                        else if (enemySkill != null)
+                        else if (damageModel.enemySkill != null)
                         {
                             damageModel.customHitFX = damageModel.enemySkill.hitEffect;
                         }
@@ -197,7 +198,7 @@ namespace AssemblyCSharp
                 else
                 {
                     characterManager.characterModel.Health = characterManager.characterModel.Health - damageModel.flatDmgTaken;
-                    battleDetailsManager.getDmg(damageModel.flatDmgTaken, damageModel.skillSource);
+                    battleDetailsManager.getDmg(damageModel);
                 }
                 characterManager.characterModel.incomingMDmg = 0;
             }
@@ -219,7 +220,7 @@ namespace AssemblyCSharp
                 else
                 {
                     characterManager.characterModel.Health = characterManager.characterModel.Health - damageModel.MdamageTaken;
-                    battleDetailsManager.getDmg(damageModel.MdamageTaken, damageModel.skillSource);
+                    battleDetailsManager.getDmg(damageModel);
                 }
                 characterManager.characterModel.incomingMDmg = 0;
                 damageModel.MdamageTaken = 0;
@@ -236,7 +237,7 @@ namespace AssemblyCSharp
             if (damageModel.incomingHeal > 0)
             {
                 characterManager.characterModel.Health += damageModel.incomingHeal;
-                battleDetailsManager.getHeal(damageModel.incomingHeal);
+                battleDetailsManager.getHeal(damageModel);
             }
         }
     }

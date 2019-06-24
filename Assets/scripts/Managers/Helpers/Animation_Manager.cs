@@ -7,7 +7,6 @@ namespace AssemblyCSharp
 {
     public class Animation_Manager : Base_Character_Manager
     {
-        [SpineAnimation]
         public SkeletonAnimation skeletonAnimation {get; set;}
         public MeshRenderer meshRenderer {get; set;}
         public bool inAnimation {get; set;}
@@ -39,7 +38,7 @@ namespace AssemblyCSharp
                 damageManager.charDamageModel.hitAnimation = "";       
                 damageManager.charDamageModel.animationHold = addStatus;
                 var animationDuration = skeletonAnimation.state.SetAnimation(0, "stunToIdle", false).Animation.duration;
-                Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration, this, skeletonAnimation );
+                Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration, this );
             }
         }
     }

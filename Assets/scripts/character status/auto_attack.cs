@@ -59,7 +59,7 @@ public class auto_attack : MonoBehaviour {
 			yield return new WaitForSeconds(waitTime);
 			//if not disabled or busy in some way then attack as normal*/
 	void RunAttackLoop(){	
-        if( battleManager.battleReady ){
+        if( true ){
             List<GameObject> targets = new List<GameObject>{
                 characterScript.target.gameObject
             };

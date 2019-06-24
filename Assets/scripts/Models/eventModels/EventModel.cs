@@ -5,10 +5,10 @@ namespace AssemblyCSharp
 {
     public class EventModel
     {
-        public static string eventName;
-        public static GameObject eventCaller;
-        public static GameObject extTarget;
-        public static float extraInfo;
+        public string eventName;
+        public GameObject eventCaller;
+        public GameObject extTarget;
+        public float extraInfo;
         public EventModel()
         {
         }

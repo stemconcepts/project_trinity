@@ -7,7 +7,6 @@ namespace AssemblyCSharp
 {
     public class Sound_Manager : BasicManager
     {
-        [SpineAnimation]
         SkeletonAnimation skeletonAnimation {get; set;}
         Animation_Manager playerAnimationManager {get; set;}
         private AudioSource audioSourceScript {get; set;}

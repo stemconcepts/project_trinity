@@ -1,4 +1,5 @@
-﻿using System;
+﻿using UnityEngine;
+using System.Collections;
 
 namespace AssemblyCSharp
 {
@@ -7,10 +8,10 @@ namespace AssemblyCSharp
         public Equipment_Manager()
         {
         }
-        public weapons primaryWeapon;
-        public weapons secondaryWeapon;
+        public weaponModel primaryWeapon;
+        public weaponModel secondaryWeapon;
         public SkillModel classSkill;
-        private skill_effects skillEffectScript;
+        //private skill_effects skillEffectScript;
         public currentWeapon currentWeaponEnum;
         public enum currentWeapon{
             Primary,
@@ -18,29 +19,25 @@ namespace AssemblyCSharp
         }
     
         public void PopulateSkills( ){
-            skillEffectScript = GetComponent<skill_effects>();
+            //skillEffectScript = GetComponent<skill_effects>();
             if ( primaryWeapon != null ){
                 var intPSkill2 = Object.Instantiate( primaryWeapon.skillTwo ) as SkillModel;
                 var intPSkill3 = Object.Instantiate( primaryWeapon.skillThree ) as SkillModel;
-                //skillEffectScript.skilllistMain.Add( primaryWeapon.skillOne );
-                skillEffectScript.skilllistMain.Add( intPSkill2);
-                skillEffectScript.skilllistMain.Add( intPSkill3 );
-                //print("equipped" + gameObject);
+                skillManager.primaryWeaponSkills.Add(intPSkill2);
+                skillManager.primaryWeaponSkills.Add(intPSkill3);
             } else {
                 print ("no Primary weapons" + gameObject);
             }
             if ( secondaryWeapon != null ){
                 var intPSkill2 = Object.Instantiate( secondaryWeapon.skillTwo ) as SkillModel;
                 var intPSkill3 = Object.Instantiate( secondaryWeapon.skillThree ) as SkillModel;
-                //skillEffectScript.skilllistAlt.Add( secondaryWeapon.skillOne );
-                skillEffectScript.skilllistAlt.Add( intPSkill2 );
-                skillEffectScript.skilllistAlt.Add( intPSkill3 );
-                //print("equipped" + gameObject);
+                skillManager.secondaryWeaponSkills.Add(intPSkill2);
+                skillManager.secondaryWeaponSkills.Add(intPSkill3);
             } else {
                 print ("no Secondary weapons" + gameObject);
             }
             if( classSkill != null ){
-                skillEffectScript.classskill = Object.Instantiate( classSkill ) as classSkills;
+                skillManager.classSkill = Object.Instantiate( classSkill ) as SkillModel;
             }
         }
     }

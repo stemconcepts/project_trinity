@@ -19,7 +19,7 @@ namespace AssemblyCSharp
             } else if ( position == "front" ){
                 fxposition = fxFront;
             }
-            if( gameObject.tag != "Player" ){
+            if( gameObject.tag != "Player" && fxObject ){
                 var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
                 var particles = fx.GetComponents<ParticleSystem>();
                 if( particles != null ){

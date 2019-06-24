@@ -5,12 +5,14 @@ namespace AssemblyCSharp
     public class Event_Manager
     {
         public delegate void CheckEvent();
-        public static event CheckEvent EventAction;
+        public event CheckEvent EventAction;
+        public EventModel eventModel;
         public Event_Manager()
         {
         }
 
-        public static void BuildEvent( EventModel eventModel ){
+        public void BuildEvent( EventModel eventModel ){
+            this.eventModel = eventModel;
             if( EventAction != null )
                 EventAction();
         }

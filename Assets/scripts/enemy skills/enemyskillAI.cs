@@ -37,7 +37,7 @@ public class enemyskillAI : MonoBehaviour {
 		var boss = GameObject.FindGameObjectWithTag("Boss");
 		var bossSkillList = boss.transform.parent.GetComponent<enemySkill_effects>().enemySkilllist;
 		var randomSkill = SkillToRun( bossSkillList );
-        if( !battleManager.battleReady ){
+        if( !true ){
             StartCoroutine( skillReset( 5f )); 
             return;
         }

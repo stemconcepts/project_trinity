@@ -109,6 +109,6 @@ public class sortbuttondata : MonoBehaviour {
 
 	// Update is called once per frame
 	void Start () {
-        battleManager.BattleStart( 5f );
+        //battleManager.BattleStart( 5f );
 	}
 }

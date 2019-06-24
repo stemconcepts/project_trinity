@@ -10,6 +10,9 @@ namespace AssemblyCSharp
         {
             sliderScript = targetHealthBar.GetComponent<Slider>();
             apSliderScript = targetActionBar.GetComponent<Slider>();
+            attackedPos = new Vector2();
+            origPosition = new Vector2();
+            currentPosition = new Vector2();
             originalPDef = PDef;
             originalMDef = MDef;
             originalPAtk = PAtk;
@@ -19,10 +22,16 @@ namespace AssemblyCSharp
             originalactionPoints = actionPoints;
             maxHealth = Health;
             full_health = Health;
+            isAlive = true;
+            vigor = 1;
+            originalthornsDmg = 0;
+            originalvigor = 1;
+            actionPoints = 6;
+            maxactionPoints = 6;
         }
 
         public Sprite characterIcon {get; set;}
-        public bool isAlive {get; set;} = true;
+        public bool isAlive {get; set;}
         public float Health {get; set;}
         public float maxHealth {get; set;}
         public float blockPoints {get; set;}
@@ -38,13 +47,13 @@ namespace AssemblyCSharp
         public float ATKspd {get; set;}
         public float originalATKspd {get; set;}
         public float critchance {get; set;}
-        public float vigor {get; set;} = 1;
+        public float vigor {get; set;}
         public float thornsDmg {get; set;}
-        public float originalthornsDmg {get; set;} = 0;
-        public float originalvigor {get; set;} = 1;
-        public float actionPoints {get; set;} = 6;
+        public float originalthornsDmg {get; set;}
+        public float originalvigor {get; set;}
+        public float actionPoints {get; set;}
         public float originalactionPoints {get; set;}
-        public float maxactionPoints {get; set;} = 6;
+        public float maxactionPoints {get; set;}
         public string characterType {get; set;}
         public string objectName {get; set;}
         public string role {get; set;}
@@ -79,9 +88,9 @@ namespace AssemblyCSharp
         public bool inVoidZone {get; set;}
         public bool inVoidCounter {get; set;}
         public bool inThreatZone {get; set;}
-        private status statusScript {get; set;}
+        //private status statusScript {get; set;}
         //animationControl targetAnimControl {get; set;}
-        public singleStatus deathStatus {get; set;}
+        public StatusModel deathStatus {get; set;}
     }
 }
 

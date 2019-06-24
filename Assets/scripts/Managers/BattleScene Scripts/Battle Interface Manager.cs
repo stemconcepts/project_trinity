@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -14,8 +15,8 @@ namespace AssemblyCSharp
         public SkillModel skill {get; set;}
         public string skillName { get; set; }
         public Sprite skillIcon { get; set; }
-        private Image iconImageScript { get; set; }
-        private Image skillCDImage { get; set; }
+        public Image iconImageScript { get; set; }
+        public Image skillCDImage { get; set; }
         public KeyCode KeyCode;
         public Battle_Interface_Manager()
         {
@@ -49,7 +50,7 @@ namespace AssemblyCSharp
         }
     
         //For skill : Run to check if skills are on Cooldown - if so set the fill amount to the remaining time left
-        public void CooldownClassDisplayCheck( classSkills skill ){
+        public void CooldownClassDisplayCheck( SkillModel skill ){
             float timeLeft = 1f/skill.skillCooldown * skill.currentCDAmount;
             skillCDImage.fillAmount = 1f - timeLeft;
         }
@@ -80,31 +81,27 @@ namespace AssemblyCSharp
         }
 
         public void SwapGear(){
-            var skillactive = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<skill_cd>();
-            if( swapReady == true && !skillactive.skillActive ){
-                var buttonDataScript = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<sortbuttondata>();
-                var allRoles = GameObject.FindGameObjectsWithTag("Player"); 
-                for( int i = 0; i < allRoles.Length; i++ ){
-                    var currentWSlot = allRoles[i].GetComponent<skill_effects>();
-                    var currentWeaponData = allRoles[i].GetComponent<equipedWeapons>();
-                    if( currentWSlot.weaponSlot == skill_effects.weaponSlotEnum.Main ){
-                        currentWSlot.weaponSlot = skill_effects.weaponSlotEnum.Alt;
-                        //print( currentWeaponData.secondaryWeapon.type.ToString() );
-                        currentWeaponData.currentWeaponEnum = equipedWeapons.currentWeapon.Secondary;
-                        //CheckGearType();
+            var skillactive = Battle_Manager.friendlyCharacters.Any( x => x.skillManager.isSkillactive == true );
+            if( swapReady && !skillactive ){
+                //var buttonDataScript = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<sortbuttondata>();
+                var allRoles = Battle_Manager.friendlyCharacters;
+                for( int i = 0; i < allRoles.Count; i++ ){
+                    var currentWSlot = allRoles[i].GetComponent<Skill_Manager>();
+                    var currentWeaponData = allRoles[i].GetComponent<Equipment_Manager>();
+                    if( currentWSlot.weaponSlot == Skill_Manager.weaponSlotEnum.Main ){
+                        currentWSlot.weaponSlot = Skill_Manager.weaponSlotEnum.Alt;
+                        currentWeaponData.currentWeaponEnum = Equipment_Manager.currentWeapon.Secondary;
                     } else {
-                        currentWSlot.weaponSlot = skill_effects.weaponSlotEnum.Main;
-                        //print( currentWeaponData.primaryWeapon.type.ToString() );
-                        currentWeaponData.currentWeaponEnum = equipedWeapons.currentWeapon.Primary;
-                        //CheckGearType();
+                        currentWSlot.weaponSlot = Skill_Manager.weaponSlotEnum.Main;
+                        currentWeaponData.currentWeaponEnum = Equipment_Manager.currentWeapon.Primary;
                     }
                     //restore Action Points - should be changed to GearSwap ability
-                    var charData = allRoles[i].GetComponent<character_data>();
-                    charData.actionPoints = charData.originalactionPoints;
+                    var charData = allRoles[i].GetComponent<Character_Manager>();
+                    charData.characterModel.actionPoints = charData.characterModel.originalactionPoints;
+                    SkillSet( allRoles[i].skillManager );
+                    allRoles[i].GetComponent<Character_Interaction_Manager>().DisplaySkills();
                 }
                 CheckGearType();
-                buttonDataScript.SkillSet();
-                allRoles[0].GetComponent<button_clicks>().DisplaySkillsSecond();
                 swapReady = false;
                 GearSwapTimer(gearSwapTime);
                 Battle_Manager.soundManager.playSound("gearSwapSound");
@@ -121,7 +118,7 @@ namespace AssemblyCSharp
         }
     
         private void CheckGearType(){
-            var allRoles = GameObject.FindGameObjectsWithTag("Player"); 
+            //var allRoles = GameObject.FindGameObjectsWithTag("Player"); 
             foreach (var playerRole in Battle_Manager.friendlyCharacters ) {
                 var characterManager = playerRole.GetComponent<Character_Manager>(); 
                 var currentWeaponData = characterManager.equipmentManager;
@@ -130,8 +127,8 @@ namespace AssemblyCSharp
                 var charMovementScript = characterManager.movementManager;
                 var calculateDmgScript = characterManager.damageManager;
                 var currentWSlot = characterManager.skillManager;
-                var weaponType = currentWSlot.weaponSlot == skill_effects.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
-                if( weaponType.type != weapons.weaponType.heavyHanded && weaponType.type != weapons.weaponType.cursedGlove && weaponType.type != weapons.weaponType.clawAndCannon ){
+                var weaponType = currentWSlot.weaponSlot == Skill_Manager.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
+                if( weaponType.type != weaponModel.weaponType.heavyHanded && weaponType.type != weaponModel.weaponType.cursedGlove && weaponType.type != weaponModel.weaponType.clawAndCannon ){
                     if( playerRole.name == "Stalker" ){
                         playerSkeletonAnim.skeletonAnimation.skeleton.SetSkin("light");
                     }
@@ -139,7 +136,7 @@ namespace AssemblyCSharp
                     AAutoAttack.AAanimation = "attack1";
                     charMovementScript.idleAnim = "idle";
                     charMovementScript.hopAnim = "hop";
-                    calculateDmgScript.hitAnimNormal = "hit";
+                    calculateDmgScript.charDamageModel.hitAnimNormal = "hit";
                 } else {
                     if( playerRole.name == "Stalker" ){
                         playerSkeletonAnim.skeletonAnimation.skeleton.SetSkin("heavy");

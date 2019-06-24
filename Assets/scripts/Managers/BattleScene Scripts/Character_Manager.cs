@@ -20,8 +20,8 @@ namespace AssemblyCSharp
         void Update(){
             updateBarSize();
             maintainHealthValue();
-            characterModel.attackedPos.x = characterModel.posMarker.transform.position.x;
-            characterModel.attackedPos.y = characterModel.posMarker.transform.position.y;
+            characterModel.attackedPos = characterModel.posMarker.transform.position;
+            //characterModel.attackedPos.y = characterModel.posMarker.transform.position.y;
             characterModel.currentPosition = this.transform.position;
             characterModel.currentRotation = this.transform.rotation;
             characterModel.availableActionPoints.text = characterModel.actionPoints.ToString();
@@ -42,7 +42,11 @@ namespace AssemblyCSharp
                 if ( !animationManager.inAnimation ){
                     characterModel.isAlive = false;
                     characterModel.Health = 0;
-                    statusManager.RunStatusFunction( characterModel.deathStatus, 0f, 0f );
+                    var sM = new StatusModel(){
+                        singleStatus = characterModel.deathStatus.singleStatus,
+                        duration = 0f
+                    };
+                    statusManager.RunStatusFunction( sM );
                 }
             }
         }
@@ -71,15 +75,9 @@ namespace AssemblyCSharp
             if( !string.IsNullOrEmpty(attributeName) ){
                 Type charModel = Type.GetType("CharacterModel");
                 return charModel.GetField(attributeName) != null ? true : false;
-                if( charModel.GetField(attributeName) != null ){
-                    return true;
-                } else {
-                    Game_Manager.logger.Log(attributeName, "This attribute does not exists");
-                    return false;
-                }
             } else {
-                return false;
                 Game_Manager.logger.Log(attributeName, "No attribute given");
+                return false;
             }
         }
 

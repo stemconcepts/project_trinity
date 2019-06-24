@@ -59,7 +59,7 @@ public class skill_selection : MonoBehaviour {
     bool waitingForSelection = false;
     float power; //Set Power
     public void PrepSkillNew( classSkills classSkill, bool weaponSkill = true ){
-        if( CheckSkillAvail( classSkill ) && battleManager.battleReady ){
+        if( CheckSkillAvail( classSkill ) && true ){
             if( !waitingForSelection ){
                 SkillActiveSet( classSkill, true ); //Set that skill has being used or waiting to be used
                 GetTargets(classSkill, weaponSkill:weaponSkill);

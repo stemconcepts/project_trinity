@@ -30,31 +30,31 @@ namespace AssemblyCSharp
             yield return new WaitForSeconds(waitTime);
         }
 
-        public bool RemoveLabelTask(float waitTime, singleStatus singleStatus, System.Action action = null)
+        public bool RemoveLabelTask(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
-            var myTask = new Task(RemoveLabel(waitTime, singleStatus));
+            var myTask = new Task(RemoveLabel(waitTime, statusLabel));
             if (action != null)
             {
                 action();
             }
             return true;
         }
-        IEnumerator RemoveLabel(float waitTime, singleStatus singleStatus)
+        IEnumerator RemoveLabel(float waitTime, StatusLabelModel statusLabel)
         {
             yield return new WaitForSeconds(waitTime);            
-            if( singleStatus != null ){
-                battleDetailsManager.RemoveLabel(singleStatus.statusName, singleStatus.buff);
+            if( statusLabel != null ){
+                battleDetailsManager.RemoveLabel(statusLabel);
             }
         }
 
-        public bool CallTaskBusyAnimation(float waitTime, Animation_Manager animationManager, System.Action action = null)
+        public Task CallTaskBusyAnimation(float waitTime, Animation_Manager animationManager, System.Action action = null)
         {
             var myTask = new Task(busyAnimation(waitTime, animationManager));
             if (action != null)
             {
                 action();
             }
-            return true;
+            return myTask;
         }
 
         IEnumerator busyAnimation(float waitTime, Animation_Manager animationManager )
@@ -66,7 +66,7 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool CallChangePointsTask(StatusModel statusModel, System.Action action = null)
+        public Task CallChangePointsTask(StatusModel statusModel, System.Action action = null)
         {
             if( statusModel.singleStatus.canStack ){
                 statusModel.power = statusModel.power * statusModel.stacks;
@@ -76,7 +76,7 @@ namespace AssemblyCSharp
             {
                 action();
             }
-            return true;
+            return myTask;
         }
         IEnumerator ChangePoints(StatusModel statusModel)
         {
@@ -89,7 +89,7 @@ namespace AssemblyCSharp
                 {
                     //statusModel.characterManager.characterModel.incomingHeal = statusModel.power;
                     var damageModel = new DamageModel{
-                        skillSource = singleStatus.statusName,
+                        skillSource = statusModel.singleStatus.statusName,
                         incomingHeal = statusModel.power
                     };
                     damageManager.calculateHdamage(damageModel);
@@ -98,7 +98,7 @@ namespace AssemblyCSharp
                 {
                     //damageManager.charDamageModel.incomingDmg = statusModel.power;
                     var damageModel = new DamageModel{
-                        skillSource = singleStatus.statusName,
+                        skillSource = statusModel.singleStatus.statusName,
                         incomingDmg = statusModel.power
                     };
                     damageManager.calculatedamage(damageModel);
@@ -107,23 +107,23 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool CallDurationTask(StatusModel statusModel, System.Action action = null)
+        public bool CallDurationTask(float duration, StatusLabelModel statusLabel, System.Action action = null)
         {
-            var myTask = new Task(DurationTimer(statusModel, action));
+            var myTask = new Task(DurationTimer(duration, statusLabel, action));
             return true;
         }
-        IEnumerator DurationTimer(StatusModel statusModel, System.Action statusAction = null)
+        IEnumerator DurationTimer(float duration, StatusLabelModel statusLabel, System.Action statusAction = null)
         {
-            yield return new WaitForSeconds(statusModel.duration);
+            yield return new WaitForSeconds(duration);
             if( statusAction != null ){
                 statusAction();
             }
-            battleDetailsManager.RemoveLabel( singleStatus.statusName, singleStatus.buff );
+            battleDetailsManager.RemoveLabel( statusLabel );
         }
 
         public bool CallSoloMoTask(float slowAmount, System.Action action = null)
         {
-            var myTask = new Task(SlowMoFade(slowAmount, action));
+            var myTask = new Task(SlowMoFade(slowAmount));
             return true;
         }
         IEnumerator SlowMoFade(float waitTime ) {
@@ -149,12 +149,13 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool StartMoveTask(float movementSpeed, Vector2 targetpos, GameObject dashEffect, Vector2 currentPosition, System.Action action = null)
+        public bool StartMoveTask(float movementSpeed, Vector2 targetpos, Vector2 currentPosition, GameObject dashEffect = null, System.Action action = null)
         {
             var myTask = new Task(StartMove( 0.009f, targetpos, dashEffect, movementSpeed, currentPosition));
             return true;
         }
-        public IEnumerator StartMove( float waitTime, Vector2 panelPosVar, float movementSpeedVar, Vector2 currentPosition ){
+        public IEnumerator StartMove( float waitTime, Vector2 panelPosVar, GameObject dashEffect, float movementSpeedVar, Vector2 currentPosition ){
+            effectsManager.CallEffect( dashEffect, "bottom" );
             while( currentPosition != panelPosVar ){
                 float step = movementSpeedVar * Time.deltaTime;
                 transform.position = Vector2.MoveTowards(transform.position, panelPosVar, step);
@@ -175,21 +176,21 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool waitForTargetTask( classSkills classskill, GameObject character ){
-            var myTask = new Task(waitForTarget( classskill, character));
+        public bool waitForTargetTask( SkillModel classskill, GameObject character, bool weaponSkill = true ){
+            var myTask = new Task(waitForTarget( classskill, character, weaponSkill ));
             tasks.Add("waitForTarget", myTask);
             return true;
         }
-        public IEnumerator waitForTarget( classSkills classSkill, GameObject player, bool weaponSkill = true )
+        public IEnumerator waitForTarget( SkillModel classSkill, GameObject player, bool weaponSkill = true )
         {
             //waitingForSelection = true;
-            Game_Effects_Manager.SlowMo(0.01f);
+            Battle_Manager.gameEffectManager.SlowMo(0.01f);
             var target = player.GetComponent<Skill_Manager>().currenttarget;
             var characterManager = player.GetComponent<Character_Manager>();
             var skillManager = player.GetComponent<Skill_Manager>();
             while( target == null ) {
                 if( characterManager.statusManager.DoesStatusExist("stun") ){
-                    skillManager.SkillActiveSet( classSkill, false, true );
+                    skillManager.SkillActiveSet( classSkill, false, skillCancel:true );
                     yield break;
                 }
                 yield return 0;
@@ -201,16 +202,21 @@ namespace AssemblyCSharp
             skillManager.SkillComplete( classSkill, skillManager.finalTargets, weaponSkill, player: player );
         }
 
-        public bool skillcoolDownTask( classSkills skill, Image image ){
+        public bool skillcoolDownTask( SkillModel skill, Image image ){
             var myTask = new Task(skillcoolDownDisplay( skill, image ));
-            var myTask2 = new Task(CallTask( skill.skillCooldown, () => {
+            /*var myTask2 = new Task(CallTask( skill.skillCooldown, () => {
                 skill.skillActive = false;
-            }));
+            }));*/
+
+            CallTask( skill.skillCooldown, () => {
+                skill.skillActive = false;
+            });
+
             tasks.Add("skillcoolDownDisplay", myTask);
-            tasks.Add("skillcoolDown", myTask2);
+            //tasks.Add("skillcoolDown", myTask2);
             return true;
         }
-        IEnumerator skillcoolDownDisplay( classSkills skill, Image image ){
+        IEnumerator skillcoolDownDisplay( SkillModel skill, Image image ){
             image.fillAmount = 1f;
             while( skill.skillActive ){
                 yield return new WaitForSeconds(1f);

@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace AssemblyCSharp
 {
+    public class SkillData{
+            public float modifier = 1f;
+            public List<GameObject> target;
+            public SkillModel enemySkill;
+            public SkillModel classSkill;
+    }
+
     public class Skill_Manager : Base_Character_Manager
     {
         private float multiplier {get; set;}
@@ -26,7 +33,6 @@ namespace AssemblyCSharp
             primaryWeaponSkills = new List<SkillModel>();
             secondaryWeaponSkills = new List<SkillModel>();
         }
-
         public void PrepSkillNew( SkillModel classSkill, bool weaponSkill = true ){
             if( CheckSkillAvail( classSkill ) ){
                 if( !waitingForSelection ){
@@ -69,29 +75,39 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SkillComplete( SkillModel classSkill, List<GameObject> targets, bool weaponSkill = true ){
-            var power = 0;
-            Event_Manager.BuildEvent( "OnSkillCast", eventCallerVar: gameObject );
+        public void SkillComplete( SkillModel classSkill, List<GameObject> targets, bool weaponSkill = true, GameObject player = null ){
+            var power = 0.0f;
+            var eM = new EventModel(){
+                eventName = "OnSkillCast",
+                eventCaller = gameObject
+            };
+            Battle_Manager.eventManager.BuildEvent( eM );
             if( classSkill.isFlat ){ 
                 power = classSkill.isSpell ? classSkill.magicPower : classSkill.skillPower;
             } else {
                 power = classSkill.isSpell ? classSkill.newMP : classSkill.newSP;
             }
-            Data data = new Data(); 
-            data.target = targets;
-            data.classSkill = classSkill;
+            SkillData data = new SkillData(){ 
+                target = targets,
+                classSkill = classSkill
+            };
             classSkill.RunExtraEffect(data); 
             SetAnimations( classSkill );
             DealHealDmg( classSkill, targets, power * data.modifier );
             SkillActiveSet( classSkill, false ); //Set that skill is ready to be used again
-            Battle_Manager.taskManager.skillcoolDownTask( classSkill );
+            for (int i = 0; i < Battle_Manager.battleInterfaceManager.Count; i++)
+            {
+                var iM = Battle_Manager.battleInterfaceManager[i];
+                if( iM.skill == classSkill ) {
+                    Battle_Manager.taskManager.skillcoolDownTask( classSkill, iM.skillCDImage );
+                }
+            }
         }
 
         private void DealHealDmg( SkillModel classSkill, List<GameObject> targets, float power ){
             var characterManager = gameObject.GetComponent<Character_Manager>();
             characterManager.damageManager.charDamageModel.dueDmgTargets = targets;
             foreach (var target in targets) {
-                var targetCalculateDmgScript = target.GetComponent<calculateDmg>();
                 if ( classSkill.fxObject != null ){
                     characterManager.effectsManager.callEffectTarget( target, classSkill.fxObject );
                 }
@@ -108,7 +124,7 @@ namespace AssemblyCSharp
                         };
                         characterManager.damageManager.calculatedamage( dmgModel ); 
                     };
-                    classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<status>(), power, classSkill );
+                    classSkill.AttachStatus( classSkill.singleStatusGroup, target.GetComponent<Status_Manager>(), power, classSkill );
                 } else if( target.tag == "Player" && characterManager.characterModel.isAlive ){ 
                     foreach (var status in classSkill.singleStatusGroupFriendly) {
                         status.dispellable = classSkill.statusFriendlyDispellable;
@@ -122,7 +138,7 @@ namespace AssemblyCSharp
                         };
                         characterManager.damageManager.calculateHdamage( dmgModel ); 
                     };
-                    classSkill.AttachStatus( classSkill.singleStatusGroupFriendly, target.GetComponent<status>(), power, classSkill );
+                    classSkill.AttachStatus( classSkill.singleStatusGroupFriendly, target.GetComponent<Status_Manager>(), power, classSkill );
                 }
             }
             characterManager.characterModel.actionPoints -= classSkill.skillCost;

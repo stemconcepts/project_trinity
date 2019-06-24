@@ -105,7 +105,7 @@ public class auto_attackEnemy : MonoBehaviour {
 	//{
 	//	while( characterScript.Health > 0 ){
 	void RunAttackLoop(){
-        if( battleManager.battleReady ){
+        if( true ){
         Target = GetTarget().GetComponent<character_data>();
         List<GameObject> targets = new List<GameObject>{
             Target.gameObject

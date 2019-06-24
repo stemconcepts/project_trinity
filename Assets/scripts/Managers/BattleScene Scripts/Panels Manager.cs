@@ -18,7 +18,8 @@ namespace AssemblyCSharp
 
         public void SetStartingPanel( GameObject currentOccupier ){
             var panelTransform = GetComponent<RectTransform>();
-            panelTransform.position.y = panelTransform.position.y;
+            //panelTransform.position.y = panelTransform.position.y;
+            panelTransform.position = panelTransform.position;
             if( currentOccupier ){
                 currentOccupier.transform.position = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
                 animationManager.SetSortingLayer( sortingLayerNumber );

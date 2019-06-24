@@ -25,11 +25,11 @@ namespace AssemblyCSharp
                                 skeletonAnimation = animationManager.skeletonAnimation
                             };
                             damageManager.calculatedamage( dmgModel );
-                            Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration );
+                            Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration, characterManager.animationManager );
                         }
                 }
                 else {
-                    Battle_Manager.taskManager.CallTaskBusyAnimation( 5f );
+                    Battle_Manager.taskManager.CallTaskBusyAnimation( 5f, characterManager.animationManager );
                 }
         }
     }

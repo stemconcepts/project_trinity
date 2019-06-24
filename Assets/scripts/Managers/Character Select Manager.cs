@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -11,6 +12,7 @@ namespace AssemblyCSharp
         public GameObject guardianObject {get; set;}
         public GameObject stalkerObject {get; set;}
         public GameObject walkerObject {get; set;}
+        public static List<Battle_Manager.classState> classStates {get; set;}
         public characterSelect characterSelected;
         public enum characterSelect {
             guardianSelected,
@@ -23,9 +25,12 @@ namespace AssemblyCSharp
             guardianObject = GameObject.Find("Guardian");
             walkerObject = GameObject.Find("Walker");
             stalkerObject = GameObject.Find("Stalker");
-            Battle_Manager.guardian = new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false );
+            /*Battle_Manager.guardian = new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false );
             Battle_Manager.stalker = new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false );
-            Battle_Manager.walker = new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true );
+            Battle_Manager.walker = new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true );*/
+            classStates.Add( new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false ) );
+            classStates.Add( new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false ) );
+            classStates.Add( new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true ) );
         }
 
         public void SetSelectedCharacter( string characterClass ){
@@ -38,35 +43,44 @@ namespace AssemblyCSharp
             }
         }
 
+        public string GetAlive(){
+            for( int i=0; i < classStates.Count ; i++ ){
+                if( classStates[i].Alive && !classStates[i].Selected && !classStates[i].LastSelected ){
+                    return classStates[i].Name;
+                }
+            }
+            return "bla";
+        }
+
         //returns what character is selected as a ?
         public string GetSelectedClassRole(){
-            if( characterSelect.guardianSelected ){
+            if( characterSelected == characterSelect.guardianSelected ){
                 return "Guardian";
-            } else if( characterSelect.walkerSelected){
+            } else if( characterSelected == characterSelect.walkerSelected){
                 return "Walker";
-            } else if( characterSelect.stalkerSelected ){
+            } else if( characterSelected == characterSelect.stalkerSelected ){
                 return "Stalker";
             }
             return null;
         }
     
         public string GetSelectedClassRoleCaps(){
-            if( characterSelect.guardianSelected ){
+            if( characterSelected == characterSelect.guardianSelected ){
                 return "Tank";
-            } else if( characterSelect.walkerSelected){
+            } else if( characterSelected == characterSelect.walkerSelected){
                 return "Healer";
-            } else if( characterSelect.guardianSelected ){
+            } else if( characterSelected == characterSelect.guardianSelected ){
                 return "Dps";
             }
             return null;
         }
     
         public GameObject GetSelectedClassObject(){
-            if( characterSelect.guardianSelected ){
+            if( characterSelected == characterSelect.guardianSelected ){
                 return guardianObject;
-            } else if( characterSelect.walkerSelected){
+            } else if( characterSelected == characterSelect.walkerSelected){
                 return walkerObject;
-            } else if( characterSelect.guardianSelected ){
+            } else if( characterSelected == characterSelect.guardianSelected ){
                 return stalkerObject;
             }
             return null;
