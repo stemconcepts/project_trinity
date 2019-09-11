@@ -13,7 +13,7 @@ namespace AssemblyCSharp
         public List<SingleStatusModel> immunityList = new List<SingleStatusModel>();
         [Header("Status List:")]
         public List<SingleStatusModel> singleStatusList = new List<SingleStatusModel>();
-        public Status_Manager()
+        void Start()
         {
             battleDetailsManager = Battle_Manager.battleDetailsManager;
             buttonClickManager = this.gameObject.GetComponent<Button_Click_Manager>();

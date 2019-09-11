@@ -7,9 +7,9 @@ using UnityEngine.UI;
 
 namespace AssemblyCSharp
 {
-    public class Task_Manager : Base_Character_Manager
+    public class Task_Manager
     {
-        public Battle_Details_Manager battleDetailsManager { get; set; }
+        public Battle_Details_Manager battleDetailsManager;
         public Dictionary<string, Task> tasks = new Dictionary<string, Task>();
         public Task_Manager()
         {

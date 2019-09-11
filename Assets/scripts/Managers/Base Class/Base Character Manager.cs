@@ -5,17 +5,17 @@ namespace AssemblyCSharp
 {
     public abstract class Base_Character_Manager : MonoBehaviour
     {
-        public Character_Manager characterManager { get; set;}
-        public Status_Manager statusManager {get; set;}
-        public Animation_Manager animationManager {get; set;}
-        public Movement_Manager movementManager {get; set;}
-        public Effects_Manager effectsManager {get; set;}
-        public Damage_Manager damageManager {get; set;}
-        public Equipment_Manager equipmentManager {get; set;}
-        public Skill_Manager skillManager {get; set;}
-        public Auto_Attack_Manager autoAttackManager { get; set;}
-        public Character_Interaction_Manager characterInteractionManager {get; set;}
-        void Awake()
+        public Character_Manager characterManager;
+        public Status_Manager statusManager;
+        public Animation_Manager animationManager;
+        public Movement_Manager movementManager;
+        public Effects_Manager effectsManager;
+        public Damage_Manager damageManager;
+        public Equipment_Manager equipmentManager;
+        public Skill_Manager skillManager;
+        public Auto_Attack_Manager autoAttackManager;
+        public Character_Interaction_Manager characterInteractionManager;
+        public void Awake()
         {
             this.characterManager = this.gameObject.GetComponent<Character_Manager>();
             this.statusManager = this.gameObject.GetComponent<Status_Manager>();

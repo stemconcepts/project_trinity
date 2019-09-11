@@ -11,7 +11,7 @@ namespace AssemblyCSharp
         private Camera mainCamera;
         private Task CancelShake;
 
-        public Game_Effects_Manager()
+        void Awake()
         {
             mainCamera = GetComponent<Camera>();
             originalCameraPosition = mainCamera.GetComponent<Transform>().position;

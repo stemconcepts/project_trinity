@@ -1,20 +1,31 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AssemblyCSharp
 {
     public class Character_Manager : Base_Character_Manager
     {
-        public CharacterModel characterModel { get; set; }
-        //public Skill_Manager skillManager {get; set; }
-        public Character_Manager()
+        [Header("Character Model")]
+        public CharacterModel characterModel;
+        [Header("Health Object:")]
+        public GameObject healthBar;
+        [Header("Action Object:")]
+        public GameObject actionBar;
+        [Header("Current Object:")]
+        public GameObject currentPanel;
+        void Start()
         {   
-            updateBarSize();
             characterModel = new CharacterModel();
-            characterModel.currentPanel.GetComponent<movementPanelController>().isOccupied = true;
-            characterModel.currentPanel.GetComponent<movementPanelController>().currentOccupier = gameObject;
-            characterModel.origPosition = this.transform.position;
-    
+            if( characterModel.currentPanel ){
+                characterModel.currentPanel = this.currentPanel;
+                characterModel.currentPanel.GetComponent<movementPanelController>().isOccupied = true;
+                characterModel.currentPanel.GetComponent<movementPanelController>().currentOccupier = gameObject;
+                characterModel.origPosition = this.transform.position;
+                characterModel.sliderScript = healthBar.GetComponent<Slider>();
+                characterModel.apSliderScript = actionBar.GetComponent<Slider>();
+                updateBarSize();
+            }
         }
 
         void Update(){

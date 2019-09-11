@@ -5,10 +5,10 @@ namespace AssemblyCSharp
 {
     public class Button_Click_Manager : BasicManager
     {
-        private Task holdTimeTask { get; set; }
-        public selectionOverlapControl selectionOverlapScript {get; set;}
-        public Character_Interaction_Manager characterInteractions {get; set;}
-        public Character_Manager characterManager {get; set;}
+        private Task holdTimeTask;
+        public selectionOverlapControl selectionOverlapScript;
+        public Character_Interaction_Manager characterInteractions;
+        public Character_Manager characterManager;
     }
 }
 

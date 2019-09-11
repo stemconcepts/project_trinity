@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace AssemblyCSharp
 {
-    public class DamageModel : MonoBehaviour
+    [System.Serializable]
+    public class DamageModel
     {
         public DamageModel()
         {
@@ -14,35 +15,35 @@ namespace AssemblyCSharp
         }
         [SpineAnimation]
         public SkeletonAnimation skeletonAnimation;
-        public Animation_Manager playerAnimationManager { get; set; }
-        public Character_Manager characterManager { get; set; }
-        public combatDisplay combatDisplayScript { get; set; }
-        private enemySkillSelection enemySkillScript { get; set; }
-        private status statusScript { get; set; }
-        public float damageTaken { get; set; }
-        public float absorbAmount { get; set; }
-        public float flatDmgTaken { get; set; }
-        public float MdamageTaken { get; set; }
-        public float incomingDmg { get; set; }
-        public float incomingMDmg { get; set; }
-        public float incomingHeal { get; set; }
-        public float healAmount { get; set; }
-        public float healAmountTaken { get; set; }
-        public string skillSource { get; set; }
-        public GameObject hitEffect { get; set; }
-        public GameObject customHitFX { get; set; }
-        public Transform hitEffectPositionScript { get; set; }
-        public GameObject hitEffectPosition { get; set; }
-        public GameObject effectObject { get; set; }
-        public GameObject dmgSource { get; set; }
-        public string hitAnimation { get; set; }
-        public string hitAnimNormal { get; set; }
-        public bool animationHold { get; set; }
-        public bool trueDmg { get; set; }
-        public string holdAnimation { get; set; }
-        public List<GameObject> dueDmgTargets { get; set; }
-        private soundController soundContScript { get; set; }
-        public SkillModel classSkill { get; set; }
-        public SkillModel enemySkill { get; set; }
+        public Animation_Manager playerAnimationManager;
+        public Character_Manager characterManager;
+        public combatDisplay combatDisplayScript;
+        private enemySkillSelection enemySkillScript;
+        private status statusScript;
+        public float damageTaken;
+        public float absorbAmount;
+        public float flatDmgTaken;
+        public float MdamageTaken;
+        public float incomingDmg;
+        public float incomingMDmg;
+        public float incomingHeal;
+        public float healAmount;
+        public float healAmountTaken;
+        public string skillSource;
+        public GameObject hitEffect;
+        public GameObject customHitFX;
+        public Transform hitEffectPositionScript;
+        public GameObject hitEffectPosition;
+        public GameObject effectObject;
+        public GameObject dmgSource;
+        public string hitAnimation;
+        public string hitAnimNormal;
+        public bool animationHold;
+        public bool trueDmg;
+        public string holdAnimation;
+        public List<GameObject> dueDmgTargets;
+        private soundController soundContScript;
+        public SkillModel classSkill;
+        public SkillModel enemySkill;
     }
 }

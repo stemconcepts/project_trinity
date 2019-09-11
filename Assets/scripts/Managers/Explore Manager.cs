@@ -2,7 +2,7 @@
 
 namespace AssemblyCSharp
 {
-    public class Explore_Manager
+    public class Explore_Manager : BasicManager
     {
         public Explore_Manager()
         {

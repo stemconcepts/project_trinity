@@ -6,11 +6,11 @@ namespace AssemblyCSharp
 {
     public class Battle_Details_Manager : BasicManager
     {
-        public GameObject status_symbol { get; set; }
-        public Transform status_position { get; set; }
-        public GameObject buffParent { get; set; }
-        public GameObject debuffParent { get; set; }
-        public GameObject gameDetailsObject {get; set; }
+        public GameObject status_symbol;
+        public Transform status_position;
+        public GameObject buffParent;
+        public GameObject debuffParent;
+        public GameObject gameDetailsObject;
 
         public void AddStacks(StatusLabelModel singleStatusLabel)
         {

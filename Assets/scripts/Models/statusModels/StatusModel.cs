@@ -8,18 +8,18 @@ namespace AssemblyCSharp
         public StatusModel()
         {
         } 
-        public SingleStatusModel singleStatus { get; set; }
-        public Character_Manager characterManager { get; set; } 
-        public classSkills onHitSkill { get; set; } 
-        public float duration { get; set; }
+        public SingleStatusModel singleStatus;
+        public Character_Manager characterManager; 
+        public classSkills onHitSkill; 
+        public float duration;
         public float power {get; set;}
-        public bool dispellable { get; set; }
-        public bool turnOff { get; set; }
-        public bool regenOn { get; set; }
-        public float triggerChance { get; set; }
-        public string targetStat { get; set; }
-        public string stat { get; set; }
-        public int stacks {get; set;}
+        public bool dispellable;
+        public bool turnOff;
+        public bool regenOn;
+        public float triggerChance;
+        public string targetStat;
+        public string stat;
+        public int stacks;
         public statusFunction selectedStatusFunction;
         public enum statusFunction
         {

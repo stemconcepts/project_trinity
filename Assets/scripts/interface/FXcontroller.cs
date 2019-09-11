@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class FXcontroller : MonoBehaviour {
 	private soundController soundContScript;
-    private ParticleSystem particleSystem;
+    private ParticleSystem particleSystem = new ParticleSystem();
 	[Header("Custom Sounds:")]
 	public List<AudioClip> sounds;
     public GameObject destroyMeTrigger;

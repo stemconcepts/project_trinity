@@ -9,10 +9,10 @@ namespace AssemblyCSharp
         public bool guardianSelected = true;
         public bool walkerSelected = false;
         public bool stalkerSelected = false; 
-        public GameObject guardianObject {get; set;}
-        public GameObject stalkerObject {get; set;}
-        public GameObject walkerObject {get; set;}
-        public static List<Battle_Manager.classState> classStates {get; set;}
+        public GameObject guardianObject;
+        public GameObject stalkerObject;
+        public GameObject walkerObject;
+        public static List<Battle_Manager.classState> classStates = new List<Battle_Manager.classState>();
         public characterSelect characterSelected;
         public enum characterSelect {
             guardianSelected,
@@ -20,14 +20,11 @@ namespace AssemblyCSharp
             stalkerSelected
         }
 
-        public Character_Select_Manager()
+        void Start()
         {
             guardianObject = GameObject.Find("Guardian");
             walkerObject = GameObject.Find("Walker");
             stalkerObject = GameObject.Find("Stalker");
-            /*Battle_Manager.guardian = new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false );
-            Battle_Manager.stalker = new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false );
-            Battle_Manager.walker = new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true );*/
             classStates.Add( new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false ) );
             classStates.Add( new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false ) );
             classStates.Add( new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true ) );

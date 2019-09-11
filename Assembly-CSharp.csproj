@@ -191,7 +191,7 @@
      <Compile Include="Assets\scripts\Managers\Character Select Manager.cs" />
      <Compile Include="Assets\scripts\Managers\Damage_Manager.cs" />
      <Compile Include="Assets\scripts\Managers\Explore Manager.cs" />
-     <Compile Include="Assets\scripts\Managers\Game Manager.cs" />
+     <Compile Include="Assets\scripts\Managers\Game_Manager.cs" />
      <Compile Include="Assets\scripts\Managers\Helpers\Animation_Manager.cs" />
      <Compile Include="Assets\scripts\Managers\Helpers\Effects_Manager.cs" />
      <Compile Include="Assets\scripts\Managers\Helpers\Event Manager.cs" />

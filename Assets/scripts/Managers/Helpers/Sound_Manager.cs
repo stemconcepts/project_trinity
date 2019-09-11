@@ -5,15 +5,16 @@ using Spine.Unity;
 
 namespace AssemblyCSharp
 {
-    public class Sound_Manager : BasicManager
+    [System.Serializable]
+    public class Sound_Manager : MonoBehaviour
     {
-        SkeletonAnimation skeletonAnimation {get; set;}
-        Animation_Manager playerAnimationManager {get; set;}
-        private AudioSource audioSourceScript {get; set;}
-        private AudioClip chosenSound {get; set;}
-        public AudioClip charSwapSound {get; set;}
-        public AudioClip gearSwapSound {get; set;}
-        public AudioClip gearSwapReady {get; set;}
+        SkeletonAnimation skeletonAnimation;
+        Animation_Manager playerAnimationManager;
+        private AudioSource audioSourceScript;
+        private AudioClip chosenSound;
+        public AudioClip charSwapSound;
+        public AudioClip gearSwapSound;
+        public AudioClip gearSwapReady;
         [Header("UI Sounds:")]
         public List<AudioClip> uiSounds;
         [Header("Swing Sounds:")]
@@ -27,7 +28,7 @@ namespace AssemblyCSharp
         [Header("Custom Sounds:")]
         public List<AudioClip> customSounds;
 
-        public Sound_Manager()
+        Sound_Manager()
         {
         }
 

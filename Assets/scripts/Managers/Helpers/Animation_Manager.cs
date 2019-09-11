@@ -12,7 +12,7 @@ namespace AssemblyCSharp
         public bool inAnimation {get; set;}
         public string idleAnim {get; set;}
 
-        public Animation_Manager()
+        void Awake()
         {
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
         }

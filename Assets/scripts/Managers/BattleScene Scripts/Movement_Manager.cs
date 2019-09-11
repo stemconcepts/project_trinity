@@ -20,8 +20,11 @@ namespace AssemblyCSharp
         {
             hopAnim = "hop";
             idleAnim = "idle";
-            currentPosition = (Vector2)this.gameObject.transform.position;
             movementSpeed = moveToHomeSpeed = 6f;
+        }
+
+        void Start(){
+            currentPosition = (Vector2)this.gameObject.transform.position;
             animationManager.GetComponent<SkeletonAnimation>().state.Event += OnEventMove;
         }
 

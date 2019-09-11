@@ -1,18 +1,23 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/character status/status.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/Managers/BattleScene Scripts/Character_Manager.cs">
     <Files>
-      <File FileName="Assets/scripts/Models/statusModels/StatusModel.cs" Line="11" Column="21" />
-      <File FileName="Assets/scripts/Models/skillModels/SkillModel.cs" Line="115" Column="36" />
-      <File FileName="Assets/scripts/skills/mainSkills/classSkills.cs" Line="69" Column="26" />
-      <File FileName="Assets/scripts/Models/damageModels/DamageModel.cs" Line="10" Column="30" />
-      <File FileName="Assets/scripts/gear/gearSwapping.cs" Line="13" Column="1" />
-      <File FileName="Assets/scripts/character status/calculateDmg.cs" Line="29" Column="28" />
-      <File FileName="Assets/scripts/Managers/Damage Manager.cs" Line="9" Column="19" />
-      <File FileName="Assets/scripts/Managers/Helpers/Event Manager.cs" Line="13" Column="43" />
-      <File FileName="Assets/scripts/Managers/Status Manager.cs" Line="16" Column="1" />
-      <File FileName="Assets/scripts/character status/status/singleStatus.cs" Line="5" Column="1" />
-      <File FileName="Assets/scripts/character status/status.cs" Line="8" Column="18" />
+      <File FileName="Assets/scripts/Managers/Base Class/Base Character Manager.cs" Line="6" Column="5" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Panels Manager.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Managers/Helpers/Event Manager.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Models/eventModels/EventModel.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Managers/BasicManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Managers/Battle_Manager.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Battle Details Manager.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Character Interaction Manager.cs" Line="1" Column="1" />
+      <File FileName="Assets/scripts/Models/statusModels/StatusModel.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Assets/scripts/Managers/Helpers/Task Manager.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Character_Manager.cs" Line="21" Column="1" NotebookId="1" />
+      <File FileName="Assets/scripts/Models/characterModels/CharacterModel.cs" Line="84" Column="31" NotebookId="1" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Movement_Manager.cs" Line="23" Column="50" NotebookId="1" />
+      <File FileName="Assets/scripts/Managers/Status_Manager.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Assets/scripts/Managers/Helpers/Animation_Manager.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Assets/scripts/Models/damageModels/DamageModel.cs" Line="11" Column="1" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
