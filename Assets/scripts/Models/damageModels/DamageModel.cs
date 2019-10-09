@@ -17,9 +17,9 @@ namespace AssemblyCSharp
         public SkeletonAnimation skeletonAnimation;
         public Animation_Manager playerAnimationManager;
         public Character_Manager characterManager;
-        public combatDisplay combatDisplayScript;
-        private enemySkillSelection enemySkillScript;
-        private status statusScript;
+        public Battle_Details_Manager combatDisplayScript;
+        private Skill_Manager SkillScript;
+        private Status_Manager statusScript;
         public float damageTaken;
         public float absorbAmount;
         public float flatDmgTaken;
@@ -42,8 +42,8 @@ namespace AssemblyCSharp
         public bool trueDmg;
         public string holdAnimation;
         public List<GameObject> dueDmgTargets;
-        private soundController soundContScript;
-        public SkillModel classSkill;
-        public SkillModel enemySkill;
+        //private soundController soundContScript;
+        public SkillModel skillModel;
+        //public SkillModel enemySkill;
     }
 }

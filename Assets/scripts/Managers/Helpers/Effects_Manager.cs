@@ -3,13 +3,15 @@ using UnityEngine;
 
 namespace AssemblyCSharp
 {
-    public class Effects_Manager : Base_Character_Manager
+    public class Effects_Manager : MonoBehaviour
     {
+        public Base_Character_Manager baseManager;
         public GameObject fxBottom;
         public GameObject fxFront;
         public GameObject fxCenter;
-        public Effects_Manager()
+        void Start()
         {
+            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
         }
 
         public void CallEffect( GameObject fxObject, string position = "center" ){
@@ -30,7 +32,7 @@ namespace AssemblyCSharp
                     }
                 }
             } else {
-                var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), fxposition.transform.rotation );
+                //var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), fxposition.transform.rotation );
                 //fx.transform.SetParent(position.transform);
             }   
         }

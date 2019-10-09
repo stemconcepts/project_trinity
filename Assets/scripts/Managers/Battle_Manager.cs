@@ -8,8 +8,8 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class Battle_Manager
     {
-        public static Event_Manager eventManager;
         BattleModel battleModel;
+        public static Event_Manager eventManager;
         public Game_Manager gameManager;
         public static Sound_Manager soundManager;
         public static Game_Effects_Manager gameEffectManager;
@@ -19,36 +19,45 @@ namespace AssemblyCSharp
         public static Character_Select_Manager characterSelectManager;
         public static List<Character_Manager> friendlyCharacters = new List<Character_Manager>();
         public static List<Character_Manager> enemyCharacters = new List<Character_Manager>();
-        //public static List<classState> classStates {get; set;}
-        //public static classState guardian {get; set;} 
-        //public static classState walker {get; set;}
-        // static classState stalker {get; set;}
-        //public static List<classState> charClass {get; set;}
 
-        /*public static Battle_Manager MakeBattleManager( GameObject gm ) {
-            GameObject x = new GameObject("BMInstance");
-            Battle_Manager bm = x.AddComponent<Battle_Manager>();
-            bm.gameManager = gm.GetComponent<Game_Manager>();
-            return bm;
-
-        }*/
-
-        public Battle_Manager( Game_Manager gm )
+        void SetUp()
         {
-            gameManager = gm;
-            taskManager = new Task_Manager();
-            battleDetailsManager = new Battle_Details_Manager();
-            characterSelectManager = new Character_Select_Manager();
-            /*taskManager = gameObject.AddComponent(typeof(taskManager)) as Task_Manager;
-            battleDetailsManager = gameObject.AddComponent(typeof(Battle_Details_Manager)) as Battle_Details_Manager;
-            characterSelectManager = gameObject.AddComponent(typeof(Character_Select_Manager)) as Character_Select_Manager;*/
             GameObject[] bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
+            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
             battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
+            battleInterfaceManager.Capacity = battleInterfaceManager.Count;
             soundManager = gameManager.SoundManager;
             gameEffectManager = gameManager.GameEffectsManager;
             /*charClass.Add( guardian );
             charClass.Add( walker );
             charClass.Add( stalker );*/
+
+            //LoadCharacters(friendlyCharacters);
+            //LoadCharacters(enemyCharacters);
+        }
+
+        public Battle_Manager( Game_Manager gm )
+        {
+            gameManager = gm;
+            battleDetailsManager = gm.battleDetailsManager;
+            taskManager = gm.TaskManager;
+            characterSelectManager = gm.characterSelectManager;
+            taskManager.battleDetailsManager = battleDetailsManager;
+            SetUp();
+            /*taskManager = gameObject.AddComponent(typeof(taskManager)) as Task_Manager;
+            battleDetailsManager = gameObject.AddComponent(typeof(Battle_Details_Manager)) as Battle_Details_Manager;
+            characterSelectManager = gameObject.AddComponent(typeof(Character_Select_Manager)) as Character_Select_Manager;*/
+        }
+    
+        public static List<Battle_Interface_Manager> GetBattleInterfaces(){
+            return battleInterfaceManager;
+        }
+        
+        List<Character_Manager> GetCharacterManagers( List<GameObject> go){
+            var y = go.Select(o => o.GetComponent<Character_Manager>()).ToList();
+            y.Capacity = y.Count;
+            return y;
         }
 
         public class classState{
@@ -72,21 +81,24 @@ namespace AssemblyCSharp
             
         }
 
-        public void LoadCharacters( List<Character_Manager> characters ){
+        /*public void LoadCharacters( List<Character_Manager> characters ){
             foreach (var character in characters)
             {
-                character.characterModel.currentPanel.GetComponent<Panels_Manager>().SetStartingPanel( character.gameObject );
+                if( character.characterModel.currentPanel ){
+                   character.characterModel.currentPanel.GetComponent<Panels_Manager>().SetStartingPanel( character.gameObject );
+                }
             }
-        }
+        }*/
 
         public void LoadSkillDisplay(){
             
         }
 
         public void StartBattle( float waitTime){
-            LoadCharacters(friendlyCharacters);
-            LoadCharacters(enemyCharacters);
-            taskManager.CallTask( waitTime );
+            taskManager.CallTask( waitTime, () => {
+                friendlyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
+                enemyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
+            });
         }
     }
 }

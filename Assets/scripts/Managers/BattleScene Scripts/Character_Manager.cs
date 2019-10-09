@@ -1,11 +1,13 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
-    public class Character_Manager : Base_Character_Manager
+    public class Character_Manager : MonoBehaviour
     {
+        public Base_Character_Manager baseManager;
         [Header("Character Model")]
         public CharacterModel characterModel;
         [Header("Health Object:")]
@@ -16,60 +18,73 @@ namespace AssemblyCSharp
         public GameObject currentPanel;
         void Start()
         {   
-            characterModel = new CharacterModel();
-            if( characterModel.currentPanel ){
-                characterModel.currentPanel = this.currentPanel;
-                characterModel.currentPanel.GetComponent<movementPanelController>().isOccupied = true;
-                characterModel.currentPanel.GetComponent<movementPanelController>().currentOccupier = gameObject;
-                characterModel.origPosition = this.transform.position;
+            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            if( this.currentPanel != null && this.characterModel != null ){
+                characterModel.SetUp();
+                //characterModel.currentPanel = this.currentPanel;
+                baseManager.movementManager.currentPanel = this.currentPanel;
+                baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().isOccupied = true;
+                baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().currentOccupier = gameObject;
+                //characterModel.currentPanel.GetComponent<Panels_Manager>().SetStartingPanel( gameObject );                
+                //characterModel.origPosition = this.transform.position;
+                characterModel.target = GetTarget();
                 characterModel.sliderScript = healthBar.GetComponent<Slider>();
-                characterModel.apSliderScript = actionBar.GetComponent<Slider>();
+                characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
                 updateBarSize();
             }
         }
 
         void Update(){
-            updateBarSize();
-            maintainHealthValue();
-            characterModel.attackedPos = characterModel.posMarker.transform.position;
-            //characterModel.attackedPos.y = characterModel.posMarker.transform.position.y;
-            characterModel.currentPosition = this.transform.position;
-            characterModel.currentRotation = this.transform.rotation;
-            characterModel.availableActionPoints.text = characterModel.actionPoints.ToString();
+            if( characterModel != null ){
+                updateBarSize();
+                maintainHealthValue();
+                characterModel.attackedPos = baseManager.movementManager.posMarker.transform.position;
+                //characterModel.attackedPos.y = characterModel.posMarker.transform.position.y;
+                //characterModel.currentPosition = this.transform.position;
+                characterModel.currentRotation = this.transform.rotation;
+                if( characterModel.availableActionPoints ){
+                    characterModel.availableActionPoints.text = characterModel.actionPoints.ToString();
+                }
+            }
         }
 
         void updateBarSize(){
             characterModel.current_health = characterModel.Health;
             characterModel.sliderScript.maxValue = characterModel.full_health;
             characterModel.sliderScript.value = characterModel.current_health;
-            characterModel.apSliderScript.maxValue = characterModel.maxactionPoints;
-            characterModel.apSliderScript.value = characterModel.actionPoints;
+            characterModel.healthBarText.text = characterModel.current_health.ToString();
+            if( actionBar ){
+                characterModel.apSliderScript.maxValue = characterModel.maxactionPoints;
+                characterModel.apSliderScript.value = characterModel.actionPoints;
+            }
         }
 
         void maintainHealthValue(){ 
             if( characterModel.current_health > characterModel.maxHealth ){
                 characterModel.Health = characterModel.maxHealth;
             } else if( characterModel.current_health <= 0 && characterModel.isAlive ){
-                if ( !animationManager.inAnimation ){
+                if ( !baseManager.animationManager.inAnimation ){
                     characterModel.isAlive = false;
                     characterModel.Health = 0;
-                    var sM = new StatusModel(){
-                        singleStatus = characterModel.deathStatus.singleStatus,
-                        duration = 0f
-                    };
-                    statusManager.RunStatusFunction( sM );
+                    if( characterModel.deathStatus.singleStatus != null){
+                        var sM = new StatusModel(){
+                            singleStatus = characterModel.deathStatus.singleStatus,
+                            duration = 0f
+                        };
+                        baseManager.statusManager.RunStatusFunction( sM );
+                    }
                 }
             }
         }
 
         void ResetAbsorbPoints(){
-            if( characterModel.absorbPoints <= 0 && statusManager.DoesStatusExist( "damageAbsorb" ) ){
+            if( characterModel.absorbPoints <= 0 && baseManager.statusManager.DoesStatusExist( "damageAbsorb" ) ){
                 characterModel.absorbPoints = 0;
-                statusManager.ForceStatusOff( statusManager.GetStatus( "damageAbsorb" ) );
+                baseManager.statusManager.ForceStatusOff( baseManager.statusManager.GetStatus( "damageAbsorb" ) );
             }
-            if( characterModel.blockPoints <= 0 && statusManager.DoesStatusExist( "block" ) ){
+            if( characterModel.blockPoints <= 0 && baseManager.statusManager.DoesStatusExist( "block" ) ){
                 characterModel.blockPoints = 0;
-                statusManager.ForceStatusOff( statusManager.GetStatus( "block" ) );
+                baseManager.statusManager.ForceStatusOff( baseManager.statusManager.GetStatus( "block" ) );
             }
         }
 
@@ -108,6 +123,11 @@ namespace AssemblyCSharp
             } 
         }
 
+        Base_Character_Manager GetTarget(){
+            var targetCount = this.tag == "Player" ? Battle_Manager.enemyCharacters.Count : Battle_Manager.friendlyCharacters.Count;
+            var i = UnityEngine.Random.Range(0, (targetCount > 0 ? - 1 : targetCount));
+            return this.tag == "Player" ? Battle_Manager.enemyCharacters[i].baseManager : Battle_Manager.friendlyCharacters[i].baseManager;
+        }
     }
 }
 

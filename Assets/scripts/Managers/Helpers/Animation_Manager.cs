@@ -5,15 +5,19 @@ using Spine.Unity;
 
 namespace AssemblyCSharp
 {
-    public class Animation_Manager : Base_Character_Manager
+    [System.Serializable]
+    public class Animation_Manager : MonoBehaviour
     {
-        public SkeletonAnimation skeletonAnimation {get; set;}
-        public MeshRenderer meshRenderer {get; set;}
-        public bool inAnimation {get; set;}
-        public string idleAnim {get; set;}
+        public Base_Character_Manager baseManager;
+        public SkeletonAnimation skeletonAnimation;
+        public MeshRenderer meshRenderer;
+        public bool inAnimation;
+        public string idleAnim;
 
         void Awake()
         {
+            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
         }
 
@@ -26,17 +30,17 @@ namespace AssemblyCSharp
                 if( animName == "toDeath" ){
                     skeletonAnimation.state.SetAnimation( 0, "toDeath", false);
                 } else {
-                    damageManager.charDamageModel.hitAnimation = animName;
+                    baseManager.damageManager.charDamageModel.hitAnimation = animName;
                     if( animHold ){
-                        damageManager.charDamageModel.animationHold = animHold;
+                        baseManager.damageManager.charDamageModel.animationHold = animHold;
                     } else {
-                        damageManager.charDamageModel.holdAnimation = holdAnim;
+                        baseManager.damageManager.charDamageModel.holdAnimation = holdAnim;
                     }
                 }
             } else {
                 skeletonAnimation.state.SetAnimation(0, "stunToIdle", true );
-                damageManager.charDamageModel.hitAnimation = "";       
-                damageManager.charDamageModel.animationHold = addStatus;
+                baseManager.damageManager.charDamageModel.hitAnimation = "";       
+                baseManager.damageManager.charDamageModel.animationHold = addStatus;
                 var animationDuration = skeletonAnimation.state.SetAnimation(0, "stunToIdle", false).Animation.duration;
                 Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration, this );
             }

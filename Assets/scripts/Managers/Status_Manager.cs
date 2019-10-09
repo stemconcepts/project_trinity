@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public class Status_Manager : Base_Character_Manager
+    public class Status_Manager : MonoBehaviour
     {
+        public Base_Character_Manager baseManager;
         public Battle_Details_Manager battleDetailsManager { get; set; }
         public Button_Click_Manager buttonClickManager { get; set; }
         public GameObject statusHolderObject { get; set; }
@@ -15,9 +16,10 @@ namespace AssemblyCSharp
         public List<SingleStatusModel> singleStatusList = new List<SingleStatusModel>();
         void Start()
         {
+            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             battleDetailsManager = Battle_Manager.battleDetailsManager;
             buttonClickManager = this.gameObject.GetComponent<Button_Click_Manager>();
-            statusHolderObject = GameObject.Find( characterManager.characterModel.role + "status" );
+            statusHolderObject = GameObject.Find( baseManager.characterManager.characterModel.role + "status" );
         }
 
         public void AttributeChange( StatusModel statusModel ){
@@ -171,7 +173,7 @@ namespace AssemblyCSharp
         public List<StatusLabelModel> GetAllStatusIfExist( bool buff ){
             List<StatusLabelModel> currentStatusList = null;
                 //this need to change to a variable stored in the Manager for the GameObject that holds the statuses 
-            var statusHolderObject = GameObject.Find( characterManager.name + "status" );
+            var statusHolderObject = GameObject.Find( baseManager.characterManager.name + "status" );
             Transform statusPanel;
             //singleStatus status;
             //for( int i = 0; i < singleStatusList.Count; i++ ){          
@@ -223,13 +225,13 @@ namespace AssemblyCSharp
                     ForceStatusOff( statusModel.singleStatus );
                 });
                 if( statusModel.singleStatus.hitAnim != "" ){
-                    animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
                 }
             } else 
             if( statusModel.turnOff ){
                 ForceStatusOff( statusModel.singleStatus );
                 if( statusModel.singleStatus.hitAnim != "" ){
-                    animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
                 }
             }
         }
@@ -239,7 +241,7 @@ namespace AssemblyCSharp
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
                 battleDetailsManager.ShowLabel( statusModel );
                 if( statusModel.singleStatus.hitAnim != "" ){
-                    animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
                 }
 
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
@@ -247,7 +249,7 @@ namespace AssemblyCSharp
                     var dmgModel = new DamageModel{ 
                         incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
                     };
-                    characterManager.damageManager.calculateMdamge( dmgModel );
+                    baseManager.damageManager.calculateMdamge( dmgModel );
                 });
             } else 
             if( statusModel.turnOff ){
@@ -255,7 +257,7 @@ namespace AssemblyCSharp
                     var dmgModel = new DamageModel{ 
                         incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
                     };
-                    characterManager.damageManager.calculateMdamge( dmgModel );
+                    baseManager.damageManager.calculateMdamge( dmgModel );
                 });
             }
         }
@@ -263,7 +265,7 @@ namespace AssemblyCSharp
         public void OnTakeDmg( StatusModel statusModel ){
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
                 battleDetailsManager.ShowLabel( statusModel );
-                var attrValue = characterManager.GetAttributeValue( statusModel.singleStatus.attributeName );
+                var attrValue = baseManager.characterManager.GetAttributeValue( statusModel.singleStatus.attributeName );
                 var effect = ScriptableObject.CreateInstance<EffectOnEventModel>();
                 effect.power = attrValue * 0.25f;
                 effect.duration = statusModel.duration;
@@ -274,7 +276,7 @@ namespace AssemblyCSharp
                 effect.affectSelf = true; //comes from status
                 effect.owner = gameObject;
                 effect.coolDown = 0;
-                EventManager.EventAction += effect.RunEffect;
+                Battle_Manager.eventManager.EventAction += effect.RunEffect;
 
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
@@ -302,40 +304,39 @@ namespace AssemblyCSharp
                 ForceStatusOff( statusModel.singleStatus );
                 immunityList.Remove( GetStatus( statusModel.singleStatus.attributeName ) );
                 if( statusModel.singleStatus.hitAnim != "" ){ 
-                    animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
                 }
             }
         }
 
         public void RunStatusFunction( StatusModel statusModel ){
-            //makes duration infinite if set to 0
-            statusModel.duration = statusModel.duration == 0 ? Mathf.Infinity : statusModel.duration;
-            switch ( statusModel.selectedStatusFunction ) {
-            case StatusModel.statusFunction.AttributeChange:
-                AttributeChange( statusModel );
-                break;
-            case StatusModel.statusFunction.AddToStat:
-                AddToStatus( statusModel );
-                break;
-            case StatusModel.statusFunction.StatChange:
-                StatChanges( statusModel );
-                break;
-            case StatusModel.statusFunction.StatusOn:
-                StatusOn( statusModel );
-                break;
-            case StatusModel.statusFunction.Tumor:
-                Tumor( statusModel );
-                break;
-            case StatusModel.statusFunction.OnHit:
-                //OnHit( statusModel);
-                break;
-            case StatusModel.statusFunction.OnHitEnemy:
-                OnTakeDmg( statusModel );
-                break;
-            case StatusModel.statusFunction.Immune:
-                SetImmunity( statusModel );
-                break;
-            }
+                statusModel.duration = statusModel.duration == 0 ? Mathf.Infinity : statusModel.duration;
+                switch ( statusModel.selectedStatusFunction ) {
+                case StatusModel.statusFunction.AttributeChange:
+                    AttributeChange( statusModel );
+                    break;
+                case StatusModel.statusFunction.AddToStat:
+                    AddToStatus( statusModel );
+                    break;
+                case StatusModel.statusFunction.StatChange:
+                    StatChanges( statusModel );
+                    break;
+                case StatusModel.statusFunction.StatusOn:
+                    StatusOn( statusModel );
+                    break;
+                case StatusModel.statusFunction.Tumor:
+                    Tumor( statusModel );
+                    break;
+                case StatusModel.statusFunction.OnHit:
+                    //OnHit( statusModel);
+                    break;
+                case StatusModel.statusFunction.OnHitEnemy:
+                    OnTakeDmg( statusModel );
+                    break;
+                case StatusModel.statusFunction.Immune:
+                    SetImmunity( statusModel );
+                    break;
+                }
         }
     }
 }

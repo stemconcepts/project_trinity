@@ -7,9 +7,6 @@ namespace AssemblyCSharp
 {
     public class StatusLabelModel : MonoBehaviour
     {
-        public StatusLabelModel()
-        {
-        }
         public StatusModel statusModel;
         public string statusname;
         private Image boxcolor;

@@ -3,11 +3,9 @@ using System.Collections;
 
 namespace AssemblyCSharp
 {
-    public class Equipment_Manager : Base_Character_Manager
+    public class Equipment_Manager : MonoBehaviour
     {
-        public Equipment_Manager()
-        {
-        }
+        public Base_Character_Manager baseManager;
         public weaponModel primaryWeapon;
         public weaponModel secondaryWeapon;
         public SkillModel classSkill;
@@ -17,27 +15,31 @@ namespace AssemblyCSharp
             Primary,
             Secondary
         }
-    
+        void Start(){
+            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            PopulateSkills();
+        }
+
         public void PopulateSkills( ){
             //skillEffectScript = GetComponent<skill_effects>();
             if ( primaryWeapon != null ){
                 var intPSkill2 = Object.Instantiate( primaryWeapon.skillTwo ) as SkillModel;
                 var intPSkill3 = Object.Instantiate( primaryWeapon.skillThree ) as SkillModel;
-                skillManager.primaryWeaponSkills.Add(intPSkill2);
-                skillManager.primaryWeaponSkills.Add(intPSkill3);
+                baseManager.skillManager.primaryWeaponSkills.Add(intPSkill2);
+                baseManager.skillManager.primaryWeaponSkills.Add(intPSkill3);
             } else {
                 print ("no Primary weapons" + gameObject);
             }
             if ( secondaryWeapon != null ){
                 var intPSkill2 = Object.Instantiate( secondaryWeapon.skillTwo ) as SkillModel;
                 var intPSkill3 = Object.Instantiate( secondaryWeapon.skillThree ) as SkillModel;
-                skillManager.secondaryWeaponSkills.Add(intPSkill2);
-                skillManager.secondaryWeaponSkills.Add(intPSkill3);
+                baseManager.skillManager.secondaryWeaponSkills.Add(intPSkill2);
+                baseManager.skillManager.secondaryWeaponSkills.Add(intPSkill3);
             } else {
                 print ("no Secondary weapons" + gameObject);
             }
             if( classSkill != null ){
-                skillManager.classSkill = Object.Instantiate( classSkill ) as SkillModel;
+                baseManager.skillManager.skillModel = Object.Instantiate( classSkill ) as SkillModel;
             }
         }
     }

@@ -1,16 +1,14 @@
 ﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public class StatusModel
+    public class StatusModel : MonoBehaviour
     {
-        public StatusModel()
-        {
-        } 
         public SingleStatusModel singleStatus;
         public Character_Manager characterManager; 
-        public classSkills onHitSkill; 
+        public SkillModel onHitSkill; 
         public float duration;
         public float power {get; set;}
         public bool dispellable;
@@ -50,6 +48,6 @@ namespace AssemblyCSharp
             OnMove,
             OnSkillCast
         };
-        public List<EffectOnEvent> effectsOnEvent = new List<EffectOnEvent>();
+        public List<EffectOnEventModel> effectsOnEvent = new List<EffectOnEventModel>();
     }
 }

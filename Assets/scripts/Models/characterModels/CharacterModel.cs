@@ -7,11 +7,11 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class CharacterModel
     {
-        public CharacterModel()
+        public void SetUp()
         {
             attackedPos = new Vector2();
-            origPosition = new Vector2();
-            currentPosition = new Vector2();
+            //origPosition = new Vector2();
+            //currentPosition = new Vector2();
             originalPDef = PDef;
             originalMDef = MDef;
             originalPAtk = PAtk;
@@ -27,6 +27,7 @@ namespace AssemblyCSharp
             originalvigor = 1;
             actionPoints = 6;
             maxactionPoints = 6;
+            healthBarText = targetHealthBar.gameObject.transform.Find("healthdata").GetComponent<Text>();
         }
 
         public Sprite characterIcon;
@@ -56,10 +57,10 @@ namespace AssemblyCSharp
         public string characterType;
         public string objectName;
         public string role;
-        public Character_Manager target;
+        public Base_Character_Manager target;
         public bool damageImmune;
         public bool canAutoAttack;
-        public bool isAttacking;
+        //public bool isAttacking;
         public bool isBusy;
         public float incomingDmg;
         public float incomingMDmg;
@@ -69,6 +70,7 @@ namespace AssemblyCSharp
 
         //health slider group
         public GameObject targetHealthBar;
+        public Text healthBarText;
         public Slider sliderScript;
         public GameObject targetActionBar;
         public Slider apSliderScript;
@@ -76,13 +78,13 @@ namespace AssemblyCSharp
         public GameObject actionPointsDisplay;
         public Text availableActionPoints;
         public bool isMoving;
-        public Vector2 origPosition;
-        public Vector2 currentPosition;
+        //public Vector2 origPosition;
+        //public Vector2 currentPosition;
         public Quaternion currentRotation;
-        public GameObject posMarker;
-        public GameObject posMarkerMin;
+        //public GameObject posMarker;
+        //public GameObject posMarkerMin;
         public Vector2 attackedPos;
-        public GameObject currentPanel;
+        //public GameObject currentPanel;
         public int rowNumber;
         public bool inVoidZone;
         public bool inVoidCounter;

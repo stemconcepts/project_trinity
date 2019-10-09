@@ -8,9 +8,9 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class Sound_Manager : MonoBehaviour
     {
-        SkeletonAnimation skeletonAnimation;
-        Animation_Manager playerAnimationManager;
-        private AudioSource audioSourceScript;
+        //SkeletonAnimation skeletonAnimation;
+        //Animation_Manager playerAnimationManager;
+        public AudioSource audioSourceScript;
         private AudioClip chosenSound;
         public AudioClip charSwapSound;
         public AudioClip gearSwapSound;
@@ -28,7 +28,7 @@ namespace AssemblyCSharp
         [Header("Custom Sounds:")]
         public List<AudioClip> customSounds;
 
-        Sound_Manager()
+        void Start()
         {
         }
 
@@ -76,9 +76,9 @@ namespace AssemblyCSharp
             }
         }
     
-        public void playSound( AudioClip audioClip = null ){        
-            if( audioClip == null ){
-                skeletonAnimation.state.Event += OnEventHit;
+        public void playSound( AudioClip audioClip = null, SkeletonAnimation skeletonAnimation = null ){        
+            if( audioClip == null && skeletonAnimation != null ){
+                skeletonAnimation.state.Event += OnEventHit; 
             } else {
                 audioSourceScript.clip = audioClip;
                 audioSourceScript.Play();

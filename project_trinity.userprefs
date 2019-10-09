@@ -2,26 +2,26 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/Managers/BattleScene Scripts/Character_Manager.cs">
     <Files>
-      <File FileName="Assets/scripts/Managers/Base Class/Base Character Manager.cs" Line="6" Column="5" />
-      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Panels Manager.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Managers/Helpers/Event Manager.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Models/eventModels/EventModel.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Managers/BasicManager.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Managers/Battle_Manager.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Battle Details Manager.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Character Interaction Manager.cs" Line="1" Column="1" />
-      <File FileName="Assets/scripts/Models/statusModels/StatusModel.cs" Line="1" Column="1" NotebookId="1" />
-      <File FileName="Assets/scripts/Managers/Helpers/Task Manager.cs" Line="1" Column="1" NotebookId="1" />
-      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Character_Manager.cs" Line="21" Column="1" NotebookId="1" />
-      <File FileName="Assets/scripts/Models/characterModels/CharacterModel.cs" Line="84" Column="31" NotebookId="1" />
-      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Movement_Manager.cs" Line="23" Column="50" NotebookId="1" />
-      <File FileName="Assets/scripts/Managers/Status_Manager.cs" Line="1" Column="1" NotebookId="1" />
-      <File FileName="Assets/scripts/Managers/Helpers/Animation_Manager.cs" Line="1" Column="1" NotebookId="1" />
-      <File FileName="Assets/scripts/Models/damageModels/DamageModel.cs" Line="11" Column="1" NotebookId="1" />
+      <File FileName="Assets/scripts/Managers/Game_Manager.cs" Line="46" Column="35" />
+      <File FileName="Assets/scripts/Managers/Battle_Manager.cs" Line="45" Column="64" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Battle_Details_Manager.cs" Line="16" Column="12" />
+      <File FileName="Assets/scripts/Managers/Helpers/Task_Manager.cs" Line="10" Column="46" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Movement_Manager.cs" Line="54" Column="68" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Skill Scripts/Skill_Manager.cs" Line="262" Column="1" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Character_Manager.cs" Line="48" Column="1" />
+      <File FileName="Assets/scripts/Managers/BattleScene Scripts/Battle_Interface_Manager.cs" Line="12" Column="27" />
+      <File FileName="Assets/scripts/Helpers/Generic_Manager.cs" Line="35" Column="34" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Assets/scripts/Managers/BattleScene Scripts/Skill Scripts/Skill_Manager.cs" line="215" column="1" />
+      <Breakpoint file="/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Assets/scripts/Managers/BattleScene Scripts/Skill Scripts/Skill_Manager.cs" line="175" column="1" />
+      <Breakpoint file="/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Assets/scripts/Managers/Helpers/Task Manager.cs" line="26" column="1" />
+      <Breakpoint file="/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Assets/scripts/Managers/Battle_Manager.cs" line="42" column="1" />
+      <Breakpoint file="/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Assets/scripts/Managers/BattleScene Scripts/Skill Scripts/Skill_Manager.cs" line="262" column="1" />
+      <Breakpoint file="/Users/seanharper/Desktop/Design/holytrinity/unity/project_trinity/Assets/scripts/Managers/Helpers/Task_Manager.cs" line="26" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
