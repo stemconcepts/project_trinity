@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AssemblyCSharp
 {
-    public class Game_Effects_Manager : BasicManager
+    public class Game_Effects_Manager : MonoBehaviour
     {
         private Task SloMoTask;
         Vector3 originalCameraPosition;
@@ -13,7 +13,7 @@ namespace AssemblyCSharp
 
         void Awake()
         {
-            mainCamera = GetComponent<Camera>();
+            mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
             originalCameraPosition = mainCamera.GetComponent<Transform>().position;
         }
 

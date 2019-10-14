@@ -40,10 +40,11 @@ namespace AssemblyCSharp
         public void RunEffect(){
             if ( Battle_Manager.eventManager.eventModel.eventName == trigger.ToString() && owner == Battle_Manager.eventManager.eventModel.eventCaller && ready && CheckChance( triggerChance ) ){
                 target = affectSelf ? Battle_Manager.eventManager.eventModel.eventCaller : Battle_Manager.eventManager.eventModel.extTarget;
+                var baseManager = target.GetComponent<Base_Character_Manager>();
                 var extraPower = Battle_Manager.eventManager.eventModel.extraInfo != 0 ? Battle_Manager.eventManager.eventModel.extraInfo * power : power;
-                var targetDmgCalc = target.GetComponent<Damage_Manager>();
-                var targetStatus = target.GetComponent<Status_Manager>();
-                DamageModel dm = new DamageModel();
+                var targetDmgCalc = baseManager.damageManager;
+                var targetStatus = baseManager.statusManager;
+                DamageModel dm = new DamageModel(baseManager);
                 switch( effect ) {
                 case effectGrp.None:
                         break;

@@ -8,20 +8,21 @@ namespace AssemblyCSharp
     {
         public Base_Character_Manager baseManager;
         public DamageModel charDamageModel;
-        //public Status_Manager statusManager { get; set; }
+        public DamageModel currentTargetDmgModel;
+        public GameObject hitFX;
         public Battle_Details_Manager battleDetailsManager;
         //public Character_Manager characterManager {get; set;}
         void Start(){
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
-            //characterManager = this.gameObject.GetComponent<Character_Manager>();
-            // 'statusManager = this.gameObject.GetComponent<Status_Manager>();
-            charDamageModel = new DamageModel();
             battleDetailsManager = Battle_Manager.battleDetailsManager;
+            if( baseManager.animationManager.skeletonAnimation ){
+                baseManager.animationManager.skeletonAnimation.state.Event += OnEventHit;
+            }
         }
 
         public void TakeDmg(DamageModel damageModel, string eventName)
         {
-            GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : damageModel.hitEffect;
+            GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : hitFX;
             Battle_Manager.gameEffectManager.ScreenShake(1f);
             if (gameObject.tag == "Player" && eventName == "hit")
             {
@@ -63,7 +64,7 @@ namespace AssemblyCSharp
 
             if ( baseManager.animationManager.inAnimation == false && baseManager.autoAttackManager.isAttacking == false)
             {
-                if (damageModel.hitAnimation != "")
+                if (!string.IsNullOrEmpty(damageModel.hitAnimation))
                 {
                     baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, damageModel.hitAnimation, false);
                     baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, damageModel.holdAnimation, true, 0);
@@ -71,10 +72,8 @@ namespace AssemblyCSharp
                 }
                 else
                 {
-                    var hitAnim = gameObject.tag == "Enemy" ? "hit" : damageModel.hitAnimNormal;
-                    var idleAnim = gameObject.tag == "Enemy" ? "idle" : baseManager.animationManager.idleAnim;
-                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, hitAnim, false);
-                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, idleAnim, true, 0);
+                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, damageModel.hitAnimNormal, false);
+                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnim, true, 0);
                 }
             }
             //if tumor on player
@@ -87,7 +86,7 @@ namespace AssemblyCSharp
             if (baseManager.statusManager.DoesStatusExist("thorns") && damageModel.dmgSource != null)
             {
                 var sourceCalDmg = damageModel.dmgSource.GetComponent<Damage_Manager>();
-                var dmgModel = new DamageModel{
+                var dmgModel = new DamageModel(baseManager){
                             incomingDmg = baseManager.characterManager.characterModel.thornsDmg
                         };
                 sourceCalDmg.calculatedamage(damageModel);
@@ -118,16 +117,16 @@ namespace AssemblyCSharp
         {
             if (e.Data.name == "hit" || e.Data.name == "SFXhit")
             {
-                foreach (var target in charDamageModel.dueDmgTargets)
+                foreach (var target in currentTargetDmgModel.dueDmgTargets)
                 {
-                    var targetDamageManager = target.GetComponent<Damage_Manager>();
-                    var dM = new DamageModel();
-                    targetDamageManager.TakeDmg(dM, e.Data.name);
+                    var targetDamageManager = target.GetComponent<Base_Character_Manager>().damageManager;
+                    //var dM = new DamageModel();
+                    targetDamageManager.TakeDmg(currentTargetDmgModel, e.Data.name);
                     var eventModel = new EventModel{
                         eventName = "OnDealingDmg",
                         extTarget = target,
                         eventCaller = this.gameObject,
-                        extraInfo = targetDamageManager.charDamageModel.damageTaken
+                        extraInfo = targetDamageManager.currentTargetDmgModel.damageTaken
                     };
                     Battle_Manager.eventManager.BuildEvent(eventModel);
                 }
@@ -142,13 +141,13 @@ namespace AssemblyCSharp
                 damageModel.skillSource = damageModel.skillModel != null ? damageModel.skillModel.skillName : damageModel.skillSource;
             }
 
-            if (damageModel.characterManager != null)
+            if (damageModel.baseManager != null)
             {
-                var defences = damageModel.skillModel.isSpell ? damageModel.characterManager.characterModel.MDef : 
-                    damageModel.characterManager.characterModel.PDef;
+                var defences = damageModel.isMagicDmg ? damageModel.baseManager.characterManager.characterModel.MDef : 
+                    damageModel.baseManager.characterManager.characterModel.PDef;
                 var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : 
                     damageModel.incomingDmg - defences;
-                damageTaken = damageModel.trueDmg ? damageModel.incomingDmg : damageModel.damageTaken;
+                damageModel.damageTaken = damageModel.trueDmg ? damageModel.incomingDmg : damageTaken;
                 damageModel.dmgSource = this.gameObject;
                 if (baseManager.statusManager.DoesStatusExist("damageImmune"))
                 {

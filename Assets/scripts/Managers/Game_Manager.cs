@@ -22,6 +22,7 @@ namespace AssemblyCSharp
         public Sound_Manager SoundManager;
         public Battle_Details_Manager battleDetailsManager;
         public Game_Effects_Manager GameEffectsManager;
+        public Event_Manager EventManager;
         public Character_Select_Manager characterSelectManager;
         public static ILogger logger = Debug.unityLogger;
 
@@ -44,7 +45,10 @@ namespace AssemblyCSharp
             TaskManager = gameObject.GetComponent<Task_Manager>();
             battleDetailsManager = gameObject.GetComponent<Battle_Details_Manager>();
             characterSelectManager = gameObject.GetComponent<Character_Select_Manager>();
-            BattleManager = new Battle_Manager(this);
+            GameEffectsManager = gameObject.GetComponent<Game_Effects_Manager>();
+            EventManager = gameObject.GetComponent<Event_Manager>();
+            BattleManager = gameObject.GetComponent<Battle_Manager>();
+            //BattleManager = new Battle_Manager(this);
         }
 
         void Start(){

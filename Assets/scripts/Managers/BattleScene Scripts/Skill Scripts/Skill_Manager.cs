@@ -126,11 +126,10 @@ namespace AssemblyCSharp
                         status.dispellable = skillModel.statusDispellable;
                     };
                     if( skillModel.doesDamage ){ 
-                        var dmgModel = new DamageModel{
+                        var dmgModel = new DamageModel(baseManager){
                             incomingDmg = power,
                             skillModel = skillModel,
-                            dmgSource = gameObject,
-                            skeletonAnimation = bm.animationManager.skeletonAnimation
+                            dmgSource = gameObject
                         };
                         bm.damageManager.calculatedamage( dmgModel ); 
                     };
@@ -140,11 +139,10 @@ namespace AssemblyCSharp
                         status.dispellable = skillModel.statusFriendlyDispellable;
                     }
                     if( skillModel.healsDamage ){ 
-                        var dmgModel = new DamageModel{
+                        var dmgModel = new DamageModel(baseManager){
                             incomingHeal = power,
                             skillModel = skillModel,
-                            dmgSource = gameObject,
-                            skeletonAnimation = bm.animationManager.skeletonAnimation
+                            dmgSource = gameObject
                         };
                         bm.damageManager.calculateHdamage( dmgModel ); 
                     };
@@ -159,7 +157,7 @@ namespace AssemblyCSharp
                 baseManager.animationManager.inAnimation = true;
                 baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationType, skillModel.loopAnimation);
                 var animationDuration = baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationType, skillModel.loopAnimation).Animation.duration;
-                Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration, baseManager.animationManager );
+                baseManager.animationManager.SetBusyAnimation(animationDuration);
                 if( skillModel.attackMovementSpeed > 0 ){
                     baseManager.autoAttackManager.isAttacking = true;
                     baseManager.movementManager.movementSpeed = skillModel.attackMovementSpeed;

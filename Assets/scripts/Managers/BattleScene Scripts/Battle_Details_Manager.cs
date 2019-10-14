@@ -62,36 +62,36 @@ namespace AssemblyCSharp
     
         //controls damage/healing/absorb numbers
         public void ShowDamageNumber( DamageModel damageModel, string extraInfo = "" ){
-            GameObject charObject = damageModel.characterManager.gameObject;
+            GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x, charObject.transform.position.y + 6f ) , charObject.transform.rotation );
-            var damageData = gameDetails.GetComponent<damagDataBehaviour>();
-            damageData.damageData = (int)damageModel.incomingMDmg;
+            var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
+            damageData.damageData = (int)damageModel.damageTaken;
             damageData.extraInfo = extraInfo;
             damageData.isDmg = true;
             damageData.skillLabel = damageModel.skillSource;
         }
     
         public void ShowHealNumber( DamageModel damageModel ){
-            GameObject charObject = damageModel.characterManager.gameObject;
+            GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
-            var damageData = gameDetails.GetComponent<damagDataBehaviour>();
+            var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.healData = (int)damageModel.incomingHeal;
             damageData.isDmg = false;
         }
     
         public void ShowAbsorbNumber( DamageModel damageModel ){
-            GameObject charObject = damageModel.characterManager.gameObject;
+            GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
-            var damageData = gameDetails.GetComponent<damagDataBehaviour>();
+            var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.absorbData = (int)damageModel.absorbAmount;
             damageData.isAbsorb = true;
             damageData.skillLabel = damageModel.skillSource;
         }
     
         public void ShowImmune( DamageModel damageModel){
-            GameObject charObject = damageModel.characterManager.gameObject;
+            GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
-            var damageData = gameDetails.GetComponent<damagDataBehaviour>();
+            var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.isImmune = true;
             damageData.skillLabel = damageModel.skillSource;
         }

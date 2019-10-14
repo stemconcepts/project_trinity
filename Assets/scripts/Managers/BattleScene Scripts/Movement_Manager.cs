@@ -86,7 +86,9 @@ namespace AssemblyCSharp
                 moveToTarget( movementSpeed, baseManager.characterManager.characterModel.target );
             } else if( e.Data.name == "movementBack" ){
                 baseManager.autoAttackManager.isAttacking = false;
-                moveToHome();
+                if( origPosition != (Vector2)this.gameObject.transform.position ){
+                    moveToHome();
+                }
             }
         }
     }

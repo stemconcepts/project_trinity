@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace AssemblyCSharp
 {
     [System.Serializable]
-    public class Battle_Manager
+    public class Battle_Manager : MonoBehaviour
     {
         BattleModel battleModel;
         public static Event_Manager eventManager;
@@ -20,24 +20,40 @@ namespace AssemblyCSharp
         public static List<Character_Manager> friendlyCharacters = new List<Character_Manager>();
         public static List<Character_Manager> enemyCharacters = new List<Character_Manager>();
 
-        void SetUp()
+        /*void SetUp()
         {
             GameObject[] bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
             friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            friendlyCharacters.Capacity = friendlyCharacters.Count;
             enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            enemyCharacters.Capacity = enemyCharacters.Count;
             battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
             soundManager = gameManager.SoundManager;
             gameEffectManager = gameManager.GameEffectsManager;
-            /*charClass.Add( guardian );
-            charClass.Add( walker );
-            charClass.Add( stalker );*/
+            eventManager = gameManager.EventManager;
+        }*/
 
-            //LoadCharacters(friendlyCharacters);
-            //LoadCharacters(enemyCharacters);
+        void Start()
+        {
+            gameManager = gameObject.GetComponent<Game_Manager>();
+            battleDetailsManager = gameManager.battleDetailsManager;
+            taskManager = gameManager.TaskManager;
+            characterSelectManager = gameManager.characterSelectManager;
+            taskManager.battleDetailsManager = battleDetailsManager;
+            GameObject[] bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
+            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            friendlyCharacters.Capacity = friendlyCharacters.Count;
+            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            enemyCharacters.Capacity = enemyCharacters.Count;
+            battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
+            battleInterfaceManager.Capacity = battleInterfaceManager.Count;
+            soundManager = gameManager.SoundManager;
+            gameEffectManager = gameManager.GameEffectsManager;
+            eventManager = gameManager.EventManager;
         }
 
-        public Battle_Manager( Game_Manager gm )
+        /*public Battle_Manager( Game_Manager gm )
         {
             gameManager = gm;
             battleDetailsManager = gm.battleDetailsManager;
@@ -45,19 +61,20 @@ namespace AssemblyCSharp
             characterSelectManager = gm.characterSelectManager;
             taskManager.battleDetailsManager = battleDetailsManager;
             SetUp();
-            /*taskManager = gameObject.AddComponent(typeof(taskManager)) as Task_Manager;
-            battleDetailsManager = gameObject.AddComponent(typeof(Battle_Details_Manager)) as Battle_Details_Manager;
-            characterSelectManager = gameObject.AddComponent(typeof(Character_Select_Manager)) as Character_Select_Manager;*/
-        }
+        }*/
     
         public static List<Battle_Interface_Manager> GetBattleInterfaces(){
             return battleInterfaceManager;
         }
         
-        List<Character_Manager> GetCharacterManagers( List<GameObject> go){
+        public List<Character_Manager> GetCharacterManagers( List<GameObject> go){
             var y = go.Select(o => o.GetComponent<Character_Manager>()).ToList();
             y.Capacity = y.Count;
             return y;
+        }
+
+        public List<Character_Manager> GetCharacterManagerByLoyalty(Boolean getFriendly){
+            return getFriendly ? friendlyCharacters : enemyCharacters;
         }
 
         public class classState{

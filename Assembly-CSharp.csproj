@@ -101,7 +101,10 @@
      <Compile Include="Assets\scripts\effects controller\globalEffectsController.cs" />
      <Compile Include="Assets\scripts\Helpers\CameraController.cs" />
      <Compile Include="Assets\scripts\Helpers\ConditionalHidePropertyDrawer.cs" />
+     <Compile Include="Assets\scripts\Helpers\Floating_Combat_Text.cs" />
+     <Compile Include="Assets\scripts\Helpers\Generic_Display.cs" />
      <Compile Include="Assets\scripts\Helpers\Generic_Manager.cs" />
+     <Compile Include="Assets\scripts\Helpers\UI_Display_Text.cs" />
      <Compile Include="Assets\scripts\levelBuilder\BattleManager.cs" />
      <Compile Include="Assets\scripts\levelBuilder\characterManager.cs" />
      <Compile Include="Assets\scripts\Managers\Base Class\Base Battle Manager.cs" />

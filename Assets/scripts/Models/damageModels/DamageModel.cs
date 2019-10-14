@@ -9,14 +9,12 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class DamageModel
     {
-        public DamageModel()
+        public DamageModel(Base_Character_Manager bm)
         {
             hitAnimNormal = "hit";
+            baseManager = bm;
+            hitEffectPositionScript = baseManager.effectsManager.fxCenter.transform;
         }
-        [SpineAnimation]
-        public SkeletonAnimation skeletonAnimation;
-        public Animation_Manager playerAnimationManager;
-        public Character_Manager characterManager;
         public Battle_Details_Manager combatDisplayScript;
         private Skill_Manager SkillScript;
         private Status_Manager statusScript;
@@ -30,7 +28,6 @@ namespace AssemblyCSharp
         public float healAmount;
         public float healAmountTaken;
         public string skillSource;
-        public GameObject hitEffect;
         public GameObject customHitFX;
         public Transform hitEffectPositionScript;
         public GameObject hitEffectPosition;
@@ -42,8 +39,8 @@ namespace AssemblyCSharp
         public bool trueDmg;
         public string holdAnimation;
         public List<GameObject> dueDmgTargets;
-        //private soundController soundContScript;
         public SkillModel skillModel;
-        //public SkillModel enemySkill;
+        public Base_Character_Manager baseManager;
+        public bool isMagicDmg = false;
     }
 }

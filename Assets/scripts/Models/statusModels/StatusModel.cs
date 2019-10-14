@@ -7,7 +7,7 @@ namespace AssemblyCSharp
     public class StatusModel : MonoBehaviour
     {
         public SingleStatusModel singleStatus;
-        public Character_Manager characterManager; 
+        public Base_Character_Manager baseManager; 
         public SkillModel onHitSkill; 
         public float duration;
         public float power {get; set;}

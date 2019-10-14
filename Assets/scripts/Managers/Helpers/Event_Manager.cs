@@ -1,8 +1,9 @@
 ﻿using System;
+using UnityEngine;
 
 namespace AssemblyCSharp
 {
-    public class Event_Manager
+    public class Event_Manager : MonoBehaviour
     {
         public delegate void CheckEvent();
         public event CheckEvent EventAction;

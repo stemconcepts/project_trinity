@@ -1,10 +1,11 @@
 ﻿using System;
 using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public class Character_Select_Manager: BasicManager
+    public class Character_Select_Manager: MonoBehaviour
     {
         public bool guardianSelected = true;
         public bool walkerSelected = false;
@@ -19,6 +20,9 @@ namespace AssemblyCSharp
             walkerSelected,
             stalkerSelected
         }
+        public List<Character_Manager> friendlyCharacters = new List<Character_Manager>();
+        public List<Character_Manager> enemyCharacters = new List<Character_Manager>();
+
 
         void Awake()
         {
@@ -28,6 +32,16 @@ namespace AssemblyCSharp
             classStates.Add( new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false ) );
             classStates.Add( new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false ) );
             classStates.Add( new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true ) );
+            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            enemyCharacters.Capacity = enemyCharacters.Count;
+            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            friendlyCharacters.Capacity = friendlyCharacters.Count;
+        }
+
+        public List<Character_Manager> GetCharacterManagers( List<GameObject> go){
+            var y = go.Select(o => o.GetComponent<Character_Manager>()).ToList();
+            y.Capacity = y.Count;
+            return y;
         }
 
         public void SetSelectedCharacter( string characterClass ){

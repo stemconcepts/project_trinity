@@ -42,8 +42,8 @@ namespace AssemblyCSharp
         {
             if( !moved && currentOccupier ){
                SetStartingPanel(currentOccupier);
+               moved = true;
             }
-            moved = true;
         }
 
         public void SetStartingPanel( GameObject currentOccupier ){

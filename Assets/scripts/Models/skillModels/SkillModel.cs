@@ -211,14 +211,14 @@ namespace AssemblyCSharp
                 var creatureData = (GameObject)Instantiate( GameObject.Find( "singleMinionData" ), GameObject.Find( "Panel MinionData" ).transform );
                 var panel = GetRandomPanel();
                 if( panel ){
-                    creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<Generic_Manager>().On = true;
+                    creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
                     var newCreature = (GameObject)Instantiate( targetCreatures[i], creatureData.transform );
                     panel.GetComponent<Panels_Manager>().currentOccupier = newCreature;
                     creatureData.transform.GetChild(1).GetChild(0).gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role + i.ToString() + "status";
                     newCreature.gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role + i.ToString();
                     newCreature.GetComponent<Character_Manager>().currentPanel = panel;
                     newCreature.GetComponent<Character_Manager>().characterModel.role = newCreature.GetComponent<Character_Manager>().characterModel.role + i.ToString();
-                    creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<Generic_Manager>().SetDataObjects( i );
+                    creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().SetDataObjects( i );
                     //panel.GetComponent<Panels_Manager>().Start();
                     newCreature.GetComponent<Animation_Manager>().skeletonAnimation.state.SetAnimation(0, "intro", false);
                     newCreature.GetComponent<Animation_Manager>().skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );

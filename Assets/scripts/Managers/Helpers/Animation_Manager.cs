@@ -16,6 +16,7 @@ namespace AssemblyCSharp
 
         void Awake()
         {
+            idleAnim = "idle";
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
@@ -23,6 +24,12 @@ namespace AssemblyCSharp
 
         public void SetSortingLayer(int sortingLayer ){
             meshRenderer.sortingOrder = sortingLayer;
+        }
+
+        public void SetBusyAnimation( float animationDuration ){
+            Battle_Manager.taskManager.CallTask( animationDuration, () => {
+                inAnimation = false;
+            });
         }
 
         public void AddStatusAnimation( bool addStatus, string animName, string holdAnim, bool animHold ){
@@ -42,7 +49,7 @@ namespace AssemblyCSharp
                 baseManager.damageManager.charDamageModel.hitAnimation = "";       
                 baseManager.damageManager.charDamageModel.animationHold = addStatus;
                 var animationDuration = skeletonAnimation.state.SetAnimation(0, "stunToIdle", false).Animation.duration;
-                Battle_Manager.taskManager.CallTaskBusyAnimation( animationDuration, this );
+                SetBusyAnimation(animationDuration);
             }
         }
     }

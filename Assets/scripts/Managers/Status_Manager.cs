@@ -246,7 +246,7 @@ namespace AssemblyCSharp
 
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
-                    var dmgModel = new DamageModel{ 
+                    var dmgModel = new DamageModel(statusModel.baseManager){ 
                         incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
                     };
                     baseManager.damageManager.calculateMdamge( dmgModel );
@@ -254,7 +254,7 @@ namespace AssemblyCSharp
             } else 
             if( statusModel.turnOff ){
                 ForceStatusOff( statusModel.singleStatus, ()=> {
-                    var dmgModel = new DamageModel{ 
+                    var dmgModel = new DamageModel(statusModel.baseManager){ 
                         incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
                     };
                     baseManager.damageManager.calculateMdamge( dmgModel );

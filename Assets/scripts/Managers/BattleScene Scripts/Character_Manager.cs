@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -123,10 +124,10 @@ namespace AssemblyCSharp
             } 
         }
 
-        Base_Character_Manager GetTarget(){
-            var targetCount = this.tag == "Player" ? Battle_Manager.enemyCharacters.Count : Battle_Manager.friendlyCharacters.Count;
-            var i = UnityEngine.Random.Range(0, (targetCount > 0 ? - 1 : targetCount));
-            return this.tag == "Player" ? Battle_Manager.enemyCharacters[i].baseManager : Battle_Manager.friendlyCharacters[i].baseManager;
+        public Base_Character_Manager GetTarget(){
+            var targetCount = this.tag == "Player" ? Battle_Manager.characterSelectManager.enemyCharacters.Count : Battle_Manager.characterSelectManager.friendlyCharacters.Count;
+            var i = UnityEngine.Random.Range(0, targetCount);
+            return this.tag == "Player" ? Battle_Manager.characterSelectManager.enemyCharacters[i].GetComponent<Base_Character_Manager>() : Battle_Manager.characterSelectManager.friendlyCharacters[i].GetComponent<Base_Character_Manager>();
         }
     }
 }

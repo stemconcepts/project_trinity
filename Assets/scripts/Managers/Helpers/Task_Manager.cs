@@ -24,11 +24,6 @@ namespace AssemblyCSharp
         public void CallTask(float waitTime, System.Action action = null)
         {
             var myTask = new Task(CountDown(waitTime, action));
-            /*if (action != null)
-            {
-                action();
-            }*/
-            //return true;
         }
         IEnumerator CountDown(float waitTime, System.Action action = null)
         {
@@ -56,25 +51,6 @@ namespace AssemblyCSharp
             }
         }
 
-        public Task CallTaskBusyAnimation(float waitTime, Animation_Manager animationManager, System.Action action = null)
-        {
-            var myTask = new Task(busyAnimation(waitTime, animationManager, action));
-            return myTask;
-        }
-
-        IEnumerator busyAnimation(float waitTime, Animation_Manager animationManager, System.Action action = null )
-        {
-            yield return new WaitForSeconds(waitTime);
-            if( animationManager != null && animationManager.skeletonAnimation != null ){
-                animationManager.skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );
-                animationManager.inAnimation = false;
-            }
-            if (action != null)
-            {
-                action();
-            }
-        }
-
         public Task CallChangePointsTask(StatusModel statusModel, System.Action action = null)
         {
             if( statusModel.singleStatus.canStack ){
@@ -89,15 +65,15 @@ namespace AssemblyCSharp
         }
         IEnumerator ChangePoints(StatusModel statusModel)
         {
-            var currentStat = statusModel.characterManager.GetAttributeValue(statusModel.stat);
-            var maxStat = statusModel.characterManager.GetAttributeValue("max" + statusModel.stat);
-            var damageManager = statusModel.characterManager.gameObject.GetComponent<Damage_Manager>();
+            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.stat);
+            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.stat);
+            var damageManager = statusModel.baseManager.characterManager.gameObject.GetComponent<Damage_Manager>();
             while (currentStat <= maxStat && currentStat > 0)
             {
                 if (statusModel.regenOn)
                 {
                     //statusModel.characterManager.characterModel.incomingHeal = statusModel.power;
-                    var damageModel = new DamageModel{
+                    var damageModel = new DamageModel(statusModel.baseManager){
                         skillSource = statusModel.singleStatus.statusName,
                         incomingHeal = statusModel.power
                     };
@@ -106,7 +82,7 @@ namespace AssemblyCSharp
                 else
                 {
                     //damageManager.charDamageModel.incomingDmg = statusModel.power;
-                    var damageModel = new DamageModel{
+                    var damageModel = new DamageModel(statusModel.baseManager){
                         skillSource = statusModel.singleStatus.statusName,
                         incomingDmg = statusModel.power
                     };
