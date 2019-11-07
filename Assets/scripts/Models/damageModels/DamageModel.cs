@@ -32,13 +32,13 @@ namespace AssemblyCSharp
         public Transform hitEffectPositionScript;
         public GameObject hitEffectPosition;
         public GameObject effectObject;
-        public GameObject dmgSource;
+        public Character_Manager dmgSource;
         public string hitAnimation;
         public string hitAnimNormal;
         public bool animationHold;
         public bool trueDmg;
         public string holdAnimation;
-        public List<GameObject> dueDmgTargets;
+        public List<Character_Manager> dueDmgTargets;
         public SkillModel skillModel;
         public Base_Character_Manager baseManager;
         public bool isMagicDmg = false;

@@ -7,7 +7,7 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class EffectOnEventModel : ScriptableObject {
         public GameObject owner;
-        public GameObject target;
+        public Character_Manager target;
         public bool affectSelf;
         public float power;
         public float coolDown;

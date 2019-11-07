@@ -36,18 +36,18 @@ namespace AssemblyCSharp
 
         public bool RemoveLabelTask(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
-            var myTask = new Task(RemoveLabel(waitTime, statusLabel));
-            if (action != null)
-            {
-                action();
-            }
+            var myTask = new Task(RemoveLabel(waitTime, statusLabel, action));
             return true;
         }
-        IEnumerator RemoveLabel(float waitTime, StatusLabelModel statusLabel)
+        IEnumerator RemoveLabel(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
             yield return new WaitForSeconds(waitTime);            
             if( statusLabel != null ){
                 battleDetailsManager.RemoveLabel(statusLabel);
+                if (action != null)
+                {
+                    action();
+                }
             }
         }
 
@@ -56,14 +56,10 @@ namespace AssemblyCSharp
             if( statusModel.singleStatus.canStack ){
                 statusModel.power = statusModel.power * statusModel.stacks;
             }
-            var myTask = new Task(ChangePoints(statusModel));
-            if (action != null)
-            {
-                action();
-            }
+            var myTask = new Task(ChangePoints(statusModel, action));
             return myTask;
         }
-        IEnumerator ChangePoints(StatusModel statusModel)
+        IEnumerator ChangePoints(StatusModel statusModel, System.Action action = null)
         {
             var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.stat);
             var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.stat);
@@ -89,6 +85,10 @@ namespace AssemblyCSharp
                     damageManager.calculatedamage(damageModel);
                 }
                 yield return new WaitForSeconds(5f);
+                if (action != null)
+                {
+                    action();
+                }
             }
         }
 
@@ -181,7 +181,7 @@ namespace AssemblyCSharp
             bm.characterManager.characterModel.target = target.GetComponent<Base_Character_Manager>();
             skillManager.currenttarget = null;
             Time.timeScale = 1f;
-            skillManager.SkillComplete( classSkill, skillManager.finalTargets, weaponSkill, player: player );
+            skillManager.SkillComplete( classSkill, skillManager.finalTargets, weaponSkill );
         }
 
         public bool skillcoolDownTask( SkillModel skill, Image image ){

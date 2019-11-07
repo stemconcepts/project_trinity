@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace AssemblyCSharp
 {
@@ -10,24 +11,27 @@ namespace AssemblyCSharp
     {
         public Base_Character_Manager baseManager;
         [Header("Character Model")]
-        public CharacterModel characterModel;
+        public Character_Model characterModel;
         [Header("Health Object:")]
         public GameObject healthBar;
         [Header("Action Object:")]
         public GameObject actionBar;
         [Header("Current Object:")]
         public GameObject currentPanel;
+    
+        void Awake(){
+            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            //characterModel = this.gameObject.GetComponent<Character_Model>();
+        }
+
         void Start()
         {   
-            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             if( this.currentPanel != null && this.characterModel != null ){
+                characterModel.healthBarText = healthBar.gameObject.transform.Find("healthdata").GetComponent<Text>();
                 characterModel.SetUp();
-                //characterModel.currentPanel = this.currentPanel;
                 baseManager.movementManager.currentPanel = this.currentPanel;
                 baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().isOccupied = true;
                 baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().currentOccupier = gameObject;
-                //characterModel.currentPanel.GetComponent<Panels_Manager>().SetStartingPanel( gameObject );                
-                //characterModel.origPosition = this.transform.position;
                 characterModel.target = GetTarget();
                 characterModel.sliderScript = healthBar.GetComponent<Slider>();
                 characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
@@ -40,8 +44,6 @@ namespace AssemblyCSharp
                 updateBarSize();
                 maintainHealthValue();
                 characterModel.attackedPos = baseManager.movementManager.posMarker.transform.position;
-                //characterModel.attackedPos.y = characterModel.posMarker.transform.position.y;
-                //characterModel.currentPosition = this.transform.position;
                 characterModel.currentRotation = this.transform.rotation;
                 if( characterModel.availableActionPoints ){
                     characterModel.availableActionPoints.text = characterModel.actionPoints.ToString();
@@ -67,7 +69,7 @@ namespace AssemblyCSharp
                 if ( !baseManager.animationManager.inAnimation ){
                     characterModel.isAlive = false;
                     characterModel.Health = 0;
-                    if( characterModel.deathStatus.singleStatus != null){
+                    if( characterModel.deathStatus != null){
                         var sM = new StatusModel(){
                             singleStatus = characterModel.deathStatus.singleStatus,
                             duration = 0f
@@ -100,8 +102,7 @@ namespace AssemblyCSharp
 
         public bool DoesAttributeExist( string attributeName ){
             if( !string.IsNullOrEmpty(attributeName) ){
-                Type charModel = Type.GetType("CharacterModel");
-                return charModel.GetField(attributeName) != null ? true : false;
+                return this.characterModel.GetType().GetField(attributeName) != null ? true : false;
             } else {
                 Game_Manager.logger.Log(attributeName, "No attribute given");
                 return false;
@@ -110,8 +111,7 @@ namespace AssemblyCSharp
 
         public float GetAttributeValue( string attributeName ){
             if( DoesAttributeExist(attributeName) ){
-                Type charModel = Type.GetType("CharacterModel");
-                var attributeValue = (float)charModel.GetField(attributeName).GetValue( this );
+                var attributeValue = (float)this.characterModel.GetType().GetField(attributeName).GetValue(this.characterModel);
                 return attributeValue;
             } 
             return 0;
@@ -119,15 +119,16 @@ namespace AssemblyCSharp
 
         public void SetAttribute( string attributeName, float value ){
             if( DoesAttributeExist(attributeName) ){
-                Type charModel = Type.GetType("CharacterModel");
-                charModel.GetField(attributeName).SetValue( this, value );
+                this.characterModel.GetType().GetField(attributeName).SetValue( this.characterModel, value );
             } 
         }
 
         public Base_Character_Manager GetTarget(){
-            var targetCount = this.tag == "Player" ? Battle_Manager.characterSelectManager.enemyCharacters.Count : Battle_Manager.characterSelectManager.friendlyCharacters.Count;
+            var enemyCharacters = Battle_Manager.GetCharacterManagers(false);
+            var friendlyCharacters = Battle_Manager.GetCharacterManagers(true);
+            var targetCount = this.tag == "Player" ? enemyCharacters.Count : friendlyCharacters.Count;
             var i = UnityEngine.Random.Range(0, targetCount);
-            return this.tag == "Player" ? Battle_Manager.characterSelectManager.enemyCharacters[i].GetComponent<Base_Character_Manager>() : Battle_Manager.characterSelectManager.friendlyCharacters[i].GetComponent<Base_Character_Manager>();
+            return this.tag == "Player" ? enemyCharacters[i].GetComponent<Base_Character_Manager>() : friendlyCharacters[i].GetComponent<Base_Character_Manager>();
         }
     }
 }

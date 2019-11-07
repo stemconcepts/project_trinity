@@ -8,8 +8,8 @@ namespace AssemblyCSharp
 {
     public class SkillData{
          public float modifier = 1f;
-         public List<GameObject> target;
-         public GameObject caster;
+         public List<Character_Manager> target;
+         public Character_Manager caster;
          public SkillModel skillModel;
     }
     
@@ -38,7 +38,7 @@ namespace AssemblyCSharp
         [ConditionalHide("enemySkill", true, true)]
     	public bool assigned;
     	public string displayName;
-    	public float attackMovementSpeed = 50f;
+    	public float attackMovementSpeed;
     	public string animationType;
     	public string animationCastingType;
     	public string animationRepeatCasting;
@@ -120,15 +120,20 @@ namespace AssemblyCSharp
     
     	//New Status System
     	[Header("Status Effects:")]
-    	public List<StatusModel> singleStatusGroup = new List<StatusModel>();
+    	public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
     	public bool statusDispellable = true;
     	[Header("Friendly Status Effects:")]
-    	public List<StatusModel> singleStatusGroupFriendly = new List<StatusModel>();
+    	public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
     	public bool statusFriendlyDispellable = true;
     		//attach status to target
-    	public void AttachStatus( List<StatusModel> singleStatusGroup, Status_Manager targetStatus, float power, SkillModel classSkill ){
+    	public void AttachStatus( List<SingleStatusModel> singleStatusGroup, Status_Manager targetStatus, float power, SkillModel skillModel ){
             for( int i = 0; i < singleStatusGroup.Count; i++ ){
-    			targetStatus.RunStatusFunction( singleStatusGroup[i] );
+                var sm = new StatusModel{
+                    singleStatus = singleStatusGroup[i],
+                    power = power,
+                    duration = skillModel.duration
+                };
+    			targetStatus.RunStatusFunction( sm );
     		}
     	}
     	public SkillModel onhitSkilltoRun;
@@ -162,7 +167,7 @@ namespace AssemblyCSharp
     	//removes x buffs from an enemy
     	public void Dispel( SkillData data ){
     		//target = skill_targetting.instance.currentTarget;
-    		List<GameObject> targets = data.target;
+    		List<Character_Manager> targets = data.target;
     		foreach (var target in targets) {
     			var targetStatus = target.GetComponent<Status_Manager>();
     			var targetSpawnUI = target.GetComponent<Battle_Details_Manager>();
@@ -188,9 +193,9 @@ namespace AssemblyCSharp
     	//Does extra damage based on status effect      
     	public void BonusDamage( SkillData data ){ 
     		data.modifier = 1f;
-    		List<GameObject> targets = data.target;
+    		List<Character_Manager> targets = data.target;
     		foreach (var target in targets) {
-    			var targetStatus = target.GetComponent<Status_Manager>();
+    			var targetStatus = target.baseManager.statusManager;
                 var statusList = targetStatus.GetAllStatusIfExist( false );
                 foreach( var status in statusList ){
                     if ( status.statusModel.subStatus == data.skillModel.subStatus ){
@@ -214,10 +219,10 @@ namespace AssemblyCSharp
                     creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
                     var newCreature = (GameObject)Instantiate( targetCreatures[i], creatureData.transform );
                     panel.GetComponent<Panels_Manager>().currentOccupier = newCreature;
-                    creatureData.transform.GetChild(1).GetChild(0).gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role + i.ToString() + "status";
-                    newCreature.gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role + i.ToString();
+                    creatureData.transform.GetChild(1).GetChild(0).gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role.ToString() + i.ToString() + "status";
+                    newCreature.gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role.ToString() + i.ToString();
                     newCreature.GetComponent<Character_Manager>().currentPanel = panel;
-                    newCreature.GetComponent<Character_Manager>().characterModel.role = newCreature.GetComponent<Character_Manager>().characterModel.role + i.ToString();
+                    newCreature.GetComponent<Character_Manager>().characterModel.role = Character_Model.RoleEnum.minion;
                     creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().SetDataObjects( i );
                     //panel.GetComponent<Panels_Manager>().Start();
                     newCreature.GetComponent<Animation_Manager>().skeletonAnimation.state.SetAnimation(0, "intro", false);

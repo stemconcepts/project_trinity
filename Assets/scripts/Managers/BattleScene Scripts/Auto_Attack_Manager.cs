@@ -20,7 +20,7 @@ namespace AssemblyCSharp
 
         public void RunAttackLoop(){  
                 var targetDmgManager = baseManager.characterManager.characterModel.target ? baseManager.characterManager.characterModel.target.damageManager : null; 
-                if( targetDmgManager != null && baseManager.characterManager.characterModel.isAlive && baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist( "stun" ) ){
+                if( targetDmgManager != null && baseManager.characterManager.characterModel.isAlive && baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist( "stun" ) && !baseManager.animationManager.inAnimation ){
                         isAttacking = true;
                         if ( !string.IsNullOrEmpty(AAanimation) && baseManager.animationManager.inAnimation == false ) 
                         {
@@ -30,8 +30,8 @@ namespace AssemblyCSharp
                             var dmgModel = new DamageModel(baseManager.characterManager.characterModel.target){ 
                                 //baseManager = baseManager,
                                 incomingDmg = baseManager.characterManager.characterModel.PAtk,
-                                dueDmgTargets = new List<GameObject>(){
-                                    baseManager.characterManager.characterModel.target.gameObject
+                                dueDmgTargets = new List<Character_Manager>(){
+                                    baseManager.characterManager.characterModel.target.characterManager
                                 }
                             };
                             baseManager.damageManager.currentTargetDmgModel = dmgModel;

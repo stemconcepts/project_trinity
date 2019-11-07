@@ -21,7 +21,7 @@ namespace AssemblyCSharp
         
         void OnMouseUp(){
             if( baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive ){
-                if( baseManager.characterManager.characterModel.role != "Enemy" ){
+                if( baseManager.characterManager.characterModel.characterType != Character_Model.CharacterTypeEnum.enemy ){
                     Battle_Manager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
                     DisplaySkills();
                 }

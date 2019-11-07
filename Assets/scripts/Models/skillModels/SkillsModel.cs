@@ -103,7 +103,7 @@ namespace AssemblyCSharp
         //removes x buffs from an enemy
         public void Dispel( SkillData data ){
             //target = skill_targetting.instance.currentTarget;
-            List<GameObject> targets = data.target;
+            List<Character_Manager> targets = data.target;
             foreach (var target in targets) {
                 var targetStatus = target.GetComponent<Status_Manager>();
                 var targetSpawnUI = target.GetComponent<Battle_Details_Manager>();
@@ -129,9 +129,9 @@ namespace AssemblyCSharp
         //Does extra damage based on status effect      
         public void BonusDamage( SkillData data ){ 
             data.modifier = 1f;
-            List<GameObject> targets = data.target;
+            List<Character_Manager> targets = data.target;
             foreach (var target in targets) {
-                var targetStatus = target.GetComponent<Status_Manager>();
+                var targetStatus = target.baseManager.statusManager;
                 var statusList = targetStatus.GetAllStatusIfExist( false );
                 foreach( var status in statusList ){
                     if ( status.statusModel.subStatus == data.skillModel.subStatus ){

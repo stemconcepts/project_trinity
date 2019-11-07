@@ -96,7 +96,7 @@ namespace AssemblyCSharp
             if (baseManager.statusManager.DoesStatusExist("onHit"))
             {
                 var onHitSkill = baseManager.statusManager.GetStatusIfExist("onHit");
-                if (baseManager.characterManager.characterModel.characterType == "enemy")
+                if (baseManager.characterManager.characterModel.characterType == Character_Model.CharacterTypeEnum.enemy)
                 {
                     //enemySkillScript.PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillEnemy );
                 }
@@ -108,7 +108,7 @@ namespace AssemblyCSharp
             var eventModel = new EventModel{
                 eventName = "OnTakingDmg",
                 extTarget = damageModel.dmgSource,
-                eventCaller = this.gameObject
+                eventCaller = baseManager.characterManager
             };
             Battle_Manager.eventManager.BuildEvent(eventModel);
         }
@@ -125,7 +125,7 @@ namespace AssemblyCSharp
                     var eventModel = new EventModel{
                         eventName = "OnDealingDmg",
                         extTarget = target,
-                        eventCaller = this.gameObject,
+                        eventCaller = baseManager.characterManager,
                         extraInfo = targetDamageManager.currentTargetDmgModel.damageTaken
                     };
                     Battle_Manager.eventManager.BuildEvent(eventModel);
@@ -148,7 +148,7 @@ namespace AssemblyCSharp
                 var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : 
                     damageModel.incomingDmg - defences;
                 damageModel.damageTaken = damageModel.trueDmg ? damageModel.incomingDmg : damageTaken;
-                damageModel.dmgSource = this.gameObject;
+                damageModel.dmgSource = baseManager.characterManager;
                 if (baseManager.statusManager.DoesStatusExist("damageImmune"))
                 {
                     battleDetailsManager.Immune(damageModel);

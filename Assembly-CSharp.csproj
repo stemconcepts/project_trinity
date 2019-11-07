@@ -99,6 +99,7 @@
      <Compile Include="Assets\images\ui\effects\particleSort.cs" />
      <Compile Include="Assets\scripts\effects controller\effectsController.cs" />
      <Compile Include="Assets\scripts\effects controller\globalEffectsController.cs" />
+     <Compile Include="Assets\scripts\Helpers\AssetFinder.cs" />
      <Compile Include="Assets\scripts\Helpers\CameraController.cs" />
      <Compile Include="Assets\scripts\Helpers\ConditionalHidePropertyDrawer.cs" />
      <Compile Include="Assets\scripts\Helpers\Floating_Combat_Text.cs" />
@@ -137,7 +138,7 @@
      <Compile Include="Assets\scripts\Managers\Inventory Manager.cs" />
      <Compile Include="Assets\scripts\Managers\Status_Manager.cs" />
      <Compile Include="Assets\scripts\Models\BasicModel.cs" />
-     <Compile Include="Assets\scripts\Models\characterModels\CharacterModel.cs" />
+     <Compile Include="Assets\scripts\Models\characterModels\Character_Model.cs" />
      <Compile Include="Assets\scripts\Models\damageModels\DamageModel.cs" />
      <Compile Include="Assets\scripts\Models\equipmentModels\baubles\bauble.cs" />
      <Compile Include="Assets\scripts\Models\equipmentModels\baubles\equipedBauble.cs" />
@@ -145,10 +146,9 @@
      <Compile Include="Assets\scripts\Models\eventModels\EffectOnEventModel.cs" />
      <Compile Include="Assets\scripts\Models\eventModels\EventModel.cs" />
      <Compile Include="Assets\scripts\Models\sceneModels\BattleModel.cs" />
-     <Compile Include="Assets\scripts\Models\skillModels\enemySkill.cs" />
+     <Compile Include="Assets\scripts\Models\skillModels\enemy skills\enemySkill.cs" />
      <Compile Include="Assets\scripts\Models\skillModels\SkillModel.cs" />
      <Compile Include="Assets\scripts\Models\skillModels\SkillsModel.cs" />
-     <Compile Include="Assets\scripts\Models\statusModels\SingleStatusModel1.cs" />
      <Compile Include="Assets\scripts\Models\statusModels\status\SingleStatusModel.cs" />
      <Compile Include="Assets\scripts\Models\statusModels\status\subStatus\subStatus.cs" />
      <Compile Include="Assets\scripts\Models\statusModels\StatusLabelModel.cs" />

@@ -37,12 +37,12 @@ namespace AssemblyCSharp
             }   
         }
     
-        public void callEffectTarget( GameObject target, GameObject fxObject, string position = "center"){
-            GameObject fxposition = target.transform.Find("FXpositions").transform.Find("FXcenter").gameObject;
+        public void callEffectTarget( Character_Manager target, GameObject fxObject, string position = "center"){
+            GameObject fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXcenter").gameObject;
             if( position == "bottom" ){
-                fxposition = target.transform.Find("FXpositions").transform.Find("FXfloor").gameObject;
+                fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfloor").gameObject;
             } else if ( position == "front" ){
-                fxposition = target.transform.Find("FXpositions").transform.Find("FXfront").gameObject;
+                fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfront").gameObject;
             }
             if( target.tag != "Player" ){
                 var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );

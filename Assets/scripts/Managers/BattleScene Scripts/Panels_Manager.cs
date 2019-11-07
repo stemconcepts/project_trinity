@@ -90,7 +90,7 @@ namespace AssemblyCSharp
             imageScript.color = counterZoneColor;
             isVoidZone = false;
             isVoidCounter = true;
-            if( isOccupied && currentOccupier.GetComponent<Character_Manager>().characterModel.role == "tank" ){
+            if( isOccupied && currentOccupier.GetComponent<Character_Manager>().characterModel.role.ToString() == "tank" ){
                 currentOccupier.GetComponent<Character_Manager>().characterModel.inVoidCounter = true;
             }
         }  

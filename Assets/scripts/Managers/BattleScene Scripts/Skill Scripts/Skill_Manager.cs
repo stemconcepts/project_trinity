@@ -8,10 +8,9 @@ namespace AssemblyCSharp
     {
         public Base_Character_Manager baseManager;
         private float multiplier;
-        public List<GameObject> finalTargets = new List<GameObject>();
+        public List<Character_Manager> finalTargets = new List<Character_Manager>();
         public bool isSkillactive;
-        //public spawnUI spawnUIscript;
-        public GameObject currenttarget;
+        public Character_Manager currenttarget;
         public bool usesWeapons;
         private SkillModel skillInWaiting;
         public enum weaponSlotEnum{
@@ -37,9 +36,13 @@ namespace AssemblyCSharp
         void Start()
         {
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
-            if( enemySkillList.Count > 0 ){
-                BeginSkillRotation( enemyPhase );
-            }
+            CalculateSkillPower();
+            CalculateMagicPower();
+            Battle_Manager.taskManager.CallTask( 5f, () => {
+                if( enemySkillList.Count > 0 ){
+                    BeginSkillRotation( enemyPhase );
+                }
+            });
         }
 
         public void PrepSkillNew( SkillModel skillModel, bool weaponSkill = true ){
@@ -70,25 +73,28 @@ namespace AssemblyCSharp
         }
         private void GetTargets( SkillModel skillModel, bool randomTarget = false, bool weaponSkill = true ){
             var player = this.gameObject;
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-            if( skillModel.self ){ finalTargets.Add( player ); }
-            if( skillModel.allEnemy ){ finalTargets.AddRange( enemies ); }
-            if( skillModel.allFriendly ){ finalTargets.AddRange( players ); }
+            //GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            var enemyPlayers = Battle_Manager.GetCharacterManagers(false);
+            var friendlyPlayers = Battle_Manager.GetCharacterManagers(true);
+            //GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            if( skillModel.self ){ finalTargets.Add( baseManager.characterManager ); }
+            if( skillModel.allEnemy ){ finalTargets.AddRange( enemyPlayers ); }
+            if( skillModel.allFriendly ){ finalTargets.AddRange( friendlyPlayers ); }
             if( skillModel.friendly || skillModel.enemy ){
                 Battle_Manager.taskManager.waitForTargetTask( skillModel, player, weaponSkill );
                 return;
             } else {
-                SkillComplete( skillModel, finalTargets, weaponSkill, player: player );
+                finalTargets.Capacity = finalTargets.Count;
+                SkillComplete( skillModel, finalTargets, weaponSkill );
                 return;
             }
         }
 
-        public void SkillComplete( SkillModel skillModel, List<GameObject> targets, bool weaponSkill = true, GameObject player = null ){
+        public void SkillComplete( SkillModel skillModel, List<Character_Manager> targets, bool weaponSkill = true ){
             var power = 0.0f;
             var eM = new EventModel(){
                 eventName = "OnSkillCast",
-                eventCaller = gameObject
+                eventCaller = baseManager.characterManager
             };
             Battle_Manager.eventManager.BuildEvent( eM );
             if( skillModel.isFlat ){ 
@@ -114,42 +120,43 @@ namespace AssemblyCSharp
             isSkillactive = false;
         }
 
-        private void DealHealDmg( SkillModel skillModel, List<GameObject> targets, float power ){
-            var bm = gameObject.GetComponent<Base_Character_Manager>();
-            bm.damageManager.charDamageModel.dueDmgTargets = targets;
+        private void DealHealDmg( SkillModel skillModel, List<Character_Manager> targets, float power ){
+            baseManager.damageManager.charDamageModel.dueDmgTargets = targets;
+            foreach (var status in skillModel.singleStatusGroup) {
+                status.dispellable = skillModel.statusDispellable;
+            };
             foreach (var target in targets) {
                 if ( skillModel.fxObject != null ){
-                    bm.effectsManager.callEffectTarget( target, skillModel.fxObject );
+                    baseManager.effectsManager.callEffectTarget( target, skillModel.fxObject );
                 }
-                if( target.tag == "Enemy" && bm.characterManager.characterModel.isAlive ){
-                    foreach (var status in skillModel.singleStatusGroup) {
-                        status.dispellable = skillModel.statusDispellable;
-                    };
-                    if( skillModel.doesDamage ){ 
+                if( skillModel.doesDamage ){ 
                         var dmgModel = new DamageModel(baseManager){
                             incomingDmg = power,
                             skillModel = skillModel,
-                            dmgSource = gameObject
+                            dmgSource = baseManager.characterManager
                         };
-                        bm.damageManager.calculatedamage( dmgModel ); 
-                    };
-                    skillModel.AttachStatus( skillModel.singleStatusGroup, target.GetComponent<Status_Manager>(), power, skillModel );
-                } else if( target.tag == "Player" && bm.characterManager.characterModel.isAlive ){ 
-                    foreach (var status in skillModel.singleStatusGroupFriendly) {
-                        status.dispellable = skillModel.statusFriendlyDispellable;
-                    }
-                    if( skillModel.healsDamage ){ 
+                        baseManager.damageManager.calculatedamage( dmgModel ); 
+                };
+                if( skillModel.healsDamage ){ 
                         var dmgModel = new DamageModel(baseManager){
                             incomingHeal = power,
                             skillModel = skillModel,
-                            dmgSource = gameObject
+                            dmgSource = baseManager.characterManager
                         };
-                        bm.damageManager.calculateHdamage( dmgModel ); 
-                    };
-                    skillModel.AttachStatus( skillModel.singleStatusGroupFriendly, target.GetComponent<Status_Manager>(), power, skillModel );
-                }
+                        baseManager.damageManager.calculateHdamage( dmgModel ); 
+                };
+                AddStatuses(target, power, skillModel);
             }
-            bm.characterManager.characterModel.actionPoints -= skillModel.skillCost;
+            baseManager.characterManager.characterModel.actionPoints -= skillModel.skillCost;
+        }
+
+        private void AddStatuses(Character_Manager target, float power, SkillModel skillModel){     
+            if(target.tag == gameObject.tag){
+                skillModel.AttachStatus( skillModel.singleStatusGroupFriendly, target.baseManager.statusManager, power, skillModel );
+            } else {
+                skillModel.AttachStatus( skillModel.singleStatusGroup, target.baseManager.statusManager, power, skillModel );
+            }
+                    
         }
 
         private void SetAnimations( SkillModel skillModel ){
@@ -159,7 +166,7 @@ namespace AssemblyCSharp
                 var animationDuration = baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationType, skillModel.loopAnimation).Animation.duration;
                 baseManager.animationManager.SetBusyAnimation(animationDuration);
                 if( skillModel.attackMovementSpeed > 0 ){
-                    baseManager.autoAttackManager.isAttacking = true;
+                    //baseManager.autoAttackManager.isAttacking = true;
                     baseManager.movementManager.movementSpeed = skillModel.attackMovementSpeed;
                 } else {
                     var idleAnim = baseManager.movementManager.idleAnim;
@@ -211,17 +218,21 @@ namespace AssemblyCSharp
             bossSkillList.Capacity = bossSkillList.Count;
             for( int x = 0; x < bossSkillList.Count; x++ ){
                 if( enemyPhase == EnemyPhase.phaseOne && bossSkillList[x].bossPhase == AssemblyCSharp.Skill_Manager.EnemyPhase.phaseOne && !bossSkillList[x].skillActive ){
-                    phaseSkillList.Add( bossSkillList[x] );
+                    phaseSkillList.Add( Object.Instantiate(bossSkillList[x]) as SkillModel );
                 } else
                 if( enemyPhase == EnemyPhase.phaseTwo && bossSkillList[x].bossPhase == AssemblyCSharp.Skill_Manager.EnemyPhase.phaseTwo && !bossSkillList[x].skillActive  ){
-                    phaseSkillList.Add( bossSkillList[x] );
+                    phaseSkillList.Add( Object.Instantiate(bossSkillList[x]) as SkillModel );
                 } else
                 if( enemyPhase == EnemyPhase.phaseThree && bossSkillList[x].bossPhase == AssemblyCSharp.Skill_Manager.EnemyPhase.phaseThree && !bossSkillList[x].skillActive  ){
-                    phaseSkillList.Add( bossSkillList[x] );
+                    phaseSkillList.Add( Object.Instantiate(bossSkillList[x]) as SkillModel );
                 }
             }
             if( phaseSkillList.Count == 0 ){
                 return null;
+            }
+            if( phaseSkillList.Count > 0 ){
+                phaseSkillList.ForEach( o => o.newSP = o.skillPower * baseManager.characterManager.characterModel.PAtk );
+                phaseSkillList.ForEach( o => o.newMP = o.magicPower * baseManager.characterManager.characterModel.MAtk );
             }
             var randomNumber = Random.Range(0, (phaseSkillList.Count));
             var returnedSkill = phaseSkillList[randomNumber];
@@ -229,16 +240,7 @@ namespace AssemblyCSharp
         }
             
         public void BeginSkillRotation( EnemyPhase phase ){
-            //var boss = GameObject.FindGameObjectWithTag("Boss");
-            var bossSkillList = enemySkillList;
-            var randomSkill = SkillToRun( bossSkillList );
-            if( !true ){
-                Battle_Manager.taskManager.CallTask( 5f, () => {
-                    BeginSkillRotation( phase );
-                });
-                return;
-            }
-                    //print( randomNumber );
+            var randomSkill = SkillToRun( enemySkillList );
             if( !isSkillactive && !baseManager.statusManager.DoesStatusExist( "stun" ) && !baseManager.autoAttackManager.isAttacking && enemyPhase == EnemyPhase.phaseOne && randomSkill != null ){
                     if( !isSkillactive && randomSkill.bossPhase == EnemyPhase.phaseOne ){
                         PrepSkillNew( randomSkill, false );

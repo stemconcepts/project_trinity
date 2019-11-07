@@ -10,7 +10,7 @@ namespace AssemblyCSharp
         public Base_Character_Manager baseManager; 
         public SkillModel onHitSkill; 
         public float duration;
-        public float power {get; set;}
+        public float power;
         public bool dispellable;
         public bool turnOff;
         public bool regenOn;

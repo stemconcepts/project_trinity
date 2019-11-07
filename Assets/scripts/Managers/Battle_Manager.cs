@@ -19,6 +19,7 @@ namespace AssemblyCSharp
         public static Character_Select_Manager characterSelectManager;
         public static List<Character_Manager> friendlyCharacters = new List<Character_Manager>();
         public static List<Character_Manager> enemyCharacters = new List<Character_Manager>();
+        public static AssetFinder assetFinder;
 
         /*void SetUp()
         {
@@ -34,12 +35,19 @@ namespace AssemblyCSharp
             eventManager = gameManager.EventManager;
         }*/
 
-        void Start()
-        {
+        void Awake(){
             gameManager = gameObject.GetComponent<Game_Manager>();
             battleDetailsManager = gameManager.battleDetailsManager;
             taskManager = gameManager.TaskManager;
             characterSelectManager = gameManager.characterSelectManager;
+            soundManager = gameManager.SoundManager;
+            gameEffectManager = gameManager.GameEffectsManager;
+            eventManager = gameManager.EventManager;
+            assetFinder = gameManager.AssetFinder;
+        }
+
+        void Start()
+        {
             taskManager.battleDetailsManager = battleDetailsManager;
             GameObject[] bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
             friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
@@ -48,9 +56,6 @@ namespace AssemblyCSharp
             enemyCharacters.Capacity = enemyCharacters.Count;
             battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
-            soundManager = gameManager.SoundManager;
-            gameEffectManager = gameManager.GameEffectsManager;
-            eventManager = gameManager.EventManager;
         }
 
         /*public Battle_Manager( Game_Manager gm )
@@ -106,6 +111,10 @@ namespace AssemblyCSharp
                 }
             }
         }*/
+
+        public static List<Character_Manager> GetCharacterManagers( Boolean friendly ){
+            return !friendly ? characterSelectManager.enemyCharacters : characterSelectManager.friendlyCharacters;
+        }
 
         public void LoadSkillDisplay(){
             

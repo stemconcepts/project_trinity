@@ -26,16 +26,19 @@ namespace AssemblyCSharp
 
         void Awake()
         {
+            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            enemyCharacters.Capacity = enemyCharacters.Count;
+            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            friendlyCharacters.Capacity = friendlyCharacters.Count;
+        }
+
+        void Start(){
             guardianObject = GameObject.Find("Guardian");
             walkerObject = GameObject.Find("Walker");
             stalkerObject = GameObject.Find("Stalker");
             classStates.Add( new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false ) );
             classStates.Add( new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false ) );
             classStates.Add( new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true ) );
-            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
-            enemyCharacters.Capacity = enemyCharacters.Count;
-            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
-            friendlyCharacters.Capacity = friendlyCharacters.Count;
         }
 
         public List<Character_Manager> GetCharacterManagers( List<GameObject> go){

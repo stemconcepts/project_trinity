@@ -7,19 +7,22 @@ namespace AssemblyCSharp
     public class Status_Manager : MonoBehaviour
     {
         public Base_Character_Manager baseManager;
-        public Battle_Details_Manager battleDetailsManager { get; set; }
-        public Button_Click_Manager buttonClickManager { get; set; }
-        public GameObject statusHolderObject { get; set; }
+        public Battle_Details_Manager battleDetailsManager;
+        public GameObject statusHolderObject;
         [Header("Immunity List:")]
         public List<SingleStatusModel> immunityList = new List<SingleStatusModel>();
         [Header("Status List:")]
         public List<SingleStatusModel> singleStatusList = new List<SingleStatusModel>();
+
+        void Awake(){
+            battleDetailsManager = Battle_Manager.battleDetailsManager;
+        }
+
         void Start()
         {
+            var x = Battle_Manager.assetFinder.GetAllStatuses();
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
-            battleDetailsManager = Battle_Manager.battleDetailsManager;
-            buttonClickManager = this.gameObject.GetComponent<Button_Click_Manager>();
-            statusHolderObject = GameObject.Find( baseManager.characterManager.characterModel.role + "status" );
+            statusHolderObject = GameObject.Find( baseManager.characterManager.characterModel.role.ToString() + "status" );
         }
 
         public void AttributeChange( StatusModel statusModel ){
@@ -33,7 +36,7 @@ namespace AssemblyCSharp
             }
             float newStat;
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
-                battleDetailsManager.ShowLabel( statusModel );
+                battleDetailsManager.ShowLabel( statusModel, statusHolderObject );
                 if ( statusModel.singleStatus.buff ){
                     newStat = statusModel.singleStatus.attributeName != "ATKspd" ? currentStat + buffedStat : currentStat - buffedStat;
                 } else {
@@ -41,17 +44,17 @@ namespace AssemblyCSharp
                 } 
     
                 //set New stat to character
-                GetComponent<Character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, newStat);
+                baseManager.characterManager.SetAttribute( statusModel.singleStatus.attributeName, newStat);
 
                 //Remove status 
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
-                    GetComponent<Character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
+                    baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat);
                 });      
             } else 
             if( statusModel.turnOff ){
                 ForceStatusOff(statusModel.singleStatus, ()=> {
-                    GetComponent<Character_Manager>().SetAttribute( statusModel.singleStatus.attributeName, originalStat);
+                    baseManager.characterManager.SetAttribute( statusModel.singleStatus.attributeName, originalStat);
                 });
             }
         }
@@ -63,7 +66,7 @@ namespace AssemblyCSharp
             var originalStat = GetComponent<Character_Manager>().GetAttributeValue("original" + statusModel.singleStatus.attributeName);
             if (!statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName))
             {
-                battleDetailsManager.ShowLabel(statusModel);
+                battleDetailsManager.ShowLabel(statusModel, statusHolderObject);
                 if (statusModel.singleStatus.attributeName != null)
                 {
                     GetComponent<Character_Manager>().SetAttribute(attributeName, statusModel.power);
@@ -88,7 +91,7 @@ namespace AssemblyCSharp
             {
                 if (!DoesStatusExist(statusModel.singleStatus.statusName))
                 {
-                    battleDetailsManager.ShowLabel(statusModel);
+                    battleDetailsManager.ShowLabel(statusModel, statusHolderObject);
                     statusLabel.tickTimer = Battle_Manager.taskManager.CallChangePointsTask(statusModel);
                 }
                 else
@@ -219,7 +222,7 @@ namespace AssemblyCSharp
 
         public void StatusOn( StatusModel statusModel ){
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) && !CheckImmunity( statusModel.singleStatus.attributeName ) ){ 
-                battleDetailsManager.ShowLabel( statusModel );
+                battleDetailsManager.ShowLabel( statusModel, statusHolderObject );
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
                     ForceStatusOff( statusModel.singleStatus );
@@ -239,7 +242,7 @@ namespace AssemblyCSharp
         //Tumor set Timer then do damage
         public void Tumor( StatusModel statusModel ){
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
-                battleDetailsManager.ShowLabel( statusModel );
+                battleDetailsManager.ShowLabel( statusModel, statusHolderObject );
                 if( statusModel.singleStatus.hitAnim != "" ){
                     baseManager.animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
                 }
@@ -264,7 +267,7 @@ namespace AssemblyCSharp
 
         public void OnTakeDmg( StatusModel statusModel ){
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
-                battleDetailsManager.ShowLabel( statusModel );
+                battleDetailsManager.ShowLabel( statusModel, statusHolderObject );
                 var attrValue = baseManager.characterManager.GetAttributeValue( statusModel.singleStatus.attributeName );
                 var effect = ScriptableObject.CreateInstance<EffectOnEventModel>();
                 effect.power = attrValue * 0.25f;
