@@ -10,6 +10,7 @@ namespace AssemblyCSharp
         public Floating_Combat_Text()
         {
         }
+        //private bool modifiedDamage;
         private float currentPositionX;
         private float currentPositionY;
         public string skillLabel;
@@ -41,12 +42,14 @@ namespace AssemblyCSharp
             //fixedData = damageData;
             if( isDmg ){
                 //displayText.text = skillLabel + ": -" + damageData.ToString();
-                displayText.text = extraInfo == "" ? damageData.ToString() : damageData.ToString() + extraInfo;
+                displayText.text = string.IsNullOrEmpty(extraInfo) ? damageData.ToString() : damageData.ToString() + extraInfo;
+                //displayText.text += (modifiedDamage ? "*" : "");
             } else 
             if ( isAbsorb ) {
                 //displayText.text = skillLabel + ":" + absorbData.ToString();
-                displayText.text = absorbData.ToString();
+                displayText.text = string.IsNullOrEmpty(extraInfo) ? absorbData.ToString() : absorbData.ToString() + extraInfo; ;
                 displayText.color = Color.blue;
+                //displayText.text += (modifiedDamage ? "*" : "");
             } else 
             if ( isImmune ) {
                     //displayText.text = skillLabel + ": Immune";
@@ -56,6 +59,7 @@ namespace AssemblyCSharp
                 //displayText.text = "+" + healData.ToString();
                 displayText.text = healData.ToString();
                 displayText.color = Color.green;
+                //displayText.text += (modifiedDamage ? "*" : "");
             }
         }
     

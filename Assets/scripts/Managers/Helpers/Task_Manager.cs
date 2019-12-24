@@ -11,7 +11,7 @@ namespace AssemblyCSharp
     {
         //public Base_Character_Manager baseManager;
         public Battle_Details_Manager battleDetailsManager;
-        public Dictionary<string, Task> tasks = new Dictionary<string, Task>();
+        public Dictionary<string, Task> taskList = new Dictionary<string, Task>();
         void Start()
         {
             //baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
@@ -21,9 +21,13 @@ namespace AssemblyCSharp
             battleDetailsManager = bdm;
         }*/
 
-        public void CallTask(float waitTime, System.Action action = null)
+        public void CallTask(float waitTime, System.Action action = null, string taskName = null)
         {
             var myTask = new Task(CountDown(waitTime, action));
+            if (!string.IsNullOrEmpty(taskName) && !taskList.ContainsKey(taskName))
+            {
+                taskList.Add(taskName, myTask);
+            }
         }
         IEnumerator CountDown(float waitTime, System.Action action = null)
         {
@@ -54,33 +58,39 @@ namespace AssemblyCSharp
         public Task CallChangePointsTask(StatusModel statusModel, System.Action action = null)
         {
             if( statusModel.singleStatus.canStack ){
-                statusModel.power = statusModel.power * statusModel.stacks;
+                statusModel.power = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
             }
             var myTask = new Task(ChangePoints(statusModel, action));
             return myTask;
         }
         IEnumerator ChangePoints(StatusModel statusModel, System.Action action = null)
         {
-            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.stat);
-            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.stat);
-            var damageManager = statusModel.baseManager.characterManager.gameObject.GetComponent<Damage_Manager>();
+            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName);
+            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName);
+            var damageManager = statusModel.baseManager.damageManager;
             while (currentStat <= maxStat && currentStat > 0)
             {
-                if (statusModel.regenOn)
+                if (statusModel.singleStatus.statusName == "regen")
                 {
                     //statusModel.characterManager.characterModel.incomingHeal = statusModel.power;
-                    var damageModel = new DamageModel(statusModel.baseManager){
+                    var damageModel = new DamageModel(){
+                        baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.statusName,
-                        incomingHeal = statusModel.power
+                        incomingHeal = statusModel.power,
+                        damageImmidiately = true
                     };
                     damageManager.calculateHdamage(damageModel);
                 }
                 else
                 {
                     //damageManager.charDamageModel.incomingDmg = statusModel.power;
-                    var damageModel = new DamageModel(statusModel.baseManager){
+                    var damageModel = new DamageModel(){
+                        baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.statusName,
-                        incomingDmg = statusModel.power
+                        incomingDmg = statusModel.power,
+                        damageImmidiately = true,
+                        //useResistances = statusModel.singleStatus.element != elementType.none,
+                        element = statusModel.singleStatus.element
                     };
                     damageManager.calculatedamage(damageModel);
                 }
@@ -92,10 +102,14 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool CallDurationTask(float duration, StatusLabelModel statusLabel, System.Action action = null)
+        public Task CallDurationTask(float duration, StatusLabelModel statusLabel, string taskName = null, System.Action action = null)
         {
             var myTask = new Task(DurationTimer(duration, statusLabel, action));
-            return true;
+            if (!string.IsNullOrEmpty(taskName) && !taskList.ContainsKey(taskName))
+            {
+                taskList.Add(taskName, myTask);
+            }
+            return myTask;
         }
         IEnumerator DurationTimer(float duration, StatusLabelModel statusLabel, System.Action statusAction = null)
         {
@@ -119,27 +133,34 @@ namespace AssemblyCSharp
             Time.timeScale = 1f;
         }
 
-        public void MoveForwardTask(Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject dashEffect)
+        public void MoveForwardTask(Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject effect)
         {
-            var myTask = new Task(moveForward( movingObjectScripts, targetpos, dashEffect, movementSpeed));
+            var myTask = new Task(moveForward( movingObjectScripts, targetpos, effect, movementSpeed));
         }
-        IEnumerator moveForward( Base_Character_Manager movingObjectScripts, Vector2 targetPosVar, GameObject dashEffect, float movementSpeedVar ){
-            movingObjectScripts.effectsManager.CallEffect( dashEffect, "bottom" );
-            while( (Vector2)movingObjectScripts.gameObject.transform.position != targetPosVar && movingObjectScripts.autoAttackManager.isAttacking ){
+        IEnumerator moveForward( Base_Character_Manager movingObjectScripts, Vector2 targetPosVar, GameObject effect, float movementSpeedVar ){
+            if (effect)
+            {
+                movingObjectScripts.effectsManager.CallEffect(effect, "bottom");
+            }
+            while( (Vector2)movingObjectScripts.gameObject.transform.position != targetPosVar && (movingObjectScripts.autoAttackManager.isAttacking || movingObjectScripts.skillManager.isSkillactive) )
+            {
                 float step = movementSpeedVar * Time.deltaTime;
                 movingObjectScripts.gameObject.transform.position = Vector2.MoveTowards(movingObjectScripts.gameObject.transform.position, targetPosVar, step);
                 yield return null;
             }
         }
 
-        public bool StartMoveTask( Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, Vector2 currentPosition, GameObject dashEffect = null, System.Action action = null)
+        public void StartMoveTask( Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject dashEffect = null, System.Action action = null)
         {
-            var myTask = new Task(StartMove( movingObjectScripts, 0.009f, targetpos, dashEffect, movementSpeed, currentPosition));
-            return true;
+            var myTask = new Task(StartMove( movingObjectScripts, 0.009f, targetpos, dashEffect, movementSpeed));
         }
-        public IEnumerator StartMove( Base_Character_Manager movingObjectScripts, float waitTime, Vector2 panelPosVar, GameObject dashEffect, float movementSpeedVar, Vector2 currentPosition ){
-            movingObjectScripts.effectsManager.CallEffect( dashEffect, "bottom" );
-            while( currentPosition != panelPosVar ){
+        public IEnumerator StartMove( Base_Character_Manager movingObjectScripts, float waitTime, Vector2 panelPosVar, GameObject dashEffect, float movementSpeedVar ){
+            if (dashEffect != null)
+            {
+                movingObjectScripts.effectsManager.CallEffect(dashEffect, "bottom");
+            }
+            while((Vector2)movingObjectScripts.gameObject.transform.position != panelPosVar && movingObjectScripts.autoAttackManager.isAttacking)
+            {
                 float step = movementSpeedVar * Time.deltaTime;
                 movingObjectScripts.transform.position = Vector2.MoveTowards(transform.position, panelPosVar, step);
                 yield return null;
@@ -158,30 +179,40 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool waitForTargetTask( SkillModel classskill, GameObject character, bool weaponSkill = true ){
-            var myTask = new Task(waitForTarget( classskill, character, weaponSkill ));
-            tasks.Add("waitForTarget", myTask);
+        public bool waitForTargetTask( GameObject character, SkillModel classSkill = null, bool weaponSkill = true, System.Action skillAction = null)
+        {
+            Battle_Manager.waitingForSkillTarget = true;
+            Battle_Manager.offensiveSkill = classSkill.enemy;
+            var myTask = new Task(waitForTarget( classSkill, character, weaponSkill, skillAction));
+            if (!taskList.ContainsKey("waitForTarget"))
+            {
+                taskList.Add("waitForTarget", myTask);
+            }
             return true;
         }
-        public IEnumerator waitForTarget( SkillModel classSkill, GameObject player, bool weaponSkill = true )
+        public IEnumerator waitForTarget( SkillModel classSkill, GameObject player, bool weaponSkill = true, System.Action skillAction = null)
         {
-            //waitingForSelection = true;
             Battle_Manager.gameEffectManager.SlowMo(0.01f);
-            var target = player.GetComponent<Skill_Manager>().currenttarget;
             var bm = player.GetComponent<Base_Character_Manager>();
-            var skillManager = player.GetComponent<Skill_Manager>();
+            var target = bm.skillManager.currenttarget;
             while( target == null ) {
                 if( bm.statusManager.DoesStatusExist("stun") ){
-                    skillManager.SkillActiveSet( classSkill, false, skillCancel:true );
+                    bm.skillManager.SkillActiveSet( classSkill, false, skillCancel:true );
                     yield break;
                 }
+                target = player.GetComponent<Skill_Manager>().currenttarget;
                 yield return 0;
-            } 
-            skillManager.finalTargets.Add( target );
-            bm.characterManager.characterModel.target = target.GetComponent<Base_Character_Manager>();
-            skillManager.currenttarget = null;
+            }
+            Battle_Manager.waitingForSkillTarget = false;
+            bm.skillManager.finalTargets.Add( target );
+            //bm.characterManager.characterModel.target = target.GetComponent<Base_Character_Manager>();
+            //bm.skillManager.currenttarget = null;
+            if (skillAction != null)
+            {
+                skillAction();
+            }
             Time.timeScale = 1f;
-            skillManager.SkillComplete( classSkill, skillManager.finalTargets, weaponSkill );
+            //bm.skillManager.SkillComplete(bm.skillManager.finalTargets, skillModel : classSkill, weaponSkill : weaponSkill);
         }
 
         public bool skillcoolDownTask( SkillModel skill, Image image ){
@@ -193,9 +224,10 @@ namespace AssemblyCSharp
             CallTask( skill.skillCooldown, () => {
                 skill.skillActive = false;
             });
-
-            tasks.Add("skillcoolDownDisplay", myTask);
-            //tasks.Add("skillcoolDown", myTask2);
+            if (!taskList.ContainsKey("skillcoolDownDisplay_" + skill.skillName))
+            {
+                taskList.Add("skillcoolDownDisplay_" + skill.skillName, myTask);
+            }
             return true;
         }
         IEnumerator skillcoolDownDisplay( SkillModel skill, Image image ){
@@ -205,7 +237,45 @@ namespace AssemblyCSharp
                 skill.currentCDAmount += 1f;
                 float timeSpent;
                 timeSpent = 1f/skill.skillCooldown;
-                image.fillAmount -= timeSpent;
+                Battle_Manager.battleInterfaceManager.ForEach((o =>
+                    {
+                        if (o.skill == skill)
+                        {
+                            image.fillAmount -= timeSpent;
+                        }
+                    }
+                ));
+            }
+            skill.currentCDAmount = 0f;
+        }
+
+        public bool skillcoolDownTask(enemySkill skill, Image image)
+        {
+            var myTask = new Task(skillcoolDownDisplay(skill, image));
+            /*var myTask2 = new Task(CallTask( skill.skillCooldown, () => {
+                skill.skillActive = false;
+            }));*/
+
+            CallTask(skill.skillCooldown, () => {
+                skill.skillActive = false;
+            });
+
+            if (!taskList.ContainsKey("skillcoolDownDisplay_" + skill.skillName))
+            {
+                taskList.Add("skillcoolDownDisplay_" + skill.skillName, myTask);
+            }
+            return true;
+        }
+        IEnumerator skillcoolDownDisplay(enemySkill skill, Image image)
+        {
+            image.fillAmount = 1f;
+            while (skill.skillActive)
+            {
+                yield return new WaitForSeconds(1f);
+                skill.currentCDAmount += 1f;
+                //float timeSpent;
+                //timeSpent = 1f / skill.skillCooldown;
+                //image.fillAmount -= timeSpent;
             }
             skill.currentCDAmount = 0f;
         }

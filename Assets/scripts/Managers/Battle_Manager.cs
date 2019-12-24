@@ -11,6 +11,7 @@ namespace AssemblyCSharp
         BattleModel battleModel;
         public static Event_Manager eventManager;
         public Game_Manager gameManager;
+        public static List<Panels_Manager> allPanelManagers;
         public static Sound_Manager soundManager;
         public static Game_Effects_Manager gameEffectManager;
         public static Task_Manager taskManager;
@@ -20,20 +21,9 @@ namespace AssemblyCSharp
         public static List<Character_Manager> friendlyCharacters = new List<Character_Manager>();
         public static List<Character_Manager> enemyCharacters = new List<Character_Manager>();
         public static AssetFinder assetFinder;
-
-        /*void SetUp()
-        {
-            GameObject[] bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
-            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
-            friendlyCharacters.Capacity = friendlyCharacters.Count;
-            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
-            enemyCharacters.Capacity = enemyCharacters.Count;
-            battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
-            battleInterfaceManager.Capacity = battleInterfaceManager.Count;
-            soundManager = gameManager.SoundManager;
-            gameEffectManager = gameManager.GameEffectsManager;
-            eventManager = gameManager.EventManager;
-        }*/
+        public static bool waitingForSkillTarget;
+        public static bool offensiveSkill;
+        public static bool battleStarted;
 
         void Awake(){
             gameManager = gameObject.GetComponent<Game_Manager>();
@@ -48,25 +38,17 @@ namespace AssemblyCSharp
 
         void Start()
         {
+            allPanelManagers = GameObject.FindGameObjectsWithTag("movementPanels").Select(o => o.GetComponent<Panels_Manager>()).ToList();
             taskManager.battleDetailsManager = battleDetailsManager;
-            GameObject[] bi = GameObject.FindGameObjectsWithTag("skillDisplayControl");
+            var bi = GameObject.FindGameObjectsWithTag("skillDisplayControl").ToList();
             friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
             friendlyCharacters.Capacity = friendlyCharacters.Count;
             enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
             enemyCharacters.Capacity = enemyCharacters.Count;
             battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
+            //bi.ForEach(o => o.GetComponent<Battle_Interface_Manager>().SkillSet(friendlyCharacters[0].baseManager.skillManager));
         }
-
-        /*public Battle_Manager( Game_Manager gm )
-        {
-            gameManager = gm;
-            battleDetailsManager = gm.battleDetailsManager;
-            taskManager = gm.TaskManager;
-            characterSelectManager = gm.characterSelectManager;
-            taskManager.battleDetailsManager = battleDetailsManager;
-            SetUp();
-        }*/
     
         public static List<Battle_Interface_Manager> GetBattleInterfaces(){
             return battleInterfaceManager;
@@ -120,8 +102,44 @@ namespace AssemblyCSharp
             
         }
 
+        public static void ClearAllVoidZones()
+        {
+            foreach (var panel in allPanelManagers)
+            {
+                panel.ClearVoidZone();
+            }
+        }
+
+        public static void HitBoxControl(bool hitBoxSwitch, Character_Model.RoleEnum role = Character_Model.RoleEnum.none)
+        {
+            if (role == Character_Model.RoleEnum.none)
+            {
+                foreach (Character_Manager character in Battle_Manager.friendlyCharacters)
+                {
+                    character.gameObject.GetComponent<BoxCollider2D>().enabled = hitBoxSwitch;
+                }
+            }
+            else
+            {
+                foreach (Character_Manager character in Battle_Manager.friendlyCharacters)
+                {
+                    if (character.characterModel.role == role)
+                    {
+                        character.GetComponent<BoxCollider2D>().enabled = hitBoxSwitch;
+                    }
+                }
+            }
+        }
+
+        public static bool IsTankInThreatZone()
+        {
+            return characterSelectManager.guardianObject.GetComponent<Base_Character_Manager>().characterManager.characterModel.inThreatZone;
+        }
+
         public void StartBattle( float waitTime){
+
             taskManager.CallTask( waitTime, () => {
+                Battle_Manager.battleStarted = true;
                 friendlyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
                 enemyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
             });

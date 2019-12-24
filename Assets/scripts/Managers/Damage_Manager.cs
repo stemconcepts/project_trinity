@@ -1,35 +1,35 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
     public class Damage_Manager : MonoBehaviour
     {
         public Base_Character_Manager baseManager;
-        public DamageModel charDamageModel;
-        public DamageModel currentTargetDmgModel;
+        public Dictionary<string,DamageModel> skillDmgModels = new Dictionary<string, DamageModel>();
+        public Dictionary<string, DamageModel> autoAttackDmgModels = new Dictionary<string, DamageModel>();
         public GameObject hitFX;
+        //public string hitAnimation;
+        //public string hitIdleAnimation;
         public Battle_Details_Manager battleDetailsManager;
         //public Character_Manager characterManager {get; set;}
         void Start(){
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             battleDetailsManager = Battle_Manager.battleDetailsManager;
-            if( baseManager.animationManager.skeletonAnimation ){
-                baseManager.animationManager.skeletonAnimation.state.Event += OnEventHit;
-            }
         }
 
         public void TakeDmg(DamageModel damageModel, string eventName)
         {
             GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : hitFX;
-            Battle_Manager.gameEffectManager.ScreenShake(1f);
-            if (gameObject.tag == "Player" && eventName == "hit")
+            Battle_Manager.gameEffectManager.ScreenShake(1f, 2);
+            if (damageModel.hitEffectPositionScript != null && gameObject.tag == "Player" && eventName == "hit")
             {
                 damageModel.effectObject = (GameObject)Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
                     damageModel.hitEffectPositionScript.transform.position.y), new Quaternion(0, 180, 0, 0));
             }
-            else if (eventName == "hit")
+            else if (damageModel.hitEffectPositionScript != null && eventName == "hit")
             {
                 damageModel.effectObject = (GameObject)Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
                     damageModel.hitEffectPositionScript.transform.position.y), damageModel.hitEffectPositionScript.transform.rotation);
@@ -64,17 +64,17 @@ namespace AssemblyCSharp
 
             if ( baseManager.animationManager.inAnimation == false && baseManager.autoAttackManager.isAttacking == false)
             {
-                if (!string.IsNullOrEmpty(damageModel.hitAnimation))
+                if (!string.IsNullOrEmpty(baseManager.animationManager.hitAnimation))
                 {
-                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, damageModel.hitAnimation, false);
-                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, damageModel.holdAnimation, true, 0);
-                    baseManager.animationManager.inAnimation = true;
+                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hitAnimation, false);
+                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
+                    //baseManager.animationManager.inAnimation = true;
                 }
-                else
+                /*else
                 {
-                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, damageModel.hitAnimNormal, false);
-                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnim, true, 0);
-                }
+                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hitAnimation, false);
+                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
+                }*/
             }
             //if tumor on player
             if (baseManager.statusManager.DoesStatusExist("tumor") && damageModel.dmgSource != null)
@@ -85,11 +85,14 @@ namespace AssemblyCSharp
             //if thorns on player
             if (baseManager.statusManager.DoesStatusExist("thorns") && damageModel.dmgSource != null)
             {
-                var sourceCalDmg = damageModel.dmgSource.GetComponent<Damage_Manager>();
-                var dmgModel = new DamageModel(baseManager){
-                            incomingDmg = baseManager.characterManager.characterModel.thornsDmg
+                var sourceCalDmg = damageModel.dmgSource.baseManager.damageManager;
+                var thornsDmgModel = new DamageModel(){
+                            baseManager = damageModel.dmgSource.baseManager,
+                            incomingDmg = baseManager.characterManager.characterModel.thornsDmg,
+                            damageImmidiately = true,
+                            element = elementType.trueDmg
                         };
-                sourceCalDmg.calculatedamage(damageModel);
+                sourceCalDmg.calculatedamage(thornsDmgModel);
             }
 
             //if On hit
@@ -113,57 +116,38 @@ namespace AssemblyCSharp
             Battle_Manager.eventManager.BuildEvent(eventModel);
         }
 
-        public void OnEventHit(Spine.TrackEntry state, Spine.Event e)
-        {
-            if (e.Data.name == "hit" || e.Data.name == "SFXhit")
-            {
-                foreach (var target in currentTargetDmgModel.dueDmgTargets)
-                {
-                    var targetDamageManager = target.GetComponent<Base_Character_Manager>().damageManager;
-                    //var dM = new DamageModel();
-                    targetDamageManager.TakeDmg(currentTargetDmgModel, e.Data.name);
-                    var eventModel = new EventModel{
-                        eventName = "OnDealingDmg",
-                        extTarget = target,
-                        eventCaller = baseManager.characterManager,
-                        extraInfo = targetDamageManager.currentTargetDmgModel.damageTaken
-                    };
-                    Battle_Manager.eventManager.BuildEvent(eventModel);
-                }
-            }
-        }
-
         public void calculatedamage(DamageModel damageModel)
         {
-            var skillSource = "";
             if (damageModel.skillModel != null)
             {
                 damageModel.skillSource = damageModel.skillModel != null ? damageModel.skillModel.skillName : damageModel.skillSource;
+            } else if (damageModel.enemySkillModel != null)
+            {
+                damageModel.skillSource = damageModel.enemySkillModel != null ? damageModel.enemySkillModel.skillName : damageModel.skillSource;
             }
 
-            if (damageModel.baseManager != null)
+            if (baseManager != null)
             {
-                var defences = damageModel.isMagicDmg ? damageModel.baseManager.characterManager.characterModel.MDef : 
-                    damageModel.baseManager.characterManager.characterModel.PDef;
-                var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : 
-                    damageModel.incomingDmg - defences;
-                damageModel.damageTaken = damageModel.trueDmg ? damageModel.incomingDmg : damageTaken;
-                damageModel.dmgSource = baseManager.characterManager;
+                var defences = damageModel.isMagicDmg ? baseManager.characterManager.characterModel.MDef : baseManager.characterManager.characterModel.PDef;
+                var resistance = damageModel.element != elementType.none ? baseManager.characterManager.GetResistanceValue(damageModel.element.ToString()) : 0;
+                var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : damageModel.incomingDmg - defences;
+                var elementDamageTaken = (damageModel.incomingDmg - resistance) < 0 ? 0 : damageModel.incomingDmg - resistance;
+                damageModel.damageTaken = damageModel.element != elementType.none ? elementDamageTaken : damageTaken;
                 if (baseManager.statusManager.DoesStatusExist("damageImmune"))
                 {
                     battleDetailsManager.Immune(damageModel);
                 }
                 else
                 {
-                    if (baseManager.animationManager.skeletonAnimation == null)
+                    if (baseManager.animationManager.skeletonAnimation == null || damageModel.damageImmidiately)
                     {
-                        baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageTaken;
+                        baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
 
                         //if tumor on player
                         if (baseManager.statusManager.DoesStatusExist("tumor"))
                         {
                             var tumor = baseManager.statusManager.GetStatusIfExist("tumor");
-                            tumor.buffPower += damageTaken * 0.70f;
+                            tumor.buffPower += damageModel.damageTaken * 0.70f;
                         }
 
                         battleDetailsManager.getDmg(damageModel);
@@ -173,6 +157,10 @@ namespace AssemblyCSharp
                         if (damageModel.skillModel != null)
                         {
                             damageModel.customHitFX = damageModel.skillModel.hitEffect;
+                        }
+                        if (damageModel.enemySkillModel != null)
+                        {
+                            damageModel.customHitFX = damageModel.enemySkillModel.hitEffect;
                         }
                     }
                 }
@@ -232,6 +220,12 @@ namespace AssemblyCSharp
                 battleDetailsManager.getHeal(damageModel);
             }
         }
+
+       /* public void SetHitIdleAnimation(string hitAnimation, string hitIdleAnimation)
+        {
+            this.hitAnimation = !string.IsNullOrEmpty(hitAnimation) ? hitAnimation : "hit";
+            this.hitIdleAnimation = !string.IsNullOrEmpty(hitIdleAnimation) ? hitIdleAnimation : "idle";
+        }*/
     }
 }
 

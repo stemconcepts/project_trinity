@@ -12,29 +12,32 @@ namespace AssemblyCSharp
         public Base_Character_Manager baseManager;
         [Header("Character Model")]
         public Character_Model characterModel;
+        [Header("Character Resistances")]
+        public Resistances resistances;
         [Header("Health Object:")]
         public GameObject healthBar;
         [Header("Action Object:")]
         public GameObject actionBar;
-        [Header("Current Object:")]
-        public GameObject currentPanel;
+        private Text actionPointsText;
     
         void Awake(){
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
-            //characterModel = this.gameObject.GetComponent<Character_Model>();
         }
 
         void Start()
         {   
-            if( this.currentPanel != null && this.characterModel != null ){
+            if( baseManager.movementManager.currentPanel != null && characterModel != null ){
                 characterModel.healthBarText = healthBar.gameObject.transform.Find("healthdata").GetComponent<Text>();
                 characterModel.SetUp();
-                baseManager.movementManager.currentPanel = this.currentPanel;
-                baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().isOccupied = true;
                 baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().currentOccupier = gameObject;
-                characterModel.target = GetTarget();
+                characterModel.target = GetTarget(true);
                 characterModel.sliderScript = healthBar.GetComponent<Slider>();
                 characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
+                if (actionBar != null)
+                {
+                    actionPointsText = actionBar.transform.Find("apSlot").Find("Text").GetComponent<Text>();
+                    RegenApStart();
+                }
                 updateBarSize();
             }
         }
@@ -42,11 +45,13 @@ namespace AssemblyCSharp
         void Update(){
             if( characterModel != null ){
                 updateBarSize();
+                ResetAbsorbPoints();
                 maintainHealthValue();
                 characterModel.attackedPos = baseManager.movementManager.posMarker.transform.position;
                 characterModel.currentRotation = this.transform.rotation;
-                if( characterModel.availableActionPoints ){
-                    characterModel.availableActionPoints.text = characterModel.actionPoints.ToString();
+                if (actionBar != null)
+                {
+                    UpdateAPAmount();
                 }
             }
         }
@@ -91,8 +96,17 @@ namespace AssemblyCSharp
             }
         }
 
+        public void UpdateAPAmount()
+        {
+            if (characterModel.actionPoints > characterModel.maxactionPoints)
+            {
+                characterModel.actionPoints = characterModel.maxactionPoints;
+            }
+            actionPointsText.text = ((int)characterModel.actionPoints).ToString();
+        }
+
         void RegenApStart(){
-            Battle_Manager.taskManager.CallTask( 7f, ()=> {
+            Battle_Manager.taskManager.CallTask( 6f, ()=> {
                 if( characterModel.actionPoints < characterModel.maxactionPoints ){
                     characterModel.actionPoints += characterModel.vigor;
                 } 
@@ -123,12 +137,61 @@ namespace AssemblyCSharp
             } 
         }
 
-        public Base_Character_Manager GetTarget(){
+        public float GetResistanceValue(string resistance)
+        {
+            if (DoesResistanceExist(resistance))
+            {
+                var resistanceValue = (float)this.resistances.GetType().GetField(resistance).GetValue(this.resistances);
+                return resistanceValue;
+            }
+            return 0;
+        }
+
+        public bool DoesResistanceExist(string resistance)
+        {
+            if (!string.IsNullOrEmpty(resistance))
+            {
+                return this.resistances.GetType().GetField(resistance) != null ? true : false;
+            }
+            else
+            {
+                Game_Manager.logger.Log(resistance, "No attribute given");
+                return false;
+            }
+        }
+
+        public void SetResistance(string resistance, float value)
+        {
+            if (DoesResistanceExist(resistance))
+            {
+                this.characterModel.GetType().GetField(resistance).SetValue(this.resistances, value);
+            }
+        }
+
+        public Base_Character_Manager GetTarget( bool isAutoAttack = false){
+            /*if (this.tag == "Enemy")
+            {
+                print(Battle_Manager.IsTankInThreatZone());
+            }*/
+            
+            if (isAutoAttack && this.tag == "Enemy" && Battle_Manager.IsTankInThreatZone())
+            {
+                return Battle_Manager.characterSelectManager.guardianObject.GetComponent<Base_Character_Manager>();
+            }
             var enemyCharacters = Battle_Manager.GetCharacterManagers(false);
             var friendlyCharacters = Battle_Manager.GetCharacterManagers(true);
             var targetCount = this.tag == "Player" ? enemyCharacters.Count : friendlyCharacters.Count;
             var i = UnityEngine.Random.Range(0, targetCount);
             return this.tag == "Player" ? enemyCharacters[i].GetComponent<Base_Character_Manager>() : friendlyCharacters[i].GetComponent<Base_Character_Manager>();
+        }
+
+        public Base_Character_Manager GetFriendlyTarget()
+        {
+            var otherTargets = characterModel.characterType == Character_Model.CharacterTypeEnum.enemy ? Battle_Manager.GetCharacterManagers(false) : Battle_Manager.GetCharacterManagers(true);
+            otherTargets = otherTargets.Where(o => o.name != gameObject.name).ToList();
+            var targetCount = otherTargets.Count;
+            var i = UnityEngine.Random.Range(0, targetCount);
+            return otherTargets[i].GetComponent<Base_Character_Manager>();
         }
     }
 }

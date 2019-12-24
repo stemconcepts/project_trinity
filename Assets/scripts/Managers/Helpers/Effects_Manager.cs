@@ -9,6 +9,7 @@ namespace AssemblyCSharp
         public GameObject fxBottom;
         public GameObject fxFront;
         public GameObject fxCenter;
+        public GameObject stompEffect;
         void Start()
         {
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
@@ -28,7 +29,7 @@ namespace AssemblyCSharp
                     foreach (var particle in particles)
                     {
                         var main = particle.main;
-                        main.randomizeRotationDirection = 1.0f;
+                        main.flipRotation = 1.0f;
                     }
                 }
             } else {
@@ -51,7 +52,7 @@ namespace AssemblyCSharp
                     foreach (var particle in particles)
                     {
                         var main = particle.main;
-                        main.randomizeRotationDirection = 1.0f;
+                        main.flipRotation = 1.0f;
                     }
                 }
                 //fx.transform.SetParent(position.transform);

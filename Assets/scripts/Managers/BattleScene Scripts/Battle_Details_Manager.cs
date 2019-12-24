@@ -7,8 +7,8 @@ namespace AssemblyCSharp
     public class Battle_Details_Manager : MonoBehaviour
     {
         public GameObject status_symbol;
-        //public Transform status_position;
         public GameObject gameDetailsObject;
+        public GameObject movementArrowObject;
 
         public Battle_Details_Manager(){
            
@@ -26,9 +26,9 @@ namespace AssemblyCSharp
                 (GameObject)Instantiate( status_symbol, new Vector3 ( statusHolder.transform.position.x, statusHolder.transform.position.y, statusHolder.transform.position.z  ) , statusHolder.transform.rotation );
             Image iconImageScript = live_object.GetComponent<Image>();
             iconImageScript.sprite = status.singleStatus.labelIcon;
-            if( status.singleStatus.buff ){
+            if( !status.singleStatus.buff ){
                 live_object.transform.SetParent( statusHolder.transform.GetChild(0).transform, true );
-            } else if( !status.singleStatus.buff  ){
+            } else if( status.singleStatus.buff  ){
                 live_object.transform.SetParent( statusHolder.transform.GetChild(1).transform, true );
             }
             var getprefab = live_object.GetComponent<StatusLabelModel>();
@@ -39,7 +39,10 @@ namespace AssemblyCSharp
         }
 
         public void RemoveLabel( StatusLabelModel statusLabel ){
-            statusLabel.DestroyMe();
+            if (statusLabel)
+            {
+                statusLabel.DestroyMe();
+            }
         }
 
         public void getDmg( DamageModel damageModel, string extraInfo = "" ){
@@ -64,7 +67,7 @@ namespace AssemblyCSharp
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x, charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.damageData = (int)damageModel.damageTaken;
-            damageData.extraInfo = extraInfo;
+            damageData.extraInfo = extraInfo + (damageModel.modifiedDamage ? "*" : ""); ;
             damageData.isDmg = true;
             damageData.skillLabel = damageModel.skillSource;
         }
@@ -82,6 +85,7 @@ namespace AssemblyCSharp
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.absorbData = (int)damageModel.absorbAmount;
+            damageData.extraInfo = "<size=100><i>(absorb:" + damageModel.damageTaken + ")</i></size>";
             damageData.isAbsorb = true;
             damageData.skillLabel = damageModel.skillSource;
         }

@@ -15,7 +15,11 @@ namespace AssemblyCSharp
 
         private string[] statusFolders = new string[]{
             "Assets/scripts/Models/statusModels/status"
-        }; 
+        };
+
+        private string[] equipmentFolders = new string[]{
+            "Assets/scripts/gear/baubles"
+        };
 
         public AssetFinder()
         {
@@ -45,6 +49,22 @@ namespace AssemblyCSharp
                 }
             } 
             return skills;
+        }
+
+        public List<bauble> GetAllBaubles()
+        {
+            List<bauble> baubles = new List<bauble>();
+            var baubleList = AssetDatabase.FindAssets("t:bauble", equipmentFolders);
+            foreach (var baubleItem in baubleList)
+            {
+                string item = AssetDatabase.GUIDToAssetPath(baubleItem);
+                var bauble = AssetDatabase.LoadAssetAtPath<bauble>(item);
+                if (bauble.owned)
+                {
+                        baubles.Add(bauble);
+                }
+            }
+            return baubles;
         }
     }
 }

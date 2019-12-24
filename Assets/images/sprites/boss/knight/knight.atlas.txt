@@ -1,355 +1,349 @@
 
 knight.png
-size: 1024,1024
+size: 2001,1074
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Layer 10
   rotate: true
-  xy: 757, 11
-  size: 81, 155
-  orig: 81, 155
-  offset: 0, 0
+  xy: 1269, 411
+  size: 110, 225
+  orig: 135, 258
+  offset: 22, 24
   index: -1
 Layer 11
-  rotate: true
-  xy: 747, 873
-  size: 149, 251
-  orig: 149, 251
-  offset: 0, 0
+  rotate: false
+  xy: 533, 373
+  size: 246, 409
+  orig: 249, 419
+  offset: 2, 3
   index: -1
 Layer 12
   rotate: true
-  xy: 143, 4
-  size: 58, 137
-  orig: 58, 137
+  xy: 1290, 658
+  size: 97, 228
+  orig: 97, 228
   offset: 0, 0
   index: -1
 Layer 13
   rotate: true
-  xy: 747, 442
-  size: 69, 154
-  orig: 69, 154
-  offset: 0, 0
+  xy: 769, 21
+  size: 111, 252
+  orig: 115, 256
+  offset: 2, 3
   index: -1
 Layer 14
   rotate: false
-  xy: 126, 64
-  size: 34, 25
-  orig: 34, 25
-  offset: 0, 0
+  xy: 1471, 6
+  size: 52, 39
+  orig: 56, 41
+  offset: 2, 1
   index: -1
 Layer 15
   rotate: false
-  xy: 282, 3
-  size: 101, 89
-  orig: 101, 89
-  offset: 0, 0
+  xy: 1770, 611
+  size: 163, 144
+  orig: 168, 148
+  offset: 2, 2
+  index: -1
+Layer 6
+  rotate: true
+  xy: 774, 204
+  size: 112, 313
+  orig: 115, 315
+  offset: 1, 1
   index: -1
 Layer 7
-  rotate: true
-  xy: 747, 513
-  size: 109, 154
-  orig: 109, 154
+  rotate: false
+  xy: 1089, 151
+  size: 182, 165
+  orig: 182, 257
+  offset: 0, 92
+  index: -1
+Layer 8
+  rotate: false
+  xy: 533, 154
+  size: 239, 217
+  orig: 239, 217
   offset: 0, 0
   index: -1
 Layer 9
   rotate: true
-  xy: 451, 10
-  size: 82, 151
-  orig: 82, 151
-  offset: 0, 0
+  xy: 1520, 621
+  size: 134, 248
+  orig: 137, 251
+  offset: 1, 2
   index: -1
 Layer-10-flipped
   rotate: true
-  xy: 747, 707
-  size: 81, 155
-  orig: 81, 155
-  offset: 0, 0
+  xy: 1496, 385
+  size: 112, 225
+  orig: 135, 258
+  offset: 10, 23
   index: -1
 Layer-9-flipped
   rotate: true
-  xy: 604, 10
-  size: 82, 151
-  orig: 82, 151
-  offset: 0, 0
+  xy: 1498, 499
+  size: 120, 243
+  orig: 137, 251
+  offset: 7, 2
   index: -1
 dreadwall-bottom
-  rotate: true
-  xy: 51, 4
-  size: 53, 90
-  orig: 53, 90
+  rotate: false
+  xy: 678, 2
+  size: 89, 150
+  orig: 89, 150
   offset: 0, 0
   index: -1
 dreadwall-middle
   rotate: true
-  xy: 914, 25
-  size: 65, 101
-  orig: 65, 101
+  xy: 1723, 359
+  size: 109, 168
+  orig: 109, 168
   offset: 0, 0
   index: -1
 dreadwall-top
   rotate: false
-  xy: 385, 7
-  size: 64, 85
-  orig: 64, 85
+  xy: 1893, 326
+  size: 106, 142
+  orig: 106, 142
   offset: 0, 0
   index: -1
 dustcircle0
-  rotate: true
-  xy: 247, 94
-  size: 326, 106
-  orig: 326, 106
-  offset: 0, 0
+  rotate: false
+  xy: 781, 318
+  size: 469, 107
+  orig: 543, 177
+  offset: 36, 12
   index: -1
 dustcircle1
-  rotate: true
-  xy: 355, 94
-  size: 326, 106
-  orig: 326, 106
-  offset: 0, 0
+  rotate: false
+  xy: 781, 427
+  size: 486, 119
+  orig: 543, 177
+  offset: 23, 12
   index: -1
 dustcircle2
-  rotate: true
-  xy: 463, 94
-  size: 326, 106
-  orig: 326, 106
-  offset: 0, 0
+  rotate: false
+  xy: 781, 650
+  size: 507, 132
+  orig: 543, 177
+  offset: 17, 11
   index: -1
 dustcircle3
-  rotate: true
-  xy: 571, 94
-  size: 326, 106
-  orig: 326, 106
-  offset: 0, 0
+  rotate: false
+  xy: 1350, 942
+  size: 511, 130
+  orig: 543, 177
+  offset: 17, 16
   index: -1
 dustcircle4
-  rotate: true
-  xy: 679, 94
-  size: 326, 106
-  orig: 326, 106
-  offset: 0, 0
+  rotate: false
+  xy: 1350, 823
+  size: 518, 117
+  orig: 543, 177
+  offset: 14, 37
   index: -1
 dustcircle5
-  rotate: true
-  xy: 139, 94
-  size: 326, 106
-  orig: 326, 106
-  offset: 0, 0
+  rotate: false
+  xy: 781, 548
+  size: 521, 100
+  orig: 543, 177
+  offset: 13, 61
   index: -1
 forearmFront
   rotate: false
-  xy: 787, 790
-  size: 116, 81
-  orig: 116, 81
-  offset: 0, 0
+  xy: 1304, 523
+  size: 192, 133
+  orig: 193, 135
+  offset: 0, 1
   index: -1
 hand-side
   rotate: true
-  xy: 747, 624
-  size: 81, 155
-  orig: 81, 155
-  offset: 0, 0
+  xy: 1273, 298
+  size: 111, 221
+  orig: 135, 258
+  offset: 11, 27
   index: -1
 hang-foreshortened
-  rotate: true
-  xy: 914, 746
-  size: 125, 107
-  orig: 125, 107
-  offset: 0, 0
+  rotate: false
+  xy: 1496, 242
+  size: 175, 141
+  orig: 208, 178
+  offset: 21, 20
   index: -1
 jaw
   rotate: false
-  xy: 747, 823
-  size: 37, 48
-  orig: 37, 48
+  xy: 1900, 759
+  size: 61, 80
+  orig: 61, 80
   offset: 0, 0
   index: -1
 ribbon
   rotate: false
-  xy: 98, 63
-  size: 26, 26
-  orig: 26, 26
+  xy: 1427, 2
+  size: 42, 43
+  orig: 43, 43
   offset: 0, 0
   index: -1
 ribbon1
-  rotate: false
-  xy: 787, 115
-  size: 44, 99
-  orig: 44, 99
+  rotate: true
+  xy: 1427, 47
+  size: 73, 165
+  orig: 73, 165
   offset: 0, 0
   index: -1
 ribbon2
-  rotate: true
-  xy: 833, 170
-  size: 44, 73
-  orig: 44, 73
-  offset: 0, 0
+  rotate: false
+  xy: 1870, 841
+  size: 57, 122
+  orig: 73, 122
+  offset: 16, 0
   index: -1
 shadow
-  rotate: true
-  xy: 98, 91
-  size: 329, 39
-  orig: 329, 39
-  offset: 0, 0
+  rotate: false
+  xy: 1350, 757
+  size: 548, 64
+  orig: 548, 65
+  offset: 0, 1
   index: -1
 sheildHand
   rotate: false
-  xy: 2, 2
-  size: 47, 55
-  orig: 47, 55
+  xy: 1914, 518
+  size: 78, 91
+  orig: 79, 92
+  offset: 1, 1
+  index: -1
+sheildbackArm
+  rotate: false
+  xy: 1461, 122
+  size: 155, 118
+  orig: 155, 118
   offset: 0, 0
   index: -1
 shoulder_ArmFront
   rotate: false
-  xy: 787, 348
-  size: 113, 92
-  orig: 113, 92
-  offset: 0, 0
+  xy: 1273, 143
+  size: 186, 153
+  orig: 188, 154
+  offset: 1, 1
   index: -1
 sideslashup
   rotate: false
-  xy: 2, 422
-  size: 743, 600
-  orig: 743, 600
-  offset: 0, 0
+  xy: 2, 75
+  size: 529, 997
+  orig: 1239, 1000
+  offset: 0, 2
   index: -1
 slam0
   rotate: true
-  xy: 914, 488
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  xy: 1929, 873
+  size: 90, 53
+  orig: 216, 172
+  offset: 51, 0
   index: -1
 slam1
-  rotate: true
-  xy: 914, 356
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  rotate: false
+  xy: 1863, 965
+  size: 129, 107
+  orig: 216, 172
+  offset: 43, 0
   index: -1
 slam2
-  rotate: true
-  xy: 914, 224
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  rotate: false
+  xy: 1766, 56
+  size: 145, 134
+  orig: 216, 172
+  offset: 39, 0
   index: -1
 slam3
-  rotate: true
-  xy: 914, 92
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  rotate: false
+  xy: 1618, 78
+  size: 146, 135
+  orig: 216, 172
+  offset: 39, 0
   index: -1
 slam4
   rotate: true
-  xy: 787, 216
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
-  index: -1
-spine1
-  rotate: true
-  xy: 914, 683
-  size: 61, 104
-  orig: 61, 104
-  offset: 0, 0
-  index: -1
-spine2
-  rotate: true
-  xy: 914, 620
-  size: 61, 104
-  orig: 61, 104
-  offset: 0, 0
-  index: -1
-sword
-  rotate: true
-  xy: 2, 59
-  size: 361, 46
-  orig: 361, 46
-  offset: 0, 0
-  index: -1
-sword-half
-  rotate: true
-  xy: 50, 59
-  size: 361, 46
-  orig: 361, 46
-  offset: 0, 0
-  index: -1
-thumb
-  rotate: false
-  xy: 1000, 990
-  size: 19, 32
-  orig: 19, 32
-  offset: 0, 0
-  index: -1
-
-knight2.png
-size: 512,512
-format: RGBA8888
-filter: Linear,Linear
-repeat: none
-Layer 6
-  rotate: false
-  xy: 2, 2
-  size: 69, 189
-  orig: 69, 189
-  offset: 0, 0
-  index: -1
-Layer 8
-  rotate: false
-  xy: 2, 193
-  size: 143, 130
-  orig: 143, 130
-  offset: 0, 0
-  index: -1
-sheildbackArm
-  rotate: true
-  xy: 411, 230
-  size: 93, 71
-  orig: 93, 71
-  offset: 0, 0
+  xy: 539, 2
+  size: 150, 137
+  orig: 216, 172
+  offset: 35, 0
   index: -1
 slam5
   rotate: false
-  xy: 147, 220
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  xy: 1257, 3
+  size: 168, 138
+  orig: 216, 172
+  offset: 27, 0
   index: -1
 slam6
   rotate: false
-  xy: 279, 220
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  xy: 1743, 470
+  size: 169, 139
+  orig: 216, 172
+  offset: 26, 0
   index: -1
 slam7
-  rotate: true
-  xy: 73, 61
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  rotate: false
+  xy: 1086, 9
+  size: 169, 140
+  orig: 216, 172
+  offset: 26, 0
   index: -1
 slam8
   rotate: false
-  xy: 178, 115
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  xy: 1673, 215
+  size: 167, 142
+  orig: 216, 172
+  offset: 28, 0
   index: -1
 slam9
   rotate: false
-  xy: 310, 115
-  size: 130, 103
-  orig: 130, 103
-  offset: 0, 0
+  xy: 1842, 192
+  size: 154, 132
+  orig: 216, 172
+  offset: 32, 11
+  index: -1
+spine1
+  rotate: false
+  xy: 1913, 46
+  size: 81, 144
+  orig: 102, 173
+  offset: 4, 3
+  index: -1
+spine2
+  rotate: false
+  xy: 1023, 2
+  size: 61, 130
+  orig: 102, 173
+  offset: 21, 22
+  index: -1
+sword
+  rotate: false
+  xy: 2, 4
+  size: 535, 69
+  orig: 602, 76
+  offset: 0, 5
+  index: -1
+sword-half
+  rotate: false
+  xy: 774, 134
+  size: 310, 68
+  orig: 602, 76
+  offset: 76, 1
   index: -1
 sword-slash
   rotate: false
-  xy: 2, 325
-  size: 490, 173
-  orig: 490, 173
-  offset: 0, 0
+  xy: 533, 784
+  size: 815, 288
+  orig: 816, 289
+  offset: 1, 0
+  index: -1
+thumb
+  rotate: true
+  xy: 1929, 841
+  size: 30, 52
+  orig: 31, 53
+  offset: 1, 1
   index: -1

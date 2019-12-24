@@ -18,12 +18,29 @@ namespace AssemblyCSharp
                 Battle_Manager.battleInterfaceManager[x].SkillSet( baseManager.skillManager );
             }
         }
-        
+
         void OnMouseUp(){
-            if( baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive ){
+            if( !Battle_Manager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive ){
                 if( baseManager.characterManager.characterModel.characterType != Character_Model.CharacterTypeEnum.enemy ){
                     Battle_Manager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
                     DisplaySkills();
+                }
+            } else if (Battle_Manager.waitingForSkillTarget)
+            {
+                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
+                RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+                if (hit.collider != null)
+                {
+                    var activeCharacter = Battle_Manager.characterSelectManager.GetSelectedClassObject();
+                    var selectedTarget = hit.transform.gameObject.GetComponent<Character_Manager>();
+                    if ((Battle_Manager.offensiveSkill && selectedTarget.tag != "Enemy") || (!Battle_Manager.offensiveSkill && selectedTarget.tag == "Enemy"))
+                    {
+                        print("Not a valid target, select another");
+                    } else
+                    {
+                        activeCharacter.GetComponent<Skill_Manager>().currenttarget = selectedTarget;
+                    }
                 }
             }
             Battle_Manager.soundManager.playSound( Battle_Manager.soundManager.uiSounds[0] );
@@ -35,26 +52,40 @@ namespace AssemblyCSharp
         
         void OnMouseExit(){
             var currentPanel = baseManager.movementManager.currentPanel;
-            if ( currentPanel.GetComponent<Panels_Manager>().isVoidZone ){
+            if ( currentPanel.GetComponent<Panels_Manager>().isVoidZone )
+            {
                 currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<Panels_Manager>().voidZoneColor;
-            } else if ( currentPanel.GetComponent<Panels_Manager>().isVoidCounter ){
+            } else if ( currentPanel.GetComponent<Panels_Manager>().isVoidCounter )
+            {
                 currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<Panels_Manager>().counterZoneColor;
+            } else if (currentPanel.GetComponent<Panels_Manager>().isThreatPanel)
+            {
+                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<Panels_Manager>().threatPanelColor;
+            } else if (currentPanel.GetComponent<Panels_Manager>().isEnemyPanel)
+            {
+                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<Panels_Manager>().enemyPanelColor;
             } else {
                 currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<Panels_Manager>().panelColor;
             }
         }
-        
-        void ToggleThroughLiveCharacters(){
+
+        /*void ToggleThroughLiveCharacters()
+        {
             var swapTo = Battle_Manager.characterSelectManager.GetAlive();
             Battle_Manager.characterSelectManager.SetSelectedCharacter(swapTo);
-            Battle_Manager.soundManager.playSound( Battle_Manager.soundManager.charSwapSound );
+            DisplaySkills();
+            Battle_Manager.soundManager.playSound(Battle_Manager.soundManager.charSwapSound);
         }
 
         void Update () {
-            if( Input.GetKeyUp( KeyCode.Tab ) ){
-                ToggleThroughLiveCharacters();
+            if( Input.GetKeyUp( KeyCode.Tab ) )
+            {
+                if (gameObject.tag == "Player")
+                {
+                    ToggleThroughLiveCharacters();
+                }
             }
-        }
+        }*/
     }
 }
 

@@ -8,6 +8,7 @@ namespace AssemblyCSharp
     {
         public Base_Character_Manager baseManager;
         public Battle_Details_Manager battleDetailsManager;
+        public Dictionary<string,Task> taskList = new Dictionary<string, Task>();
         public GameObject statusHolderObject;
         [Header("Immunity List:")]
         public List<SingleStatusModel> immunityList = new List<SingleStatusModel>();
@@ -15,13 +16,14 @@ namespace AssemblyCSharp
         public List<SingleStatusModel> singleStatusList = new List<SingleStatusModel>();
 
         void Awake(){
-            battleDetailsManager = Battle_Manager.battleDetailsManager;
+            //battleDetailsManager = Battle_Manager.battleDetailsManager;
         }
 
         void Start()
         {
-            var x = Battle_Manager.assetFinder.GetAllStatuses();
+            singleStatusList = Battle_Manager.assetFinder.GetAllStatuses();
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            battleDetailsManager = Battle_Manager.battleDetailsManager;
             statusHolderObject = GameObject.Find( baseManager.characterManager.characterModel.role.ToString() + "status" );
         }
 
@@ -31,6 +33,9 @@ namespace AssemblyCSharp
             float buffedStat;
             if( statusModel.singleStatus.statusName == "thorns" ){
                 buffedStat = (statusModel.power / 20) + originalStat;
+            } else if (statusModel.singleStatus.statusName == "vigor" )
+            {
+                buffedStat = statusModel.power + currentStat;
             } else {
                 buffedStat = (statusModel.power / 100) * originalStat;
             }
@@ -62,18 +67,18 @@ namespace AssemblyCSharp
         //Add to stat permanently
         public void AddToStatus(StatusModel statusModel)
         {
-            var attributeName = statusModel.targetStat == "" ? statusModel.singleStatus.attributeName : statusModel.targetStat;
-            var originalStat = GetComponent<Character_Manager>().GetAttributeValue("original" + statusModel.singleStatus.attributeName);
+            var attributeName = statusModel.singleStatus.attributeName;
+            var originalStat = baseManager.characterManager.GetAttributeValue("original" + statusModel.singleStatus.attributeName);
             if (!statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName))
             {
                 battleDetailsManager.ShowLabel(statusModel, statusHolderObject);
                 if (statusModel.singleStatus.attributeName != null)
                 {
-                    GetComponent<Character_Manager>().SetAttribute(attributeName, statusModel.power);
+                    baseManager.characterManager.SetAttribute(attributeName, statusModel.power);
                 }
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
-                    GetComponent<Character_Manager>().SetAttribute(statusModel.singleStatus.attributeName, originalStat);
+                    baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat);
                 });
             }
             else
@@ -86,34 +91,45 @@ namespace AssemblyCSharp
         //Stat changes - use for Ticking Stat changes 
         public void StatChanges(StatusModel statusModel)
         {
-            StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
             if (!statusModel.turnOff)
             {
+                
                 if (!DoesStatusExist(statusModel.singleStatus.statusName))
                 {
                     battleDetailsManager.ShowLabel(statusModel, statusHolderObject);
+                    StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
                     statusLabel.tickTimer = Battle_Manager.taskManager.CallChangePointsTask(statusModel);
+                    statusLabel.durationTimer = Battle_Manager.taskManager.CallDurationTask(statusModel.duration, statusLabel, "durationTimer", () =>
+                    {
+                        //StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
+                        statusLabel.tickTimer.Stop();
+                    });
                 }
                 else
                 {
+                    StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
                     if (statusModel.singleStatus.canStack)
                     {
                         statusLabel.stacks = statusLabel.stacks < statusModel.singleStatus.maxStacks ? statusLabel.stacks + 1 : statusLabel.stacks;
                         battleDetailsManager.AddStacks(statusLabel);
                         statusModel.stacks = statusLabel.stacks;
+                        statusLabel.tickTimer.Stop();
+                        statusLabel.durationTimer.Stop();
                     }
-                    statusLabel.tickTimer.Stop();
                     statusLabel.tickTimer = Battle_Manager.taskManager.CallChangePointsTask(statusModel);
+                    statusLabel.durationTimer = Battle_Manager.taskManager.CallDurationTask(statusModel.duration, statusLabel, "durationTimer", () =>
+                    {
+                        //StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
+                        statusLabel.tickTimer.Stop();
+                    });
                 }
-                Battle_Manager.taskManager.CallDurationTask(statusModel.duration, GetStatusIfExist( statusModel.singleStatus.statusName ), () =>
-                {
-                    statusLabel.tickTimer.Stop();
-                });
             }
             else
             {
+                StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
                 ForceStatusOff(statusModel.singleStatus, () => {
                     statusLabel.tickTimer.Stop();
+                    statusLabel.durationTimer.Stop();
                 });
             }
         }
@@ -174,14 +190,10 @@ namespace AssemblyCSharp
         }
 
         public List<StatusLabelModel> GetAllStatusIfExist( bool buff ){
-            List<StatusLabelModel> currentStatusList = null;
+            List<StatusLabelModel> currentStatusList = new List<StatusLabelModel>();
                 //this need to change to a variable stored in the Manager for the GameObject that holds the statuses 
-            var statusHolderObject = GameObject.Find( baseManager.characterManager.name + "status" );
+            var statusHolderObject = GameObject.Find( baseManager.characterManager.characterModel.role.ToString() + "status" );
             Transform statusPanel;
-            //singleStatus status;
-            //for( int i = 0; i < singleStatusList.Count; i++ ){          
-              //if( singleStatusList[i].statusName == statusName  ){
-                    //status = statusList[i];
                     if( buff ){
                         statusPanel = statusHolderObject.transform.Find( "Panel buffs" );
                     } else {
@@ -191,8 +203,6 @@ namespace AssemblyCSharp
                     for( int x = 0; x < statusCount; x++ ){
                         currentStatusList.Add( statusPanel.GetChild(x).GetComponent<StatusLabelModel>() );
                     }
-               // }
-            //}
             return currentStatusList;
         }   
 
@@ -216,25 +226,31 @@ namespace AssemblyCSharp
             if (singleStatus.hitAnim != "")
             {
                 var animationManager = GetComponent<Animation_Manager>();
-                animationManager.AddStatusAnimation(false, singleStatus.hitAnim, singleStatus.holdAnim, false);
+                animationManager.AddStatusAnimation(false, singleStatus.hitAnim, singleStatus.holdAnim);
             }
         }
 
         public void StatusOn( StatusModel statusModel ){
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) && !CheckImmunity( statusModel.singleStatus.attributeName ) ){ 
                 battleDetailsManager.ShowLabel( statusModel, statusHolderObject );
+                if (!string.IsNullOrEmpty(statusModel.singleStatus.hitAnim) && !string.IsNullOrEmpty(statusModel.singleStatus.holdAnim))
+                {
+                    baseManager.animationManager.AddStatusAnimation(true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
+                }
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
                     ForceStatusOff( statusModel.singleStatus );
+                    if (!string.IsNullOrEmpty(statusModel.singleStatus.hitAnim))
+                    {
+                        baseManager.animationManager.AddStatusAnimation(false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
+                    }
                 });
-                if( statusModel.singleStatus.hitAnim != "" ){
-                    baseManager.animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
-                }
+                
             } else 
             if( statusModel.turnOff ){
                 ForceStatusOff( statusModel.singleStatus );
                 if( statusModel.singleStatus.hitAnim != "" ){
-                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
                 }
             }
         }
@@ -244,23 +260,34 @@ namespace AssemblyCSharp
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName ) ){ 
                 battleDetailsManager.ShowLabel( statusModel, statusHolderObject );
                 if( statusModel.singleStatus.hitAnim != "" ){
-                    baseManager.animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
                 }
 
                 Battle_Manager.taskManager.RemoveLabelTask(statusModel.duration, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
                 {
-                    var dmgModel = new DamageModel(statusModel.baseManager){ 
-                        incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
+                    var dmgModel = new DamageModel(){
+                        baseManager = statusModel.baseManager,
+                        incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower,
+                        dueDmgTargets = new List<Character_Manager> { baseManager.characterManager },
+                        hitEffectPositionScript = baseManager.effectsManager.fxCenter.transform,
+                        isMagicDmg = true,
+                        damageImmidiately = true
                     };
-                    baseManager.damageManager.calculateMdamge( dmgModel );
+                    baseManager.damageManager.calculatedamage( dmgModel );
                 });
             } else 
             if( statusModel.turnOff ){
                 ForceStatusOff( statusModel.singleStatus, ()=> {
-                    var dmgModel = new DamageModel(statusModel.baseManager){ 
-                        incomingDmg = GetStatusIfExist( statusModel.singleStatus.statusName ).buffPower
+                    var dmgModel = new DamageModel()
+                    {
+                        baseManager = statusModel.baseManager,
+                        incomingDmg = GetStatusIfExist(statusModel.singleStatus.statusName).buffPower,
+                        dueDmgTargets = new List<Character_Manager> { baseManager.characterManager },
+                        hitEffectPositionScript = baseManager.effectsManager.fxCenter.transform,
+                        isMagicDmg = true,
+                        damageImmidiately = true
                     };
-                    baseManager.damageManager.calculateMdamge( dmgModel );
+                    baseManager.damageManager.calculatedamage( dmgModel );
                 });
             }
         }
@@ -307,36 +334,36 @@ namespace AssemblyCSharp
                 ForceStatusOff( statusModel.singleStatus );
                 immunityList.Remove( GetStatus( statusModel.singleStatus.attributeName ) );
                 if( statusModel.singleStatus.hitAnim != "" ){ 
-                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim, false );
+                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
                 }
             }
         }
 
         public void RunStatusFunction( StatusModel statusModel ){
                 statusModel.duration = statusModel.duration == 0 ? Mathf.Infinity : statusModel.duration;
-                switch ( statusModel.selectedStatusFunction ) {
-                case StatusModel.statusFunction.AttributeChange:
+                switch ( statusModel.singleStatus.selectedStatusFunction ) {
+                case SingleStatusModel.statusFunction.AttributeChange:
                     AttributeChange( statusModel );
                     break;
-                case StatusModel.statusFunction.AddToStat:
+                case SingleStatusModel.statusFunction.AddToStat:
                     AddToStatus( statusModel );
                     break;
-                case StatusModel.statusFunction.StatChange:
+                case SingleStatusModel.statusFunction.StatChange:
                     StatChanges( statusModel );
                     break;
-                case StatusModel.statusFunction.StatusOn:
+                case SingleStatusModel.statusFunction.StatusOn:
                     StatusOn( statusModel );
                     break;
-                case StatusModel.statusFunction.Tumor:
+                case SingleStatusModel.statusFunction.Tumor:
                     Tumor( statusModel );
                     break;
-                case StatusModel.statusFunction.OnHit:
+                case SingleStatusModel.statusFunction.OnHit:
                     //OnHit( statusModel);
                     break;
-                case StatusModel.statusFunction.OnHitEnemy:
+                case SingleStatusModel.statusFunction.OnHitEnemy:
                     OnTakeDmg( statusModel );
                     break;
-                case StatusModel.statusFunction.Immune:
+                case SingleStatusModel.statusFunction.Immune:
                     SetImmunity( statusModel );
                     break;
                 }

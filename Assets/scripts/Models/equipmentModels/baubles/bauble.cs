@@ -7,6 +7,7 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class bauble : ScriptableObject {
         public string baubleName;
+        public bool dispellable;
         public bool owned;
         public Sprite itemIcon;
         public bool isEquipped;

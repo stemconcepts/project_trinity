@@ -15,6 +15,7 @@ namespace AssemblyCSharp
         public Skill_Manager skillManager;
         public Auto_Attack_Manager autoAttackManager;
         public Character_Interaction_Manager characterInteractionManager;
+        public PhaseManager phaseManager;
         void Awake()
         {
             this.characterManager = this.gameObject.GetComponent<Character_Manager>();
@@ -27,6 +28,10 @@ namespace AssemblyCSharp
             this.skillManager = this.gameObject.GetComponent<Skill_Manager>();
             equipmentManager = this.gameObject.GetComponent<Equipment_Manager>();
             autoAttackManager = this.gameObject.GetComponent<Auto_Attack_Manager>();
+            if (this.gameObject.tag == "Enemy")
+            {
+                phaseManager = this.gameObject.GetComponent<PhaseManager>();
+            }
         }
     }
 }

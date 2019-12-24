@@ -19,7 +19,8 @@ namespace AssemblyCSharp
     	public bool active;
     	public string hitAnim;
     	public string holdAnim;
-    	/*public statusFunction selectedStatusFunction;
+        //public bool trueDamage;
+    	public statusFunction selectedStatusFunction;
     	public enum statusFunction {
     		AttributeChange,
     		StatChange,
@@ -30,7 +31,6 @@ namespace AssemblyCSharp
     		OnHitEnemy,
     		Immune
     	}   
-    	public string attributeName;
     	public statusType statusTypeEnum;
     	public enum statusType {
     		Immunity,
@@ -48,6 +48,7 @@ namespace AssemblyCSharp
             OnMove,
             OnSkillCast
         };
-        public List<EffectOnEvent> effectsOnEvent = new List<EffectOnEvent>();*/
+        public elementType element;
+        public List<EffectOnEventModel> effectsOnEvent = new List<EffectOnEventModel>();
     }
 }

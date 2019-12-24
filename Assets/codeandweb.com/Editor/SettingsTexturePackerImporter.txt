@@ -5,10 +5,10 @@ tpsheetFileNames:
 - Assets/images/ui/effects/hit/hitFx.tpsheet
 - Assets/images/ui/effects/hit/hitUp.tpsheet
 textureFileNames:
-- Assets/codeandweb.com/Example/SpriteSheet/sprites.png
-- Assets/images/ui/effects/hit/hitFx.png
-- Assets/images/ui/effects/hit/hitUp.png
+- Assets\codeandweb.com\Example\SpriteSheet/sprites.png
+- Assets\images\ui\effects\hit/hitFx.png
+- Assets\images\ui\effects\hit/hitUp.png
 normalmapFileNames:
-- Assets/codeandweb.com/Example/SpriteSheet/sprites_n.png
+- Assets\codeandweb.com\Example\SpriteSheet/sprites_n.png
 - 
 - 

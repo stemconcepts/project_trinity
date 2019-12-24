@@ -6,18 +6,20 @@ using System.Linq;
 
 namespace AssemblyCSharp
 {
-    public class Battle_Interface_Manager: BasicManager
+    public class Battle_Interface_Manager: MonoBehaviour
     {
-        bool swapReady = true;
-        float gearSwapTime;
+        
         public int buttonID;
-        //public string skillNames;
         public SkillModel skill;
-        //public string skillName;
-        //public Sprite skillIcon;
+        public Text skillName;
         public Image iconImageScript;
         public Image skillCDImage;
         public KeyCode KeyCode;
+
+        void Start()
+        {
+            skillName = this.gameObject.GetComponent<Text>();
+        }
 
         public void SkillSet ( Skill_Manager skillManager ) {
             if( buttonID != 2 ){
@@ -36,18 +38,19 @@ namespace AssemblyCSharp
             }
             iconImageScript.sprite = skill.skillIcon;
             iconImageScript.type = Image.Type.Filled;
+            skillName.text = skill.skillName;
         }
 
         public void RunClassSkill(){
-            if( !IsCharBusy() ){
+            if( Battle_Manager.battleStarted && !IsCharBusy() ){
                 var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
-                charSelected.GetComponent<Skill_Manager>().PrepSkillNew(skill);
+                charSelected.GetComponent<Skill_Manager>().PrepSkill(skill);
             }
         }
 
         void KeyPressSkill(){
             var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
-            charSelected.GetComponent<Skill_Manager>().PrepSkillNew(skill);
+            charSelected.GetComponent<Skill_Manager>().PrepSkill(skill);
         }
     
         //For skill : Run to check if skills are on Cooldown - if so set the fill amount to the remaining time left
@@ -77,81 +80,14 @@ namespace AssemblyCSharp
         }
     
         void Update () {
-            CanAffordSkill();
-            if( Input.GetKeyDown( KeyCode ) && !IsCharBusy() ){
-                KeyPressSkill();
-            }
-        }
-
-        public void SwapGear(){
-            var skillactive = Battle_Manager.friendlyCharacters.Any( x => x.baseManager.skillManager.isSkillactive == true );
-            if( swapReady && !skillactive ){
-                //var buttonDataScript = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<sortbuttondata>();
-                var allRoles = Battle_Manager.friendlyCharacters;
-                for( int i = 0; i < allRoles.Count; i++ ){
-                    var currentWSlot = allRoles[i].GetComponent<Skill_Manager>();
-                    var currentWeaponData = allRoles[i].GetComponent<Equipment_Manager>();
-                    if( currentWSlot.weaponSlot == Skill_Manager.weaponSlotEnum.Main ){
-                        currentWSlot.weaponSlot = Skill_Manager.weaponSlotEnum.Alt;
-                        currentWeaponData.currentWeaponEnum = Equipment_Manager.currentWeapon.Secondary;
-                    } else {
-                        currentWSlot.weaponSlot = Skill_Manager.weaponSlotEnum.Main;
-                        currentWeaponData.currentWeaponEnum = Equipment_Manager.currentWeapon.Primary;
-                    }
-                    //restore Action Points - should be changed to GearSwap ability
-                    var charData = allRoles[i].GetComponent<Character_Manager>();
-                    charData.characterModel.actionPoints = charData.characterModel.originalactionPoints;
-                    SkillSet( allRoles[i].baseManager.skillManager );
-                    allRoles[i].GetComponent<Character_Interaction_Manager>().DisplaySkills();
+            if (Battle_Manager.battleStarted)
+            {
+                CanAffordSkill();
+                if (Input.GetKeyDown(KeyCode) && !IsCharBusy())
+                {
+                    KeyPressSkill();
                 }
-                CheckGearType();
-                swapReady = false;
-                GearSwapTimer(gearSwapTime);
-                Battle_Manager.soundManager.playSound("gearSwapSound");
-            } else {
-                print ("Gear Swap not Ready");
             }
-        }
-    
-        void GearSwapTimer( float time ){
-            Battle_Manager.taskManager.CallTask( time, () => {
-                swapReady = true;
-            });
-            Battle_Manager.soundManager.playSound( "gearSwapReady" );
-        }
-    
-        private void CheckGearType(){
-            //var allRoles = GameObject.FindGameObjectsWithTag("Player"); 
-            foreach (var playerRole in Battle_Manager.friendlyCharacters ) {
-                var bm = playerRole.GetComponent<Base_Character_Manager>(); 
-                var currentWeaponData = bm.equipmentManager;
-                var playerSkeletonAnim = bm.animationManager;
-                var AAutoAttack = bm.autoAttackManager;
-                var charMovementScript = bm.movementManager;
-                var calculateDmgScript = bm.damageManager;
-                var currentWSlot = bm.skillManager;
-                var weaponType = currentWSlot.weaponSlot == Skill_Manager.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
-                if( weaponType.type != weaponModel.weaponType.heavyHanded && weaponType.type != weaponModel.weaponType.cursedGlove && weaponType.type != weaponModel.weaponType.clawAndCannon ){
-                    if( playerRole.name == "Stalker" ){
-                        playerSkeletonAnim.skeletonAnimation.skeleton.SetSkin("light");
-                    }
-                    playerSkeletonAnim.skeletonAnimation.state.AddAnimation(0, "idle", true, 0 );
-                    AAutoAttack.AAanimation = "attack1";
-                    charMovementScript.idleAnim = "idle";
-                    charMovementScript.hopAnim = "hop";
-                    calculateDmgScript.charDamageModel.hitAnimNormal = "hit";
-                } else {
-                    if( playerRole.name == "Stalker" ){
-                        playerSkeletonAnim.skeletonAnimation.skeleton.SetSkin("heavy");
-                    }
-                    playerSkeletonAnim.skeletonAnimation.state.SetAnimation(0, "toHeavy", false );
-                    playerSkeletonAnim.skeletonAnimation.state.AddAnimation(0, "idleHeavy", true, 0 );
-                    AAutoAttack.AAanimation = "attack1Heavy";
-                    charMovementScript.idleAnim = "idleHeavy";
-                    charMovementScript.hopAnim = "hopHeavy";
-                    calculateDmgScript.charDamageModel.hitAnimNormal = "hitHeavy";
-                }
-            }   
         }
     }
 }

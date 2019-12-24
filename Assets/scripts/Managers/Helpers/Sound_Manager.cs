@@ -45,33 +45,33 @@ namespace AssemblyCSharp
         public void OnEventHit(Spine.TrackEntry state, Spine.Event e ){
             audioSourceScript.volume = 0.3f;
             audioSourceScript.priority = 130;
-            if ( e.Data.name == "swing" && swingSounds.Count > 0 ){
+            if ( e.Data.Name == "swing" && swingSounds.Count > 0 ){
                 var randomNumber = Random.Range (0, (swingSounds.Count) );
                 chosenSound = swingSounds[randomNumber];
                 audioSourceScript.clip = chosenSound;
                 audioSourceScript.Play();
-            } else if ( e.Data.name == "thud" ){
+            } else if ( e.Data.Name == "thud" ){
                 var randomNumber = Random.Range (0, (stepSounds.Count) );
                 chosenSound = stepSounds[randomNumber];
                 audioSourceScript.volume = 1f;
                 audioSourceScript.priority = 100;
                 audioSourceScript.clip = chosenSound;
                 audioSourceScript.Play();
-            } else if ( e.Data.name == "shout" && shoutSounds.Count > 0 ){
+            } else if ( e.Data.Name == "shout" && shoutSounds.Count > 0 ){
                 var randomNumber = Random.Range (0, (shoutSounds.Count) );
                 chosenSound = shoutSounds[randomNumber];
                 audioSourceScript.volume = 1f;
                 audioSourceScript.priority = 100;
                 audioSourceScript.clip = chosenSound;
                 audioSourceScript.Play();
-            } else if ( e.Data.name == "crash" && crashSounds.Count > 0 ){
+            } else if ( e.Data.Name == "crash" && crashSounds.Count > 0 ){
                 var randomNumber = Random.Range (0, (crashSounds.Count) );
                 chosenSound = crashSounds[randomNumber];
                 audioSourceScript.volume = 1f;
                 audioSourceScript.clip = chosenSound;
                 audioSourceScript.Play();
             }  
-            if( e.Data.name == "endEvent" ){
+            if( e.Data.Name == "endEvent" ){
                 //skeletonAnimation.state.Event -= OnEventHit;
             }
         }

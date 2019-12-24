@@ -17,7 +17,7 @@ namespace AssemblyCSharp
         public float buffPower;
         public int stacks = 1;
         public SkillModel onHitSkillPlayer;
-        public SkillModel onHitSkillEnemy;
+        public enemySkill onHitSkillEnemy;
         private GameObject liveStatusHoverObj;
         public bool dispellable;
         public void DestroyMe(){
@@ -28,12 +28,14 @@ namespace AssemblyCSharp
         }
         public GameObject statusHoverObj;
         public Task tickTimer;
-    
+        public Task durationTimer;
+
         public void OnMouseEnter(){
-            Vector3 rayPoint = Camera.current.ScreenToWorldPoint(Input.mousePosition);
+            //current
+            Vector3 rayPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 rayPoint.z = 0f;
                 rayPoint.x += 4f;
-                if( gameObject.transform.parent.gameObject.transform.parent.gameObject != GameObject.Find("Bossstatus") ){
+                if( gameObject.transform.parent.gameObject.transform.parent.gameObject != GameObject.Find("bossstatus") ){
                     rayPoint.y +=  3f;
                 } else {
                     rayPoint.y -=  3f;
@@ -43,7 +45,7 @@ namespace AssemblyCSharp
                 var statusDesc = liveStatusHoverObj.transform.Find("statusDesc").GetComponent<Text>();
                 liveStatusHoverObj.transform.SetParent( GameObject.Find("Canvas - UI").transform );
                 liveStatusHoverObj.transform.localScale = new Vector3(1f,1f,1f);
-                var substatusName = statusModel.subStatus != null ? "<i>(" + statusModel.subStatus.subStatusLabel + ")</i>" : "";
+                var substatusName = statusModel.singleStatus.subStatus != null ? "<i>(" + statusModel.singleStatus.subStatus.subStatusLabel + ")</i>" : "";
                 statusName.text = "<b>" + statusModel.singleStatus.displayName + " " + substatusName + "</b>";
                 statusDesc.text = statusModel.singleStatus.statusDesc;
         }

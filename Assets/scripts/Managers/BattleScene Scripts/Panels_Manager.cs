@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -8,15 +9,21 @@ namespace AssemblyCSharp
     public class Panels_Manager : MonoBehaviour
     {
         public GameObject currentOccupier;
+        private RectTransform panelTransform;
         public Animation_Manager animationManager;
+        public Character_Manager characterManager;
         public Movement_Manager movementManager;
         public int sortingLayerNumber;
-        public bool isOccupied;
+        public int panelNumber;
+        //public bool isOccupied;
         private RectTransform UItransform;
         public bool isVoidZone;
         public bool isVoidCounter;
         public bool isThreatPanel;
+        public bool isEnemyPanel;
+        public Color threatPanelColor;
         public Color panelColor;
+        public Color enemyPanelColor;
         public Color voidZoneColor;
         public Color counterZoneColor;
         public bool friendlyPanel;
@@ -38,22 +45,43 @@ namespace AssemblyCSharp
         };
         public bool moved = false;
 
+        void Start()
+        {
+            imageScript = GetComponent<Image>();
+            voidZoneColor = new Color(0.9f, 0.1f, 0.1f, 1f);
+            panelColor = new Color(1f, 1f, 1f, 1f);
+            enemyPanelColor = new Color(0.6f, 0.4f, 0.4f, 1f);
+            counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
+            threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 1f);
+            imageScript.color = isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
+        }
+
         void OnRenderObject()
         {
             if( !moved && currentOccupier ){
-               SetStartingPanel(currentOccupier);
-               moved = true;
+                panelTransform = GetComponent<RectTransform>();
+                SetStartingPanel(currentOccupier);
             }
+            moved = true;
         }
 
-        public void SetStartingPanel( GameObject currentOccupier ){
-            var panelTransform = GetComponent<RectTransform>();
-            panelTransform.position = panelTransform.position;
-                animationManager = currentOccupier.GetComponent<Animation_Manager>();
-                movementManager = currentOccupier.GetComponent<Movement_Manager>();
+        public void SetStartingPanel(GameObject currentOccupier)
+        {
+                
+            //panelTransform.position = panelTransform.position;
+            animationManager = currentOccupier.GetComponent<Animation_Manager>();
+            movementManager = currentOccupier.GetComponent<Movement_Manager>();
+            animationManager.SetSortingLayer(sortingLayerNumber);
+            movementManager.SetSortingLayer(sortingLayerNumber);
+            movementManager.currentPanel = this.gameObject;
+            characterManager = currentOccupier.GetComponent<Character_Manager>();
+            characterManager.characterModel.inThreatZone = isThreatPanel;
+            characterManager.characterModel.inVoidCounter = isVoidCounter;
+            characterManager.characterModel.inVoidZone = isVoidZone;
+            if (!moved)
+            {
                 currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
-                animationManager.SetSortingLayer( sortingLayerNumber );
-                movementManager.SetSortingLayer( sortingLayerNumber );
+            }
         }
 
         public void VoidZoneMark(){
@@ -62,7 +90,7 @@ namespace AssemblyCSharp
                 imageScript.color = voidZoneColor;
                 //print ("Void Zone Mark");
                 isVoidZone = true;
-                if( isOccupied ){
+                if( currentOccupier != null ){
                     currentOccupier.GetComponent<Character_Manager>().characterModel.inVoidZone = true;
                 }
             /*} else if( type == "Random" ) {
@@ -75,11 +103,10 @@ namespace AssemblyCSharp
         }
     
         public void ClearVoidZone(){
-            //imageScript.color = new Color(1f,1f,1f,1f);
-            imageScript.color = panelColor;
+            imageScript.color = isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
             isVoidZone = false;
             isVoidCounter = false;
-            if( isOccupied ){
+            if(currentOccupier != null){
                 currentOccupier.GetComponent<Character_Manager>().characterModel.inVoidZone = false;
                 currentOccupier.GetComponent<Character_Manager>().characterModel.inVoidCounter = false;
             }
@@ -90,7 +117,7 @@ namespace AssemblyCSharp
             imageScript.color = counterZoneColor;
             isVoidZone = false;
             isVoidCounter = true;
-            if( isOccupied && currentOccupier.GetComponent<Character_Manager>().characterModel.role.ToString() == "tank" ){
+            if(currentOccupier != null && currentOccupier.GetComponent<Character_Manager>().characterModel.role.ToString() == "tank" ){
                 currentOccupier.GetComponent<Character_Manager>().characterModel.inVoidCounter = true;
             }
         }  

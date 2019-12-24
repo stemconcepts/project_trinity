@@ -7,9 +7,9 @@ namespace AssemblyCSharp
 {
     public class Character_Select_Manager: MonoBehaviour
     {
-        public bool guardianSelected = true;
+        /*public bool guardianSelected = true;
         public bool walkerSelected = false;
-        public bool stalkerSelected = false; 
+        public bool stalkerSelected = false; */
         public GameObject guardianObject;
         public GameObject stalkerObject;
         public GameObject walkerObject;
@@ -36,9 +36,9 @@ namespace AssemblyCSharp
             guardianObject = GameObject.Find("Guardian");
             walkerObject = GameObject.Find("Walker");
             stalkerObject = GameObject.Find("Stalker");
-            classStates.Add( new Battle_Manager.classState( "guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, guardianSelected, false ) );
-            classStates.Add( new Battle_Manager.classState( "stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, stalkerSelected, false ) );
-            classStates.Add( new Battle_Manager.classState( "walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, walkerSelected, true ) );
+            classStates.Add( new Battle_Manager.classState( "Guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, characterSelected == characterSelect.guardianSelected, false ) );
+            classStates.Add( new Battle_Manager.classState( "Stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, characterSelected == characterSelect.stalkerSelected, false ) );
+            classStates.Add( new Battle_Manager.classState( "Walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, characterSelected == characterSelect.walkerSelected, true ) );
         }
 
         public List<Character_Manager> GetCharacterManagers( List<GameObject> go){
@@ -48,13 +48,17 @@ namespace AssemblyCSharp
         }
 
         public void SetSelectedCharacter( string characterClass ){
-            if( characterClass == "Guardian" ){
+            classStates.ForEach(o => o.LastSelected = false);
+            classStates.Where(o => o.Name == GetSelectedClassRole()).FirstOrDefault().LastSelected = true;
+            if ( characterClass == "Guardian" ){
                 characterSelected = characterSelect.guardianSelected;
             } else if( characterClass == "Walker" ){
                 characterSelected = characterSelect.walkerSelected;
             } else if( characterClass == "Stalker" ){
                 characterSelected = characterSelect.stalkerSelected;
             }
+            classStates.ForEach(o => o.Selected = false);
+            classStates.Where(o => o.Name == characterClass).FirstOrDefault().Selected = true;
         }
 
         public string GetAlive(){
@@ -98,6 +102,21 @@ namespace AssemblyCSharp
                 return stalkerObject;
             }
             return null;
+        }
+        void ToggleThroughLiveCharacters()
+        {
+            var swapTo = Battle_Manager.characterSelectManager.GetAlive();
+            Battle_Manager.characterSelectManager.SetSelectedCharacter(swapTo);
+            GetSelectedClassObject().GetComponent<Character_Interaction_Manager>().DisplaySkills();
+            Battle_Manager.soundManager.playSound(Battle_Manager.soundManager.charSwapSound);
+        }
+
+        void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.Tab))
+            {
+                ToggleThroughLiveCharacters();
+            }
         }
     }
 }

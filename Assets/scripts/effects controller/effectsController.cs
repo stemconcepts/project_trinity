@@ -21,7 +21,7 @@ public class effectsController : MonoBehaviour {
                 foreach (var particle in particles)
                 {
                     var main = particle.main;
-                    main.randomizeRotationDirection = 1.0f;
+                    main.flipRotation = 1.0f;
                 }
             }
         } else {
@@ -44,7 +44,7 @@ public class effectsController : MonoBehaviour {
                 foreach (var particle in particles)
                 {
                     var main = particle.main;
-                    main.randomizeRotationDirection = 1.0f;
+                    main.flipRotation = 1.0f;
                 }
             }
 			//fx.transform.SetParent(position.transform);

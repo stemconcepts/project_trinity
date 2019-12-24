@@ -9,11 +9,11 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class DamageModel
     {
-        public DamageModel(Base_Character_Manager bm)
+        public DamageModel()
         {
             hitAnimNormal = "hit";
-            baseManager = bm;
-            hitEffectPositionScript = baseManager.effectsManager.fxCenter.transform;
+            //baseManager = bm;
+            //hitEffectPositionScript = baseManager.effectsManager.fxCenter.transform;
         }
         public Battle_Details_Manager combatDisplayScript;
         private Skill_Manager SkillScript;
@@ -36,11 +36,15 @@ namespace AssemblyCSharp
         public string hitAnimation;
         public string hitAnimNormal;
         public bool animationHold;
-        public bool trueDmg;
+        //public bool useResistances;
         public string holdAnimation;
         public List<Character_Manager> dueDmgTargets;
         public SkillModel skillModel;
+        public enemySkill enemySkillModel;
         public Base_Character_Manager baseManager;
         public bool isMagicDmg = false;
+        public bool damageImmidiately;
+        public bool modifiedDamage;
+        public elementType element;
     }
 }

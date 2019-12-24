@@ -22,16 +22,20 @@ namespace AssemblyCSharp
             Battle_Manager.taskManager.CallSoloMoTask(1f);
         }
     
-        public void ScreenShake( float shakeAmt ){
-            float quakeAmt = UnityEngine.Random.value*shakeAmt*2 - shakeAmt;
-            Vector3 pp = mainCamera.transform.position;
-            pp.y+= quakeAmt;
-            mainCamera.transform.position = pp;
-            Battle_Manager.taskManager.CallTask(1f, () =>
-                {
-                    mainCamera.transform.position = originalCameraPosition;
-                }
-            );
+        public void ScreenShake( float shakeAmt, int frequency = 0 ){
+            for (var x = 0; x <= frequency; x++)
+            {
+                float quakeAmt = UnityEngine.Random.value * shakeAmt * 2 - shakeAmt;
+                Vector3 pp = mainCamera.transform.position;
+                pp.y = originalCameraPosition.y + quakeAmt;
+                pp.x = originalCameraPosition.x + quakeAmt;
+                mainCamera.transform.position = pp;
+                Battle_Manager.taskManager.CallTask(0.1f, () =>
+                    {
+                        mainCamera.transform.position = originalCameraPosition;
+                    }
+                );
+            }
         }
     }
 }
