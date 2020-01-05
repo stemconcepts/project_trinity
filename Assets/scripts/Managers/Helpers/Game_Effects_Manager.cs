@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Spine.Unity;
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AssemblyCSharp
 {
@@ -21,7 +23,20 @@ namespace AssemblyCSharp
             Time.timeScale = slowAmount;
             Battle_Manager.taskManager.CallSoloMoTask(1f);
         }
-    
+
+        public void FadeOutSpine(SkeletonAnimation skeletonAnimation)
+        {
+            skeletonAnimation.skeleton.Slots.ForEach(o =>
+            {
+                Battle_Manager.taskManager.CallFadeOutSpineTask(o);
+            });
+        }
+
+        public void FadeOut(MeshRenderer renderer)
+        {
+            Battle_Manager.taskManager.CallFadeOutTask(renderer);
+        }
+
         public void ScreenShake( float shakeAmt, int frequency = 0 ){
             for (var x = 0; x <= frequency; x++)
             {

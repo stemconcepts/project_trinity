@@ -11,10 +11,7 @@ namespace AssemblyCSharp
         public Dictionary<string,DamageModel> skillDmgModels = new Dictionary<string, DamageModel>();
         public Dictionary<string, DamageModel> autoAttackDmgModels = new Dictionary<string, DamageModel>();
         public GameObject hitFX;
-        //public string hitAnimation;
-        //public string hitIdleAnimation;
         public Battle_Details_Manager battleDetailsManager;
-        //public Character_Manager characterManager {get; set;}
         void Start(){
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             battleDetailsManager = Battle_Manager.battleDetailsManager;
@@ -37,16 +34,21 @@ namespace AssemblyCSharp
 
             if (baseManager.characterManager.characterModel.absorbPoints > 0)
             {
-                var absorbedDmg = baseManager.characterManager.characterModel.absorbPoints -= damageModel.damageTaken;
-                baseManager.characterManager.characterModel.absorbPoints -= damageModel.damageTaken;
-                if (absorbedDmg < 0)
+                var initialAbsorbAmount = baseManager.characterManager.characterModel.absorbPoints;
+                var remainingAbsorbed = baseManager.characterManager.characterModel.absorbPoints - damageModel.damageTaken;
+                damageModel.damageAbsorbed = baseManager.characterManager.characterModel.absorbPoints > damageModel.damageTaken ?
+                    remainingAbsorbed : baseManager.characterManager.characterModel.absorbPoints;
+                if (remainingAbsorbed < 0)
                 {
-                    absorbedDmg -= (absorbedDmg *= 2);
-                    baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - absorbedDmg;
-                     battleDetailsManager.getDmg(damageModel);
+                    damageModel.damageTaken = Math.Abs(remainingAbsorbed);
+                    baseManager.characterManager.characterModel.Health -= damageModel.damageTaken;
+                    battleDetailsManager.getDmg(damageModel);
+                } else
+                {
+                    damageModel.damageTaken = 0f;
                 }
-                damageModel.absorbAmount = baseManager.characterManager.characterModel.absorbPoints - damageModel.damageTaken;
-                Battle_Manager.battleDetailsManager.ShowAbsorbNumber(damageModel);
+                baseManager.characterManager.characterModel.absorbPoints = remainingAbsorbed > 0f ? remainingAbsorbed : 0f;
+                Battle_Manager.battleDetailsManager.ShowAbsorbNumber(damageModel, initialAbsorbAmount);
             }
             else if (baseManager.characterManager.characterModel.blockPoints > 0)
             {
@@ -62,25 +64,16 @@ namespace AssemblyCSharp
                 battleDetailsManager.getDmg(damageModel);
             }
 
-            if ( baseManager.animationManager.inAnimation == false && baseManager.autoAttackManager.isAttacking == false)
+            if ( !baseManager.animationManager.inAnimation && !baseManager.autoAttackManager.isAttacking )
             {
-                if (!string.IsNullOrEmpty(baseManager.animationManager.hitAnimation))
-                {
-                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hitAnimation, false);
-                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
-                    //baseManager.animationManager.inAnimation = true;
-                }
-                /*else
-                {
-                    baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hitAnimation, false);
-                    baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
-                }*/
+                baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hitAnimation, false);
+                baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
             }
             //if tumor on player
             if (baseManager.statusManager.DoesStatusExist("tumor") && damageModel.dmgSource != null)
             {
                 var tumor = baseManager.statusManager.GetStatusIfExist("tumor");
-                tumor.buffPower += damageModel.damageTaken * 0.70f;
+                tumor.buffPower += damageModel.damageTaken * 0.60f;
             }
             //if thorns on player
             if (baseManager.statusManager.DoesStatusExist("thorns") && damageModel.dmgSource != null)

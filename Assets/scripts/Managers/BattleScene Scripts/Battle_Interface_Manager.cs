@@ -52,7 +52,16 @@ namespace AssemblyCSharp
             var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
             charSelected.GetComponent<Skill_Manager>().PrepSkill(skill);
         }
-    
+
+        void KeyPressCancelSkill()
+        {
+            if (skill.skillActive)
+            {
+                var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
+                charSelected.GetComponent<Skill_Manager>().SkillActiveSet(skill, false);
+            }
+        }
+
         //For skill : Run to check if skills are on Cooldown - if so set the fill amount to the remaining time left
         public void CooldownClassDisplayCheck( SkillModel skill ){
             float timeLeft = 1f/skill.skillCooldown * skill.currentCDAmount;
@@ -86,6 +95,14 @@ namespace AssemblyCSharp
                 if (Input.GetKeyDown(KeyCode) && !IsCharBusy())
                 {
                     KeyPressSkill();
+                }
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    KeyPressCancelSkill();
+                }
+                if (Input.GetKeyDown(KeyCode.Space))
+                { 
+                        Battle_Manager.PauseGame();
                 }
             }
         }

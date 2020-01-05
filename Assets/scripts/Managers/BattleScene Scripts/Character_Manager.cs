@@ -74,13 +74,11 @@ namespace AssemblyCSharp
                 if ( !baseManager.animationManager.inAnimation ){
                     characterModel.isAlive = false;
                     characterModel.Health = 0;
-                    if( characterModel.deathStatus != null){
-                        var sM = new StatusModel(){
-                            singleStatus = characterModel.deathStatus.singleStatus,
-                            duration = 0f
-                        };
-                        baseManager.statusManager.RunStatusFunction( sM );
-                    }
+                    var duration = baseManager.animationManager.PlayAnimation("death");
+                    Battle_Manager.taskManager.CallTask(duration, () =>
+                    {
+                        Battle_Manager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
+                    });
                 }
             }
         }

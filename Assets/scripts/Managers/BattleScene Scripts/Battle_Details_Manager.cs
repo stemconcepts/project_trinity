@@ -9,9 +9,23 @@ namespace AssemblyCSharp
         public GameObject status_symbol;
         public GameObject gameDetailsObject;
         public GameObject movementArrowObject;
+        public GameObject warningTextHolder;
+        private Text warningText;
 
-        public Battle_Details_Manager(){
-           
+        void Start(){
+            warningText = warningTextHolder.GetComponent<Text>();
+            warningTextHolder.SetActive(false);
+        }
+
+        public void BattleWarning(string message, float showTime)
+        {
+            warningTextHolder.SetActive(true);
+            warningText.text = message;
+            Battle_Manager.taskManager.CallTask(showTime, () =>
+            {
+                warningText.text = "";
+                warningTextHolder.SetActive(false);
+            });
         }
 
         public void AddStacks(StatusLabelModel singleStatusLabel)
@@ -53,10 +67,6 @@ namespace AssemblyCSharp
             ShowHealNumber( damageModel );
         }
     
-        public void getAbsorb( float absorbValue, DamageModel damageModel ){
-            ShowAbsorbNumber( damageModel );
-        }
-    
         public void Immune( DamageModel damageModel ){
             ShowImmune( damageModel );
         }
@@ -80,12 +90,12 @@ namespace AssemblyCSharp
             damageData.isDmg = false;
         }
     
-        public void ShowAbsorbNumber( DamageModel damageModel ){
+        public void ShowAbsorbNumber( DamageModel damageModel, float absorbAmount ){
             GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
-            damageData.absorbData = (int)damageModel.absorbAmount;
-            damageData.extraInfo = "<size=100><i>(absorb:" + damageModel.damageTaken + ")</i></size>";
+            //damageData.absorbData = (int)damageModel.damageTaken;
+            damageData.extraInfo = "<size=100><i>absorbed: " + (int)damageModel.damageAbsorbed + "/" + (int)absorbAmount + "</i></size>";
             damageData.isAbsorb = true;
             damageData.skillLabel = damageModel.skillSource;
         }

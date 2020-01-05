@@ -24,7 +24,7 @@ namespace AssemblyCSharp
             hopAnimation = "hop";
             hitAnimation = "hit";
             toHeavy = "toHeavy";
-            attackAnimation = gameObject.name == "knight" ? "attack2" : "attack1";
+            attackAnimation = "attack1";
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
@@ -38,6 +38,12 @@ namespace AssemblyCSharp
             Battle_Manager.taskManager.CallTask( animationDuration, () => {
                 inAnimation = false;
             });
+        }
+
+        public float PlayAnimation( string animationName, bool loop = false)
+        {
+            skeletonAnimation.state.SetAnimation(0, animationName, loop);
+            return skeletonAnimation.state.SetAnimation(0, animationName, loop).Animation.Duration;
         }
 
         public void AddStatusAnimation( bool addAnimation, string animationName, string holdAnimation = null ){

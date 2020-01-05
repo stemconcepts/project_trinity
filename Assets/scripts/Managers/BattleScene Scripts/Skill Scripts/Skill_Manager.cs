@@ -14,7 +14,6 @@ namespace AssemblyCSharp
         public List<Character_Manager> finalTargets = new List<Character_Manager>();
         public bool isSkillactive;
         public Character_Manager currenttarget;
-        //private SkillModel skillInWaiting;
         public enum weaponSlotEnum{
             Main,
             Alt
@@ -24,10 +23,7 @@ namespace AssemblyCSharp
         public List<SkillModel> secondaryWeaponSkills = new List<SkillModel>();
         public SkillModel skillModel;
         public bool waitingForSelection;
-        //public DamageModel dmgModel;
 
-        //Enemy specific properties
-        //public EnemyPhase enemyPhase;
         public List<enemySkill> enemySkillList = new List<enemySkill>();
         private List<enemySkill> copiedSkillList = new List<enemySkill>();
         public List<enemySkill> phaseSkillList = new List<enemySkill>();
@@ -47,12 +43,7 @@ namespace AssemblyCSharp
             if (this.gameObject.tag == "Enemy")
             {
                 RefreshSkillList(baseManager.phaseManager.GetPhaseSkills());
-                //enemySkillList = baseManager.phaseManager.GetPhaseSkills();
             }
-            /*foreach(var skill in enemySkillList)
-            {
-                copiedSkillList.Add(Object.Instantiate(skill));
-            };*/
             if (gameObject.tag == "Player")
             {
                 CalculateSkillPower();
@@ -76,11 +67,11 @@ namespace AssemblyCSharp
 
         public void PrepSkill(SkillModel skillModel, bool weaponSkill = true ){
             if( CheckSkillAvail( skillModel ) ){
-                if( !waitingForSelection ){
-                    isSkillactive = true;
+                //if( !waitingForSelection ){
+                    //isSkillactive = true;
                     SkillActiveSet( skillModel, true );
                     GetTargets(skillModel, weaponSkill: weaponSkill);
-                }
+                //}
             }
         }
 
@@ -90,10 +81,16 @@ namespace AssemblyCSharp
             SkillActiveSet(skillModel, true);
             if (skillModel.castTime <= 0)
             {
+                Battle_Manager.battleDetailsManager.BattleWarning(
+                        gameObject.name + " casts " + skillModel.skillName, 5f
+                    );
                 GetTargets(skillModel);
             }
             else
             {
+                Battle_Manager.battleDetailsManager.BattleWarning(
+                        gameObject.name + " is casting " + skillModel.skillName, skillModel.castTime
+                    );
                 StartCasting(skillModel);
             }
         }
@@ -146,12 +143,12 @@ namespace AssemblyCSharp
                 }
                 else
                 {
-                    isSkillactive = false;
+                    SkillActiveSet(skillModel, false);
+                    //isSkillactive = false;
                 }
             }
         }
 
-        //for enemies
         private void GetTargets(enemySkill skillModel, bool randomTarget = false)
         {
             finalTargets.Clear();
@@ -174,27 +171,33 @@ namespace AssemblyCSharp
                 SkillComplete(finalTargets, enemySkillModel: skillModel);
             } else
             {
+                finalTargets.Clear();
                 isSkillactive = false;
             }
         }
 
-        public void SkillComplete(List<Character_Manager> targets, SkillModel skillModel = null, enemySkill enemySkillModel = null, bool weaponSkill = true){
+        public void SkillComplete(List<Character_Manager> targets, SkillModel skillModel = null, enemySkill enemySkillModel = null, bool weaponSkill = true)
+        {
             var power = 0.0f;
-            var eM = new EventModel(){
+            var eM = new EventModel()
+            {
                 eventName = "OnSkillCast",
                 eventCaller = baseManager.characterManager
             };
-            Battle_Manager.eventManager.BuildEvent( eM );
-            if( (skillModel != null && skillModel.isFlat) || (enemySkillModel != null && enemySkillModel.isFlat))
+            Battle_Manager.eventManager.BuildEvent(eM);
+            if ((skillModel != null && skillModel.isFlat) || (enemySkillModel != null && enemySkillModel.isFlat))
             {
                 if (skillModel != null)
                 {
                     power = skillModel.isSpell ? skillModel.magicPower : skillModel.skillPower;
-                } else
+                }
+                else
                 {
                     power = enemySkillModel.isSpell ? enemySkillModel.magicPower : enemySkillModel.skillPower;
                 }
-            } else {
+            }
+            else
+            {
                 if (skillModel != null)
                 {
                     power = skillModel.isSpell ? skillModel.newMP : skillModel.newSP;
@@ -208,7 +211,7 @@ namespace AssemblyCSharp
             {
                 SetAnimations(skillModel);
                 DealHealDmg(skillModel, targets, power);
-                SkillActiveSet(skillModel, false);
+                //SkillActiveSet(skillModel, false);
                 for (int i = 0; i < Battle_Manager.battleInterfaceManager.Count; i++)
                 {
                     var iM = Battle_Manager.battleInterfaceManager[i];
@@ -217,7 +220,8 @@ namespace AssemblyCSharp
                         Battle_Manager.taskManager.skillcoolDownTask(skillModel, iM.skillCDImage);
                     }
                 }
-            } else
+            }
+            else
             {
                 SetAnimations(enemySkillModel);
                 DealHealDmg(enemySkillModel, targets, power);
@@ -235,21 +239,16 @@ namespace AssemblyCSharp
             {
                 GetTargets(skillModel);
             });
-            //call voidzone if true
             if (skillModel.hasVoidzone)
             {
-                /*voidzoneData voidData = new voidzoneData();
-                voidData.voidZoneDuration = skillModel.castTime;*/
                 skillModel.ShowVoidPanel(skillModel.voidZoneTypes, skillModel.monsterPanel);
             }
-            //call animation variable
             baseManager.animationManager.inAnimation = true;
             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationCastingType, false);
             baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, skillModel.animationRepeatCasting, true, 0);
         }
 
         private void DealHealDmg( SkillModel skillModel, List<Character_Manager> targets, float power ){
-            //baseManager.damageManager.charDamageModel.dueDmgTargets = targets;
             foreach (var status in skillModel.singleStatusGroup) {
                 status.dispellable = skillModel.statusDispellable;
             };
@@ -257,27 +256,32 @@ namespace AssemblyCSharp
                 SkillData data = new SkillData() {
                     target = target,
                     caster = baseManager.characterManager,
-                    skillModel = skillModel,
-                    //modifier = skillModel.modifierAmount
+                    skillModel = skillModel
                 };
                 skillModel.RunExtraEffect(data);
                 if ( skillModel.fxObject != null ){
                     baseManager.effectsManager.callEffectTarget( target, skillModel.fxObject );
                 }
-                if( skillModel.doesDamage ){ 
-                        var dmgModel = new DamageModel(){
-                            baseManager = target.baseManager,
-                            incomingDmg = power + (power * skillModel.modifierAmount),
-                            skillModel = skillModel,
-                            dmgSource = baseManager.characterManager,
-                            dueDmgTargets = targets,
-                            hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                            modifiedDamage = skillModel.modifierAmount > 0f
-                        };
-                    target.baseManager.damageManager.skillDmgModels.Add(gameObject.name,dmgModel);
+                if (skillModel.doesDamage)
+                {
+                    var dmgModel = new DamageModel()
+                    {
+                        baseManager = target.baseManager,
+                        incomingDmg = power + (power * skillModel.modifierAmount),
+                        skillModel = skillModel,
+                        dmgSource = baseManager.characterManager,
+                        dueDmgTargets = targets,
+                        hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
+                        modifiedDamage = skillModel.modifierAmount > 0f
+                    };
+                    if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
+                    {
+                        target.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
+                    }
+                    target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                     target.baseManager.damageManager.calculatedamage(dmgModel);
                 };
-                if( skillModel.healsDamage ){ 
+                if ( skillModel.healsDamage ){ 
                         var dmgModel = new DamageModel()
                         {
                             baseManager = target.baseManager,
@@ -288,7 +292,6 @@ namespace AssemblyCSharp
                             hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
                             modifiedDamage = skillModel.modifierAmount > 0f
                         };
-                    target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                     target.baseManager.damageManager.calculateHdamage( dmgModel ); 
                 };
                 AddStatuses(target, power, skillModel);
@@ -299,7 +302,6 @@ namespace AssemblyCSharp
 
         private void DealHealDmg(enemySkill enemySkillModel, List<Character_Manager> targets, float power)
         {
-            //baseManager.damageManager.charDamageModel.dueDmgTargets = targets;
             foreach (var status in enemySkillModel.singleStatusGroup)
             {
                 status.dispellable = enemySkillModel.statusDispellable;
@@ -311,7 +313,6 @@ namespace AssemblyCSharp
                     target = target,
                     caster = baseManager.characterManager,
                     enemySkillModel = enemySkillModel,
-                    //modifier = enemySkillModel.modifierAmount == 0 ? 1 : enemySkillModel.modifierAmount
                 };
                 enemySkillModel.RunExtraEffect(data);
                 if (enemySkillModel.doesDamage)
@@ -335,6 +336,11 @@ namespace AssemblyCSharp
                             {
                                 baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
                             }
+                            if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
+                            {
+                                target.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
+                            }
+                            //dmgModel.incomingDmg = (dmgModel.incomingDmg * 2);
                             target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                             target.baseManager.damageManager.calculatedamage(dmgModel);
                         } else
@@ -349,8 +355,12 @@ namespace AssemblyCSharp
                                 {
                                     baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
                                 }
+                                if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
+                                {
+                                    target.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
+                                }
                                 dmgModel.modifiedDamage = true;
-                                dmgModel.incomingDmg = power + (power * 0.5f);
+                                dmgModel.incomingDmg = dmgModel.incomingDmg * 1.5f;
                                 tankData.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                                 tankData.baseManager.damageManager.calculatedamage(dmgModel);
                             }
@@ -434,7 +444,8 @@ namespace AssemblyCSharp
                 }
                 Battle_Manager.taskManager.CallTask(animationDuration, () =>
                 {
-                    isSkillactive = false;
+                    SkillActiveSet(skillModel, false);
+                    //isSkillactive = false;
                 });
             }
         }
@@ -449,7 +460,6 @@ namespace AssemblyCSharp
                 baseManager.animationManager.SetBusyAnimation(animationDuration);
                 if (skillModel.attackMovementSpeed > 0)
                 {
-                    //baseManager.autoAttackManager.isAttacking = true;
                     baseManager.movementManager.movementSpeed = skillModel.attackMovementSpeed;
                 }
                 else
@@ -463,30 +473,37 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SkillActiveSet( SkillModel skillModel, bool setActive, bool skillCancel = false ){
-            if ( setActive || skillCancel ){ //turn skill active on begin but inactive on cancel
-                skillModel.skillActive = setActive;
-                // skillInWaiting = skillModel;
-            }
-            if(Battle_Manager.taskManager.taskList.Count > 0 && Battle_Manager.taskManager.taskList.ContainsKey("waitForTarget") ){
+        public void SkillActiveSet( SkillModel skillModel, bool setActive){
+            skillModel.skillActive = setActive;
+            isSkillactive = setActive;
+            if (Battle_Manager.taskManager.taskList.Count > 0 && Battle_Manager.taskManager.taskList.ContainsKey("waitForTarget") ){
                 Battle_Manager.taskManager.taskList["waitForTarget"].Stop();
                 Time.timeScale = 1f;
-            } 
-            if (!setActive || skillCancel ){ 
-                //finalTargets.Clear(); 
-                waitingForSelection = false;
-                //skillInWaiting = null;
+            }
+            if (!setActive)
+            { 
+                finalTargets.Clear(); 
+                //waitingForSelection = false;
+                //isSkillactive = false;
             }
         }
 
         //for enemies
         public void SkillActiveSet(enemySkill skillModel, bool setActive)
         {
-            if (copiedSkillList.Count > 0)
+            try
             {
-                copiedSkillList.Where(o => o.skillName == skillModel.skillName).First().skillActive = setActive;
+                if (copiedSkillList.Count > 0)
+                {
+                    copiedSkillList.Where(o => o.skillName == skillModel.skillName).First().skillActive = setActive;
+                }
+                skillModel.skillActive = setActive;
             }
-            skillModel.skillActive = setActive;
+            catch (System.Exception e)
+            {
+                Game_Manager.logger.Log(e.Message);
+            }
+            
         }
 
         private bool CheckSkillAvail( SkillModel skillModel ){
@@ -518,15 +535,6 @@ namespace AssemblyCSharp
                 {
                     phaseSkillList.Add(Object.Instantiate(bossSkillList[x]) as enemySkill);
                 }
-                /*if( enemyPhase == EnemyPhase.phaseOne && bossSkillList[x].phaseOne && !bossSkillList[x].skillActive ){
-                    phaseSkillList.Add( Object.Instantiate(bossSkillList[x]) as enemySkill);
-                } else
-                if( enemyPhase == EnemyPhase.phaseTwo && bossSkillList[x].phaseTwo && !bossSkillList[x].skillActive  ){
-                    phaseSkillList.Add( Object.Instantiate(bossSkillList[x]) as enemySkill);
-                } else
-                if( enemyPhase == EnemyPhase.phaseThree && bossSkillList[x].phaseThree && !bossSkillList[x].skillActive  ){
-                    phaseSkillList.Add( Object.Instantiate(bossSkillList[x]) as enemySkill);
-                }*/
             }
             if( phaseSkillList.Count == 0 ){
                 return null;
@@ -542,8 +550,8 @@ namespace AssemblyCSharp
             
         public void BeginSkillRotation( /*EnemyPhase phase*/ ){
             var randomSkill = SkillToRun(copiedSkillList);
-            if( !isSkillactive && !baseManager.statusManager.DoesStatusExist( "stun" ) && !baseManager.autoAttackManager.isAttacking && randomSkill != null ){
-                    if( !isSkillactive /*&& GetBossPhase(randomSkill) == enemyPhase*/ ){
+            if(baseManager.characterManager.characterModel.isAlive && !isSkillactive && !baseManager.statusManager.DoesStatusExist( "stun" ) && !baseManager.autoAttackManager.isAttacking && randomSkill != null ){
+                    if( !isSkillactive ){
                         isSkillactive = true;
                         PrepSkill( randomSkill );
                         Battle_Manager.taskManager.CallTask( 10f, () => {
@@ -559,28 +567,12 @@ namespace AssemblyCSharp
                         });
                     } 
             } 
-            else {
+            else if(baseManager.characterManager.characterModel.isAlive) {
                 Battle_Manager.taskManager.CallTask( 5f, () => {
                     BeginSkillRotation();
                 });
             }
         }
-        /*public EnemyPhase GetBossPhase(enemySkill enemySkill)
-        {
-            if (enemySkill.phaseOne)
-            {
-                return EnemyPhase.phaseOne;
-            }
-            else if (enemySkill.phaseTwo)
-            {
-                return EnemyPhase.phaseTwo;
-            }
-            else if (enemySkill.phaseTwo)
-            {
-                return EnemyPhase.phaseThree;
-            }
-            return EnemyPhase.phaseOne;
-        }*/
 
         public void OnEventSkillHit(Spine.TrackEntry state, Spine.Event e)
         {

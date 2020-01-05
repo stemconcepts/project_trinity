@@ -80,7 +80,11 @@ namespace AssemblyCSharp
         }
         private void Update()
         {
-            ChangeBossPhase();
+            if (!baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive && baseManager.characterManager.characterModel.isAlive)
+            {
+                ChangeBossPhase();
+            }
+            
         }
     }
 }

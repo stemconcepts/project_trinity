@@ -68,24 +68,6 @@ namespace AssemblyCSharp
                 currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<Panels_Manager>().panelColor;
             }
         }
-
-        /*void ToggleThroughLiveCharacters()
-        {
-            var swapTo = Battle_Manager.characterSelectManager.GetAlive();
-            Battle_Manager.characterSelectManager.SetSelectedCharacter(swapTo);
-            DisplaySkills();
-            Battle_Manager.soundManager.playSound(Battle_Manager.soundManager.charSwapSound);
-        }
-
-        void Update () {
-            if( Input.GetKeyUp( KeyCode.Tab ) )
-            {
-                if (gameObject.tag == "Player")
-                {
-                    ToggleThroughLiveCharacters();
-                }
-            }
-        }*/
     }
 }
 

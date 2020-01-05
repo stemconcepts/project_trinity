@@ -7,10 +7,6 @@ namespace AssemblyCSharp
 {
     public class Floating_Combat_Text : Generic_Manager
     {
-        public Floating_Combat_Text()
-        {
-        }
-        //private bool modifiedDamage;
         private float currentPositionX;
         private float currentPositionY;
         public string skillLabel;
@@ -47,8 +43,8 @@ namespace AssemblyCSharp
             } else 
             if ( isAbsorb ) {
                 //displayText.text = skillLabel + ":" + absorbData.ToString();
-                displayText.text = string.IsNullOrEmpty(extraInfo) ? absorbData.ToString() : absorbData.ToString() + extraInfo; ;
-                displayText.color = Color.blue;
+                displayText.text = /*absorbData.ToString() +*/extraInfo;
+                displayText.color = new Color(0.1f, 0.5f, 0.9f, 1f);
                 //displayText.text += (modifiedDamage ? "*" : "");
             } else 
             if ( isImmune ) {
@@ -78,7 +74,7 @@ namespace AssemblyCSharp
                             }
                         }
             Battle_Manager.taskManager.CallTask(2f, () => {
-                DestroyObject( this.gameObject );
+                Destroy(this.gameObject);
             });
         }
         

@@ -8,24 +8,21 @@ namespace AssemblyCSharp
     public class Movement_Manager : MonoBehaviour 
     {
         public Base_Character_Manager baseManager;
-        //public string idleAnim;
-        //public string hopAnim;
         public int origSortingOrder;
         public float movementSpeed;
         private float moveToHomeSpeed;
+        public float movementCost;
         public Vector2 origPosition ;
         public Vector2 currentPosition ;
         public GameObject posMarkerMin;
         public GameObject posMarker;
         public GameObject dashEffect;
         public GameObject currentPanel;
-        //public Boolean dragging;
         public GameObject positionArrow;
 
         void Awake()
         {
-            //hopAnim = "hop";
-            //idleAnim = "idle";
+            movementCost = 2f;
             movementSpeed = 50f;
             moveToHomeSpeed = 80f;
         }
@@ -88,8 +85,6 @@ namespace AssemblyCSharp
         public void moveToHome(){
             baseManager.animationManager.meshRenderer.sortingOrder = origSortingOrder;
             Battle_Manager.taskManager.moveBackTask( baseManager, moveToHomeSpeed, origPosition, currentPosition );
-            //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, string.IsNullOrEmpty(hopAnim) ? "hop" : hopAnim, false );
-            //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, string.IsNullOrEmpty(idleAnim) ? "idle" : idleAnim, true, 0 );
             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hopAnimation, false);
             baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
         }
@@ -147,8 +142,9 @@ namespace AssemblyCSharp
             if (positionArrow && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive)
             {
                 var positionArrowManager = positionArrow.GetComponent<MovementArrowManager>();
-                if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier)
+                if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && baseManager.characterManager.characterModel.actionPoints >= 1)
                 {
+                    baseManager.characterManager.characterModel.actionPoints -= movementCost;
                     positionArrowManager.SetPanelandDestroy();
                     MoveToPanel(positionArrowManager.hoveredPanel.gameObject);
                     positionArrowManager.occupier.animationManager.meshRenderer.sortingOrder = origSortingOrder = positionArrowManager.hoveredPanel.sortingLayerNumber;

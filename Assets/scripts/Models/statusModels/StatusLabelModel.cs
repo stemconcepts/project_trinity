@@ -36,9 +36,9 @@ namespace AssemblyCSharp
                 rayPoint.z = 0f;
                 rayPoint.x += 4f;
                 if( gameObject.transform.parent.gameObject.transform.parent.gameObject != GameObject.Find("bossstatus") ){
-                    rayPoint.y +=  3f;
+                    rayPoint.y +=  1.5f;
                 } else {
-                    rayPoint.y -=  3f;
+                    rayPoint.y -=  1.5f;
                 }
                 liveStatusHoverObj = (GameObject)Instantiate( statusHoverObj, rayPoint, Quaternion.identity );
                 var statusName = liveStatusHoverObj.transform.Find("statusName").GetComponent<Text>();

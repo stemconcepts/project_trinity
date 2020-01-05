@@ -5,6 +5,7 @@ namespace AssemblyCSharp
 {
     [System.Serializable]
     public class weaponModel : ScriptableObject {
+        public bool enablesAutoAttacks;
     	public string WeaponName;
     	public string DisplayName;
     	public bool owned;

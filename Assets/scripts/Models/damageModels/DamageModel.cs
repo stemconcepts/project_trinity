@@ -12,14 +12,13 @@ namespace AssemblyCSharp
         public DamageModel()
         {
             hitAnimNormal = "hit";
-            //baseManager = bm;
-            //hitEffectPositionScript = baseManager.effectsManager.fxCenter.transform;
         }
         public Battle_Details_Manager combatDisplayScript;
         private Skill_Manager SkillScript;
         private Status_Manager statusScript;
         public float damageTaken;
-        public float absorbAmount;
+        public float remainingAbsorbAmount;
+        public float damageAbsorbed;
         public float flatDmgTaken;
         public float MdamageTaken;
         public float incomingDmg;

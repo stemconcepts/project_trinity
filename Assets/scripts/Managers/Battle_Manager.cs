@@ -24,6 +24,8 @@ namespace AssemblyCSharp
         public static bool waitingForSkillTarget;
         public static bool offensiveSkill;
         public static bool battleStarted;
+        public static GameObject pauseScreenHolder;
+        public static bool gamePaused;
 
         void Awake(){
             gameManager = gameObject.GetComponent<Game_Manager>();
@@ -34,6 +36,8 @@ namespace AssemblyCSharp
             gameEffectManager = gameManager.GameEffectsManager;
             eventManager = gameManager.EventManager;
             assetFinder = gameManager.AssetFinder;
+            pauseScreenHolder = GameObject.Find("PauseOverlayUI");
+            pauseScreenHolder.SetActive(false);
         }
 
         void Start()
@@ -47,9 +51,19 @@ namespace AssemblyCSharp
             enemyCharacters.Capacity = enemyCharacters.Count;
             battleInterfaceManager = bi.Select( x => x.GetComponent<Battle_Interface_Manager>() ).ToList();
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
-            //bi.ForEach(o => o.GetComponent<Battle_Interface_Manager>().SkillSet(friendlyCharacters[0].baseManager.skillManager));
         }
-    
+
+        void Update()
+        {
+            /*if (battleStarted)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    PauseGame();
+                }
+            }*/
+        }
+
         public static List<Battle_Interface_Manager> GetBattleInterfaces(){
             return battleInterfaceManager;
         }
@@ -60,13 +74,20 @@ namespace AssemblyCSharp
             return y;
         }
 
+        public static void PauseGame()
+        {
+            pauseScreenHolder.SetActive(gamePaused ? false : true);
+            Time.timeScale = gamePaused ? 1 : 0;
+            gamePaused = !gamePaused;
+        }
+
         public List<Character_Manager> GetCharacterManagerByLoyalty(Boolean getFriendly){
             return getFriendly ? friendlyCharacters : enemyCharacters;
         }
 
         public class classState{
-            public string Name; //{ get; set; } 
-            public bool Alive; //{ get; set; } 
+            public string Name;
+            public bool Alive;
             public bool Selected;
             public bool LastSelected;
             public classState( string name, bool alive, bool selected, bool lastSelected ){
@@ -84,15 +105,6 @@ namespace AssemblyCSharp
         public void LoadStatBonuses(){
             
         }
-
-        /*public void LoadCharacters( List<Character_Manager> characters ){
-            foreach (var character in characters)
-            {
-                if( character.characterModel.currentPanel ){
-                   character.characterModel.currentPanel.GetComponent<Panels_Manager>().SetStartingPanel( character.gameObject );
-                }
-            }
-        }*/
 
         public static List<Character_Manager> GetCharacterManagers( Boolean friendly ){
             return !friendly ? characterSelectManager.enemyCharacters : characterSelectManager.friendlyCharacters;

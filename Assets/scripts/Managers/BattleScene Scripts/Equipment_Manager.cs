@@ -28,6 +28,7 @@ namespace AssemblyCSharp
                 var intPSkill3 = Object.Instantiate( primaryWeapon.skillThree ) as SkillModel;
                 baseManager.skillManager.primaryWeaponSkills.Add(intPSkill2);
                 baseManager.skillManager.primaryWeaponSkills.Add(intPSkill3);
+                baseManager.characterManager.characterModel.canAutoAttack = primaryWeapon.enablesAutoAttacks;
             } else {
                 print ("no Primary weapons" + gameObject);
             }

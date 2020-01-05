@@ -91,7 +91,6 @@ namespace AssemblyCSharp
         public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
         public bool statusFriendlyDispellable = true;
 
-        //attach status to target
         public void AttachStatus(List<SingleStatusModel> singleStatusGroup, Base_Character_Manager baseManager, float power, SkillModel skillModel)
         {
             for (int i = 0; i < singleStatusGroup.Count; i++)
@@ -123,9 +122,7 @@ namespace AssemblyCSharp
                 baseManager.statusManager.RunStatusFunction(sm);
             }
         }
-        //public SkillModel onhitSkilltoRun;
 
-        //Run Extra Skill Effects
         public void RunExtraEffect(SkillData data)
         {
             switch (ExtraEffect)
@@ -144,53 +141,32 @@ namespace AssemblyCSharp
             }
         }
 
-        //Run Extra Skill
         public void RunExtraSkill(SkillData data)
         {
             var casterSkillSelection = data.caster != null ? data.caster.GetComponent<Skill_Manager>() : null;
             if (data.caster != null)
             {
                 casterSkillSelection.PrepSkill(data.skillModel.ExtraSkillToRun);
-                // casterSkillSelection.StartCasting( data.enemySkill.ExtraSkillToRun, data );
             }
         }
 
         public void Dispel(SkillData data)
         {
             var debuffPower = data.skillModel != null ? data.skillModel.skillPower : 0;
-            var positionId = 0;
+            var buffsRemoved = 0;
             foreach (StatusLabelModel activeStatus in data.target.baseManager.statusManager.GetAllStatusIfExist(true))
             {
-                if (positionId < debuffPower && activeStatus.buff && activeStatus.dispellable)
+                if (buffsRemoved < debuffPower && activeStatus.buff && activeStatus.dispellable)
                 {
                     Battle_Manager.battleDetailsManager.RemoveLabel(activeStatus);
                     activeStatus.statusModel.turnOff = true;
                     data.target.baseManager.statusManager.RunStatusFunction(activeStatus.statusModel);
+                    buffsRemoved++;
                 }
-                else if (positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable && !activeStatus.statusModel.singleStatus.active)
+                /*else if (positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable && !activeStatus.statusModel.singleStatus.active)
                 {
-                }
-                positionId++;
+                }*/
             }
-            /*List<Character_Manager> targets = data.targets;
-            foreach (var target in targets)
-            {
-                var debuffPower = data.skillModel != null ? data.skillModel.skillPower : 0;
-                var positionId = 0;
-                foreach (StatusLabelModel activeStatus in target.baseManager.statusManager.GetAllStatusIfExist(true))
-                {
-                    if (positionId < debuffPower && activeStatus.buff && activeStatus.dispellable)
-                    {
-                        Battle_Manager.battleDetailsManager.RemoveLabel(activeStatus);
-                        activeStatus.statusModel.turnOff = true;
-                        target.baseManager.statusManager.RunStatusFunction(activeStatus.statusModel);
-                    }
-                    else if (positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable && !activeStatus.statusModel.singleStatus.active)
-                    {
-                    }
-                    positionId++;
-                }
-            }*/
         }
 
         //Does extra damage based on status effect      

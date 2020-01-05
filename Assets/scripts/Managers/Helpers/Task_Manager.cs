@@ -4,6 +4,7 @@ using System.Collections;
 using Spine.Unity;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Spine;
 
 namespace AssemblyCSharp
 {
@@ -133,6 +134,36 @@ namespace AssemblyCSharp
             Time.timeScale = 1f;
         }
 
+        public void CallFadeOutTask(MeshRenderer renderer, System.Action action = null)
+        {
+            var myTask = new Task(FadeOutFade(renderer));
+        }
+        IEnumerator FadeOutFade(MeshRenderer renderer)
+        {
+            var alpha = renderer.material.color.a;
+            while (alpha > 0f)
+            {
+                var newColor = new Color(0, 0, 0, alpha - 0.1f);
+                alpha = newColor.a;
+                yield return null;
+            }
+        }
+
+        public void CallFadeOutSpineTask(Slot slot, System.Action action = null)
+        {
+            var myTask = new Task(FadeOutSpineFade(slot));
+        }
+        IEnumerator FadeOutSpineFade(Slot slot)
+        {
+            while (slot.A > 0f)
+            {
+                /*var newColor = new Color(0, 0, 0, alpha - 0.1f);
+                slot.A = newColor.a;*/
+                slot.A -= 0.003f;
+                yield return null;
+            }
+        }
+
         public void MoveForwardTask(Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject effect)
         {
             var myTask = new Task(moveForward( movingObjectScripts, targetpos, effect, movementSpeed));
@@ -197,7 +228,10 @@ namespace AssemblyCSharp
             var target = bm.skillManager.currenttarget;
             while( target == null ) {
                 if( bm.statusManager.DoesStatusExist("stun") ){
-                    bm.skillManager.SkillActiveSet( classSkill, false, skillCancel:true );
+                    bm.skillManager.SkillActiveSet(classSkill, false);
+                    Battle_Manager.waitingForSkillTarget = false;
+                    bm.skillManager.finalTargets.Clear();
+                    Time.timeScale = 1f;
                     yield break;
                 }
                 target = player.GetComponent<Skill_Manager>().currenttarget;
@@ -205,14 +239,11 @@ namespace AssemblyCSharp
             }
             Battle_Manager.waitingForSkillTarget = false;
             bm.skillManager.finalTargets.Add( target );
-            //bm.characterManager.characterModel.target = target.GetComponent<Base_Character_Manager>();
-            //bm.skillManager.currenttarget = null;
             if (skillAction != null)
             {
                 skillAction();
             }
             Time.timeScale = 1f;
-            //bm.skillManager.SkillComplete(bm.skillManager.finalTargets, skillModel : classSkill, weaponSkill : weaponSkill);
         }
 
         public bool skillcoolDownTask( SkillModel skill, Image image ){
