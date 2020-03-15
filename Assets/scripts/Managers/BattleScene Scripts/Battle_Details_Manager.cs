@@ -76,6 +76,7 @@ namespace AssemblyCSharp
             GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x, charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
+            damageData.fontSize = damageModel.fontSize;
             damageData.damageData = (int)damageModel.damageTaken;
             damageData.extraInfo = extraInfo + (damageModel.modifiedDamage ? "*" : ""); ;
             damageData.isDmg = true;
@@ -86,6 +87,7 @@ namespace AssemblyCSharp
             GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
+            damageData.fontSize = damageModel.fontSize;
             damageData.healData = (int)damageModel.incomingHeal;
             damageData.isDmg = false;
         }
@@ -94,7 +96,7 @@ namespace AssemblyCSharp
             GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
-            //damageData.absorbData = (int)damageModel.damageTaken;
+            damageData.fontSize = damageModel.fontSize;
             damageData.extraInfo = "<size=100><i>absorbed: " + (int)damageModel.damageAbsorbed + "/" + (int)absorbAmount + "</i></size>";
             damageData.isAbsorb = true;
             damageData.skillLabel = damageModel.skillSource;

@@ -59,16 +59,13 @@ namespace AssemblyCSharp
         void OnRenderObject()
         {
             if( !moved && currentOccupier ){
-                panelTransform = GetComponent<RectTransform>();
                 SetStartingPanel(currentOccupier);
             }
             moved = true;
         }
 
-        public void SetStartingPanel(GameObject currentOccupier)
+        public void SetStartingPanel(GameObject currentOccupier, bool forceMove = false)
         {
-                
-            //panelTransform.position = panelTransform.position;
             animationManager = currentOccupier.GetComponent<Animation_Manager>();
             movementManager = currentOccupier.GetComponent<Movement_Manager>();
             animationManager.SetSortingLayer(sortingLayerNumber);
@@ -78,8 +75,9 @@ namespace AssemblyCSharp
             characterManager.characterModel.inThreatZone = isThreatPanel;
             characterManager.characterModel.inVoidCounter = isVoidCounter;
             characterManager.characterModel.inVoidZone = isVoidZone;
-            if (!moved)
+            if (!moved || forceMove)
             {
+                panelTransform = GetComponent<RectTransform>();
                 currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
             }
         }

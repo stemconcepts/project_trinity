@@ -26,10 +26,11 @@ namespace AssemblyCSharp
 
         void Awake()
         {
-            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            UpdateCharacters();
+            /*enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
             enemyCharacters.Capacity = enemyCharacters.Count;
             friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
-            friendlyCharacters.Capacity = friendlyCharacters.Count;
+            friendlyCharacters.Capacity = friendlyCharacters.Count;*/
         }
 
         void Start(){
@@ -109,6 +110,14 @@ namespace AssemblyCSharp
             Battle_Manager.characterSelectManager.SetSelectedCharacter(swapTo);
             GetSelectedClassObject().GetComponent<Character_Interaction_Manager>().DisplaySkills();
             Battle_Manager.soundManager.playSound(Battle_Manager.soundManager.charSwapSound);
+        }
+
+        public void UpdateCharacters()
+        {
+            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            enemyCharacters.Capacity = enemyCharacters.Count;
+            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            friendlyCharacters.Capacity = friendlyCharacters.Count;
         }
 
         void Update()

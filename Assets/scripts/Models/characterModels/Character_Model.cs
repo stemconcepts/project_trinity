@@ -66,7 +66,7 @@ namespace AssemblyCSharp
             boss,
             minion
         };
-        public Base_Character_Manager target;
+        //public Base_Character_Manager target;
         public bool damageImmune;
         public bool canAutoAttack;
         public bool isBusy;

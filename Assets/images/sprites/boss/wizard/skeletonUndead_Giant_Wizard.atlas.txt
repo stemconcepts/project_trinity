@@ -1,0 +1,118 @@
+
+skeleton.png
+size: 1769,488
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+wizard_0000s_0000_capeFront
+  rotate: false
+  xy: 930, 173
+  size: 346, 313
+  orig: 346, 313
+  offset: 0, 0
+  index: -1
+wizard_0000s_0000s_0000_Layer-10
+  rotate: true
+  xy: 1252, 53
+  size: 22, 21
+  orig: 27, 35
+  offset: 3, 1
+  index: -1
+wizard_0000s_0000s_0001_Layer-9
+  rotate: false
+  xy: 889, 101
+  size: 39, 54
+  orig: 50, 55
+  offset: 9, 1
+  index: -1
+wizard_0000s_0001_eyes
+  rotate: true
+  xy: 1252, 40
+  size: 11, 9
+  orig: 18, 21
+  offset: 7, 1
+  index: -1
+wizard_0000s_0002_skullHole
+  rotate: false
+  xy: 595, 2
+  size: 159, 153
+  orig: 165, 160
+  offset: 5, 1
+  index: -1
+wizard_0000s_0003_jaw
+  rotate: false
+  xy: 1630, 302
+  size: 82, 66
+  orig: 89, 74
+  offset: 6, 1
+  index: -1
+wizard_0000s_0005_capeBack
+  rotate: false
+  xy: 1278, 227
+  size: 350, 259
+  orig: 350, 259
+  offset: 0, 0
+  index: -1
+wizard_0001s_0000_Layer-2
+  rotate: false
+  xy: 1252, 77
+  size: 21, 94
+  orig: 32, 106
+  offset: 9, 1
+  index: -1
+wizard_0001s_0000s_0000_jewel
+  rotate: true
+  xy: 1536, 2
+  size: 91, 231
+  orig: 91, 231
+  offset: 0, 0
+  index: -1
+wizard_0001s_0000s_0000s_0000_fingers
+  rotate: true
+  xy: 1630, 370
+  size: 116, 101
+  orig: 126, 113
+  offset: 10, 0
+  index: -1
+wizard_0001s_0000s_0000s_0001_palm
+  rotate: true
+  xy: 756, 54
+  size: 101, 131
+  orig: 105, 140
+  offset: 4, 0
+  index: -1
+wizard_0001s_0000s_0001_forarm
+  rotate: false
+  xy: 1536, 95
+  size: 221, 130
+  orig: 233, 144
+  offset: 10, 1
+  index: -1
+wizard_0001s_0000s_0002_backarm
+  rotate: true
+  xy: 930, 4
+  size: 167, 320
+  orig: 180, 333
+  offset: 11, 2
+  index: -1
+wizard_0001s_0001_capeFront
+  rotate: true
+  xy: 2, 7
+  size: 479, 591
+  orig: 479, 591
+  offset: 0, 0
+  index: -1
+wizard_0001s_0002_rib
+  rotate: true
+  xy: 1278, 7
+  size: 218, 256
+  orig: 218, 256
+  offset: 0, 0
+  index: -1
+wizard_0001s_0003_back
+  rotate: true
+  xy: 595, 157
+  size: 329, 333
+  orig: 329, 333
+  offset: 0, 0
+  index: -1

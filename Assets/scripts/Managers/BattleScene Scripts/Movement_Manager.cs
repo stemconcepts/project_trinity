@@ -37,23 +37,23 @@ namespace AssemblyCSharp
         void OnRenderObject()
         {
             if( currentPosition != (Vector2)this.gameObject.transform.position){
-                currentPosition = (Vector2)this.gameObject.transform.position;
+                currentPosition = this.gameObject.transform.position;
             }
         }
 
         void Update(){
         }
 
-        public void ForcedMove(string direction = "Back", int moveAmount = 1)
+        public void ForcedMove(GenericSkillModel.forcedMoveType forcedMoveType, int moveAmount = 1)
         {
             var currentPanel = baseManager.movementManager.currentPanel;
             var currentPanelNum = currentPanel.GetComponent<Panels_Manager>().panelNumber;
             int targetPanelNum = currentPanelNum;
-            if (direction == "Back")
+            if (forcedMoveType == GenericSkillModel.forcedMoveType.Back)
             {
                 targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + moveAmount;
             }
-            else if (direction == "Forward")
+            else if (forcedMoveType == GenericSkillModel.forcedMoveType.Forward)
             {
                 targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - moveAmount;
             }
@@ -61,6 +61,7 @@ namespace AssemblyCSharp
             targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
             var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
             MoveToPanel(targetPanel, "hit");
+            targetPanel.GetComponent<Panels_Manager>().SetStartingPanel(this.gameObject, true);
         }
 
         public void SetSortingLayer(int sortingLayer ){
@@ -70,8 +71,8 @@ namespace AssemblyCSharp
         public Vector2 GetAttackPos( GameObject target ){
             Vector2 attackedPos = new Vector2();
             if( target != null ){
-                attackedPos.x = gameObject.name.IndexOf("Minion") > -1 ? target.GetComponent<Movement_Manager>().posMarkerMin.transform.position.x : target.GetComponent<Movement_Manager>().posMarker.transform.position.x;
-                attackedPos.y = gameObject.name.IndexOf("Minion") > -1 ? target.GetComponent<Movement_Manager>().posMarkerMin.transform.position.y : target.GetComponent<Movement_Manager>().posMarker.transform.position.y;
+                attackedPos.x = baseManager.characterManager.characterModel.role == Character_Model.RoleEnum.minion ? target.GetComponent<Movement_Manager>().posMarkerMin.transform.position.x : target.GetComponent<Movement_Manager>().posMarker.transform.position.x;
+                attackedPos.y = baseManager.characterManager.characterModel.role == Character_Model.RoleEnum.minion ? target.GetComponent<Movement_Manager>().posMarkerMin.transform.position.y : target.GetComponent<Movement_Manager>().posMarker.transform.position.y;
             }
             return attackedPos;
         }
@@ -104,7 +105,8 @@ namespace AssemblyCSharp
 
         public void OnEventMove(Spine.TrackEntry state, Spine.Event e ){
             if( e.Data.Name == "movementStart" ){
-                moveToTarget( movementSpeed, baseManager.characterManager.characterModel.target );
+                var target = baseManager.autoAttackManager.isAttacking ? baseManager.autoAttackManager.autoAttackTarget : baseManager.skillManager.currenttarget.baseManager;
+                moveToTarget( movementSpeed, target );
             } else if( e.Data.Name == "movementBack" ){
                 baseManager.autoAttackManager.isAttacking = false;
                 if( origPosition != (Vector2)this.gameObject.transform.position ){

@@ -30,6 +30,18 @@ namespace AssemblyCSharp
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
         }
 
+        void Start()
+        {
+            if( skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
+            {
+                skeletonAnimation.state.SetAnimation(0, "intro", false);
+                skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
+            } else
+            {
+                skeletonAnimation.state.SetAnimation(0, "idle", true);
+            }
+        }
+
         public void SetSortingLayer(int sortingLayer ){
             meshRenderer.sortingOrder = sortingLayer;
         }

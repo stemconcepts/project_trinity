@@ -45,5 +45,6 @@ namespace AssemblyCSharp
         public bool damageImmidiately;
         public bool modifiedDamage;
         public elementType element;
+        public int fontSize;
     }
 }

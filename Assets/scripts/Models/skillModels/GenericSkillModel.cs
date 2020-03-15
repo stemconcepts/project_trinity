@@ -23,6 +23,7 @@ namespace AssemblyCSharp
         public float newSP;
         public float magicPower;
         public float newMP;
+        public bool useModifier;
         public float modifierAmount;
         public float duration;
         public float castTime;
@@ -163,35 +164,20 @@ namespace AssemblyCSharp
                     data.target.baseManager.statusManager.RunStatusFunction(activeStatus.statusModel);
                     buffsRemoved++;
                 }
-                /*else if (positionId == debuffPower && activeStatus.buff && !activeStatus.dispellable && !activeStatus.statusModel.singleStatus.active)
-                {
-                }*/
             }
         }
-
-        //Does extra damage based on status effect      
+   
         public void BonusDamageBySubStatus(SkillData data)
         {
-            var subStatusFound = false;
             var statusList = data.target.baseManager.statusManager.GetAllStatusIfExist(false);
+            useModifier = false;
             foreach (var status in statusList)
             {
                 if (status.statusModel.singleStatus.subStatus == data.skillModel.subStatus)
                 {
-                    subStatusFound = true;
+                    useModifier = true;
                     return;
                 }
-            }
-            if (!subStatusFound)
-            {
-                    if (data.skillModel != null)
-                    {
-                        data.skillModel.modifierAmount = 0f;
-                    }
-                    if (data.enemySkillModel != null)
-                    {
-                        data.enemySkillModel.modifierAmount = 0f;
-                    }
             }
         }
     }

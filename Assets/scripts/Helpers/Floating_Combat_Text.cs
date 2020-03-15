@@ -20,7 +20,8 @@ namespace AssemblyCSharp
         public int fixedData;
         public GameObject textObject;
         private Text displayText;
-    
+        public int fontSize;
+
         void Move(){
             currentPositionX = this.transform.position.x;
             currentPositionY = this.transform.position.y;
@@ -35,8 +36,8 @@ namespace AssemblyCSharp
     
         void CreateData() {
             displayText = textObject.GetComponent<Text>();
-            //fixedData = damageData;
-            if( isDmg ){
+            displayText.fontSize = fontSize == 0 ? 200 : fontSize;
+            if ( isDmg ){
                 //displayText.text = skillLabel + ": -" + damageData.ToString();
                 displayText.text = string.IsNullOrEmpty(extraInfo) ? damageData.ToString() : damageData.ToString() + extraInfo;
                 //displayText.text += (modifiedDamage ? "*" : "");

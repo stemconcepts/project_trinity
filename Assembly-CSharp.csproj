@@ -183,6 +183,7 @@
     <Compile Include="Assets\scripts\Models\eventModels\EventModel.cs" />
     <Compile Include="Assets\scripts\Models\sceneModels\battleModel.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\GenericSkillModel.cs" />
+    <Compile Include="Assets\scripts\Models\skillModels\PreRequisiteModel.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\SkillModel.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\enemy skills\PhaseModel.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\enemy skills\enemySkill.cs" />
@@ -199,8 +200,8 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
     <None Include="Assets\Spine\version.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\images\sprites\minions\undead\skeletonUndead_Minion.atlas.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Bitmap.shader" />
-    <None Include="Assets\images\sprites\boss\wizard\skeleton.atlas.txt" />
     <None Include="Assets\Spine Examples\Spine Skeletons\Eyes\eyes.atlas.txt" />
     <None Include="Assets\Spine Examples\Spine Skeletons\raptor-pro-and-mask\raptor-pma.atlas.txt" />
     <None Include="Assets\images\sprites\dps\new\skeleton.atlas.txt" />
@@ -208,6 +209,7 @@
     <None Include="Assets\images\sprites\dps\skeleton.atlas.txt" />
     <None Include="Assets\codeandweb.com\Readme.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\images\sprites\boss\wizard\skeletonUndead_Giant_Wizard.atlas.txt" />
     <None Include="Assets\Spine Examples\Spine Skeletons\Goblins\goblins.atlas.txt" />
     <None Include="Assets\Spine Examples\Spine Skeletons\Hero\hero-pro.atlas.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
@@ -241,7 +243,6 @@
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\Spine Examples\Spine Skeletons\FootSoldier\Equipment\Equipment.atlas.txt" />
     <None Include="Assets\Spine Examples\Spine Skeletons\FootSoldier\license.txt" />
-    <None Include="Assets\images\sprites\minions\undead\skeleton.atlas.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Sean/Documents/HydraHorn/project_trinity/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

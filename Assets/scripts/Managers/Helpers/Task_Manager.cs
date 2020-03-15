@@ -73,25 +73,24 @@ namespace AssemblyCSharp
             {
                 if (statusModel.singleStatus.statusName == "regen")
                 {
-                    //statusModel.characterManager.characterModel.incomingHeal = statusModel.power;
-                    var damageModel = new DamageModel(){
+                    var damageModel = new DamageModel() {
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.statusName,
                         incomingHeal = statusModel.power,
-                        damageImmidiately = true
+                        damageImmidiately = true,
+                        fontSize = 100
                     };
                     damageManager.calculateHdamage(damageModel);
                 }
                 else
                 {
-                    //damageManager.charDamageModel.incomingDmg = statusModel.power;
                     var damageModel = new DamageModel(){
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.statusName,
                         incomingDmg = statusModel.power,
                         damageImmidiately = true,
-                        //useResistances = statusModel.singleStatus.element != elementType.none,
-                        element = statusModel.singleStatus.element
+                        element = statusModel.singleStatus.element,
+                        fontSize = 100
                     };
                     damageManager.calculatedamage(damageModel);
                 }
@@ -230,7 +229,7 @@ namespace AssemblyCSharp
                 if( bm.statusManager.DoesStatusExist("stun") ){
                     bm.skillManager.SkillActiveSet(classSkill, false);
                     Battle_Manager.waitingForSkillTarget = false;
-                    bm.skillManager.finalTargets.Clear();
+                    //bm.skillManager.finalTargets.Clear();
                     Time.timeScale = 1f;
                     yield break;
                 }

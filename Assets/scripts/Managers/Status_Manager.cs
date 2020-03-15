@@ -24,7 +24,17 @@ namespace AssemblyCSharp
             singleStatusList = Battle_Manager.assetFinder.GetAllStatuses();
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             battleDetailsManager = Battle_Manager.battleDetailsManager;
-            statusHolderObject = GameObject.Find( baseManager.characterManager.characterModel.role.ToString() + "status" );
+            /*if (baseManager.characterManager.characterModel.role == Character_Model.RoleEnum.minion)
+            {
+                statusHolderObject = GameObject.Find(gameObject.name + "_data_status");
+            } else
+            {*/
+            if (statusHolderObject == null)
+            {
+                statusHolderObject = GameObject.Find(baseManager.characterManager.characterModel.role.ToString() + "status");
+            }
+                
+            //}
         }
 
         public void AttributeChange( StatusModel statusModel ){

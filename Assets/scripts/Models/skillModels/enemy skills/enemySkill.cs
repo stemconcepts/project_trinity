@@ -3,16 +3,20 @@ using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
 using Spine.Unity;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
     public class enemySkill : GenericSkillModel
     {
     	[Header("Default Skill Variables:")]
-    	
+
     	public bool skillConfirm;
     	public int skillCost;
-    	[Header("Summon Creature:")]
+        [Header("Requirements:")]
+        public PreRequisiteModel preRequisite;
+        //public preRequisiteTypeEnum preRequisiteType;
+        [Header("Summon Creature:")]
     	public List<GameObject> summonedObjects = new List<GameObject>();
         public voidZoneType voidZoneTypes;
         public enum voidZoneType
@@ -22,16 +26,16 @@ namespace AssemblyCSharp
             Hline,
             Random
         }
-
         public bool monsterPanel = false;
-        //public AssemblyCSharp.Skill_Manager.EnemyPhase bossPhase;
-        public bool phaseOne;
-        public bool phaseTwo;
-        public bool phaseThree;
         public bool hasVoidzone;
         public float eventDuration;
-
-        GameObject GetRandomPanel(GameObject[] panels = null)
+        
+        /*public enum preRequisiteTypeEnum
+        {
+            none,
+            summon
+        }*/
+        GameObject GetRandomPanelFromPanels(GameObject[] panels = null)
         {
             if (panels == null)
             {
@@ -77,7 +81,7 @@ namespace AssemblyCSharp
                     break;
                 case voidZoneType.Random:
                     allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
-                    GetRandomPanel(allPanels).GetComponent<Panels_Manager>().VoidZoneMark();
+                    GetRandomPanelFromPanels(allPanels).GetComponent<Panels_Manager>().VoidZoneMark();
                     break;
             }
         }
@@ -109,27 +113,27 @@ namespace AssemblyCSharp
         }
 
         //summon object
-        public void SummonCreatures(List<GameObject> targetCreatures)
+        public void SummonCreatures()
         {
-            for (int i = 0; i < targetCreatures.Count; i++)
+            for (int i = 0; i < summonedObjects.Count; i++)
             {
-                var creatureData = (GameObject)Instantiate(GameObject.Find("singleMinionData"), GameObject.Find("Panel MinionData").transform);
-                var panel = GetRandomPanel();
+                var enemyIndex = Battle_Manager.GetCharacterManagers(false).Count - 1;
+                var singleMinionDataItem = Battle_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
+                var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
+                creatureData.name = "minion_" + enemyIndex + "_data";
+                var panel = GetRandomPanelFromPanels();
+                var panelManager = panel.GetComponent<Panels_Manager>();
                 if (panel)
                 {
-                    creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
-                    var newCreature = (GameObject)Instantiate(targetCreatures[i], creatureData.transform);
-                    panel.GetComponent<Panels_Manager>().currentOccupier = newCreature;
-                    creatureData.transform.GetChild(1).GetChild(0).gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role.ToString() + i.ToString() + "status";
-                    newCreature.gameObject.name = newCreature.GetComponent<Character_Manager>().characterModel.role.ToString() + i.ToString();
-                    newCreature.GetComponent<Movement_Manager>().currentPanel = panel;
-                    newCreature.GetComponent<Character_Manager>().characterModel.role = Character_Model.RoleEnum.minion;
-                    creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().SetDataObjects(i);
-                    //panel.GetComponent<Panels_Manager>().Start();
-                    newCreature.GetComponent<Animation_Manager>().skeletonAnimation.state.SetAnimation(0, "intro", false);
-                    newCreature.GetComponent<Animation_Manager>().skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
-                    //StartCoroutine( DelayedStart( newCreature ) );
-                    globalEffectsController.callEffectTarget(newCreature, fxObject, fxPos.ToString());
+                    //creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
+                    var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
+                    newCreature.name = "minion_" + enemyIndex;
+                    var minionBaseManager = newCreature.GetComponent<Base_Character_Manager>();
+                    panelManager.currentOccupier = newCreature;
+                    minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
+                    minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
+                    panelManager.SetStartingPanel(newCreature, true);
+                    Battle_Manager.characterSelectManager.UpdateCharacters();
                 }
                 else
                 {

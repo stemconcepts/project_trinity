@@ -31,10 +31,13 @@ namespace AssemblyCSharp
         public void RefreshSkillList(List<enemySkill> skillList)
         {
             copiedSkillList.Clear();
-            foreach (var skill in skillList)
+            if (skillList != null)
             {
-                copiedSkillList.Add(Object.Instantiate(skill));
-            };
+                foreach (var skill in skillList)
+                {
+                    copiedSkillList.Add(Object.Instantiate(skill));
+                };
+            }
         }
 
         void Start()
@@ -95,10 +98,26 @@ namespace AssemblyCSharp
             }
         }
 
-        private void ForcedMove(Base_Character_Manager target, enemySkill skillModel)
+        private bool IsPreRequisiteMet(enemySkill skill)
         {
-            var movementScript = target.movementManager;
-            movementScript.ForcedMove(skillModel.forcedMove.ToString(), skillModel.forcedMoveAmount);
+            switch (skill.preRequisite.preRequisiteType)
+            {
+                case PreRequisiteModel.preRequisiteTypeEnum.summon:
+                    var y = Battle_Manager.GetCharacterManagers(false);
+                    var x = Battle_Manager.GetCharacterManagers(false).Where(o => o.characterModel.role == Character_Model.RoleEnum.minion);
+                    return x.Count() >= skill.preRequisite.amount;
+                default:
+                    return true;
+            }
+        }
+
+        private void ForcedMove(List<Character_Manager> targets, enemySkill skillModel)
+        {
+            targets.ForEach(o =>
+            {
+                var movementScript = o.baseManager.movementManager;
+                movementScript.ForcedMove(skillModel.forcedMove, skillModel.forcedMoveAmount);
+            });
         }
 
         public void CalculateSkillPower(){
@@ -118,11 +137,11 @@ namespace AssemblyCSharp
             }
             skillModel.newMP = skillModel.magicPower * baseManager.characterManager.characterModel.MAtk;
         }
-        private void GetTargets( SkillModel skillModel, bool randomTarget = false, bool weaponSkill = true ){
+        private void GetTargets( SkillModel skillModel, bool weaponSkill = true ){
             finalTargets.Clear();
             var player = this.gameObject;
             var enemyPlayers = Battle_Manager.GetCharacterManagers(false);
-            var friendlyPlayers = Battle_Manager.GetCharacterManagers(true);
+            var friendlyPlayers = Battle_Manager.GetCharacterManagers(true).Where(o => o.name != gameObject.name).ToList(); ;
             if( skillModel.self ){ finalTargets.Add( baseManager.characterManager ); }
             if( skillModel.allEnemy ){ finalTargets.AddRange( enemyPlayers ); }
             if( skillModel.allFriendly ){ finalTargets.AddRange( friendlyPlayers ); }
@@ -131,7 +150,7 @@ namespace AssemblyCSharp
                     {
                         //baseManager.characterManager.characterModel.target = target;
                         Time.timeScale = 1f;
-                        SkillComplete(finalTargets, skillModel: skillModel, weaponSkill: weaponSkill);
+                        SkillComplete(finalTargets, skillModel: skillModel);
                     }
                 );
                 return;
@@ -139,12 +158,12 @@ namespace AssemblyCSharp
                 if (!baseManager.statusManager.DoesStatusExist("stun"))
                 {
                     finalTargets.Capacity = finalTargets.Count;
-                    SkillComplete(finalTargets, weaponSkill: weaponSkill, skillModel: skillModel);
+                    SkillComplete(finalTargets, skillModel: skillModel);
                 }
                 else
                 {
-                    SkillActiveSet(skillModel, false);
-                    //isSkillactive = false;
+                    //SkillActiveSet(skillModel, false);
+                    isSkillactive = false;
                 }
             }
         }
@@ -176,7 +195,7 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SkillComplete(List<Character_Manager> targets, SkillModel skillModel = null, enemySkill enemySkillModel = null, bool weaponSkill = true)
+        public void SkillComplete(List<Character_Manager> targets, SkillModel skillModel = null, enemySkill enemySkillModel = null)
         {
             var power = 0.0f;
             var eM = new EventModel()
@@ -225,24 +244,35 @@ namespace AssemblyCSharp
             {
                 SetAnimations(enemySkillModel);
                 DealHealDmg(enemySkillModel, targets, power);
+                if (enemySkillModel.forcedMoveAmount > 0)
+                {
+                    ForcedMove(targets, enemySkillModel);
+                }
                 Battle_Manager.taskManager.CallTask(enemySkillModel.skillCooldown, () =>
                 {
                     SkillActiveSet(enemySkillModel, false);
                 });
             }
-            currenttarget = null;
         }
 
         public void StartCasting(enemySkill skillModel)
         {
-            Battle_Manager.taskManager.CallTask(skillModel.castTime, () =>
-            {
-                GetTargets(skillModel);
-            });
             if (skillModel.hasVoidzone)
             {
                 skillModel.ShowVoidPanel(skillModel.voidZoneTypes, skillModel.monsterPanel);
             }
+            Battle_Manager.taskManager.CallTask(skillModel.castTime, () =>
+            {
+                if (skillModel.summon)
+                {
+                    skillModel.SummonCreatures();
+                    SkillComplete(finalTargets, enemySkillModel: skillModel);
+                }
+                else
+                {
+                    GetTargets(skillModel);
+                }
+            });
             baseManager.animationManager.inAnimation = true;
             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationCastingType, false);
             baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, skillModel.animationRepeatCasting, true, 0);
@@ -267,12 +297,12 @@ namespace AssemblyCSharp
                     var dmgModel = new DamageModel()
                     {
                         baseManager = target.baseManager,
-                        incomingDmg = power + (power * skillModel.modifierAmount),
+                        incomingDmg = skillModel.useModifier ? power + (power * skillModel.modifierAmount) : power,
                         skillModel = skillModel,
                         dmgSource = baseManager.characterManager,
                         dueDmgTargets = targets,
                         hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                        modifiedDamage = skillModel.modifierAmount > 0f
+                        modifiedDamage = skillModel.useModifier
                     };
                     if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
                     {
@@ -285,12 +315,12 @@ namespace AssemblyCSharp
                         var dmgModel = new DamageModel()
                         {
                             baseManager = target.baseManager,
-                            incomingHeal = power + (power * skillModel.modifierAmount),
+                            incomingHeal = skillModel.useModifier ? power + (power * skillModel.modifierAmount) : power,
                             skillModel = skillModel,
                             dmgSource = baseManager.characterManager,
                             dueDmgTargets = targets,
                             hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                            modifiedDamage = skillModel.modifierAmount > 0f
+                            modifiedDamage = skillModel.useModifier
                         };
                     target.baseManager.damageManager.calculateHdamage( dmgModel ); 
                 };
@@ -320,12 +350,12 @@ namespace AssemblyCSharp
                     var dmgModel = new DamageModel()
                     {
                         baseManager = target.baseManager,
-                        incomingDmg = power + (power * enemySkillModel.modifierAmount),
+                        incomingDmg = enemySkillModel.useModifier ? power + (power * enemySkillModel.modifierAmount) : power,
                         enemySkillModel = enemySkillModel,
                         dmgSource = baseManager.characterManager,
                         dueDmgTargets = targets,
                         hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                        modifiedDamage = enemySkillModel.modifierAmount > 0f
+                        modifiedDamage = enemySkillModel.useModifier
                     };
                     if (enemySkillModel.hasVoidzone)
                     {
@@ -340,7 +370,6 @@ namespace AssemblyCSharp
                             {
                                 target.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
                             }
-                            //dmgModel.incomingDmg = (dmgModel.incomingDmg * 2);
                             target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                             target.baseManager.damageManager.calculatedamage(dmgModel);
                         } else
@@ -385,10 +414,11 @@ namespace AssemblyCSharp
                         dmgSource = baseManager.characterManager,
                         dueDmgTargets = targets,
                         hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                        modifiedDamage = enemySkillModel.modifierAmount > 0f
+                        modifiedDamage = enemySkillModel.useModifier
                     };
                     target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                     target.baseManager.damageManager.calculateHdamage(dmgModel);
+                    currenttarget = null;
                 };
                 AddStatuses(target, power, enemySkillModel);
             }
@@ -444,8 +474,8 @@ namespace AssemblyCSharp
                 }
                 Battle_Manager.taskManager.CallTask(animationDuration, () =>
                 {
-                    SkillActiveSet(skillModel, false);
-                    //isSkillactive = false;
+                    //SkillActiveSet(skillModel, false);
+                    isSkillactive = false;
                 });
             }
         }
@@ -531,7 +561,7 @@ namespace AssemblyCSharp
             phaseSkillList.Clear();
             bossSkillList.Capacity = bossSkillList.Count;
             for( int x = 0; x < bossSkillList.Count; x++ ){
-                if (!bossSkillList[x].skillActive)
+                if (!bossSkillList[x].skillActive && IsPreRequisiteMet(bossSkillList[x]))
                 {
                     phaseSkillList.Add(Object.Instantiate(bossSkillList[x]) as enemySkill);
                 }
@@ -552,11 +582,19 @@ namespace AssemblyCSharp
             var randomSkill = SkillToRun(copiedSkillList);
             if(baseManager.characterManager.characterModel.isAlive && !isSkillactive && !baseManager.statusManager.DoesStatusExist( "stun" ) && !baseManager.autoAttackManager.isAttacking && randomSkill != null ){
                     if( !isSkillactive ){
-                        isSkillactive = true;
-                        PrepSkill( randomSkill );
-                        Battle_Manager.taskManager.CallTask( 10f, () => {
-                            BeginSkillRotation();
-                        });
+                        //if(IsPreRequisiteMet(randomSkill))
+                        //{
+                            isSkillactive = true;
+                            PrepSkill(randomSkill);
+                            Battle_Manager.taskManager.CallTask(10f, () => {
+                                BeginSkillRotation();
+                            });
+                        /*} else {
+                            Battle_Manager.taskManager.CallTask(1f, () =>
+                            {
+                                BeginSkillRotation();
+                            });
+                        }*/
                     } else if ( isSkillactive ){
                         Battle_Manager.taskManager.CallTask( 1f, () => {
                             BeginSkillRotation();
@@ -610,6 +648,7 @@ namespace AssemblyCSharp
                         targetDamageManager.skillDmgModels.Remove(gameObject.name);
                     }
                 }
+                currenttarget = null;
             }
         }
     }

@@ -18,7 +18,12 @@ namespace AssemblyCSharp
         public PhaseManager phaseManager;
         void Awake()
         {
-            this.characterManager = this.gameObject.GetComponent<Character_Manager>();
+            Setup();
+        }
+
+        public void Setup()
+        {
+            this.characterManager = this.characterManager ?? this.gameObject.GetComponent<Character_Manager>();
             this.statusManager = this.gameObject.GetComponent<Status_Manager>();
             this.animationManager = this.gameObject.GetComponent<Animation_Manager>();
             this.movementManager = this.gameObject.GetComponent<Movement_Manager>();

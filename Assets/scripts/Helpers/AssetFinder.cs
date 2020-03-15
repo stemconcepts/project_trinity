@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 namespace AssemblyCSharp
 {
@@ -23,6 +24,12 @@ namespace AssemblyCSharp
 
         public AssetFinder()
         {
+        }
+
+        public GameObject GetGameObjectFromPath(string path)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            return prefab;
         }
 
         public List<SingleStatusModel> GetAllStatuses(){

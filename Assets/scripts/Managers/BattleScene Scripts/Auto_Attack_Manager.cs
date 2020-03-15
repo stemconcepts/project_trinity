@@ -7,9 +7,9 @@ namespace AssemblyCSharp
     public class Auto_Attack_Manager: MonoBehaviour
     {
         public Base_Character_Manager baseManager;
-        //public string AAanimation;
         public float attackMovementSpeed = 50f;
         public bool isAttacking = false;
+        public Base_Character_Manager autoAttackTarget;
         //public DamageModel dmgModel;
         public 
         void Start(){
@@ -19,10 +19,18 @@ namespace AssemblyCSharp
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventAAHit;
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventAAComplete;
             }
+            if (baseManager.characterManager.characterModel.canAutoAttack)
+            {
+                Battle_Manager.taskManager.CallTask(5f + baseManager.characterManager.characterModel.ATKspd, () =>
+                {
+                    autoAttackTarget = baseManager.characterManager.GetTarget(true);
+                    RunAttackLoop();
+                });
+            }
         }
 
         public void RunAttackLoop(){  
-                var targetDmgManager = baseManager.characterManager.characterModel.target ? baseManager.characterManager.characterModel.target.damageManager : null; 
+                var targetDmgManager = autoAttackTarget  ? autoAttackTarget.damageManager : null; 
                 if( targetDmgManager != null && baseManager.characterManager.characterModel.isAlive && baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist( "stun" ) && !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive ){
                         isAttacking = true;
                         if ( !string.IsNullOrEmpty(baseManager.animationManager.attackAnimation) && baseManager.animationManager.inAnimation == false ) 
@@ -31,13 +39,13 @@ namespace AssemblyCSharp
                             baseManager.movementManager.movementSpeed = 50f;
                             baseManager.animationManager.inAnimation = true;
                             var dmgModel = new DamageModel(){ 
-                                baseManager = baseManager.characterManager.characterModel.target,
+                                baseManager = autoAttackTarget,
                                 incomingDmg = baseManager.characterManager.characterModel.PAtk,
                                 dmgSource = baseManager.characterManager,
                                 dueDmgTargets = new List<Character_Manager>(){
-                                    baseManager.characterManager.characterModel.target.characterManager
+                                    autoAttackTarget.characterManager
                                 },
-                                hitEffectPositionScript = baseManager.characterManager.characterModel.target.effectsManager.fxCenter.transform
+                                hitEffectPositionScript = autoAttackTarget.effectsManager.fxCenter.transform
                             };
                             targetDmgManager.autoAttackDmgModels.Add(gameObject.name,dmgModel);
                             targetDmgManager.calculatedamage( dmgModel );
@@ -47,17 +55,17 @@ namespace AssemblyCSharp
                             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.attackAnimation, false);
                             Battle_Manager.taskManager.CallTask( baseManager.characterManager.characterModel.ATKspd, () => {
                                 if( this.gameObject.tag == "Enemy" ){
-                                    baseManager.characterManager.characterModel.target = baseManager.characterManager.GetTarget(true);
+                                    autoAttackTarget = baseManager.characterManager.GetTarget(true);
                                 }
                                 RunAttackLoop();
                             });
                         }
                 }
-                else {
+                else if(baseManager.characterManager.characterModel.canAutoAttack){
                     Battle_Manager.taskManager.CallTask( baseManager.characterManager.characterModel.ATKspd, () => {
                         baseManager.animationManager.inAnimation = false;
                         if( this.gameObject.tag == "Enemy" ){
-                            baseManager.characterManager.characterModel.target = baseManager.characterManager.GetTarget(true);
+                            autoAttackTarget = baseManager.characterManager.GetTarget(true);
                         }
                         RunAttackLoop();
                     });
@@ -68,8 +76,7 @@ namespace AssemblyCSharp
         {
             if (e.Data.Name == "hit" && isAttacking)
             {
-                var target = baseManager.characterManager.characterModel.target;
-                var targetDamageManager = target.damageManager;
+                var targetDamageManager = autoAttackTarget.damageManager;
                 if (targetDamageManager.autoAttackDmgModels.ContainsKey(gameObject.name))
                 {
                     var damageModel = targetDamageManager.autoAttackDmgModels[gameObject.name];
@@ -77,7 +84,7 @@ namespace AssemblyCSharp
                     var eventModel = new EventModel
                     {
                         eventName = "OnDealingDmg",
-                        extTarget = target.characterManager,
+                        extTarget = autoAttackTarget.characterManager,
                         eventCaller = baseManager.characterManager,
                         extraInfo = damageModel.damageTaken
                     };
@@ -85,7 +92,7 @@ namespace AssemblyCSharp
                     targetDamageManager.autoAttackDmgModels.Remove(gameObject.name);
                 } else
                 {
-                    Game_Manager.logger.Log("damageModel missing from" + target.name + " dictionary");
+                    Game_Manager.logger.Log("damageModel missing from" + autoAttackTarget.name + " dictionary");
                 }
             }
         }
@@ -94,11 +101,14 @@ namespace AssemblyCSharp
         {
             if (e.Data.Name == "endEvent")
             {
-                var target = baseManager.characterManager.characterModel.target;
-                var targetDamageManager = target.damageManager;
-                if (targetDamageManager.autoAttackDmgModels.ContainsKey(gameObject.name))
+                var target = autoAttackTarget;
+                if (target != null)
                 {
-                    targetDamageManager.autoAttackDmgModels.Remove(gameObject.name);
+                    var targetDamageManager = target.damageManager;
+                    if (targetDamageManager.autoAttackDmgModels.ContainsKey(gameObject.name))
+                    {
+                        targetDamageManager.autoAttackDmgModels.Remove(gameObject.name);
+                    }
                 }
             }
         }

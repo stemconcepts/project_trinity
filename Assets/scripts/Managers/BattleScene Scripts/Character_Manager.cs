@@ -22,15 +22,23 @@ namespace AssemblyCSharp
     
         void Awake(){
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            if (gameObject.tag == "Enemy" && characterModel.role == Character_Model.RoleEnum.boss && healthBar == null)
+            {
+                healthBar = GameObject.Find("Slider_enemy");
+            }
         }
 
         void Start()
-        {   
-            if( baseManager.movementManager.currentPanel != null && characterModel != null ){
+        {
+            if (baseManager.movementManager.currentPanel == null && gameObject.tag == "Enemy")
+            {
+                baseManager.movementManager.currentPanel = Battle_Manager.GetRandomPanel(false);
+            }
+            if ( baseManager.movementManager.currentPanel != null && characterModel != null ){
                 characterModel.healthBarText = healthBar.gameObject.transform.Find("healthdata").GetComponent<Text>();
                 characterModel.SetUp();
                 baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().currentOccupier = gameObject;
-                characterModel.target = GetTarget(true);
+                //characterModel.target = GetTarget(true);
                 characterModel.sliderScript = healthBar.GetComponent<Slider>();
                 characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
                 if (actionBar != null)

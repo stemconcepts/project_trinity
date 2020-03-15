@@ -53,17 +53,6 @@ namespace AssemblyCSharp
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
         }
 
-        void Update()
-        {
-            /*if (battleStarted)
-            {
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    PauseGame();
-                }
-            }*/
-        }
-
         public static List<Battle_Interface_Manager> GetBattleInterfaces(){
             return battleInterfaceManager;
         }
@@ -122,6 +111,21 @@ namespace AssemblyCSharp
             }
         }
 
+        public static GameObject GetRandomPanel(bool playerPanels)
+        {
+            var allPanels = playerPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
+            var chosenPanels = new List<GameObject>();
+            foreach (var panel in allPanels)
+            {
+                if (!panel.GetComponent<Panels_Manager>().currentOccupier)
+                {
+                    chosenPanels.Add(panel);
+                }
+            }
+            var randomPanelNumber = UnityEngine.Random.Range(0, chosenPanels.Count);
+            return chosenPanels[randomPanelNumber];
+        }
+
         public static void HitBoxControl(bool hitBoxSwitch, Character_Model.RoleEnum role = Character_Model.RoleEnum.none)
         {
             if (role == Character_Model.RoleEnum.none)
@@ -152,8 +156,8 @@ namespace AssemblyCSharp
 
             taskManager.CallTask( waitTime, () => {
                 Battle_Manager.battleStarted = true;
-                friendlyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
-                enemyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
+                //friendlyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
+                //enemyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
             });
         }
     }
