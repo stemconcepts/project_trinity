@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace AssemblyCSharp
 
     public class GenericSkillModel : ScriptableObject
     {
+        public bool skillConfirm;
         [Header("Skill Details:")]
         public string skillName;
         public bool skillActive;
@@ -24,12 +26,8 @@ namespace AssemblyCSharp
         public float magicPower;
         public float newMP;
         public bool useModifier;
+        [ConditionalHide("useModifier", false, false)]
         public float modifierAmount;
-        public float duration;
-        public float castTime;
-        public bool castTimeReady;
-        public float skillCooldown;
-        public float currentCDAmount;
         public bool isSpell;
         public bool isFlat;
         public GameObject hitEffect;
@@ -39,7 +37,16 @@ namespace AssemblyCSharp
         public bool healsDamage;
         [Multiline]
         public string skillDesc;
+        [ConditionalHide("movesToTarget", false, false)]
         public float attackMovementSpeed;
+        [Header("Turn Details:")]
+        public int turnToComplete;
+        public int turnToReset;
+        public int castTurnTime;
+        public bool castTimeReady;
+        public int turnDuration = 4;
+        public int skillCooldown = 0;
+        public int currentCDAmount;
         [Header("Animation:")]
         public string skinChange;
         public string animationType;
@@ -63,17 +70,25 @@ namespace AssemblyCSharp
             BonusDamage,
             RunSkill
         }
-        public SkillModel ExtraSkillToRun;
+        public GenericSkillModel ExtraSkillToRun;
         public subStatus subStatus;
+
+        [Header("Reposition:")]
+        [ConditionalHide("Reposition", (int)moveType.None != 0, false)]
+        public int RepositionAmount;
+        public moveType Reposition;
+
         [Header("Forced Movement:")]
+        [ConditionalHide("forcedMove", (int)moveType.None != 0, false)]
         public int forcedMoveAmount;
-        public forcedMoveType forcedMove;
-        public enum forcedMoveType
+        public moveType forcedMove;
+        public enum moveType
         {
             None,
             Back,
             Forward
         }
+        
         [Header("FX Animation:")]
         public GameObject fxObject;
         public fxPosEnum fxPos;
@@ -100,7 +115,7 @@ namespace AssemblyCSharp
                 {
                     singleStatus = singleStatusGroup[i],
                     power = power,
-                    duration = skillModel.duration,
+                    turnDuration = skillModel.turnDuration,
                     baseManager = baseManager
                 };
                 sm.singleStatus.dispellable = skillModel.statusDispellable;
@@ -116,7 +131,7 @@ namespace AssemblyCSharp
                 {
                     singleStatus = singleStatusGroup[i],
                     power = power,
-                    duration = skillModel.duration,
+                    turnDuration = skillModel.turnDuration,
                     baseManager = baseManager
                 };
                 sm.singleStatus.dispellable = skillModel.statusDispellable;
@@ -144,10 +159,16 @@ namespace AssemblyCSharp
 
         public void RunExtraSkill(SkillData data)
         {
-            var casterSkillSelection = data.caster != null ? data.caster.GetComponent<Skill_Manager>() : null;
             if (data.caster != null)
             {
-                casterSkillSelection.PrepSkill(data.skillModel.ExtraSkillToRun);
+                var casterSkillSelection = data.caster != null ? data.caster.GetComponent<Skill_Manager>() : null;
+                if (data.skillModel)
+                {
+                    ((Player_Skill_Manager)casterSkillSelection).PrepSkill((SkillModel)data.skillModel.ExtraSkillToRun);
+                } else if(data.enemySkillModel)
+                {
+                    ((Enemy_Skill_Manager)casterSkillSelection).PrepSkill((enemySkill)data.enemySkillModel.ExtraSkillToRun);
+                }
             }
         }
 
@@ -179,6 +200,47 @@ namespace AssemblyCSharp
                     return;
                 }
             }
+        }
+
+        public void SaveTurnToReset()
+        {
+            turnToReset = Battle_Manager.turnCount + (skillCooldown * 2);
+        }
+
+        public void SaveTurnToComplete()
+        {
+            turnToComplete = Battle_Manager.turnCount + castTurnTime;
+        }
+
+        public void ResetSkillOnCurrentTurn(bool player, Action action = null)
+        {
+            Battle_Interface_Manager relevantBIM = null;
+
+            if (player) {
+                Battle_Manager.battleInterfaceManager.ForEach(o =>
+                {
+                    if (o.skill == (SkillModel)this)
+                    {
+                        relevantBIM = o;
+                        o.skillCDImage.fillAmount = 1;
+                    }
+                });
+            }
+
+            var myTask = new Task(Battle_Manager.taskManager.CompareTurns(turnToReset, () =>
+            {
+                if (relevantBIM != null)
+                {
+                    relevantBIM.skillCDImage.fillAmount = 0;
+                }
+                if (action != null)
+                {
+                    action();
+                }
+                skillActive = false;
+                turnToComplete = 0;
+                turnToReset = 0;
+            }));
         }
     }
 }

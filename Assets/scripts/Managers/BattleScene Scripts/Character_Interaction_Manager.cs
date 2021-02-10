@@ -15,7 +15,7 @@ namespace AssemblyCSharp
 
         public void DisplaySkills(){
             for( int x = 0; x < Battle_Manager.battleInterfaceManager.Count ; x++ ){
-                Battle_Manager.battleInterfaceManager[x].SkillSet( baseManager.skillManager );
+                Battle_Manager.battleInterfaceManager[x].SkillSet((Player_Skill_Manager)baseManager.skillManager);
             }
         }
 
@@ -23,7 +23,7 @@ namespace AssemblyCSharp
             if( !Battle_Manager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive ){
                 if( baseManager.characterManager.characterModel.characterType != Character_Model.CharacterTypeEnum.enemy ){
                     Battle_Manager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
-                    DisplaySkills();
+                    //DisplaySkills();
                 }
             } else if (Battle_Manager.waitingForSkillTarget)
             {

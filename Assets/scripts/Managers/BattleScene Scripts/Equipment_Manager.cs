@@ -24,24 +24,28 @@ namespace AssemblyCSharp
 
         public void PopulateSkills( ){
             if ( primaryWeapon != null ){
-                var intPSkill2 = Object.Instantiate( primaryWeapon.skillTwo ) as SkillModel;
-                var intPSkill3 = Object.Instantiate( primaryWeapon.skillThree ) as SkillModel;
-                baseManager.skillManager.primaryWeaponSkills.Add(intPSkill2);
-                baseManager.skillManager.primaryWeaponSkills.Add(intPSkill3);
+                var intPSkill1 = Object.Instantiate(primaryWeapon.skillOne) as SkillModel;
+                var intPSkill2 = Object.Instantiate(primaryWeapon.skillTwo) as SkillModel;
+                var intPSkill3 = Object.Instantiate(primaryWeapon.skillThree) as SkillModel;
+                ((Player_Skill_Manager)baseManager.skillManager).primaryWeaponSkills.Add(intPSkill1);
+                ((Player_Skill_Manager)baseManager.skillManager).primaryWeaponSkills.Add(intPSkill2);
+                ((Player_Skill_Manager)baseManager.skillManager).primaryWeaponSkills.Add(intPSkill3);
                 baseManager.characterManager.characterModel.canAutoAttack = primaryWeapon.enablesAutoAttacks;
             } else {
                 print ("no Primary weapons" + gameObject);
             }
             if ( secondaryWeapon != null ){
-                var intPSkill2 = Object.Instantiate( secondaryWeapon.skillTwo ) as SkillModel;
-                var intPSkill3 = Object.Instantiate( secondaryWeapon.skillThree ) as SkillModel;
-                baseManager.skillManager.secondaryWeaponSkills.Add(intPSkill2);
-                baseManager.skillManager.secondaryWeaponSkills.Add(intPSkill3);
+                var intPSkill1 = Object.Instantiate(secondaryWeapon.skillOne) as SkillModel;
+                var intPSkill2 = Object.Instantiate(secondaryWeapon.skillTwo) as SkillModel;
+                var intPSkill3 = Object.Instantiate(secondaryWeapon.skillThree) as SkillModel;
+                ((Player_Skill_Manager)baseManager.skillManager).secondaryWeaponSkills.Add(intPSkill1);
+                ((Player_Skill_Manager)baseManager.skillManager).secondaryWeaponSkills.Add(intPSkill2);
+                ((Player_Skill_Manager)baseManager.skillManager).secondaryWeaponSkills.Add(intPSkill3);
             } else {
                 print ("no Secondary weapons" + gameObject);
             }
             if( classSkill != null ){
-                baseManager.skillManager.skillModel = Object.Instantiate( classSkill ) as SkillModel;
+                ((Player_Skill_Manager)baseManager.skillManager).skillModel = Object.Instantiate( classSkill ) as SkillModel;
             }
         }
 
@@ -60,7 +64,7 @@ namespace AssemblyCSharp
                     var attrValue = !string.IsNullOrEmpty(bauble.focusAttribute) ? baseManager.characterManager.GetAttributeValue(bauble.focusAttribute) : 0;
                     var stat = bauble.flatAmount != 0 ? 0 : attrValue;
                     effect.power = bauble.flatAmount != 0 ? bauble.flatAmount + attrValue : stat * 0.25f;
-                    effect.duration = bauble.duration;
+                    effect.turnDuration = bauble.turnDuration;
                     effect.trigger = bauble.trigger.ToString();
                     effect.triggerChance = bauble.triggerChance;
                     effect.focusAttribute = bauble.focusAttribute;

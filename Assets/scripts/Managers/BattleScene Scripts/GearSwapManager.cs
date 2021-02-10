@@ -11,31 +11,31 @@ namespace AssemblyCSharp
         private Button iconButton;
         public void SwapGear()
         {
-            var skillactive = Battle_Manager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
-            var isAttacking = Battle_Manager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
+            var skillactive = Battle_Manager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
+            var isAttacking = Battle_Manager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
             if (swapReady && !skillactive && !isAttacking && Battle_Manager.battleStarted)
             {
-                var allRoles = Battle_Manager.friendlyCharacters;
+                var allRoles = Battle_Manager.characterSelectManager.friendlyCharacters;
                 for (int i = 0; i < allRoles.Count; i++)
                 {
                     var currentWSlot = allRoles[i].GetComponent<Skill_Manager>();
                     var currentWeaponData = allRoles[i].GetComponent<Equipment_Manager>();
-                    if (currentWSlot.weaponSlot == Skill_Manager.weaponSlotEnum.Main)
+                    if (((Player_Skill_Manager)currentWSlot).weaponSlot == Player_Skill_Manager.weaponSlotEnum.Main)
                     {
-                        currentWSlot.weaponSlot = Skill_Manager.weaponSlotEnum.Alt;
+                        ((Player_Skill_Manager)currentWSlot).weaponSlot = Player_Skill_Manager.weaponSlotEnum.Alt;
                         currentWeaponData.currentWeaponEnum = Equipment_Manager.currentWeapon.Secondary;
                         allRoles[i].characterModel.canAutoAttack = allRoles[i].baseManager.equipmentManager.secondaryWeapon.enablesAutoAttacks;
                     }
                     else
                     {
-                        currentWSlot.weaponSlot = Skill_Manager.weaponSlotEnum.Main;
+                        ((Player_Skill_Manager)currentWSlot).weaponSlot = Player_Skill_Manager.weaponSlotEnum.Main;
                         currentWeaponData.currentWeaponEnum = Equipment_Manager.currentWeapon.Primary;
                         allRoles[i].characterModel.canAutoAttack = allRoles[i].baseManager.equipmentManager.primaryWeapon.enablesAutoAttacks;
                     }
                     var charData = allRoles[i].GetComponent<Character_Manager>();
                     Battle_Manager.battleInterfaceManager.ForEach(o =>
                     {
-                        o.SkillSet(allRoles[i].baseManager.skillManager);
+                        o.SkillSet((Player_Skill_Manager)allRoles[i].baseManager.skillManager);
                     });
                     Battle_Manager.characterSelectManager.GetSelectedClassObject().GetComponent<Character_Interaction_Manager>().DisplaySkills();
                 }
@@ -43,7 +43,7 @@ namespace AssemblyCSharp
                 swapReady = false;
                 GearSwapTimer(gearSwapTime);
                 Battle_Manager.soundManager.playSound("gearSwapSound");
-                Battle_Manager.friendlyCharacters.ForEach(o => o.characterModel.actionPoints = o.characterModel.originalactionPoints);
+                //Battle_Manager.characterSelectManager.friendlyCharacters.ForEach(o => o.characterModel.actionPoints = o.characterModel.originalactionPoints);
             }
             else
             {
@@ -62,7 +62,7 @@ namespace AssemblyCSharp
 
         private void CheckGearType()
         {
-            foreach (var playerRole in Battle_Manager.friendlyCharacters)
+            foreach (var playerRole in Battle_Manager.characterSelectManager.friendlyCharacters)
             {
                 var bm = playerRole.GetComponent<Base_Character_Manager>();
                 var currentWeaponData = bm.equipmentManager;
@@ -70,8 +70,8 @@ namespace AssemblyCSharp
                 var AAutoAttack = bm.autoAttackManager;
                 var charMovementScript = bm.movementManager;
                 var calculateDmgScript = bm.damageManager;
-                var currentWSlot = bm.skillManager;
-                var weaponType = currentWSlot.weaponSlot == Skill_Manager.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
+                var currentWSlot = (Player_Skill_Manager)bm.skillManager;
+                var weaponType = currentWSlot.weaponSlot == Player_Skill_Manager.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
                 if (weaponType.type != weaponModel.weaponType.heavyHanded && weaponType.type != weaponModel.weaponType.cursedGlove && weaponType.type != weaponModel.weaponType.clawAndCannon)
                 {
                     if (playerRole.name == "Stalker")
@@ -106,8 +106,8 @@ namespace AssemblyCSharp
 
         void Update()
         {
-            var skillactive = Battle_Manager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
-            var isAttacking = Battle_Manager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
+            var skillactive = Battle_Manager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
+            var isAttacking = Battle_Manager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
             if (!swapReady || skillactive || isAttacking)
             {
                 iconButton.interactable = false;

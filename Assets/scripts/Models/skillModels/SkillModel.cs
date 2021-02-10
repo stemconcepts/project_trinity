@@ -23,7 +23,6 @@ namespace AssemblyCSharp
     	public bool equipped;
     	public bool learned;
     	public bool assigned;
-    	public bool skillConfirm;
     	public int skillCost;
     }
 }

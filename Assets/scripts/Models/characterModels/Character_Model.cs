@@ -14,18 +14,18 @@ namespace AssemblyCSharp
             maxHealth = Health;
             full_health = Health;
             isAlive = true;
-            vigor = 1;
+            //vigor = 1;
             originalthornsDmg = 0;
-            originalvigor = 1;
-            actionPoints = 6;
-            maxactionPoints = 6;
+            //originalvigor = 1;
+            //actionPoints = 6;
+            //maxactionPoints = 6;
             originalPDef = PDef;
             originalMDef = MDef;
             originalPAtk = PAtk;
             originalMAtk = MAtk;
             originalMDef = MDef;
-            originalATKspd = ATKspd;
-            originalactionPoints = actionPoints;
+            originalHaste = Haste;
+            //originalactionPoints = actionPoints;
         }
 
         public Sprite characterIcon;
@@ -42,16 +42,16 @@ namespace AssemblyCSharp
         public float originalPAtk;
         public float MAtk;
         public float originalMAtk;
-        public float ATKspd;
-        public float originalATKspd;
+        public float Haste;
+        public float originalHaste;
         public float critchance;
         public float vigor;
         public float thornsDmg;
         public float originalthornsDmg;
         public float originalvigor;
-        public float actionPoints;
-        public float originalactionPoints;
-        public float maxactionPoints;
+        //public float actionPoints;
+        //public float originalactionPoints;
+        //public float maxactionPoints;
         public CharacterTypeEnum characterType;
         public enum CharacterTypeEnum{
             Player,
@@ -78,7 +78,7 @@ namespace AssemblyCSharp
         public Text healthBarText;
         public Slider sliderScript;
         public GameObject targetActionBar;
-        public Slider apSliderScript;
+        //public Slider apSliderScript;
         public bool isMoving;
         public Quaternion currentRotation;
         public Vector2 attackedPos;

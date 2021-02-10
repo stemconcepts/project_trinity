@@ -56,13 +56,50 @@ namespace AssemblyCSharp
             }
         }
 
-        public Task CallChangePointsTask(StatusModel statusModel, System.Action action = null)
+        public void CallChangePointsTask(StatusModel statusModel, System.Action action = null)
         {
             if( statusModel.singleStatus.canStack ){
                 statusModel.power = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
             }
-            var myTask = new Task(ChangePoints(statusModel, action));
-            return myTask;
+
+            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName);
+            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName);
+            var damageManager = statusModel.baseManager.damageManager;
+            if (currentStat <= maxStat && currentStat > 0)
+            {
+                if (statusModel.singleStatus.statusName == "regen")
+                {
+                    var damageModel = new DamageModel()
+                    {
+                        baseManager = statusModel.baseManager,
+                        skillSource = statusModel.singleStatus.statusName,
+                        incomingHeal = statusModel.power,
+                        damageImmidiately = true,
+                        fontSize = 100
+                    };
+                    damageManager.calculateHdamage(damageModel);
+                }
+                else
+                {
+                    var damageModel = new DamageModel()
+                    {
+                        baseManager = statusModel.baseManager,
+                        skillSource = statusModel.singleStatus.statusName,
+                        incomingDmg = statusModel.power,
+                        damageImmidiately = true,
+                        element = statusModel.singleStatus.element,
+                        fontSize = 100
+                    };
+                    damageManager.calculatedamage(damageModel);
+                }
+                if (action != null)
+                {
+                    action();
+                }
+            }
+
+            //var myTask = new Task(ChangePoints(statusModel, action));
+            //return myTask;
         }
         IEnumerator ChangePoints(StatusModel statusModel, System.Action action = null)
         {
@@ -133,13 +170,28 @@ namespace AssemblyCSharp
             Time.timeScale = 1f;
         }
 
-        public void CallFadeOutTask(MeshRenderer renderer, System.Action action = null)
+        public void CallFadeOutMeshRendererTask(MeshRenderer renderer, System.Action action = null)
         {
-            var myTask = new Task(FadeOutFade(renderer));
+            var myTask = new Task(FadeOutRendererFade(renderer));
         }
-        IEnumerator FadeOutFade(MeshRenderer renderer)
+        IEnumerator FadeOutRendererFade(MeshRenderer renderer)
         {
             var alpha = renderer.material.color.a;
+            while (alpha > 0f)
+            {
+                var newColor = new Color(0, 0, 0, alpha - 0.1f);
+                alpha = newColor.a;
+                yield return null;
+            }
+        }
+
+        public void CallFadeOutTextTask(Text text, System.Action action = null)
+        {
+            var myTask = new Task(FadeOutTextFade(text));
+        }
+        IEnumerator FadeOutTextFade(Text text)
+        {
+            var alpha = text.color.a;
             while (alpha > 0f)
             {
                 var newColor = new Color(0, 0, 0, alpha - 0.1f);
@@ -156,9 +208,7 @@ namespace AssemblyCSharp
         {
             while (slot.A > 0f)
             {
-                /*var newColor = new Color(0, 0, 0, alpha - 0.1f);
-                slot.A = newColor.a;*/
-                slot.A -= 0.003f;
+                slot.A -= 0.01f;
                 yield return null;
             }
         }
@@ -227,7 +277,7 @@ namespace AssemblyCSharp
             var target = bm.skillManager.currenttarget;
             while( target == null ) {
                 if( bm.statusManager.DoesStatusExist("stun") ){
-                    bm.skillManager.SkillActiveSet(classSkill, false);
+                    ((Player_Skill_Manager)bm.skillManager).SkillActiveSet(classSkill, false);
                     Battle_Manager.waitingForSkillTarget = false;
                     //bm.skillManager.finalTargets.Clear();
                     Time.timeScale = 1f;
@@ -264,7 +314,7 @@ namespace AssemblyCSharp
             image.fillAmount = 1f;
             while( skill.skillActive ){
                 yield return new WaitForSeconds(1f);
-                skill.currentCDAmount += 1f;
+                skill.currentCDAmount += 1;
                 float timeSpent;
                 timeSpent = 1f/skill.skillCooldown;
                 Battle_Manager.battleInterfaceManager.ForEach((o =>
@@ -276,7 +326,7 @@ namespace AssemblyCSharp
                     }
                 ));
             }
-            skill.currentCDAmount = 0f;
+            skill.currentCDAmount = 0;
         }
 
         public bool skillcoolDownTask(enemySkill skill, Image image)
@@ -302,12 +352,42 @@ namespace AssemblyCSharp
             while (skill.skillActive)
             {
                 yield return new WaitForSeconds(1f);
-                skill.currentCDAmount += 1f;
+                skill.currentCDAmount += 1;
                 //float timeSpent;
                 //timeSpent = 1f / skill.skillCooldown;
                 //image.fillAmount -= timeSpent;
             }
-            skill.currentCDAmount = 0f;
+            skill.currentCDAmount = 0;
+        }
+
+        public void TimerDisplayTask(float time, Image image, string taskName = null)
+        {
+            var myTask = new Task(TimerDisplay(time, image));
+            if(!string.IsNullOrEmpty(taskName) && !taskList.ContainsKey(taskName))
+            {
+                taskList.Add(taskName, myTask);
+            }
+        }
+        IEnumerator TimerDisplay(float time, Image image)
+        {
+            var timeRemaining = 0f;
+            image.fillAmount = 1f;
+            while (time > timeRemaining)
+            { 
+                yield return new WaitForSeconds(1f);
+                timeRemaining += 1f;
+                float timeSpent = 1f / time;
+                image.fillAmount -= timeSpent;
+            }
+        }
+        public IEnumerator CompareTurns(int turnToCheck, Action action)
+        {
+            yield return new WaitForSeconds(0.5f);
+            while (Battle_Manager.turnCount < turnToCheck)
+            {
+                yield return null;
+            }
+            action();
         }
     }
 }

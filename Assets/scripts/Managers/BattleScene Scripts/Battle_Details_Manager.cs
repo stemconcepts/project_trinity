@@ -23,7 +23,7 @@ namespace AssemblyCSharp
             warningText.text = message;
             Battle_Manager.taskManager.CallTask(showTime, () =>
             {
-                warningText.text = "";
+                //warningText.text = "";
                 warningTextHolder.SetActive(false);
             });
         }

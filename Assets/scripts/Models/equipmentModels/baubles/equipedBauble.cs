@@ -21,7 +21,7 @@ namespace AssemblyCSharp
                     var attrValue = characterScript.GetAttributeValue( bauble.focusAttribute );
                     var stat = bauble.flatAmount != 0 ? 0 : attrValue;
                     effect.power = bauble.flatAmount != 0 ? bauble.flatAmount + attrValue : stat * 0.25f;
-                    effect.duration = bauble.duration;
+                    effect.turnDuration = bauble.turnDuration;
                     effect.trigger = bauble.trigger.ToString();
                     effect.triggerChance = bauble.triggerChance;
                     effect.focusAttribute = bauble.focusAttribute;

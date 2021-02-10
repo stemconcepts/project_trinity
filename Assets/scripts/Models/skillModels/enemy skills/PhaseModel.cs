@@ -11,7 +11,7 @@ namespace AssemblyCSharp
     {
         public SingleStatusModel singleStatusModel;
         public float statusPower;
-        public float statusDuration;
+        public int statusTurnDuration;
     }
     [System.Serializable]
     public class PhaseThreshHold
@@ -24,8 +24,9 @@ namespace AssemblyCSharp
     {
             public PhaseThreshHold healthThreshhold;
             public EnemyPhase enemyPhase;
-            public List<enemySkill> phaseSkills;
-            public List<PhaseBuff> phaseBuffs;
+            public List<GameObject> summonList = new List<GameObject>();
+            public List<enemySkill> phaseSkills  = new List<enemySkill>();
+            public List<PhaseBuff> phaseBuffs = new List<PhaseBuff>();
             public string skinChange;
             public string phaseChangeAnimation;
     }

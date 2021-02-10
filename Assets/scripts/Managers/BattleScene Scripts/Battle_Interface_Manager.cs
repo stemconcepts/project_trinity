@@ -21,8 +21,8 @@ namespace AssemblyCSharp
             skillName = this.gameObject.GetComponent<Text>();
         }
 
-        public void SkillSet ( Skill_Manager skillManager ) {
-            if( buttonID != 2 ){
+        public void SkillSet ( Player_Skill_Manager skillManager ) {
+            if( buttonID != 3 ){
                 if( skillManager.weaponSlot.ToString() == "Main" ){
                     skill = skillManager.primaryWeaponSkills[buttonID];
                 } else {
@@ -32,7 +32,8 @@ namespace AssemblyCSharp
                 skill = skillManager.skillModel;
             }
             if( skill != null && skill.skillActive == true ){
-                CooldownClassDisplayCheck( skill );
+                skillCDImage.fillAmount = 1;
+                //CooldownClassDisplayCheck( skill );
             } else {
                 ClearCD();
             }
@@ -42,15 +43,25 @@ namespace AssemblyCSharp
         }
 
         public void RunClassSkill(){
-            if( Battle_Manager.battleStarted && !IsCharBusy() ){
+            if(Battle_Manager.battleStarted && !IsCharBusy() && Battle_Manager.turn == Battle_Manager.TurnEnum.PlayerTurn)
+            {
                 var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
-                charSelected.GetComponent<Skill_Manager>().PrepSkill(skill);
+                var charStatus = charSelected.GetComponent<Status_Manager>();
+                if (!charStatus.DoesStatusExist("stun"))
+                {
+                    charSelected.GetComponent<Player_Skill_Manager>().PrepSkill(skill);
+                }
             }
         }
 
         void KeyPressSkill(){
-            var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
-            charSelected.GetComponent<Skill_Manager>().PrepSkill(skill);
+            RunClassSkill();
+            /*var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
+            var charStatus = charSelected.GetComponent<Status_Manager>();
+            if (!charStatus.DoesStatusExist("stun"))
+            {
+                charSelected.GetComponent<Player_Skill_Manager>().PrepSkill(skill);
+            }*/
         }
 
         void KeyPressCancelSkill()
@@ -58,7 +69,7 @@ namespace AssemblyCSharp
             if (skill.skillActive)
             {
                 var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
-                charSelected.GetComponent<Skill_Manager>().SkillActiveSet(skill, false);
+                charSelected.GetComponent<Player_Skill_Manager>().SkillActiveSet(skill, false);
             }
         }
 
@@ -73,10 +84,14 @@ namespace AssemblyCSharp
         }
     
         void CanAffordSkill(){
-            var characterManager = Battle_Manager.characterSelectManager.GetSelectedClassObject().GetComponent<Character_Manager>();
+            var baseManager = Battle_Manager.characterSelectManager.GetSelectedClassObject().GetComponent<Base_Character_Manager>();
             if( iconImageScript ){
-                if( skill != null && (skill.skillCost > characterManager.characterModel.actionPoints) ){
+                if(skill != null && (skill.skillCost > Battle_Manager.actionPoints))
+                {
                     iconImageScript.color = new Color(0.9f, 0.2f, 0.2f);
+                } else if (Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("Stun"))
+                {
+                    iconImageScript.color = new Color(0.4f, 0.4f, 0.4f);
                 } else {
                     iconImageScript.color = new Color(1f, 1f, 1f);
                 }

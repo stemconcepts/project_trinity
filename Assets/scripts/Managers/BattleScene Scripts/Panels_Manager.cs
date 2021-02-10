@@ -66,6 +66,7 @@ namespace AssemblyCSharp
 
         public void SetStartingPanel(GameObject currentOccupier, bool forceMove = false)
         {
+            this.currentOccupier = currentOccupier;
             animationManager = currentOccupier.GetComponent<Animation_Manager>();
             movementManager = currentOccupier.GetComponent<Movement_Manager>();
             animationManager.SetSortingLayer(sortingLayerNumber);
@@ -78,9 +79,14 @@ namespace AssemblyCSharp
             if (!moved || forceMove)
             {
                 panelTransform = GetComponent<RectTransform>();
-                currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
+                if(movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + 6f))
+                {
+                    currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
+                }
             }
         }
+
+        
 
         public void VoidZoneMark(){
             //if( type == "All" ){

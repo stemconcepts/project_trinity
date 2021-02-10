@@ -11,7 +11,7 @@ namespace AssemblyCSharp
         public float power;
         public float coolDown;
         public bool ready = true;
-        public float duration;
+        public int turnDuration;
         public bool dispellable;
         public effectGrp effect;
         //private Task effectCDTask;
@@ -70,7 +70,7 @@ namespace AssemblyCSharp
                                 {
                                     singleStatus = singleStatusGroupFriendly[i],
                                     power = power,
-                                    duration = duration,
+                                    turnDuration = turnDuration,
                                     baseManager = target.baseManager
                                 };
                                 sm.singleStatus.dispellable = dispellable;
@@ -83,7 +83,7 @@ namespace AssemblyCSharp
                                 {
                                     singleStatus = singleStatusGroup[i],
                                     power = power,
-                                    duration = duration,
+                                    turnDuration = turnDuration,
                                     baseManager = target.baseManager
                                 };
                                 sm.singleStatus.dispellable = dispellable;

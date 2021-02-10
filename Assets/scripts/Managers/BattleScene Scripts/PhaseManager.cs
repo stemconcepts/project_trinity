@@ -39,7 +39,7 @@ namespace AssemblyCSharp
                                 {
                                     singleStatus = s.singleStatusModel,
                                     power = s.statusPower,
-                                    duration = s.statusDuration,
+                                    turnDuration = s.statusTurnDuration,
                                     baseManager = baseManager
                                 };
                                 sm.singleStatus.dispellable = false;
@@ -48,7 +48,7 @@ namespace AssemblyCSharp
                         }
                     }
                     currentEnemyPhase = o.enemyPhase;
-                    baseManager.skillManager.RefreshSkillList(GetPhaseSkills());
+                    ((Enemy_Skill_Manager)baseManager.skillManager).RefreshSkillList(GetPhaseSkills());
                     runInitialPhase = true;
                 }
             });
@@ -69,6 +69,16 @@ namespace AssemblyCSharp
             var phase = phases.Where(o => o.enemyPhase == currentEnemyPhase).FirstOrDefault();
             if(phase != null)
             {
+                if (baseManager)
+                {
+                    ((Enemy_Skill_Manager)baseManager.skillManager).summonList = phase.summonList;
+                    var summonSkill = ((Enemy_Skill_Manager)baseManager.skillManager).enemySkillList.Where(o => o.summon).FirstOrDefault();
+                    if (summonSkill != null)
+                    {
+                        //summonSkill.preRequisite.amount = phase.summonList.Count();
+                        summonSkill.preRequisites.Where(o => o.preRequisiteType == PreRequisiteModel.preRequisiteTypeEnum.summonPanels).FirstOrDefault().amount = phase.summonList.Count();
+                    }
+                } 
                 return phase.phaseSkills;
             }
             return null;
@@ -80,7 +90,8 @@ namespace AssemblyCSharp
         }
         private void Update()
         {
-            if (!baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive && baseManager.characterManager.characterModel.isAlive)
+            if (!Battle_Manager.disableActions && (Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn) && !baseManager.autoAttackManager.isAttacking 
+                && !baseManager.skillManager.isSkillactive && baseManager.characterManager.characterModel.isAlive)
             {
                 ChangeBossPhase();
             }

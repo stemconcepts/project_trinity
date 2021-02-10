@@ -9,15 +9,13 @@ namespace AssemblyCSharp
 {
     public class enemySkill : GenericSkillModel
     {
-    	[Header("Default Skill Variables:")]
-
-    	public bool skillConfirm;
-    	public int skillCost;
         [Header("Requirements:")]
-        public PreRequisiteModel preRequisite;
+        //public PreRequisiteModel preRequisite;
+        public List<PreRequisiteModel> preRequisites;
+
         //public preRequisiteTypeEnum preRequisiteType;
-        [Header("Summon Creature:")]
-    	public List<GameObject> summonedObjects = new List<GameObject>();
+        /*[Header("Summon Creature:")]
+    	public List<GameObject> summonedObjects = new List<GameObject>();*/
         public voidZoneType voidZoneTypes;
         public enum voidZoneType
         {
@@ -56,6 +54,23 @@ namespace AssemblyCSharp
         public void ShowVoidPanel(voidZoneType voidZoneEnumVar, bool monsterPanels = false)
         {
             var randomRowNumber = Random.Range(0, 3);
+            var randomVertical = Panels_Manager.voidZoneType.VerticalA;
+
+            switch (randomRowNumber)
+            {
+                case 0:
+                    randomVertical = Panels_Manager.voidZoneType.VerticalA;
+                    break;
+                case 1:
+                    randomVertical = Panels_Manager.voidZoneType.VerticalB;
+                    break;
+                case 2:
+                    randomVertical = Panels_Manager.voidZoneType.VerticalC;
+                    break;
+                default:
+                    randomVertical = Panels_Manager.voidZoneType.VerticalA;
+                    break;
+            }
             switch (voidZoneEnumVar)
             {
                 case voidZoneType.All:
@@ -77,6 +92,15 @@ namespace AssemblyCSharp
                     }
                     break;
                 case voidZoneType.Vline:
+                    var VPanel = !monsterPanels ? GameObject.Find("FriendlyMovementPanel") : GameObject.Find("EnemyMovementPanel");
+                    var VRows = VPanel.transform.GetComponentsInChildren<Panels_Manager>();
+                    foreach (Panels_Manager panelManager in VRows)
+                    {
+                        if (panelManager.voidZonesTypes == randomVertical)
+                        {
+                            panelManager.VoidZoneMark();
+                        }
+                    }
 
                     break;
                 case voidZoneType.Random:
@@ -113,11 +137,11 @@ namespace AssemblyCSharp
         }
 
         //summon object
-        public void SummonCreatures()
+        public void SummonCreatures(List<GameObject> summonedObjects)
         {
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                var enemyIndex = Battle_Manager.GetCharacterManagers(false).Count - 1;
+                var enemyIndex = Battle_Manager.characterSelectManager.enemyCharacters.Count() + i;
                 var singleMinionDataItem = Battle_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
                 var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
                 creatureData.name = "minion_" + enemyIndex + "_data";
@@ -133,7 +157,6 @@ namespace AssemblyCSharp
                     minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
                     minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
                     panelManager.SetStartingPanel(newCreature, true);
-                    Battle_Manager.characterSelectManager.UpdateCharacters();
                 }
                 else
                 {

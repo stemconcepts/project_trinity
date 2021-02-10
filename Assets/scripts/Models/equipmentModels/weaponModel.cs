@@ -30,7 +30,8 @@ namespace AssemblyCSharp
     		cursedGlove
     	};
     	public weaponType type;
-        public SkillModel skillTwo;
-    	public SkillModel skillThree;
+        public SkillModel skillOne;
+    	public SkillModel skillTwo;
+        public SkillModel skillThree;
     }
 }

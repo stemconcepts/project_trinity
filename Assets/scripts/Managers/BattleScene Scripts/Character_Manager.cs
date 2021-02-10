@@ -16,9 +16,9 @@ namespace AssemblyCSharp
         public Resistances resistances;
         [Header("Health Object:")]
         public GameObject healthBar;
-        [Header("Action Object:")]
+        /*[Header("Action Object:")]
         public GameObject actionBar;
-        private Text actionPointsText;
+        private Text actionPointsText;*/
     
         void Awake(){
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
@@ -40,27 +40,27 @@ namespace AssemblyCSharp
                 baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().currentOccupier = gameObject;
                 //characterModel.target = GetTarget(true);
                 characterModel.sliderScript = healthBar.GetComponent<Slider>();
-                characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
-                if (actionBar != null)
+                //characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
+                /*if (actionBar != null)
                 {
                     actionPointsText = actionBar.transform.Find("apSlot").Find("Text").GetComponent<Text>();
                     RegenApStart();
-                }
+                }*/
                 updateBarSize();
             }
         }
 
         void Update(){
-            if( characterModel != null ){
+            if( this.gameObject && characterModel != null ){
                 updateBarSize();
                 ResetAbsorbPoints();
                 maintainHealthValue();
                 characterModel.attackedPos = baseManager.movementManager.posMarker.transform.position;
                 characterModel.currentRotation = this.transform.rotation;
-                if (actionBar != null)
+                /*if (actionBar != null)
                 {
                     UpdateAPAmount();
-                }
+                }*/
             }
         }
 
@@ -69,25 +69,34 @@ namespace AssemblyCSharp
             characterModel.sliderScript.maxValue = characterModel.full_health;
             characterModel.sliderScript.value = characterModel.current_health;
             characterModel.healthBarText.text = characterModel.current_health.ToString();
-            if( actionBar ){
+            /*if( actionBar ){
                 characterModel.apSliderScript.maxValue = characterModel.maxactionPoints;
                 characterModel.apSliderScript.value = characterModel.actionPoints;
-            }
+            }*/
         }
 
         void maintainHealthValue(){ 
             if( characterModel.current_health > characterModel.maxHealth ){
                 characterModel.Health = characterModel.maxHealth;
             } else if( characterModel.current_health <= 0 && characterModel.isAlive ){
-                if ( !baseManager.animationManager.inAnimation ){
+                Battle_Manager.characterSelectManager.UpdateCharacters();
+                baseManager.damageManager.autoAttackDmgModels.Remove(gameObject.name);
+                //if ( !baseManager.animationManager.inAnimation ){
                     characterModel.isAlive = false;
                     characterModel.Health = 0;
                     var duration = baseManager.animationManager.PlayAnimation("death");
+                    Battle_Manager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
                     Battle_Manager.taskManager.CallTask(duration, () =>
                     {
-                        Battle_Manager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
+                        if (characterModel.characterType == Character_Model.CharacterTypeEnum.enemy)
+                        {
+                            Destroy(this.gameObject);
+                            var dataUI = GameObject.Find(this.gameObject.name + "_data");
+                            Destroy(dataUI);
+                            Battle_Manager.characterSelectManager.UpdateCharacters();
+                        }
                     });
-                }
+                //}
             }
         }
 
@@ -102,23 +111,23 @@ namespace AssemblyCSharp
             }
         }
 
-        public void UpdateAPAmount()
+        /*public void UpdateAPAmount()
         {
             if (characterModel.actionPoints > characterModel.maxactionPoints)
             {
                 characterModel.actionPoints = characterModel.maxactionPoints;
             }
             actionPointsText.text = ((int)characterModel.actionPoints).ToString();
-        }
+        }*/
 
-        void RegenApStart(){
+        /*void RegenApStart(){
             Battle_Manager.taskManager.CallTask( 6f, ()=> {
                 if( characterModel.actionPoints < characterModel.maxactionPoints ){
                     characterModel.actionPoints += characterModel.vigor;
                 } 
                 RegenApStart();
             });
-        }
+        }*/
 
         public bool DoesAttributeExist( string attributeName ){
             if( !string.IsNullOrEmpty(attributeName) ){

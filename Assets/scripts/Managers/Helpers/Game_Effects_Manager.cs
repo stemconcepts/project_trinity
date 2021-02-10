@@ -34,7 +34,7 @@ namespace AssemblyCSharp
 
         public void FadeOut(MeshRenderer renderer)
         {
-            Battle_Manager.taskManager.CallFadeOutTask(renderer);
+            Battle_Manager.taskManager.CallFadeOutMeshRendererTask(renderer);
         }
 
         public void ScreenShake( float shakeAmt, int frequency = 0 ){

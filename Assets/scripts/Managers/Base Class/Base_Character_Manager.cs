@@ -30,8 +30,8 @@ namespace AssemblyCSharp
             this.effectsManager = this.gameObject.GetComponent<Effects_Manager>();
             this.damageManager = this.gameObject.GetComponent<Damage_Manager>();
             this.characterInteractionManager = this.gameObject.GetComponent<Character_Interaction_Manager>();
+            this.equipmentManager = this.gameObject.GetComponent<Equipment_Manager>();
             this.skillManager = this.gameObject.GetComponent<Skill_Manager>();
-            equipmentManager = this.gameObject.GetComponent<Equipment_Manager>();
             autoAttackManager = this.gameObject.GetComponent<Auto_Attack_Manager>();
             if (this.gameObject.tag == "Enemy")
             {

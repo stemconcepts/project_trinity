@@ -13,7 +13,7 @@ namespace AssemblyCSharp
         public bool isEquipped;
         public string focusAttribute;
         public float flatAmount;
-        public float duration;
+        public int turnDuration;
         public float coolDown;
         public float triggerChance;
         public triggerGrp trigger;

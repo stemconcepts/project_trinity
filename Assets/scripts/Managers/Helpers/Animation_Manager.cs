@@ -16,7 +16,7 @@ namespace AssemblyCSharp
         public string hopAnimation;
         public string hitAnimation;
         public string toHeavy;
-        public string toIdle;
+        public string stunToIdle;
         public string attackAnimation;
         void Awake()
         {
@@ -24,6 +24,7 @@ namespace AssemblyCSharp
             hopAnimation = "hop";
             hitAnimation = "hit";
             toHeavy = "toHeavy";
+            stunToIdle = "stunToIdle";
             attackAnimation = "attack1";
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
@@ -73,22 +74,15 @@ namespace AssemblyCSharp
                         idleAnimation = holdAnimation;
                         skeletonAnimation.state.AddAnimation(0, holdAnimation, true, 0);
                     }
-                    /*if ( !string.IsNullOrEmpty(holdAnimation) ){
-                        baseManager.damageManager.charDamageModel.hitAnimation = animationName;
-                        skeletonAnimation.state.AddAnimation(0, holdAnimation, true, 0);
-                        //baseManager.damageManager.charDamageModel.animationHold = animHold;
-                        baseManager.damageManager.charDamageModel.holdAnimation = holdAnimation;
-                        SetBusyAnimation(skeletonAnimation.state.SetAnimation(0, animationName, false).Animation.duration);
-                    }*/
                 }
             } else {
                 hitAnimation = "hit";
                 idleAnimation = "idle";
-                skeletonAnimation.state.SetAnimation(0, "stunToIdle", false );
-                skeletonAnimation.state.AddAnimation(0, idleAnimation, true, 0);
+                //skeletonAnimation.state.SetAnimation(0, stunToIdle, false );
                 //baseManager.damageManager.charDamageModel.hitAnimation = "";       
                 //baseManager.damageManager.charDamageModel.animationHold = addStatus;
-                var animationDuration = skeletonAnimation.state.SetAnimation(0, "stunToIdle", false).Animation.Duration;
+                var animationDuration = skeletonAnimation.state.SetAnimation(0, stunToIdle, false).Animation.Duration;
+                skeletonAnimation.state.AddAnimation(0, idleAnimation, true, animationDuration);
                 SetBusyAnimation(animationDuration);
             }
         }

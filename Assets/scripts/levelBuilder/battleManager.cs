@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour  {
-    static public BattleModel battleModel;
+    //static public BattleModel battleModel;
     static Task battleStartTask;
     public static bool battleReady = false;
 
@@ -14,7 +14,7 @@ public class BattleManager : MonoBehaviour  {
     static IEnumerator StartBattle(float waitTime )
     {
         yield return new WaitForSeconds(waitTime);
-        battleReady = true;
+        //battleReady = true;
         print("Ended");    
     }
 

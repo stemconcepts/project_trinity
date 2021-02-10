@@ -43,9 +43,25 @@ namespace AssemblyCSharp
         }
 
         public List<Character_Manager> GetCharacterManagers( List<GameObject> go){
-            var y = go.Select(o => o.GetComponent<Character_Manager>()).ToList();
+            var y = go.Select(o => o.GetComponent<Character_Manager>()).Where(c => c.characterModel.isAlive).ToList();
             y.Capacity = y.Count;
             return y;
+        }
+
+        public void SelectCharacterWithTurnsLeft()
+        {
+            var selectedChar = GetSelectedClassObject().GetComponent<Base_Character_Manager>();
+            if (((Player_Skill_Manager)selectedChar.skillManager).turnsTaken >= selectedChar.characterManager.characterModel.Haste)
+            {
+                friendlyCharacters.ForEach(o =>
+                {
+                    if (((Player_Skill_Manager)o.baseManager.skillManager).turnsTaken < o.characterModel.Haste)
+                    {
+                        SetSelectedCharacter(o.gameObject.name);
+                        return;
+                    }
+                });
+            }
         }
 
         public void SetSelectedCharacter( string characterClass ){
@@ -58,6 +74,8 @@ namespace AssemblyCSharp
             } else if( characterClass == "Stalker" ){
                 characterSelected = characterSelect.stalkerSelected;
             }
+            var selectedChar = GetSelectedClassObject().GetComponent<Character_Interaction_Manager>();
+            selectedChar.DisplaySkills();
             classStates.ForEach(o => o.Selected = false);
             classStates.Where(o => o.Name == characterClass).FirstOrDefault().Selected = true;
         }
@@ -122,6 +140,7 @@ namespace AssemblyCSharp
 
         void Update()
         {
+            SelectCharacterWithTurnsLeft();
             if (Input.GetKeyUp(KeyCode.Tab))
             {
                 ToggleThroughLiveCharacters();

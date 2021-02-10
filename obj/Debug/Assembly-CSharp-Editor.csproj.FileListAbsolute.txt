@@ -1,0 +1,3 @@
+C:\Users\Sean\Documents\HydraHorn\project_trinity\obj\Debug\Assembly-CSharp-Editor.csprojAssemblyReference.cache
+C:\Users\Sean\Documents\HydraHorn\project_trinity\obj\Debug\Assembly-CSharp-Editor.csproj.CoreCompileInputs.cache
+C:\Users\Sean\Documents\HydraHorn\project_trinity\obj\Debug\Assembly-CSharp-Editor.dll

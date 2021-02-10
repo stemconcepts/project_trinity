@@ -11,18 +11,20 @@ namespace AssemblyCSharp
         public int origSortingOrder;
         public float movementSpeed;
         private float moveToHomeSpeed;
-        public float movementCost;
-        public Vector2 origPosition ;
-        public Vector2 currentPosition ;
+        public float movementCost = 1;
+        public Vector2 origPosition;
+        public Vector2 currentPosition;
         public GameObject posMarkerMin;
         public GameObject posMarker;
         public GameObject dashEffect;
         public GameObject currentPanel;
         public GameObject positionArrow;
+        public bool isInBackRow;
+        public bool isInFrontRow;
 
-        void Awake()
+        void Awake() 
         {
-            movementCost = 2f;
+            movementCost = 1f;
             movementSpeed = 50f;
             moveToHomeSpeed = 80f;
         }
@@ -42,24 +44,49 @@ namespace AssemblyCSharp
         }
 
         void Update(){
+            CheckPanelPosition();
         }
 
-        public void ForcedMove(GenericSkillModel.forcedMoveType forcedMoveType, int moveAmount = 1)
+        public void CheckPanelPosition()
+        {
+            var panel = currentPanel.GetComponent<Panels_Manager>();
+            switch (panel.panelNumber)
+            {
+                case 0:
+                    isInBackRow = false;
+                    isInFrontRow = true;
+                    break;
+                case 2:
+                    isInBackRow = true;
+                    isInFrontRow = false;
+                    break;
+                default:
+                    isInBackRow = false;
+                    isInFrontRow = false;
+                    break;
+            }
+        }
+
+        public void ForcedMove(GenericSkillModel.moveType forcedMoveType, int moveAmount = 1)
         {
             var currentPanel = baseManager.movementManager.currentPanel;
             var currentPanelNum = currentPanel.GetComponent<Panels_Manager>().panelNumber;
             int targetPanelNum = currentPanelNum;
-            if (forcedMoveType == GenericSkillModel.forcedMoveType.Back)
+            if (forcedMoveType == GenericSkillModel.moveType.Back)
             {
                 targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + moveAmount;
             }
-            else if (forcedMoveType == GenericSkillModel.forcedMoveType.Forward)
+            else if (forcedMoveType == GenericSkillModel.moveType.Forward)
             {
                 targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - moveAmount;
             }
             targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
             targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
             var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
+            currentPanel.GetComponent<Panels_Manager>().currentOccupier = null;
+            currentPanel.GetComponent<Panels_Manager>().animationManager = null;
+            currentPanel.GetComponent<Panels_Manager>().characterManager = null;
+            currentPanel.GetComponent<Panels_Manager>().movementManager = null;
             MoveToPanel(targetPanel, "hit");
             targetPanel.GetComponent<Panels_Manager>().SetStartingPanel(this.gameObject, true);
         }
@@ -144,9 +171,10 @@ namespace AssemblyCSharp
             if (positionArrow && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive)
             {
                 var positionArrowManager = positionArrow.GetComponent<MovementArrowManager>();
-                if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && baseManager.characterManager.characterModel.actionPoints >= 1)
+                if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && Battle_Manager.actionPoints >= 1)
                 {
-                    baseManager.characterManager.characterModel.actionPoints -= movementCost;
+                    Battle_Manager.actionPoints -= movementCost;
+                    Battle_Manager.UpdateAPAmount();
                     positionArrowManager.SetPanelandDestroy();
                     MoveToPanel(positionArrowManager.hoveredPanel.gameObject);
                     positionArrowManager.occupier.animationManager.meshRenderer.sortingOrder = origSortingOrder = positionArrowManager.hoveredPanel.sortingLayerNumber;
