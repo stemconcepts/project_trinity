@@ -25,9 +25,6 @@ namespace AssemblyCSharp
         public float newSP;
         public float magicPower;
         public float newMP;
-        public bool useModifier;
-        [ConditionalHide("useModifier", false, false)]
-        public float modifierAmount;
         public bool isSpell;
         public bool isFlat;
         public GameObject hitEffect;
@@ -46,7 +43,6 @@ namespace AssemblyCSharp
         public bool castTimeReady;
         public int turnDuration = 4;
         public int skillCooldown = 0;
-        public int currentCDAmount;
         [Header("Animation:")]
         public string skinChange;
         public string animationType;
@@ -62,6 +58,8 @@ namespace AssemblyCSharp
         public bool targetAndSelf;
         public bool summon;
         [Header("Extra Effect:")]
+        [ConditionalHide(true)]
+        public bool useModifier;
         public ExtraEffectEnum ExtraEffect;
         public enum ExtraEffectEnum
         {
@@ -70,16 +68,29 @@ namespace AssemblyCSharp
             BonusDamage,
             RunSkill
         }
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.BonusDamage, false)]
+        public BonusPrerequisite bonusPrerequisite;
+        public enum BonusPrerequisite
+        {
+            InFrontRow,
+            InBackRow,
+            InMiddleRow,
+            SubStatusExists
+        }
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.RunSkill, false)]
         public GenericSkillModel ExtraSkillToRun;
+        [ConditionalHide("bonusPrerequisite", (int)BonusPrerequisite.SubStatusExists, false)]
         public subStatus subStatus;
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.None, true)]
+        public float modifierAmount;
 
         [Header("Reposition:")]
-        [ConditionalHide("Reposition", (int)moveType.None != 0, false)]
+        [ConditionalHide("Reposition", (int)moveType.None == 0, true)]
         public int RepositionAmount;
         public moveType Reposition;
 
         [Header("Forced Movement:")]
-        [ConditionalHide("forcedMove", (int)moveType.None != 0, false)]
+        [ConditionalHide("forcedMove", (int)moveType.None == 0, true)]
         public int forcedMoveAmount;
         public moveType forcedMove;
         public enum moveType
@@ -149,7 +160,21 @@ namespace AssemblyCSharp
                     Dispel(data);
                     break;
                 case ExtraEffectEnum.BonusDamage:
-                    BonusDamageBySubStatus(data);
+                    switch (bonusPrerequisite)
+                    {
+                        case BonusPrerequisite.SubStatusExists:
+                            BonusDamageBySubStatus(data);
+                            break;
+                        case BonusPrerequisite.InFrontRow:
+                            BonusDamageFromPosition(data, bonusPrerequisite);
+                            break;
+                        case BonusPrerequisite.InMiddleRow:
+                            BonusDamageFromPosition(data, bonusPrerequisite);
+                            break;
+                        case BonusPrerequisite.InBackRow:
+                            BonusDamageFromPosition(data, bonusPrerequisite);
+                            break;
+                    }
                     break;
                 case ExtraEffectEnum.RunSkill:
                     RunExtraSkill(data);
@@ -202,6 +227,19 @@ namespace AssemblyCSharp
             }
         }
 
+        public void BonusDamageFromPosition(SkillData data, BonusPrerequisite positionNeeded)
+        {
+            useModifier = false;
+            if ((data.caster.baseManager.movementManager.isInFrontRow && positionNeeded == BonusPrerequisite.InFrontRow)
+                || (data.caster.baseManager.movementManager.isInMiddleRow && positionNeeded == BonusPrerequisite.InMiddleRow)
+                || (data.caster.baseManager.movementManager.isInBackRow && positionNeeded == BonusPrerequisite.InBackRow)
+                )
+            {
+                useModifier = true;
+                return;
+            }
+        }
+
         public void SaveTurnToReset()
         {
             turnToReset = Battle_Manager.turnCount + (skillCooldown * 2);
@@ -233,14 +271,37 @@ namespace AssemblyCSharp
                 {
                     relevantBIM.skillCDImage.fillAmount = 0;
                 }
-                if (action != null)
+                /*if (action != null)
                 {
                     action();
-                }
+                }*/
+                action?.Invoke();
                 skillActive = false;
                 turnToComplete = 0;
+                Debug.Log(string.Format("{0} Cooldown reset ", skillName));
                 turnToReset = 0;
             }));
+        }
+
+        public void RepositionCharacters(List<Character_Manager> targets, GenericSkillModel skillModel)
+        {
+            targets.ForEach(o =>
+            {
+                var movementScript = o.baseManager.movementManager;
+                movementScript.ForceMoveOrReposition(skillModel);
+            });
+        }
+
+        public bool CompleteSkillOnCurrentTurn()
+        {
+            if (Battle_Manager.turnCount >= turnToComplete)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

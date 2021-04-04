@@ -5,6 +5,21 @@ using UnityEditor;
 
 namespace AssemblyCSharp
 {
+    public enum CharacterStats
+    {
+        None,
+        PDef,
+        MDef,
+        PAtk,
+        MAtk,
+        Haste,
+        vigor,
+        thornsDmg,
+        Health,
+        blockPoints,
+        absorbPoints
+    };
+
     [System.Serializable]
     public class Character_Model
     {

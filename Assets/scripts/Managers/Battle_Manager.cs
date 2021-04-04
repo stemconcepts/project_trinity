@@ -12,6 +12,8 @@ namespace AssemblyCSharp
         //public static BattleModel battleModel = new BattleModel();
         public static Event_Manager eventManager;
         public Game_Manager gameManager;
+        public static GameObject UICanvas;
+        public static GameObject tooltipCanvas;
         public static List<Panels_Manager> allPanelManagers;
         public static Sound_Manager soundManager;
         public static Game_Effects_Manager gameEffectManager;
@@ -56,6 +58,8 @@ namespace AssemblyCSharp
             gameEffectManager = gameManager.GameEffectsManager;
             eventManager = gameManager.EventManager;
             assetFinder = gameManager.AssetFinder;
+            UICanvas = GameObject.Find("Canvas - UI");
+            tooltipCanvas = GameObject.Find("Canvas - Tooltip");
             pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
             pauseScreenHolder.SetActive(false);
@@ -111,15 +115,16 @@ namespace AssemblyCSharp
             if (turn == TurnEnum.EnemyTurn)
             {
                 var enemiesCanCast = characterSelectManager.enemyCharacters
-                    .Where(o => (o.gameObject.GetComponent<Enemy_Skill_Manager>().phaseSkillList.Count() > 0 && !o.gameObject.GetComponent<Enemy_Skill_Manager>().hasCasted))
-                    .Any(o => !o.gameObject.GetComponent<Enemy_Skill_Manager>().isCasting);
+                    .Where(o => (o.gameObject.GetComponent<Enemy_Skill_Manager>().copiedSkillList.Count() > 0 && !o.gameObject.GetComponent<Enemy_Skill_Manager>().hasCasted))
+                    .Any(o => !o.gameObject.GetComponent<Enemy_Skill_Manager>().isCasting && !o.gameObject.GetComponent<Status_Manager>().DoesStatusExist("stun"));
                 var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack).Any(o => !o.gameObject.GetComponent<Auto_Attack_Manager>().hasAttacked); 
                 return !enemiesCanAttack && !enemiesCanCast;
             } else
             {
                 var hasTurnsLeft = characterSelectManager.friendlyCharacters
-                    .Where(o => o.gameObject.GetComponent<Character_Manager>().characterModel.Haste > o.gameObject.GetComponent<Player_Skill_Manager>().turnsTaken).Any();
-                print(hasTurnsLeft);
+                    .Where(o => o.gameObject.GetComponent<Character_Manager>().characterModel.Haste > o.gameObject.GetComponent<Player_Skill_Manager>().turnsTaken
+                    && !o.gameObject.GetComponent<Status_Manager>().DoesStatusExist("stun")).Any();
+                //print(hasTurnsLeft);
                 return Battle_Manager.actionPoints == 0 || !hasTurnsLeft;
             }
         }
@@ -153,7 +158,7 @@ namespace AssemblyCSharp
             playerTurnText.text = (turn == TurnEnum.EnemyTurn) ? "Enemy Turn" : "Player Turn";
             taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
             Battle_Manager.battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
-            taskManager.CallTask(3f, () =>
+            taskManager.CallTask(2f, () =>
             {
                 activeTurn = turn;
                 disableActions = false;

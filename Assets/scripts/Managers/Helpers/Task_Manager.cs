@@ -75,7 +75,7 @@ namespace AssemblyCSharp
                         skillSource = statusModel.singleStatus.statusName,
                         incomingHeal = statusModel.power,
                         damageImmidiately = true,
-                        fontSize = 100
+                        fontSize = 150
                     };
                     damageManager.calculateHdamage(damageModel);
                 }
@@ -295,11 +295,8 @@ namespace AssemblyCSharp
             Time.timeScale = 1f;
         }
 
-        public bool skillcoolDownTask( SkillModel skill, Image image ){
+        /*public bool skillcoolDownTask( SkillModel skill, Image image ){
             var myTask = new Task(skillcoolDownDisplay( skill, image ));
-            /*var myTask2 = new Task(CallTask( skill.skillCooldown, () => {
-                skill.skillActive = false;
-            }));*/
 
             CallTask( skill.skillCooldown, () => {
                 skill.skillActive = false;
@@ -309,8 +306,9 @@ namespace AssemblyCSharp
                 taskList.Add("skillcoolDownDisplay_" + skill.skillName, myTask);
             }
             return true;
-        }
-        IEnumerator skillcoolDownDisplay( SkillModel skill, Image image ){
+        }*/
+
+        /*IEnumerator skillcoolDownDisplay( SkillModel skill, Image image ){
             image.fillAmount = 1f;
             while( skill.skillActive ){
                 yield return new WaitForSeconds(1f);
@@ -327,14 +325,14 @@ namespace AssemblyCSharp
                 ));
             }
             skill.currentCDAmount = 0;
-        }
+        }*/
 
-        public bool skillcoolDownTask(enemySkill skill, Image image)
+        /*public bool skillcoolDownTask(enemySkill skill, Image image)
         {
             var myTask = new Task(skillcoolDownDisplay(skill, image));
             /*var myTask2 = new Task(CallTask( skill.skillCooldown, () => {
                 skill.skillActive = false;
-            }));*/
+            }));
 
             CallTask(skill.skillCooldown, () => {
                 skill.skillActive = false;
@@ -358,7 +356,7 @@ namespace AssemblyCSharp
                 //image.fillAmount -= timeSpent;
             }
             skill.currentCDAmount = 0;
-        }
+        }*/
 
         public void TimerDisplayTask(float time, Image image, string taskName = null)
         {

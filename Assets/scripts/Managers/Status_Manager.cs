@@ -170,11 +170,14 @@ namespace AssemblyCSharp
                         Battle_Manager.taskManager.CallChangePointsTask(statusModel);
                     });
 
-                    statusModel.SaveTurnToReset();
-                    statusLabel.durationTimer = ResetOnValidTurn(statusModel, () =>
-                    {
-                        statusLabel.tickTimer.Stop();
-                    });
+                    //if (statusModel.turnDuration > 0)
+                    //{
+                        statusModel.SaveTurnToReset();
+                        statusLabel.durationTimer = ResetOnValidTurn(statusModel, () =>
+                        {
+                            statusLabel.tickTimer.Stop();
+                        });
+                    //}
 
                     /*statusLabel.durationTimer = Battle_Manager.taskManager.CallDurationTask(statusModel.turnDuration, statusLabel, "durationTimer", () =>
                     {

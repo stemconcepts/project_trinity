@@ -11,14 +11,16 @@ namespace AssemblyCSharp
         
         public int buttonID;
         public SkillModel skill;
-        public Text skillName;
+        //public Text skillName;
+        public Text skillCost;
         public Image iconImageScript;
         public Image skillCDImage;
+        public ToolTipController toolTip;
         public KeyCode KeyCode;
 
-        void Start()
+        void Awake()
         {
-            skillName = this.gameObject.GetComponent<Text>();
+            skillCost = this.gameObject.GetComponent<Text>();
         }
 
         public void SkillSet ( Player_Skill_Manager skillManager ) {
@@ -39,7 +41,11 @@ namespace AssemblyCSharp
             }
             iconImageScript.sprite = skill.skillIcon;
             iconImageScript.type = Image.Type.Filled;
-            skillName.text = skill.skillName;
+            //skillName.text = skill.skillName;
+            skillCost.text = skill.skillCost.ToString();
+            toolTip.toolTipName = skill.skillName;
+            toolTip.toolTipDesc = skill.skillDesc;
+
         }
 
         public void RunClassSkill(){

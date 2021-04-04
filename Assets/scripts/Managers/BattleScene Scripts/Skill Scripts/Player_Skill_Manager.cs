@@ -17,6 +17,7 @@ namespace AssemblyCSharp
         public SkillModel skillModel;
         public bool waitingForSelection;
         public int turnsTaken = 0;
+        public GenericSkillModel activeSkill;
 
         void Start()
         {
@@ -42,12 +43,14 @@ namespace AssemblyCSharp
             isSkillactive = true;
             if (CheckSkillAvail(skillModel) && skillModel.castTurnTime <= 0)
             {
+                skillModel.skillActive = true;
                 Battle_Manager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
                 SkillActiveSet(skillModel, true);
                 GetTargets(skillModel, weaponSkill: weaponSkill);
             }
             else if(CheckSkillAvail(skillModel))
             {
+                skillModel.skillActive = true;
                 Battle_Manager.battleDetailsManager.BattleWarning($"{gameObject.name} is casting {skillModel.skillName} in {skillModel.castTurnTime} turns", 3f);
                 SkillActiveSet(skillModel, true);
                 StartCasting(skillModel);
@@ -90,8 +93,9 @@ namespace AssemblyCSharp
                     Time.timeScale = 1f;
                     SetAnimations(skillModel);
                     //SkillComplete(finalTargets, skillModel: skillModel);
-                }
-                );
+                });
+                Battle_Manager.actionPoints -= skillModel.skillCost;
+                Battle_Manager.UpdateAPAmount();
                 return;
             }
             else
@@ -108,6 +112,8 @@ namespace AssemblyCSharp
                     isSkillactive = false;
                 }
             }
+            Battle_Manager.actionPoints -= skillModel.skillCost;
+            Battle_Manager.UpdateAPAmount();
         }
 
         public void SkillComplete(List<Character_Manager> targets, SkillModel skillModel)
@@ -208,8 +214,8 @@ namespace AssemblyCSharp
                 };
                 AddStatuses(target, power, skillModel);
             }
-            Battle_Manager.actionPoints -= skillModel.skillCost;
-            Battle_Manager.UpdateAPAmount();
+            //Battle_Manager.actionPoints -= skillModel.skillCost;
+            //Battle_Manager.UpdateAPAmount();
         }
 
 
@@ -268,7 +274,6 @@ namespace AssemblyCSharp
 
         public void SkillActiveSet(SkillModel skillModel, bool setActive)
         {
-            skillModel.skillActive = setActive;
             activeSkill = setActive ? skillModel : null;
             if (Battle_Manager.taskManager.taskList.Count > 0 && Battle_Manager.taskManager.taskList.ContainsKey("waitForTarget"))
             {
@@ -301,7 +306,7 @@ namespace AssemblyCSharp
             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationCastingType, false);
             baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, skillModel.animationRepeatCasting, true, 0);
             //New Turn based cast
-            if (CompleteSkillOnCurrentTurn() && Battle_Manager.turn == Battle_Manager.TurnEnum.PlayerTurn )
+            if (skillModel.CompleteSkillOnCurrentTurn() && Battle_Manager.turn == Battle_Manager.TurnEnum.PlayerTurn )
             {
                 GetTargets(skillModel);
             }
@@ -317,6 +322,13 @@ namespace AssemblyCSharp
         {
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
             {
+                if (activeSkill.Reposition != GenericSkillModel.moveType.None)
+                {
+                    var charList = new List<Character_Manager>() { baseManager.characterManager };
+                    activeSkill.RepositionCharacters(charList, activeSkill);
+                    //baseManager.movementManager.ForceMoveOrReposition(skillModel);
+                }
+
                 SkillComplete(finalTargets, (SkillModel)activeSkill);
                 foreach (var target in finalTargets)
                 {

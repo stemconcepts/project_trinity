@@ -8,7 +8,7 @@ namespace AssemblyCSharp
     public class Enemy_Skill_Manager : Skill_Manager
     {
         public List<enemySkill> enemySkillList = new List<enemySkill>();
-        private List<enemySkill> copiedSkillList = new List<enemySkill>();
+        public List<enemySkill> copiedSkillList = new List<enemySkill>();
         public List<enemySkill> phaseSkillList = new List<enemySkill>();
         public bool hasCasted;
 
@@ -26,7 +26,7 @@ namespace AssemblyCSharp
 
         public void PrepSkill(enemySkill skillModel)
         {
-            //isSkillactive = true;
+            isSkillactive = true;
             //activeSkill = skillModel;
             skillModel.skillActive = true;
             SkillActiveSet(skillModel, true);
@@ -94,8 +94,8 @@ namespace AssemblyCSharp
                         break;
                     case PreRequisiteModel.preRequisiteTypeEnum.spellsOnCooldown:
                         //var skills = ((Enemy_Skill_Manager)baseManager.skillManager).phaseSkillList.Where(o => o.preRequisite.preRequisiteType != PreRequisiteModel.preRequisiteTypeEnum.spellsOnCooldown).ToList();
-                        var skills = ((Enemy_Skill_Manager)baseManager.skillManager).phaseSkillList.Where(o => o.preRequisites.Select(pre => pre.preRequisiteType != PreRequisiteModel.preRequisiteTypeEnum.spellsOnCooldown).FirstOrDefault()).ToList();
-                        requirementsMet = !skills.Any(o => !o.skillActive);
+                        var skills = copiedSkillList.Where(o => o.preRequisites.Count() == 0 || o.preRequisites.Select(pre => pre.preRequisiteType != PreRequisiteModel.preRequisiteTypeEnum.spellsOnCooldown).FirstOrDefault()).ToList();
+                        requirementsMet = !skills.Any(o => o.turnToReset == 0);
                         break;
                     default:
                         requirementsMet = true;
@@ -110,7 +110,7 @@ namespace AssemblyCSharp
             targets.ForEach(o =>
             {
                 var movementScript = o.baseManager.movementManager;
-                movementScript.ForcedMove(skillModel.forcedMove, skillModel.forcedMoveAmount);
+                movementScript.ForceMoveOrReposition(skillModel);
                 if (movementScript.isInBackRow)
                 {
                     var dmgModel = new DamageModel()
@@ -123,6 +123,7 @@ namespace AssemblyCSharp
                         hitEffectPositionScript = o.baseManager.effectsManager.fxCenter.transform,
                         modifiedDamage = skillModel.useModifier
                     };
+                    o.baseManager.damageManager.calculatedamage(dmgModel);
                 }
             });
         }
@@ -158,10 +159,14 @@ namespace AssemblyCSharp
             currenttarget = null;
             //isCasting = false;
             //activeSkill = null;
-
+            isSkillactive = false;
+            //enemySkillModel.skillActive = false;
+            //isSkillactive = setActive;
+           //isCasting = false;
             SkillActiveSet(enemySkillModel, false);
             enemySkillModel.ResetSkillOnCurrentTurn(false, () => {
-                enemySkillModel.skillActive = true;
+                finalTargets.Clear();
+                // enemySkillModel.skillActive = true;
                 //SkillActiveSet(enemySkillModel, false);
             });
             /*Battle_Manager.taskManager.CallTask(enemySkillModel.skillCooldown, () =>
@@ -323,15 +328,32 @@ namespace AssemblyCSharp
 
         enemySkill SkillToRun(List<enemySkill> bossSkillList)
         {
-            phaseSkillList.Clear();
             bossSkillList.Capacity = bossSkillList.Count;
-            for (int x = 0; x < bossSkillList.Count; x++)
+            /*for (int x = 0; x < phaseSkillList.Count; x++)
             {
-                if (!bossSkillList[x].skillActive && ArePreRequisitesMet(bossSkillList[x]))
+                if (phaseSkillList[x].skillActive && phaseSkillList[x].turnToReset > 0 && !ArePreRequisitesMet(phaseSkillList[x]))
                 {
-                    phaseSkillList.Add(Object.Instantiate(bossSkillList[x]) as enemySkill);
+                    phaseSkillList.Remove(phaseSkillList[x]);
+                    //phaseSkillList.Add(Object.Instantiate(bossSkillList[x]) as enemySkill);
                 }
             }
+            for (int x = 0; x < bossSkillList.Count; x++)
+            {
+                if (phaseSkillList.Count() > 0)
+                {
+                    if (!phaseSkillList[x].skillActive && phaseSkillList[x].turnToReset == 0 && ArePreRequisitesMet(bossSkillList[x]) && !phaseSkillList.Any(o => o.skillName == bossSkillList[x].skillName))
+                    {
+                        phaseSkillList.Add(Object.Instantiate(bossSkillList[x]) as enemySkill);
+                    }
+                } else
+                {
+                    if (ArePreRequisitesMet(bossSkillList[x]))
+                    {
+                        phaseSkillList.Add(Object.Instantiate(bossSkillList[x]) as enemySkill);
+                    }
+                }
+            }
+            
             if (phaseSkillList.Count == 0)
             {
                 return null;
@@ -340,50 +362,63 @@ namespace AssemblyCSharp
             {
                 phaseSkillList.ForEach(o => o.newSP = o.skillPower * baseManager.characterManager.characterModel.PAtk);
                 phaseSkillList.ForEach(o => o.newMP = o.magicPower * baseManager.characterManager.characterModel.MAtk);
+            }*/
+            if (bossSkillList.Count > 0)
+            {
+                bossSkillList.ForEach(o => o.newSP = o.skillPower * baseManager.characterManager.characterModel.PAtk);
+                bossSkillList.ForEach(o => o.newMP = o.magicPower * baseManager.characterManager.characterModel.MAtk);
             }
-            var randomNumber = Random.Range(0, (phaseSkillList.Count));
-            var returnedSkill = phaseSkillList[randomNumber];
-            return returnedSkill;
+            var validSkills = bossSkillList.Where(o => o.turnToReset == 0 && ArePreRequisitesMet(o)).ToList();
+            if (validSkills.Count() > 0)
+            {
+                var randomNumber = Random.Range(0, (validSkills.Count));
+                var returnedSkill = validSkills[randomNumber];
+                return returnedSkill;
+            }
+            return null;
         }
 
         public void BeginSkillRotation( /*EnemyPhase phase*/ )
         {
-            var randomSkill = SkillToRun(copiedSkillList);
-            if (!hasCasted && !Battle_Manager.disableActions && (Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn) && baseManager.characterManager.characterModel.isAlive 
-                && !isSkillactive && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && randomSkill != null)
+            if (!isSkillactive)
             {
-                if (!isSkillactive)
+                var randomSkill = SkillToRun(copiedSkillList);
+                if (!hasCasted && !Battle_Manager.disableActions && (Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn) && baseManager.characterManager.characterModel.isAlive
+                     && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && randomSkill != null)
                 {
-                    //if(IsPreRequisiteMet(randomSkill))
+                    //if (!isSkillactive)
                     //{
-                    //isSkillactive = true;
-                    PrepSkill(randomSkill);
-                    Battle_Manager.taskManager.CallTask(10f, () => {
-                        BeginSkillRotation();
-                    });
-                    /*} else {
-                        Battle_Manager.taskManager.CallTask(1f, () =>
-                        {
+                        //if(IsPreRequisiteMet(randomSkill))
+                        //{
+                        //isSkillactive = true;
+                        PrepSkill(randomSkill);
+                        Battle_Manager.taskManager.CallTask(5f, () => {
                             BeginSkillRotation();
                         });
-                    }*/
+                        /*} else {
+                            Battle_Manager.taskManager.CallTask(1f, () =>
+                            {
+                                BeginSkillRotation();
+                            });
+                        }*/
+                    //}
                 }
-                else if (isSkillactive)
+                else if (baseManager.characterManager.characterModel.isAlive)
                 {
-                    Battle_Manager.taskManager.CallTask(1f, () => {
-                        BeginSkillRotation();
-                    });
-                }
-                else
-                {
-                    Battle_Manager.taskManager.CallTask(1f, () => {
+                    Battle_Manager.taskManager.CallTask(3f, () => {
                         BeginSkillRotation();
                     });
                 }
             }
-            else if (baseManager.characterManager.characterModel.isAlive)
+            else if (isSkillactive)
             {
-                Battle_Manager.taskManager.CallTask(5f, () => {
+                Battle_Manager.taskManager.CallTask(1f, () => {
+                    BeginSkillRotation();
+                });
+            }
+            else
+            {
+                Battle_Manager.taskManager.CallTask(1f, () => {
                     BeginSkillRotation();
                 });
             }
@@ -393,9 +428,14 @@ namespace AssemblyCSharp
         {
             try
             {
-                isSkillactive = setActive;
+                skillModel.skillActive = setActive;
+                //isSkillactive = setActive;
                 isCasting = setActive;
-                activeSkill = setActive ? skillModel : null;
+                //activeSkill = setActive ? skillModel : null;
+                if (!setActive)
+                {
+                    //finalTargets.Clear();
+                }
                 /*if (copiedSkillList.Count > 0)
                 {
                     copiedSkillList.Where(o => o.skillName == skillModel.skillName).First().skillActive = setActive;
@@ -439,34 +479,65 @@ namespace AssemblyCSharp
         {
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
             {
-                if ((enemySkill)activeSkill != null)
+                copiedSkillList.ForEach(o =>
+                {
+                    if (o.skillActive)
+                    {
+                        SkillComplete(finalTargets, o);
+                        foreach (var target in finalTargets)
+                        {
+                            var targetDamageManager = target.baseManager.damageManager;
+                            var damageModel = targetDamageManager.skillDmgModels.ContainsKey(gameObject.name) ? targetDamageManager.skillDmgModels[gameObject.name] : null;
+                            if (damageModel != null)
+                            {
+                                targetDamageManager.TakeDmg(damageModel, e.Data.Name);
+                                var eventModel = new EventModel
+                                {
+                                    eventName = "OnDealingDmg",
+                                    extTarget = target,
+                                    eventCaller = baseManager.characterManager,
+                                    extraInfo = damageModel.damageTaken
+                                };
+                                Battle_Manager.eventManager.BuildEvent(eventModel);
+                            }
+                        }
+                    }
+                });
+
+                /*if ((enemySkill)activeSkill != null)
                 {
                     SkillComplete(finalTargets, (enemySkill)activeSkill);
-                } 
-
-                foreach (var target in finalTargets)
-                {
-                    var targetDamageManager = target.baseManager.damageManager;
-                    var damageModel = targetDamageManager.skillDmgModels.ContainsKey(gameObject.name) ? targetDamageManager.skillDmgModels[gameObject.name] : null;
-                    if (damageModel != null)
-                    {
-                        targetDamageManager.TakeDmg(damageModel, e.Data.Name);
-                        var eventModel = new EventModel
-                        {
-                            eventName = "OnDealingDmg",
-                            extTarget = target,
-                            eventCaller = baseManager.characterManager,
-                            extraInfo = damageModel.damageTaken
-                        };
-                        Battle_Manager.eventManager.BuildEvent(eventModel);
-                    }
-                }
+                }*/
             }
         }
 
         void Update()
         {
-            if (activeSkill != null && isCasting && Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn)
+            if (isCasting && Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn)
+            {
+                copiedSkillList.ForEach(o =>
+                {
+                    if (o.skillActive)
+                    {
+                        if (o.CompleteSkillOnCurrentTurn())
+                        {
+                            isCasting = false;
+                            if (o.summon)
+                            {
+                                o.SummonCreatures(summonList);
+                                SetAnimations(o);
+                            }
+                            else
+                            {
+                                GetTargets(o);
+                            }
+                        }
+                    }
+                });
+            }
+            
+
+            /*if (activeSkill != null && isCasting && Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn)
             {
                 if (CompleteSkillOnCurrentTurn())
                 {
@@ -481,7 +552,7 @@ namespace AssemblyCSharp
                         GetTargets((enemySkill)activeSkill);
                     }
                 }
-            }
+            }*/
         }
 
         void Start()

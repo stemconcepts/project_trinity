@@ -17,15 +17,6 @@ namespace AssemblyCSharp
         public float coolDown;
         public float triggerChance;
         public triggerGrp trigger;
-        public enum triggerGrp {
-            None,
-            Passive,
-            OnTakingDmg,
-            OnDealingDmg,
-            OnHeal,
-            OnMove,
-            OnSkillCast
-        };
         [Multiline]
         public string baubleDesc;
         public itemQuality quality;

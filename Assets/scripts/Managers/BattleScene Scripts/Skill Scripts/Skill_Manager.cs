@@ -9,7 +9,7 @@ namespace AssemblyCSharp
 {
     public class Skill_Manager : MonoBehaviour
     {
-        public GenericSkillModel activeSkill;
+        //public GenericSkillModel activeSkill;
         public Base_Character_Manager baseManager;
         //private float multiplier;
         public List<Character_Manager> finalTargets = new List<Character_Manager>();
@@ -34,7 +34,7 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool CompleteSkillOnCurrentTurn()
+        /*public bool CompleteSkillOnCurrentTurn()
         {
             if (Battle_Manager.turnCount >= activeSkill.turnToComplete)
             {
@@ -43,7 +43,7 @@ namespace AssemblyCSharp
             {
                 return false;
             }
-        }
+        }*/
     }
 }
 

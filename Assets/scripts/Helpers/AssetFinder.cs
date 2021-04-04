@@ -22,6 +22,10 @@ namespace AssemblyCSharp
             "Assets/scripts/gear/baubles"
         };
 
+        private string[] helperFolders = new string[]{
+            "Assets/prefabs/status"
+        };
+
         public AssetFinder()
         {
         }

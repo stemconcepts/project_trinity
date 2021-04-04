@@ -24,9 +24,9 @@ namespace AssemblyCSharp
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventAAHit;
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventAAComplete;
             }
-            if (baseManager.characterManager.characterModel.canAutoAttack)
+            if (Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn && baseManager.characterManager.characterModel.canAutoAttack)
             {
-                Battle_Manager.taskManager.CallTask(5f + baseManager.characterManager.characterModel.Haste, () =>
+                Battle_Manager.taskManager.CallTask(5f, () =>
                 {
                     autoAttackTarget = baseManager.characterManager.GetTarget(true);
                     RunAttackLoop();
@@ -36,10 +36,11 @@ namespace AssemblyCSharp
 
         public void RunAttackLoop()
         {
+            var turnType = baseManager.characterManager.characterModel.characterType == Character_Model.CharacterTypeEnum.enemy ? Battle_Manager.TurnEnum.EnemyTurn : Battle_Manager.TurnEnum.PlayerTurn;
             var targetDmgManager = autoAttackTarget ? autoAttackTarget.damageManager : null;
-            if (Battle_Manager.turn == Battle_Manager.TurnEnum.EnemyTurn && targetDmgManager != null && baseManager.characterManager.characterModel.isAlive &&
+            if (targetDmgManager != null && baseManager.characterManager.characterModel.isAlive &&
                 baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
-                !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive)
+                !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive && (Battle_Manager.turn == turnType))
             {
                 isAttacking = true;
                 if (!string.IsNullOrEmpty(baseManager.animationManager.attackAnimation) && baseManager.animationManager.inAnimation == false)

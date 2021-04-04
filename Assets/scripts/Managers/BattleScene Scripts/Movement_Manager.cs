@@ -21,6 +21,7 @@ namespace AssemblyCSharp
         public GameObject positionArrow;
         public bool isInBackRow;
         public bool isInFrontRow;
+        public bool isInMiddleRow;
 
         void Awake() 
         {
@@ -53,21 +54,107 @@ namespace AssemblyCSharp
             switch (panel.panelNumber)
             {
                 case 0:
+                    if (!isInFrontRow)
+                    {
+                        var eventModelFront = new EventModel
+                        {
+                            eventName = "OnFirstRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        Battle_Manager.eventManager.BuildEvent(eventModelFront);
+                    }
                     isInBackRow = false;
+                    isInMiddleRow = false;
                     isInFrontRow = true;
                     break;
+                case 1:
+                    if (!isInMiddleRow)
+                    {
+                        var eventModelMiddle = new EventModel
+                        {
+                            eventName = "OnMiddleRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        Battle_Manager.eventManager.BuildEvent(eventModelMiddle);
+                    }
+                    isInBackRow = false;
+                    isInMiddleRow = true;
+                    isInFrontRow = false;
+                    break;
                 case 2:
+                    if (!isInBackRow)
+                    {
+                        var eventModelBack = new EventModel
+                        {
+                            eventName = "OnLastRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        Battle_Manager.eventManager.BuildEvent(eventModelBack);
+                    }
                     isInBackRow = true;
+                    isInMiddleRow = false;
                     isInFrontRow = false;
                     break;
                 default:
                     isInBackRow = false;
+                    isInMiddleRow = false;
                     isInFrontRow = false;
                     break;
             }
         }
 
-        public void ForcedMove(GenericSkillModel.moveType forcedMoveType, int moveAmount = 1)
+        public void ForceMoveOrReposition(/*GenericSkillModel.moveType forcedMoveType, int moveAmount = 1, bool reposition = false,*/ GenericSkillModel skill)
+        {
+            var currentPanel = baseManager.movementManager.currentPanel;
+            var currentPanelNum = currentPanel.GetComponent<Panels_Manager>().panelNumber;
+            int targetPanelNum = currentPanelNum;
+            
+            if (skill.forcedMove == GenericSkillModel.moveType.Back)
+            {
+                targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.forcedMoveAmount;
+            }
+            else if (skill.forcedMove == GenericSkillModel.moveType.Forward)
+            {
+                targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.forcedMoveAmount;
+            }
+
+            if (skill.Reposition == GenericSkillModel.moveType.Back)
+            {
+                targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.RepositionAmount;
+            }
+            else if (skill.Reposition == GenericSkillModel.moveType.Forward)
+            {
+                targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.RepositionAmount;
+            }
+
+            targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
+            targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
+            var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
+            currentPanel.GetComponent<Panels_Manager>().currentOccupier = null;
+            currentPanel.GetComponent<Panels_Manager>().animationManager = null;
+            currentPanel.GetComponent<Panels_Manager>().characterManager = null;
+            currentPanel.GetComponent<Panels_Manager>().movementManager = null;
+
+            Vector2 panelPos = targetPanel.transform.position;
+            panelPos.y = panelPos.y + 6f;
+            origPosition = panelPos;
+
+            if (skill.RepositionAmount > 0 && !skill.movesToTarget)
+            {
+                MoveToPanel(targetPanel, "hop");
+                targetPanel.GetComponent<Panels_Manager>().SetStartingPanel(this.gameObject, true);
+            } else if(skill.forcedMoveAmount > 0)
+            {
+                MoveToPanel(targetPanel, "hit");
+                targetPanel.GetComponent<Panels_Manager>().SetStartingPanel(this.gameObject, true);
+            }
+            targetPanel.GetComponent<Panels_Manager>().SetStartingPanel(this.gameObject, false);
+        }
+
+        /*public void Reposition(GenericSkillModel.moveType forcedMoveType, int moveAmount = 1)
         {
             var currentPanel = baseManager.movementManager.currentPanel;
             var currentPanelNum = currentPanel.GetComponent<Panels_Manager>().panelNumber;
@@ -87,9 +174,9 @@ namespace AssemblyCSharp
             currentPanel.GetComponent<Panels_Manager>().animationManager = null;
             currentPanel.GetComponent<Panels_Manager>().characterManager = null;
             currentPanel.GetComponent<Panels_Manager>().movementManager = null;
-            MoveToPanel(targetPanel, "hit");
+            //MoveToPanel(targetPanel, "hit");
             targetPanel.GetComponent<Panels_Manager>().SetStartingPanel(this.gameObject, true);
-        }
+        }*/
 
         public void SetSortingLayer(int sortingLayer ){
             origSortingOrder = sortingLayer;
@@ -128,6 +215,14 @@ namespace AssemblyCSharp
             Battle_Manager.taskManager.moveBackTask(baseManager, moveToHomeSpeed, origPosition, currentPosition);
             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, hopAnimation, false);
             baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation, true, 0);
+
+            var eventModel = new EventModel
+            {
+                eventName = "OnMove",
+                extTarget = baseManager.characterManager,
+                eventCaller = baseManager.characterManager
+            };
+            Battle_Manager.eventManager.BuildEvent(eventModel);
         }
 
         public void OnEventMove(Spine.TrackEntry state, Spine.Event e ){
@@ -139,7 +234,7 @@ namespace AssemblyCSharp
                 if( origPosition != (Vector2)this.gameObject.transform.position ){
                     moveToHome();
                 }
-            }
+            } 
         }
 
         //Spawn Move Pointer
@@ -174,6 +269,7 @@ namespace AssemblyCSharp
                 if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && Battle_Manager.actionPoints >= 1)
                 {
                     Battle_Manager.actionPoints -= movementCost;
+                    ++((Player_Skill_Manager)baseManager.skillManager).turnsTaken;
                     Battle_Manager.UpdateAPAmount();
                     positionArrowManager.SetPanelandDestroy();
                     MoveToPanel(positionArrowManager.hoveredPanel.gameObject);

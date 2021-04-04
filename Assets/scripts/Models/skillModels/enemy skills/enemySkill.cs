@@ -153,6 +153,7 @@ namespace AssemblyCSharp
                     var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
                     newCreature.name = "minion_" + enemyIndex;
                     var minionBaseManager = newCreature.GetComponent<Base_Character_Manager>();
+                    minionBaseManager.autoAttackManager.hasAttacked = true;
                     panelManager.currentOccupier = newCreature;
                     minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
                     minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;

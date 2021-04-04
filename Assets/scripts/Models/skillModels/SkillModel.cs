@@ -24,5 +24,6 @@ namespace AssemblyCSharp
     	public bool learned;
     	public bool assigned;
     	public int skillCost;
+        public int currentCDAmount;
     }
 }
