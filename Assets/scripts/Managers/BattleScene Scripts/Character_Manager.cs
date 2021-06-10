@@ -10,6 +10,10 @@ namespace AssemblyCSharp
     public class Character_Manager : MonoBehaviour
     {
         public Base_Character_Manager baseManager;
+        [Header("Character Template")]
+        public Character_Template template;
+        public bool useStats;
+        public bool useResistance;
         [Header("Character Model")]
         public Character_Model characterModel;
         [Header("Character Resistances")]
@@ -25,6 +29,11 @@ namespace AssemblyCSharp
             if (gameObject.tag == "Enemy" && characterModel.role == Character_Model.RoleEnum.boss && healthBar == null)
             {
                 healthBar = GameObject.Find("Slider_enemy");
+            }
+            if (template != null)
+            {
+                resistances = useResistance && template != null ? template.resistances : resistances;
+                characterModel = useStats && template != null ? template.characterModel : characterModel;
             }
         }
 
@@ -79,13 +88,20 @@ namespace AssemblyCSharp
             if( characterModel.current_health > characterModel.maxHealth ){
                 characterModel.Health = characterModel.maxHealth;
             } else if( characterModel.current_health <= 0 && characterModel.isAlive ){
-                Battle_Manager.characterSelectManager.UpdateCharacters();
-                baseManager.damageManager.autoAttackDmgModels.Remove(gameObject.name);
+                characterModel.isAlive = false;
+                Battle_Manager.characterSelectManager.UpdateCharacters(this.gameObject.name);
                 //if ( !baseManager.animationManager.inAnimation ){
-                    characterModel.isAlive = false;
                     characterModel.Health = 0;
                     var duration = baseManager.animationManager.PlayAnimation("death");
                     Battle_Manager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
+
+                    foreach (var task in Battle_Manager.taskManager.taskList)
+                    {
+                        if (task.Key == baseManager.name)
+                        {
+                            Battle_Manager.taskManager.taskList.Remove(task.Key);
+                        }
+                    }
                     Battle_Manager.taskManager.CallTask(duration, () =>
                     {
                         if (characterModel.characterType == Character_Model.CharacterTypeEnum.enemy)
@@ -93,7 +109,6 @@ namespace AssemblyCSharp
                             Destroy(this.gameObject);
                             var dataUI = GameObject.Find(this.gameObject.name + "_data");
                             Destroy(dataUI);
-                            Battle_Manager.characterSelectManager.UpdateCharacters();
                         }
                     });
                 //}
@@ -173,6 +188,13 @@ namespace AssemblyCSharp
                 Game_Manager.logger.Log(resistance, "No attribute given");
                 return false;
             }
+        }
+
+        public bool GetChanceToBeHit(float accuracy)
+        {
+            var accuracyRemaining = accuracy - characterModel.evasion;
+            var chanceToHit = UnityEngine.Random.Range(0.0f, 1.0f);
+            return accuracyRemaining >= chanceToHit;
         }
 
         public void SetResistance(string resistance, float value)

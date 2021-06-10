@@ -9,8 +9,6 @@ Shader "Spine/Sprite/Pixel Lit"
 		_BumpMap ("Normal Map", 2D) = "bump" {}
 
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		[PerRendererData] _AlphaTex ("External Alpha", 2D) = "white" {}
-		[PerRendererData] _EnableExternalAlpha ("Enable External Alpha", Float) = 0
 
 		_EmissionColor("Color", Color) = (0,0,0,0)
 		_EmissionMap("Emission", 2D) = "white" {}
@@ -44,7 +42,7 @@ Shader "Spine/Sprite/Pixel Lit"
 		[HideInInspector] _RenderQueue ("__queue", Float) = 0.0
 		[HideInInspector] _Cull ("__cull", Float) = 0.0
 		[HideInInspector] _StencilRef("Stencil Reference", Float) = 1.0
-		[Enum(UnityEngine.Rendering.CompareFunction)] _StencilComp("Stencil Comparison", Float) = 8 // Set to Always as default
+		[HideInInspector][Enum(UnityEngine.Rendering.CompareFunction)] _StencilComp("Stencil Comparison", Float) = 8 // Set to Always as default
 
 		// Outline properties are drawn via custom editor.
 		[HideInInspector] _OutlineWidth("Outline Width", Range(0,8)) = 3.0
@@ -81,13 +79,14 @@ Shader "Spine/Sprite/Pixel Lit"
 				#pragma target 3.0
 
 				#pragma shader_feature _ _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON _ADDITIVEBLEND _ADDITIVEBLEND_SOFT _MULTIPLYBLEND _MULTIPLYBLEND_X2
-				#pragma shader_feature _ _FIXED_NORMALS_VIEWSPACE _FIXED_NORMALS_VIEWSPACE_BACKFACE _FIXED_NORMALS_MODELSPACE  _FIXED_NORMALS_MODELSPACE_BACKFACE
+				#pragma shader_feature _ _FIXED_NORMALS_VIEWSPACE _FIXED_NORMALS_VIEWSPACE_BACKFACE _FIXED_NORMALS_MODELSPACE  _FIXED_NORMALS_MODELSPACE_BACKFACE _FIXED_NORMALS_WORLDSPACE
 				#pragma shader_feature _ _SPECULAR _SPECULAR_GLOSSMAP
 				#pragma shader_feature _NORMALMAP
 				#pragma shader_feature _ALPHA_CLIP
 				#pragma shader_feature _EMISSION
 				#pragma shader_feature _RIM_LIGHTING
 				#pragma shader_feature _DIFFUSE_RAMP
+				#pragma shader_feature _ _FULLRANGE_HARD_RAMP _FULLRANGE_SOFT_RAMP _OLD_HARD_RAMP _OLD_SOFT_RAMP
 				#pragma shader_feature _COLOR_ADJUST
 				#pragma shader_feature _TEXTURE_BLEND
 				#pragma shader_feature _SPHERICAL_HARMONICS
@@ -118,11 +117,12 @@ Shader "Spine/Sprite/Pixel Lit"
 				#pragma target 3.0
 
 				#pragma shader_feature _ _ALPHABLEND_ON _ALPHAPREMULTIPLY_ON _ADDITIVEBLEND _ADDITIVEBLEND_SOFT _MULTIPLYBLEND _MULTIPLYBLEND_X2
-				#pragma shader_feature _ _FIXED_NORMALS_VIEWSPACE _FIXED_NORMALS_VIEWSPACE_BACKFACE _FIXED_NORMALS_MODELSPACE  _FIXED_NORMALS_MODELSPACE_BACKFACE
+				#pragma shader_feature _ _FIXED_NORMALS_VIEWSPACE _FIXED_NORMALS_VIEWSPACE_BACKFACE _FIXED_NORMALS_MODELSPACE  _FIXED_NORMALS_MODELSPACE_BACKFACE _FIXED_NORMALS_WORLDSPACE
 				#pragma shader_feature _ _SPECULAR _SPECULAR_GLOSSMAP
 				#pragma shader_feature _NORMALMAP
 				#pragma shader_feature _ALPHA_CLIP
 				#pragma shader_feature _DIFFUSE_RAMP
+				#pragma shader_feature _ _FULLRANGE_HARD_RAMP _FULLRANGE_SOFT_RAMP _OLD_HARD_RAMP _OLD_SOFT_RAMP
 				#pragma shader_feature _COLOR_ADJUST
 				#pragma shader_feature _TEXTURE_BLEND
 				#pragma shader_feature _FOG

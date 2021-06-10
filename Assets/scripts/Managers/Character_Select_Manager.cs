@@ -130,12 +130,18 @@ namespace AssemblyCSharp
             Battle_Manager.soundManager.playSound(Battle_Manager.soundManager.charSwapSound);
         }
 
-        public void UpdateCharacters()
+        public void UpdateCharacters(string deadCharacterName = null)
         {
             enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
             enemyCharacters.Capacity = enemyCharacters.Count;
             friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
             friendlyCharacters.Capacity = friendlyCharacters.Count;
+
+            if (deadCharacterName != null)
+            {
+                enemyCharacters.ForEach(o => o.baseManager.damageManager.autoAttackDmgModels.Remove(deadCharacterName));
+                friendlyCharacters.ForEach(o => o.baseManager.damageManager.autoAttackDmgModels.Remove(deadCharacterName));
+            }
         }
 
         void Update()

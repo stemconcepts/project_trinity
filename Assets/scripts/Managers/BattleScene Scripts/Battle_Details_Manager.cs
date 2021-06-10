@@ -77,6 +77,7 @@ namespace AssemblyCSharp
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x, charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.fontSize = damageModel.fontSize;
+            damageData.showDmgNumber = damageModel.showDmgNumber;
             damageData.damageData = (int)damageModel.damageTaken;
             damageData.extraInfo = extraInfo + (damageModel.modifiedDamage ? "*" : ""); ;
             damageData.isDmg = true;

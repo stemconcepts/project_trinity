@@ -382,12 +382,10 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Textur
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Analytics.Editor.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Analytics.StandardEvents.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Analytics.Tracker.dll
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.Advertisements.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.Graphs.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.Purchasing.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.UI.dll
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.VR.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.WindowsStandalone.Extensions.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.AccessibilityModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.AIModule.dll
@@ -524,3 +522,8 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.csproj.CopyComplete
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.pdb
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsNativeModule.dll
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VirtualTexturingModule.dll
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsNativeModule.xml
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VirtualTexturingModule.xml
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\ICSharpCode.NRefactory.dll

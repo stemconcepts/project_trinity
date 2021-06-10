@@ -11,8 +11,6 @@ Shader "Spine/Outline/Sprite/Pixel Lit"
 		_BumpMap ("Normal Map", 2D) = "bump" {}
 
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		[PerRendererData] _AlphaTex ("External Alpha", 2D) = "white" {}
-		[PerRendererData] _EnableExternalAlpha ("Enable External Alpha", Float) = 0
 
 		_EmissionColor("Color", Color) = (0,0,0,0)
 		_EmissionMap("Emission", 2D) = "white" {}
@@ -46,7 +44,7 @@ Shader "Spine/Outline/Sprite/Pixel Lit"
 		[HideInInspector] _RenderQueue ("__queue", Float) = 0.0
 		[HideInInspector] _Cull ("__cull", Float) = 0.0
 		[HideInInspector] _StencilRef("Stencil Reference", Float) = 1.0
-		[Enum(UnityEngine.Rendering.CompareFunction)] _StencilComp("Stencil Comparison", Float) = 8 // Set to Always as default
+		[HideInInspector][Enum(UnityEngine.Rendering.CompareFunction)] _StencilComp("Stencil Comparison", Float) = 8 // Set to Always as default
 
 		// Outline properties are drawn via custom editor.
 		[HideInInspector] _OutlineWidth("Outline Width", Range(0,8)) = 3.0

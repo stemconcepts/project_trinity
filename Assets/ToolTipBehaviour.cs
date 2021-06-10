@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,8 +8,10 @@ namespace AssemblyCSharp
     public class ToolTipBehaviour : MonoBehaviour
     {
         public RectTransform rectTransform;
+        public RectTransform canvas;
         void Awake()
         {
+            canvas = GameObject.Find("Canvas - Tooltip").GetComponent<RectTransform>();
             //rectTransform = GetComponent<RectTransform>();
         }
 
@@ -22,10 +25,14 @@ namespace AssemblyCSharp
         void Update()
         {
             Vector2 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float pivotX = position.x / Screen.width;
-            float pivotY = position.y / Screen.height;
-            rectTransform.pivot = new Vector2(pivotX, pivotY);
-            transform.position = position;
+            float pivotX = (position.x / Screen.width) * 100;
+            float pivotY = (position.y / Screen.height) * 100;
+            var x = (int)Math.Round(pivotX);
+            var y = (int)Math.Round(pivotY);
+            y = y > 1 ? 1 : y < 0 ? 0 : y;
+            x = x > 1 ? 1 : x < 0 ? 0 : x;
+            rectTransform.pivot = new Vector2(x, y);
+            rectTransform.position = position;
         }
     }
 }

@@ -29,7 +29,8 @@ namespace AssemblyCSharp
                 Battle_Manager.taskManager.CallTask(5f, () =>
                 {
                     autoAttackTarget = baseManager.characterManager.GetTarget(true);
-                    RunAttackLoop();
+                    RunAttackLoopOnNextTurn();
+                    //RunAttackLoop();
                 });
             }
         }
@@ -40,7 +41,7 @@ namespace AssemblyCSharp
             var targetDmgManager = autoAttackTarget ? autoAttackTarget.damageManager : null;
             if (targetDmgManager != null && baseManager.characterManager.characterModel.isAlive &&
                 baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
-                !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive && (Battle_Manager.turn == turnType))
+                !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive && (Battle_Manager.turn == turnType)) 
             {
                 isAttacking = true;
                 if (!string.IsNullOrEmpty(baseManager.animationManager.attackAnimation) && baseManager.animationManager.inAnimation == false)
@@ -60,7 +61,17 @@ namespace AssemblyCSharp
                     };
                     targetDmgManager.autoAttackDmgModels.Add(gameObject.name, dmgModel);
                     hasAttacked = true;
-                    targetDmgManager.calculatedamage(dmgModel);
+                    if (autoAttackTarget.characterManager.GetChanceToBeHit(baseManager.characterManager.characterModel.accuracy))
+                    {
+                        targetDmgManager.calculatedamage(dmgModel);
+                    } else
+                    {
+                        dmgModel.incomingDmg = 0;
+                        dmgModel.showDmgNumber = false;
+                        dmgModel.isMiss = true;
+                        targetDmgManager.calculatedamage(dmgModel);
+                    }
+                    
                     Battle_Manager.taskManager.CallTask(animationDuration, () =>
                     {
                         baseManager.animationManager.inAnimation = false;
@@ -98,7 +109,13 @@ namespace AssemblyCSharp
                 if (targetDamageManager.autoAttackDmgModels.ContainsKey(gameObject.name))
                 {
                     var damageModel = targetDamageManager.autoAttackDmgModels[gameObject.name];
-                    targetDamageManager.TakeDmg(damageModel, e.Data.Name);
+                    if (damageModel.isMiss)
+                    {
+                        Battle_Manager.battleDetailsManager.ShowDamageNumber(damageModel, extraInfo: "Miss");
+                    } else
+                    {
+                        targetDamageManager.TakeDmg(damageModel, e.Data.Name);
+                    }
                     var eventModel = new EventModel
                     {
                         eventName = "OnDealingDmg",

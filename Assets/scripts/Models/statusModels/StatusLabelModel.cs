@@ -47,17 +47,6 @@ namespace AssemblyCSharp
         }*/
 
         public void OnMouseEnter(){
-            //Battle_Manager.taskManager.CallTask(0.5f, () =>
-            //{
-                //current
-                /*Vector3 rayPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    rayPoint.z = 0f;
-                    rayPoint.x += 4f;
-                    if( gameObject.transform.parent.gameObject.transform.parent.gameObject != GameObject.Find("bossstatus") ){
-                        rayPoint.y +=  1.5f;
-                    } else {
-                        rayPoint.y -=  1.5f;
-                    }*/
                 liveStatusHoverObj = (GameObject)Instantiate(statusHoverObj /*rayPoint, Quaternion.identity*/ );
                 var statusName = liveStatusHoverObj.transform.Find("statusName").GetComponent<Text>();
                 var statusDesc = liveStatusHoverObj.transform.Find("statusDesc").GetComponent<Text>();
@@ -70,24 +59,11 @@ namespace AssemblyCSharp
                 int headerLength = statusName.text.Length;
                 int contentLength = statusDesc.text.Length;
                 layoutElement.enabled = (headerLength > characterWrapLimit || contentLength > characterWrapLimit) ? true : false;
-            //}, "tooltipTimer");
         }
 
         public void OnMouseExit(){
-           // Battle_Manager.taskManager.taskList.Remove("tooltipTimer");
             Destroy(liveStatusHoverObj);
         }
-
-        /*void Update()
-        {
-            if (statusName != null || statusDesc != null)
-            {
-                int headerLength = statusName.text.Length;
-                int contentLength = statusDesc.text.Length;
-                layoutElement.enabled = (headerLength > characterWrapLimit || contentLength > characterWrapLimit) ? true : false;
-            }
-            
-        }*/
     
         // Use this for initialization
         void Start () {

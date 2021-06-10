@@ -17,6 +17,7 @@ namespace AssemblyCSharp
         public Image skillCDImage;
         public ToolTipController toolTip;
         public KeyCode KeyCode;
+        public AudioClip skillSelectSound;
 
         void Awake()
         {
@@ -49,7 +50,8 @@ namespace AssemblyCSharp
         }
 
         public void RunClassSkill(){
-            if(Battle_Manager.battleStarted && !IsCharBusy() && Battle_Manager.turn == Battle_Manager.TurnEnum.PlayerTurn)
+            Battle_Manager.soundManager.playSound(skillSelectSound);
+            if (Battle_Manager.battleStarted && !IsCharBusy() && Battle_Manager.turn == Battle_Manager.TurnEnum.PlayerTurn)
             {
                 var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
                 var charStatus = charSelected.GetComponent<Status_Manager>();
@@ -61,6 +63,7 @@ namespace AssemblyCSharp
         }
 
         void KeyPressSkill(){
+            Battle_Manager.soundManager.playSound(skillSelectSound);
             RunClassSkill();
             /*var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
             var charStatus = charSelected.GetComponent<Status_Manager>();
@@ -70,7 +73,7 @@ namespace AssemblyCSharp
             }*/
         }
 
-        void KeyPressCancelSkill()
+        public void KeyPressCancelSkill()
         {
             if (skill.skillActive)
             {

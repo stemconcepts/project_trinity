@@ -10,6 +10,7 @@ namespace AssemblyCSharp
         public Base_Character_Manager baseManager; 
         public SkillModel onHitSkill; 
         public int turnDuration = 2;
+        public bool isFlat;
         public float power;
         public bool turnOff;
         public float triggerChance;

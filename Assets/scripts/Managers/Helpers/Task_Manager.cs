@@ -58,22 +58,25 @@ namespace AssemblyCSharp
 
         public void CallChangePointsTask(StatusModel statusModel, System.Action action = null)
         {
-            if( statusModel.singleStatus.canStack ){
+            /*if( statusModel.singleStatus.canStack ){
                 statusModel.power = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
-            }
+            }*/
+
+            var newPower = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
 
             var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName);
             var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName);
             var damageManager = statusModel.baseManager.damageManager;
             if (currentStat <= maxStat && currentStat > 0)
             {
-                if (statusModel.singleStatus.statusName == "regen")
+                if (statusModel.singleStatus.name == "regen")
                 {
                     var damageModel = new DamageModel()
                     {
                         baseManager = statusModel.baseManager,
-                        skillSource = statusModel.singleStatus.statusName,
-                        incomingHeal = statusModel.power,
+                        skillSource = statusModel.singleStatus.name,
+                        showExtraInfo = true,
+                        incomingHeal = newPower,
                         damageImmidiately = true,
                         fontSize = 150
                     };
@@ -84,8 +87,9 @@ namespace AssemblyCSharp
                     var damageModel = new DamageModel()
                     {
                         baseManager = statusModel.baseManager,
-                        skillSource = statusModel.singleStatus.statusName,
-                        incomingDmg = statusModel.power,
+                        skillSource = statusModel.singleStatus.name,
+                        showExtraInfo = true,
+                        incomingDmg = newPower,
                         damageImmidiately = true,
                         element = statusModel.singleStatus.element,
                         fontSize = 100
@@ -108,11 +112,11 @@ namespace AssemblyCSharp
             var damageManager = statusModel.baseManager.damageManager;
             while (currentStat <= maxStat && currentStat > 0)
             {
-                if (statusModel.singleStatus.statusName == "regen")
+                if (statusModel.singleStatus.name == "regen")
                 {
                     var damageModel = new DamageModel() {
                         baseManager = statusModel.baseManager,
-                        skillSource = statusModel.singleStatus.statusName,
+                        skillSource = statusModel.singleStatus.name,
                         incomingHeal = statusModel.power,
                         damageImmidiately = true,
                         fontSize = 100
@@ -123,7 +127,7 @@ namespace AssemblyCSharp
                 {
                     var damageModel = new DamageModel(){
                         baseManager = statusModel.baseManager,
-                        skillSource = statusModel.singleStatus.statusName,
+                        skillSource = statusModel.singleStatus.name,
                         incomingDmg = statusModel.power,
                         damageImmidiately = true,
                         element = statusModel.singleStatus.element,

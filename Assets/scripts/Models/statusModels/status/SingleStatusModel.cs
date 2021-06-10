@@ -11,15 +11,16 @@ namespace AssemblyCSharp
     	public string statusDesc;
     	public Sprite labelIcon;
         public bool canStack;
-        public int maxStacks = 3;
+        [ConditionalHide("canStack", true)]
+        public int maxStacks = 20;
     	public bool dispellable;
     	public bool buff;
-    	public float buffpower;
+        [ConditionalHide("buff", true)]
+        public float buffpower;
     	public int statusposition;
     	public bool active;
     	public string hitAnim;
     	public string holdAnim;
-        //public bool trueDamage;
     	public statusFunction selectedStatusFunction;
     	public enum statusFunction {
     		AttributeChange,
@@ -33,10 +34,12 @@ namespace AssemblyCSharp
     	}   
     	public statusType statusTypeEnum;
     	public enum statusType {
-    		Immunity,
-    		ValueOverTime,
-    		Normal
+            Normal,
+            Immunity,
+    		ValueOverTime
     	}
+        [ConditionalHide("statusTypeEnum", (int)statusType.Immunity, true)]
+        public List<SingleStatusModel> immunityList;
         public subStatus subStatus;
         public triggerGrp trigger;
         public enum triggerGrp {

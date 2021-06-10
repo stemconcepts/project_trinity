@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated May 1, 2019. Replaces all prior versions.
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2019, Esoteric Software LLC
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -15,16 +15,16 @@
  * Spine Editor license and redistribution of the Products in any form must
  * include this license and copyright notice.
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
- * NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS
- * INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 #define SPINE_SKELETON_MECANIM
@@ -56,6 +56,7 @@ namespace Spine.Unity.Editor {
 
 		SerializedProperty atlasAssets, skeletonJSON, scale, fromAnimation, toAnimation, duration, defaultMix;
 		SerializedProperty skeletonDataModifiers;
+		SerializedProperty blendModeMaterials;
 		#if SPINE_TK2D
 		SerializedProperty spriteCollection;
 		#endif
@@ -96,7 +97,8 @@ namespace Spine.Unity.Editor {
 		public void UpdateSkeletonData () {
 			preview.Clear();
 			InitializeEditor();
-			EditorUtility.SetDirty(targetSkeletonDataAsset);
+			if (targetSkeletonDataAsset)
+				EditorUtility.SetDirty(targetSkeletonDataAsset);
 		}
 
 		void InitializeEditor () {
@@ -113,6 +115,7 @@ namespace Spine.Unity.Editor {
 			defaultMix = serializedObject.FindProperty("defaultMix");
 
 			skeletonDataModifiers = serializedObject.FindProperty("skeletonDataModifiers");
+			blendModeMaterials = serializedObject.FindProperty("blendModeMaterials");
 
 			#if SPINE_SKELETON_MECANIM
 			controller = serializedObject.FindProperty("controller");
@@ -124,7 +127,7 @@ namespace Spine.Unity.Editor {
 			#else
 			// Analysis disable once ConvertIfToOrExpression
 			if (newAtlasAssets) atlasAssets.isExpanded = true;
-#endif
+			#endif
 
 			// This handles the case where the managed editor assembly is unloaded before recompilation when code changes.
 			AppDomain.CurrentDomain.DomainUnload -= OnDomainUnload;
@@ -175,7 +178,7 @@ namespace Spine.Unity.Editor {
 			// Header
 			EditorGUILayout.LabelField(SpineInspectorUtility.TempContent(target.name + " (SkeletonDataAsset)", Icons.spine), EditorStyles.whiteLargeLabel);
 			if (targetSkeletonData != null) EditorGUILayout.LabelField("(Drag and Drop to instantiate.)", EditorStyles.miniLabel);
-			
+
 			// Main Serialized Fields
 			using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
 				using (new SpineInspectorUtility.BoxScope())
@@ -201,11 +204,11 @@ namespace Spine.Unity.Editor {
 					}
 				}
 			}
-			
+
 			// Unity Quirk: Some code depends on valid preview. If preview is initialized elsewhere, this can cause contents to change between Layout and Repaint events, causing GUILayout control count errors.
 			if (NoProblems())
 				preview.Initialize(this.Repaint, targetSkeletonDataAsset, this.LastSkinName);
-			
+
 			if (targetSkeletonData != null) {
 				GUILayout.Space(20f);
 
@@ -285,6 +288,8 @@ namespace Spine.Unity.Editor {
 				EditorGUILayout.DelayedFloatField(scale); //EditorGUILayout.PropertyField(scale);
 				EditorGUILayout.Space();
 				EditorGUILayout.PropertyField(skeletonDataModifiers, true);
+
+				DrawBlendModeMaterialProperties();
 			}
 
 			// Texture source field.
@@ -310,6 +315,27 @@ namespace Spine.Unity.Editor {
 
 		}
 
+		void DrawBlendModeMaterialProperties () {
+			if (skeletonDataModifiers.arraySize > 0) {
+				EditorGUILayout.BeginHorizontal(GUILayout.Height(EditorGUIUtility.singleLineHeight + 5));
+				EditorGUILayout.PrefixLabel("Blend Modes");
+				if (GUILayout.Button(new GUIContent("Upgrade", "Upgrade BlendModeMaterialAsset to built-in BlendModeMaterials."), EditorStyles.miniButton, GUILayout.Width(65f))) {
+					foreach (SkeletonDataAsset skeletonData in targets) {
+						BlendModeMaterialsUtility.UpgradeBlendModeMaterials(skeletonData);
+					}
+				}
+				EditorGUILayout.EndHorizontal();
+			}
+			EditorGUI.BeginChangeCheck();
+			EditorGUILayout.PropertyField(blendModeMaterials, true);
+			if (EditorGUI.EndChangeCheck()) {
+				serializedObject.ApplyModifiedProperties();
+				foreach (SkeletonDataAsset skeletonData in targets) {
+					BlendModeMaterialsUtility.UpdateBlendModeMaterials(skeletonData);
+				}
+			}
+		}
+
 		void DrawSkeletonDataFields () {
 			using (new EditorGUILayout.HorizontalScope()) {
 				EditorGUILayout.LabelField("SkeletonData", EditorStyles.boldLabel);
@@ -330,6 +356,8 @@ namespace Spine.Unity.Editor {
 			EditorGUILayout.DelayedFloatField(scale); //EditorGUILayout.PropertyField(scale);
 			EditorGUILayout.Space();
 			EditorGUILayout.PropertyField(skeletonDataModifiers, true);
+
+			DrawBlendModeMaterialProperties();
 		}
 
 		void DrawAtlasAssetsFields () {
@@ -597,9 +625,12 @@ namespace Spine.Unity.Editor {
 				warnings.Add("Missing Skeleton JSON");
 			} else {
 				var fieldValue = (TextAsset)skeletonJSON.objectReferenceValue;
-				
-				if (!AssetUtility.IsSpineData(fieldValue, out compatibilityProblemInfo)) {
-					warnings.Add("Skeleton data file is not a valid Spine JSON or binary file.");
+				string problemDescription = null;
+				if (!AssetUtility.IsSpineData(fieldValue, out compatibilityProblemInfo, ref problemDescription)) {
+					if (problemDescription != null)
+						warnings.Add(problemDescription);
+					else
+						warnings.Add("Skeleton data file is not a valid Spine JSON or binary file.");
 				} else {
 					#if SPINE_TK2D
 					bool searchForSpineAtlasAssets = true;
@@ -616,11 +647,12 @@ namespace Spine.Unity.Editor {
 						var actualAtlasAssets = targetSkeletonDataAsset.atlasAssets;
 
 						for (int i = 0; i < actualAtlasAssets.Length; i++) {
-							if (targetSkeletonDataAsset.atlasAssets[i] == null) {
+							if (actualAtlasAssets[i] == null) {
 								detectedNullAtlasEntry = true;
 								break;
 							} else {
-								atlasList.Add(actualAtlasAssets[i].GetAtlas());
+								if (actualAtlasAssets[i].MaterialCount > 0)
+									atlasList.Add(actualAtlasAssets[i].GetAtlas());
 							}
 						}
 
@@ -630,8 +662,9 @@ namespace Spine.Unity.Editor {
 							List<string> missingPaths = null;
 							if (atlasAssets.arraySize > 0) {
 								missingPaths = AssetUtility.GetRequiredAtlasRegions(AssetDatabase.GetAssetPath(skeletonJSON.objectReferenceValue));
-
 								foreach (var atlas in atlasList) {
+									if (atlas == null)
+										continue;
 									for (int i = 0; i < missingPaths.Count; i++) {
 										if (atlas.FindRegion(missingPaths[i]) != null) {
 											missingPaths.RemoveAt(i);
@@ -807,12 +840,12 @@ namespace Spine.Unity.Editor {
 				return;
 			}
 
+			const int PreviewLayer = 30;
+			const int PreviewCameraCullingMask = 1 << PreviewLayer;
+
 			if (previewRenderUtility == null) {
 				previewRenderUtility = new PreviewRenderUtility(true);
 				animationLastTime = CurrentTime;
-
-				const int PreviewLayer = 30;
-				const int PreviewCameraCullingMask = 1 << PreviewLayer;
 
 				{
 					var c = this.PreviewUtilityCamera;
@@ -825,32 +858,32 @@ namespace Spine.Unity.Editor {
 				}
 
 				DestroyPreviewGameObject();
+			}
 
-				if (previewGameObject == null) {
-					try {
-						previewGameObject = EditorInstantiation.InstantiateSkeletonAnimation(skeletonDataAsset, skinName).gameObject;
+			if (previewGameObject == null) {
+				try {
+					previewGameObject = EditorInstantiation.InstantiateSkeletonAnimation(skeletonDataAsset, skinName, useObjectFactory:false).gameObject;
 
-						if (previewGameObject != null) {
-							previewGameObject.hideFlags = HideFlags.HideAndDontSave;
-							previewGameObject.layer = PreviewLayer;
-							skeletonAnimation = previewGameObject.GetComponent<SkeletonAnimation>();
-							skeletonAnimation.initialSkinName = skinName;
-							skeletonAnimation.LateUpdate();
-							previewGameObject.GetComponent<Renderer>().enabled = false;
+					if (previewGameObject != null) {
+						previewGameObject.hideFlags = HideFlags.HideAndDontSave;
+						previewGameObject.layer = PreviewLayer;
+						skeletonAnimation = previewGameObject.GetComponent<SkeletonAnimation>();
+						skeletonAnimation.initialSkinName = skinName;
+						skeletonAnimation.LateUpdate();
+						previewGameObject.GetComponent<Renderer>().enabled = false;
 
-							#if SPINE_UNITY_2018_PREVIEW_API
-							previewRenderUtility.AddSingleGO(previewGameObject);
-							#endif
-						}
-
-						if (this.ActiveTrack != null) cameraAdjustEndFrame = EditorApplication.timeSinceStartup + skeletonAnimation.AnimationState.GetCurrent(0).Alpha;
-						AdjustCameraGoals();
-					} catch {
-						DestroyPreviewGameObject();
+						#if SPINE_UNITY_2018_PREVIEW_API
+						previewRenderUtility.AddSingleGO(previewGameObject);
+						#endif
 					}
 
-					RefreshOnNextUpdate();
+					if (this.ActiveTrack != null) cameraAdjustEndFrame = EditorApplication.timeSinceStartup + skeletonAnimation.AnimationState.GetCurrent(0).Alpha;
+					AdjustCameraGoals();
+				} catch {
+					DestroyPreviewGameObject();
 				}
+
+				RefreshOnNextUpdate();
 			}
 		}
 

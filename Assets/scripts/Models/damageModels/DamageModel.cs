@@ -42,8 +42,11 @@ namespace AssemblyCSharp
         public enemySkill enemySkillModel;
         public Base_Character_Manager baseManager;
         public bool isMagicDmg = false;
+        public bool isMiss;
         public bool damageImmidiately;
         public bool modifiedDamage;
+        public bool showDmgNumber = true;
+        public bool showExtraInfo = false;
         public elementType element;
         public int fontSize;
     }

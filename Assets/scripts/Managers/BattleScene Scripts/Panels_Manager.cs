@@ -53,7 +53,7 @@ namespace AssemblyCSharp
             enemyPanelColor = new Color(0.6f, 0.4f, 0.4f, 1f);
             counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
             threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 1f);
-            imageScript.color = isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
+            imageScript.color = isVoidZone ? voidZoneColor : isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
         }
 
         void OnRenderObject()

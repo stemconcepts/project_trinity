@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated May 1, 2019. Replaces all prior versions.
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2019, Esoteric Software LLC
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -15,16 +15,16 @@
  * Spine Editor license and redistribution of the Products in any form must
  * include this license and copyright notice.
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
- * NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS
- * INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 #if UNITY_2018_3 || UNITY_2019 || UNITY_2018_3_OR_NEWER
@@ -33,6 +33,7 @@
 
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 namespace Spine.Unity.Editor {
 	using Event = UnityEngine.Event;
@@ -55,7 +56,7 @@ namespace Spine.Unity.Editor {
 			}
 		}
 
-		void OnEnable () {
+		void InitializeEditor () {
 			skeletonRenderer = serializedObject.FindProperty("skeletonRenderer");
 			slotName = serializedObject.FindProperty("slotName");
 			isTrigger = serializedObject.FindProperty("isTrigger");
@@ -64,11 +65,16 @@ namespace Spine.Unity.Editor {
 		}
 
 		public override void OnInspectorGUI () {
+
 			#if !NEW_PREFAB_SYSTEM
 			bool isInspectingPrefab = (PrefabUtility.GetPrefabType(target) == PrefabType.Prefab);
 			#else
 			bool isInspectingPrefab = false;
 			#endif
+
+			// Note: when calling InitializeEditor() in OnEnable, it throws exception
+			// "SerializedObjectNotCreatableException: Object at index 0 is null".
+			InitializeEditor();
 
 			// Try to auto-assign SkeletonRenderer field.
 			if (skeletonRenderer.objectReferenceValue == null) {
@@ -80,6 +86,7 @@ namespace Spine.Unity.Editor {
 
 				skeletonRenderer.objectReferenceValue = foundSkeletonRenderer;
 				serializedObject.ApplyModifiedProperties();
+				InitializeEditor();
 			}
 
 			var skeletonRendererValue = skeletonRenderer.objectReferenceValue as SkeletonRenderer;
@@ -87,7 +94,7 @@ namespace Spine.Unity.Editor {
 				using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox)) {
 					EditorGUILayout.HelpBox("It's ideal to add BoundingBoxFollower to a separate child GameObject of the Spine GameObject.", MessageType.Warning);
 
-					if (GUILayout.Button(new GUIContent("Move BoundingBoxFollower to new GameObject", Icons.boundingBox), GUILayout.Height(50f))) {
+					if (GUILayout.Button(new GUIContent("Move BoundingBoxFollower to new GameObject", Icons.boundingBox), GUILayout.Height(30f))) {
 						AddBoundingBoxFollowerChild(skeletonRendererValue, follower);
 						DestroyImmediate(follower);
 						return;
@@ -101,6 +108,7 @@ namespace Spine.Unity.Editor {
 			EditorGUILayout.PropertyField(slotName, new GUIContent("Slot"));
 			if (EditorGUI.EndChangeCheck()) {
 				serializedObject.ApplyModifiedProperties();
+				InitializeEditor();
 				#if !NEW_PREFAB_SYSTEM
 				if (!isInspectingPrefab)
 					rebuildRequired = true;
@@ -118,6 +126,7 @@ namespace Spine.Unity.Editor {
 
 				if (clearStateChanged || triggerChanged) {
 					serializedObject.ApplyModifiedProperties();
+					InitializeEditor();
 					if (triggerChanged)
 						foreach (var col in follower.colliderTable.Values)
 							col.isTrigger = isTrigger.boolValue;
@@ -152,6 +161,8 @@ namespace Spine.Unity.Editor {
 
 			}
 
+			if (follower.Slot == null)
+				follower.Initialize(false);
 			bool hasBoneFollower = follower.GetComponent<BoneFollower>() != null;
 			if (!hasBoneFollower) {
 				bool buttonDisabled = follower.Slot == null;
@@ -188,11 +199,21 @@ namespace Spine.Unity.Editor {
 			var go = AddBoundingBoxFollowerChild((SkeletonRenderer)command.context);
 			Undo.RegisterCreatedObjectUndo(go, "Add BoundingBoxFollower");
 		}
+
+		[MenuItem("CONTEXT/SkeletonRenderer/Add all BoundingBoxFollower GameObjects")]
+		static void AddAllBoundingBoxFollowerChildren (MenuCommand command) {
+			var objects = AddAllBoundingBoxFollowerChildren((SkeletonRenderer)command.context);
+			foreach (var go in objects)
+				Undo.RegisterCreatedObjectUndo(go, "Add BoundingBoxFollower");
+		}
 		#endregion
 
-		static GameObject AddBoundingBoxFollowerChild (SkeletonRenderer sr, BoundingBoxFollower original = null) {
-			var go = EditorInstantiation.NewGameObject("BoundingBoxFollower");
-			go.transform.SetParent(sr.transform, false);
+		public static GameObject AddBoundingBoxFollowerChild (SkeletonRenderer skeletonRenderer,
+			BoundingBoxFollower original = null, string name = "BoundingBoxFollower",
+			string slotName = null) {
+
+			var go = EditorInstantiation.NewGameObject(name, true);
+			go.transform.SetParent(skeletonRenderer.transform, false);
 			var newFollower = go.AddComponent<BoundingBoxFollower>();
 
 			if (original != null) {
@@ -200,16 +221,40 @@ namespace Spine.Unity.Editor {
 				newFollower.isTrigger = original.isTrigger;
 				newFollower.clearStateOnDisable = original.clearStateOnDisable;
 			}
+			if (slotName != null)
+				newFollower.slotName = slotName;
 
-			newFollower.skeletonRenderer = sr;
+			newFollower.skeletonRenderer = skeletonRenderer;
 			newFollower.Initialize();
-
 
 			Selection.activeGameObject = go;
 			EditorGUIUtility.PingObject(go);
 			return go;
 		}
 
+		public static List<GameObject> AddAllBoundingBoxFollowerChildren (
+			SkeletonRenderer skeletonRenderer, BoundingBoxFollower original = null) {
+
+			List<GameObject> createdGameObjects = new List<GameObject>();
+			foreach (var skin in skeletonRenderer.Skeleton.Data.Skins) {
+				var attachments = skin.Attachments;
+				foreach (var entry in attachments) {
+					var boundingBoxAttachment = entry.Value as BoundingBoxAttachment;
+					if (boundingBoxAttachment == null)
+						continue;
+					int slotIndex = entry.Key.SlotIndex;
+					var slot = skeletonRenderer.Skeleton.Slots.Items[slotIndex];
+					string slotName = slot.Data.Name;
+					GameObject go = AddBoundingBoxFollowerChild(skeletonRenderer,
+						original, boundingBoxAttachment.Name, slotName);
+					var boneFollower = go.AddComponent<BoneFollower>();
+					boneFollower.skeletonRenderer = skeletonRenderer;
+					boneFollower.SetBone(slot.Data.BoneData.Name);
+					createdGameObjects.Add(go);
+				}
+			}
+			return createdGameObjects;
+		}
 	}
 
 }

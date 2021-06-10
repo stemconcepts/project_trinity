@@ -7,6 +7,7 @@ namespace AssemblyCSharp
 {
     public class Character_Interaction_Manager : MonoBehaviour
     {
+        public AudioClip characterSelectSound;
         public Base_Character_Manager baseManager;
         void Start()
         {
@@ -23,6 +24,7 @@ namespace AssemblyCSharp
             if( !Battle_Manager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive ){
                 if( baseManager.characterManager.characterModel.characterType != Character_Model.CharacterTypeEnum.enemy ){
                     Battle_Manager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
+                    Battle_Manager.soundManager.playSound(characterSelectSound);
                     //DisplaySkills();
                 }
             } else if (Battle_Manager.waitingForSkillTarget)
@@ -43,7 +45,6 @@ namespace AssemblyCSharp
                     }
                 }
             }
-            Battle_Manager.soundManager.playSound( Battle_Manager.soundManager.uiSounds[0] );
         }
         
         void OnMouseEnter(){

@@ -2,6 +2,7 @@
 using UnityEngine;
 using Spine.Unity;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace AssemblyCSharp
 {
@@ -31,6 +32,7 @@ namespace AssemblyCSharp
         }
 
         void Start(){
+            
             baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
             if( baseManager.animationManager.skeletonAnimation ){
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventMove;
@@ -112,11 +114,11 @@ namespace AssemblyCSharp
             var currentPanelNum = currentPanel.GetComponent<Panels_Manager>().panelNumber;
             int targetPanelNum = currentPanelNum;
             
-            if (skill.forcedMove == GenericSkillModel.moveType.Back)
+            if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Back)
             {
                 targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.forcedMoveAmount;
             }
-            else if (skill.forcedMove == GenericSkillModel.moveType.Forward)
+            else if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Forward)
             {
                 targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.forcedMoveAmount;
             }
@@ -247,11 +249,14 @@ namespace AssemblyCSharp
                 var distance = Vector2.Distance(transform.position, Camera.main.transform.position);
                 Battle_Manager.taskManager.CallTask(0.1f, () =>
                 {
-                    positionArrow = (GameObject)Instantiate(Battle_Manager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
-                    var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
-                    movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>();
-                    movementArrowManager.distance = distance;
-                    movementArrowManager.occupier = baseManager;
+                    if (baseManager.characterManager.characterModel.characterType == Character_Model.CharacterTypeEnum.Player && baseManager.characterManager.characterModel.Haste > ((Player_Skill_Manager)baseManager.skillManager).turnsTaken)
+                    {
+                        positionArrow = (GameObject)Instantiate(Battle_Manager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
+                        var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
+                        movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>();
+                        movementArrowManager.distance = distance;
+                        movementArrowManager.occupier = baseManager;
+                    }
                 }, "draggingTask_"+baseManager.name);
             }
         }

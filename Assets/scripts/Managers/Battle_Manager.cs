@@ -43,8 +43,8 @@ namespace AssemblyCSharp
         static TurnEnum activeTurn;
         public enum TurnEnum
         {
-            PlayerTurn,
-            EnemyTurn
+            EnemyTurn,
+            PlayerTurn
         }
 
         public static int turnCount = 0;
@@ -62,7 +62,10 @@ namespace AssemblyCSharp
             tooltipCanvas = GameObject.Find("Canvas - Tooltip");
             pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
-            pauseScreenHolder.SetActive(false);
+            if(pauseScreenHolder != null)
+            {
+                pauseScreenHolder.SetActive(false);
+            }
         }
 
         void Start()
@@ -158,6 +161,11 @@ namespace AssemblyCSharp
             playerTurnText.text = (turn == TurnEnum.EnemyTurn) ? "Enemy Turn" : "Player Turn";
             taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
             Battle_Manager.battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
+            Battle_Manager.gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
+            battleInterfaceManager.ForEach(o =>
+            {
+                o.KeyPressCancelSkill();
+            });
             taskManager.CallTask(2f, () =>
             {
                 activeTurn = turn;

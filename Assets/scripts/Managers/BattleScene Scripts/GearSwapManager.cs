@@ -57,7 +57,7 @@ namespace AssemblyCSharp
             {
                 swapReady = true;
             });
-            Battle_Manager.soundManager.playSound("gearSwapReady");
+            //Battle_Manager.soundManager.playSound("gearSwapReady");
         }
 
         private void CheckGearType()

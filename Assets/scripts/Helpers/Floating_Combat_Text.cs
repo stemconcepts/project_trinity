@@ -13,6 +13,7 @@ namespace AssemblyCSharp
         public bool isDmg;
         public bool isAbsorb;
         public bool isImmune;
+        public bool showDmgNumber = true;
         public int healData;
         public int absorbData;
         public int damageData;
@@ -25,8 +26,8 @@ namespace AssemblyCSharp
         void Move(){
             currentPositionX = this.transform.position.x;
             currentPositionY = this.transform.position.y;
-            var dmgPositionY = currentPositionY + 0.03f;
-            var healPositionY = currentPositionY - 0.03f;
+            var dmgPositionY = currentPositionY + 0.01f;
+            var healPositionY = currentPositionY - 0.01f;
             if( isDmg ){
                 this.transform.position = new Vector2( currentPositionX, dmgPositionY ) ;
             } else {
@@ -39,7 +40,7 @@ namespace AssemblyCSharp
             displayText.fontSize = fontSize == 0 ? 200 : fontSize;
             if ( isDmg ){
                 //displayText.text = skillLabel + ": -" + damageData.ToString();
-                displayText.text = string.IsNullOrEmpty(extraInfo) ? damageData.ToString() : damageData.ToString() + extraInfo;
+                displayText.text = string.IsNullOrEmpty(extraInfo) ? (showDmgNumber ? damageData.ToString() : "") : (showDmgNumber ? damageData.ToString() : "") + extraInfo;
                 //displayText.text += (modifiedDamage ? "*" : "");
             } else 
             if ( isAbsorb ) {
@@ -74,7 +75,7 @@ namespace AssemblyCSharp
                                 cg.gameObject.AddComponent<canvasFader>();
                             }
                         }
-            Battle_Manager.taskManager.CallTask(2f, () => {
+            Battle_Manager.taskManager.CallTask(3f, () => {
                 Destroy(this.gameObject);
             });
         }

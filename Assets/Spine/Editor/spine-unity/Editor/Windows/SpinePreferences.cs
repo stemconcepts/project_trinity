@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated May 1, 2019. Replaces all prior versions.
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2019, Esoteric Software LLC
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -15,16 +15,16 @@
  * Spine Editor license and redistribution of the Products in any form must
  * include this license and copyright notice.
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
- * NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS
- * INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 #if UNITY_2017_2_OR_NEWER
@@ -75,11 +75,76 @@ namespace Spine.Unity.Editor {
 		internal const bool DEFAULT_SET_TEXTUREIMPORTER_SETTINGS = true;
 		public bool setTextureImporterSettings = DEFAULT_SET_TEXTUREIMPORTER_SETTINGS;
 
+		internal const string DEFAULT_TEXTURE_SETTINGS_REFERENCE = "";
+		public string textureSettingsReference = DEFAULT_TEXTURE_SETTINGS_REFERENCE;
+
+		public bool UsesPMAWorkflow {
+			get {
+				return IsPMAWorkflow(textureSettingsReference);
+			}
+		}
+		public static bool IsPMAWorkflow(string textureSettingsReference) {
+			if (textureSettingsReference == null)
+				return true;
+			string settingsReference = textureSettingsReference.ToLower();
+			if (settingsReference.Contains("straight") || !settingsReference.Contains("pma"))
+				return false;
+			return true;
+		}
+
+		public const string DEFAULT_BLEND_MODE_MULTIPLY_MATERIAL = "SkeletonPMAMultiply";
+		public const string DEFAULT_BLEND_MODE_SCREEN_MATERIAL = "SkeletonPMAScreen";
+		public const string DEFAULT_BLEND_MODE_ADDITIVE_MATERIAL = "SkeletonPMAAdditive";
+
+		public Material blendModeMaterialMultiply = null;
+		public Material blendModeMaterialScreen = null;
+		public Material blendModeMaterialAdditive = null;
+
+		public string FindPathOfAsset (string assetName) {
+			string typeSearchString = assetName;
+			string[] guids = AssetDatabase.FindAssets(typeSearchString);
+			if (guids.Length > 0) {
+				return AssetDatabase.GUIDToAssetPath(guids[0]);
+			}
+			return null;
+		}
+
+		public Material BlendModeMaterialMultiply {
+			get {
+				if (blendModeMaterialMultiply == null) {
+					string path = FindPathOfAsset(DEFAULT_BLEND_MODE_MULTIPLY_MATERIAL);
+					blendModeMaterialMultiply = AssetDatabase.LoadAssetAtPath<Material>(path);
+				}
+				return blendModeMaterialMultiply;
+			}
+		}
+		public Material BlendModeMaterialScreen {
+			get {
+				if (blendModeMaterialScreen == null) {
+					string path = FindPathOfAsset(DEFAULT_BLEND_MODE_SCREEN_MATERIAL);
+					blendModeMaterialScreen = AssetDatabase.LoadAssetAtPath<Material>(path);
+				}
+				return blendModeMaterialScreen;
+			}
+		}
+		public Material BlendModeMaterialAdditive {
+			get {
+				if (blendModeMaterialAdditive == null) {
+					string path = FindPathOfAsset(DEFAULT_BLEND_MODE_ADDITIVE_MATERIAL);
+					blendModeMaterialAdditive = AssetDatabase.LoadAssetAtPath<Material>(path);
+				}
+				return blendModeMaterialAdditive;
+			}
+		}
+
 		internal const bool DEFAULT_ATLASTXT_WARNING = true;
 		public bool atlasTxtImportWarning = DEFAULT_ATLASTXT_WARNING;
 
 		internal const bool DEFAULT_TEXTUREIMPORTER_WARNING = true;
 		public bool textureImporterWarning = DEFAULT_TEXTUREIMPORTER_WARNING;
+
+		internal const bool DEFAULT_COMPONENTMATERIAL_WARNING = true;
+		public bool componentMaterialWarning = DEFAULT_COMPONENTMATERIAL_WARNING;
 
 		public const float DEFAULT_MIPMAPBIAS = -0.5f;
 
@@ -97,14 +162,21 @@ namespace Spine.Unity.Editor {
 		// Timeline extension module
 		public const bool DEFAULT_TIMELINE_USE_BLEND_DURATION = true;
 		public bool timelineUseBlendDuration = DEFAULT_TIMELINE_USE_BLEND_DURATION;
-		
+
 #if NEW_PREFERENCES_SETTINGS_PROVIDER
 		public static void Load () {
 			GetOrCreateSettings();
 		}
 
+		static SpinePreferences settings = null;
+
 		internal static SpinePreferences GetOrCreateSettings () {
-			var settings = AssetDatabase.LoadAssetAtPath<SpinePreferences>(SPINE_SETTINGS_ASSET_PATH);
+			if (settings != null)
+				return settings;
+
+			settings = AssetDatabase.LoadAssetAtPath<SpinePreferences>(SPINE_SETTINGS_ASSET_PATH);
+			if (settings == null)
+				settings = FindSpinePreferences();
 			if (settings == null)
 			{
 				settings = ScriptableObject.CreateInstance<SpinePreferences>();
@@ -118,6 +190,18 @@ namespace Spine.Unity.Editor {
 					AssetDatabase.CreateAsset(settings, SPINE_SETTINGS_ASSET_PATH);
 			}
 			return settings;
+		}
+
+		static SpinePreferences FindSpinePreferences () {
+			string typeSearchString = " t:SpinePreferences";
+			string[] guids = AssetDatabase.FindAssets(typeSearchString);
+			foreach (string guid in guids) {
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var preferences = AssetDatabase.LoadAssetAtPath<SpinePreferences>(path);
+				if (preferences != null)
+					return preferences;
+			}
+			return null;
 		}
 
 		public static void HandlePreferencesGUI (SerializedObject settings) {
@@ -146,7 +230,19 @@ namespace Spine.Unity.Editor {
 
 					SpineEditorUtilities.ShaderPropertyField(settings.FindProperty("defaultShader"), new GUIContent("Default Shader"), SpinePreferences.DEFAULT_DEFAULT_SHADER);
 
-					EditorGUILayout.PropertyField(settings.FindProperty("setTextureImporterSettings"), new GUIContent("Apply Atlas Texture Settings", "Apply the recommended settings for Texture Importers."));
+					EditorGUILayout.PropertyField(settings.FindProperty("setTextureImporterSettings"), new GUIContent("Apply Atlas Texture Settings", "Apply reference settings for Texture Importers."));
+					var textureSettingsRef = settings.FindProperty("textureSettingsReference");
+					SpineEditorUtilities.PresetAssetPropertyField(textureSettingsRef, new GUIContent("Atlas Texture Settings", "Apply the selected texture import settings at newly imported atlas textures. When exporting atlas textures from Spine with \"Premultiply alpha\" enabled (the default), you can leave it at \"PMATexturePreset\". If you have disabled \"Premultiply alpha\", set it to \"StraightAlphaTexturePreset\". You can also create your own TextureImporter Preset asset and assign it here."));
+					if (string.IsNullOrEmpty(textureSettingsRef.stringValue)) {
+						var pmaTextureSettingsReferenceGUIDS = AssetDatabase.FindAssets("PMATexturePreset");
+						if (pmaTextureSettingsReferenceGUIDS.Length > 0) {
+							textureSettingsRef.stringValue = AssetDatabase.GUIDToAssetPath(pmaTextureSettingsReferenceGUIDS[0]);
+						}
+					}
+
+					EditorGUILayout.PropertyField(settings.FindProperty("blendModeMaterialAdditive"), new GUIContent("Additive Material", "Additive blend mode Material template."));
+					EditorGUILayout.PropertyField(settings.FindProperty("blendModeMaterialMultiply"), new GUIContent("Multiply Material", "Multiply blend mode Material template."));
+					EditorGUILayout.PropertyField(settings.FindProperty("blendModeMaterialScreen"), new GUIContent("Screen Material", "Screen blend mode Material template."));
 				}
 
 				EditorGUILayout.Space();
@@ -154,6 +250,7 @@ namespace Spine.Unity.Editor {
 				{
 					EditorGUILayout.PropertyField(settings.FindProperty("atlasTxtImportWarning"), new GUIContent("Atlas Extension Warning", "Log a warning and recommendation whenever a `.atlas` file is found."));
 					EditorGUILayout.PropertyField(settings.FindProperty("textureImporterWarning"), new GUIContent("Texture Settings Warning", "Log a warning and recommendation whenever Texture Import Settings are detected that could lead to undesired effects, e.g. white border artifacts."));
+					EditorGUILayout.PropertyField(settings.FindProperty("componentMaterialWarning"), new GUIContent("Component & Material Warning", "Log a warning and recommendation whenever Component and Material settings are not compatible."));
 				}
 
 				EditorGUILayout.Space();
@@ -181,14 +278,28 @@ namespace Spine.Unity.Editor {
 					}
 				}
 
-				GUILayout.Space(20);
-				EditorGUILayout.LabelField("3rd Party Settings", EditorStyles.boldLabel);
-				using (new GUILayout.HorizontalScope()) {
-					EditorGUILayout.PrefixLabel("Define TK2D");
-					if (GUILayout.Button("Enable", GUILayout.Width(64)))
-						SpineEditorUtilities.SpineTK2DEditorUtility.EnableTK2D();
-					if (GUILayout.Button("Disable", GUILayout.Width(64)))
-						SpineEditorUtilities.SpineTK2DEditorUtility.DisableTK2D();
+				#if SPINE_TK2D_DEFINE
+				bool isTK2DDefineSet = true;
+				#else
+				bool isTK2DDefineSet = false;
+				#endif
+				bool isTK2DAllowed = SpineEditorUtilities.SpineTK2DEditorUtility.IsTK2DAllowed;
+				if (SpineEditorUtilities.SpineTK2DEditorUtility.IsTK2DInstalled() || isTK2DDefineSet) {
+					GUILayout.Space(20);
+					EditorGUILayout.LabelField("3rd Party Settings", EditorStyles.boldLabel);
+					using (new GUILayout.HorizontalScope()) {
+						EditorGUILayout.PrefixLabel("Define TK2D");
+						if (isTK2DAllowed && GUILayout.Button("Enable", GUILayout.Width(64)))
+							SpineEditorUtilities.SpineTK2DEditorUtility.EnableTK2D();
+						if (GUILayout.Button("Disable", GUILayout.Width(64)))
+							SpineEditorUtilities.SpineTK2DEditorUtility.DisableTK2D();
+					}
+					#if !SPINE_TK2D_DEFINE
+					if (!isTK2DAllowed) {
+						EditorGUILayout.LabelField("To allow TK2D support, please modify line 67 in", EditorStyles.boldLabel);
+						EditorGUILayout.LabelField("Spine/Editor/spine-unity/Editor/Util./BuildSettings.cs", EditorStyles.boldLabel);
+					}
+					#endif
 				}
 
 				GUILayout.Space(20);

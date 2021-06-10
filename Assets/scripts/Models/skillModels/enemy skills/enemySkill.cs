@@ -141,28 +141,30 @@ namespace AssemblyCSharp
         {
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                var enemyIndex = Battle_Manager.characterSelectManager.enemyCharacters.Count() + i;
-                var singleMinionDataItem = Battle_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
-                var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
-                creatureData.name = "minion_" + enemyIndex + "_data";
-                var panel = GetRandomPanelFromPanels();
-                var panelManager = panel.GetComponent<Panels_Manager>();
-                if (panel)
-                {
-                    //creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
-                    var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
-                    newCreature.name = "minion_" + enemyIndex;
-                    var minionBaseManager = newCreature.GetComponent<Base_Character_Manager>();
-                    minionBaseManager.autoAttackManager.hasAttacked = true;
-                    panelManager.currentOccupier = newCreature;
-                    minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
-                    minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
-                    panelManager.SetStartingPanel(newCreature, true);
-                }
-                else
-                {
-                    Debug.Log("No Panel");
-                }
+                    var enemyIndex = Battle_Manager.characterSelectManager.enemyCharacters.Count() + i;
+                    var singleMinionDataItem = Battle_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
+                    var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
+                    creatureData.name = "minion_" + enemyIndex + "_data";
+                    var panel = GetRandomPanelFromPanels();
+                    var panelManager = panel.GetComponent<Panels_Manager>();
+                    if (panel)
+                    {
+                        //creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
+                            var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
+                            newCreature.name = "minion_" + enemyIndex;
+                            var minionBaseManager = newCreature.GetComponent<Base_Character_Manager>();
+                            minionBaseManager.autoAttackManager.hasAttacked = true;
+                            panelManager.currentOccupier = newCreature;
+                            minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
+                            minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
+                            panelManager.SetStartingPanel(newCreature, true);
+                    }
+                    else
+                    {
+                        Debug.Log("No Panel");
+                    }
+                
+                
             }
         }
     }

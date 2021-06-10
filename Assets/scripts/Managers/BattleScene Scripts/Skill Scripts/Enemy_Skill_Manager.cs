@@ -49,6 +49,13 @@ namespace AssemblyCSharp
             baseManager.animationManager.inAnimation = true;
             baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.animationCastingType, false);
             baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, skillModel.animationRepeatCasting, true, 0);
+            if (skillModel.chargeSound != null)
+            {
+                Battle_Manager.soundManager.playSoundUsingAudioSource(skillModel.chargeSound, baseManager.gameObject.GetComponent<AudioSource>());
+            } else if (skillModel.isSpell)
+            {
+                Battle_Manager.soundManager.playSounds(Battle_Manager.soundManager.magicChargeSounds);
+            }
             if (skillModel.hasVoidzone)
             {
                 skillModel.ShowVoidPanel(skillModel.voidZoneTypes, skillModel.monsterPanel);
@@ -166,6 +173,7 @@ namespace AssemblyCSharp
             SkillActiveSet(enemySkillModel, false);
             enemySkillModel.ResetSkillOnCurrentTurn(false, () => {
                 finalTargets.Clear();
+                Debug.Log("final targets cleared");
                 // enemySkillModel.skillActive = true;
                 //SkillActiveSet(enemySkillModel, false);
             });
@@ -214,6 +222,10 @@ namespace AssemblyCSharp
             {
                 status.dispellable = enemySkillModel.statusDispellable;
             };
+            foreach (var status in enemySkillModel.singleStatusGroupFriendly)
+            {
+                status.dispellable = enemySkillModel.statusDispellable;
+            };
             foreach (var target in targets)
             {
                 SkillData data = new SkillData()
@@ -222,6 +234,7 @@ namespace AssemblyCSharp
                     caster = baseManager.characterManager,
                     enemySkillModel = enemySkillModel,
                 };
+                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.accuracy);
                 enemySkillModel.RunExtraEffect(data);
                 if (enemySkillModel.doesDamage)
                 {
@@ -273,19 +286,38 @@ namespace AssemblyCSharp
                                 tankData.baseManager.damageManager.calculatedamage(dmgModel);
                             }
                         }
+                        Battle_Manager.ClearAllVoidZones();
                     }
                     else
                     {
-                        if (enemySkillModel.fxObject != null)
+                        if (enemySkillModel.isSpell || didHit)
                         {
-                            baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
+                            /*if (enemySkillModel.fxObject != null)
+                            {
+                                baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
+                            }*/
+                            target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
+                            target.baseManager.damageManager.calculatedamage(dmgModel);
+                            /*if (enemySkillModel.singleStatusGroup.Count() > 0)
+                            {
+                                AddStatuses(target, power, enemySkillModel);
+                            }*/
                         }
-                        target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
-                        target.baseManager.damageManager.calculatedamage(dmgModel);
+                        else
+                        {
+                            dmgModel.incomingDmg = 0;
+                            dmgModel.showDmgNumber = false;
+                            Battle_Manager.soundManager.playSound("miss");
+                            Battle_Manager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
+                        }
                     }
                 };
                 if (enemySkillModel.healsDamage)
                 {
+                    /*if (enemySkillModel.fxObject != null)
+                    {
+                        baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
+                    }*/
                     var dmgModel = new DamageModel()
                     {
                         baseManager = target.baseManager,
@@ -298,14 +330,19 @@ namespace AssemblyCSharp
                     };
                     target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                     target.baseManager.damageManager.calculateHdamage(dmgModel);
-                    //currenttarget = null;
                 };
-                if (target != null)
+                if (enemySkillModel.isSpell || didHit || enemySkillModel.healsDamage)
+                {
+                    if (enemySkillModel.fxObject != null)
+                    {
+                        baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
+                    }
+                }
+                if (enemySkillModel.singleStatusGroupFriendly.Count() > 0 || (enemySkillModel.isSpell || didHit) && enemySkillModel.singleStatusGroup.Count() > 0)
                 {
                     AddStatuses(target, power, enemySkillModel);
                 }
             }
-            Battle_Manager.ClearAllVoidZones();
         }
 
         private void AddStatuses(Character_Manager target, float power, enemySkill enemySkill)
@@ -483,6 +520,13 @@ namespace AssemblyCSharp
                 {
                     if (o.skillActive)
                     {
+                        if (o.castSound != null)
+                        {
+                            Battle_Manager.soundManager.playSoundUsingAudioSource(o.castSound, baseManager.gameObject.GetComponent<AudioSource>());
+                        } else if(o.isSpell)
+                        {
+                            Battle_Manager.soundManager.playSounds(Battle_Manager.soundManager.magicCastSounds);
+                        }
                         SkillComplete(finalTargets, o);
                         foreach (var target in finalTargets)
                         {
@@ -509,6 +553,19 @@ namespace AssemblyCSharp
                     SkillComplete(finalTargets, (enemySkill)activeSkill);
                 }*/
             }
+            if (e.Data.Name == "endEvent")
+            {
+                foreach (var target in finalTargets)
+                {
+                    var targetDamageManager = target.baseManager.damageManager;
+                    if (targetDamageManager.skillDmgModels.ContainsKey(gameObject.name))
+                    {
+                        targetDamageManager.skillDmgModels.Remove(gameObject.name);
+                    }
+                }
+                //currenttarget = null;
+            }
+            Battle_Manager.soundManager.OnEventHit(state, e);
         }
 
         void Update()

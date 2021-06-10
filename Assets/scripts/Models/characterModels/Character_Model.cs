@@ -17,7 +17,10 @@ namespace AssemblyCSharp
         thornsDmg,
         Health,
         blockPoints,
-        absorbPoints
+        absorbPoints,
+        accuracy,
+        evasion,
+        critChance
     };
 
     [System.Serializable]
@@ -29,18 +32,16 @@ namespace AssemblyCSharp
             maxHealth = Health;
             full_health = Health;
             isAlive = true;
-            //vigor = 1;
             originalthornsDmg = 0;
-            //originalvigor = 1;
-            //actionPoints = 6;
-            //maxactionPoints = 6;
             originalPDef = PDef;
             originalMDef = MDef;
             originalPAtk = PAtk;
             originalMAtk = MAtk;
             originalMDef = MDef;
             originalHaste = Haste;
-            //originalactionPoints = actionPoints;
+            originalAccuracy = accuracy;
+            originalCritChance = critChance;
+            originalEvasion = evasion;
         }
 
         public Sprite characterIcon;
@@ -49,6 +50,12 @@ namespace AssemblyCSharp
         public float maxHealth;
         public float blockPoints;
         public float absorbPoints;
+        public float originalAccuracy;
+        public float accuracy = 1;
+        public float originalEvasion;
+        public float evasion = 0.2f;
+        public float critChance;
+        public float originalCritChance;
         public float PDef;
         public float originalPDef;
         public float MDef;

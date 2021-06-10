@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated May 1, 2019. Replaces all prior versions.
+ * Last updated January 1, 2020. Replaces all prior versions.
  *
- * Copyright (c) 2013-2019, Esoteric Software LLC
+ * Copyright (c) 2013-2020, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -15,16 +15,16 @@
  * Spine Editor license and redistribution of the Products in any form must
  * include this license and copyright notice.
  *
- * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
- * NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS
- * INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THE SPINE RUNTIMES ARE PROVIDED BY ESOTERIC SOFTWARE LLC "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL ESOTERIC SOFTWARE LLC BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES,
+ * BUSINESS INTERRUPTION, OR LOSS OF USE, DATA, OR PROFITS) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
 using UnityEngine;
@@ -43,6 +43,8 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	static readonly string kShaderUnlitOutline = "Spine/Outline/Sprite/Unlit";
 
 	static readonly string kShaderLitLW = "Lightweight Render Pipeline/Spine/Sprite";
+	static readonly string kShaderLitURP = "Universal Render Pipeline/Spine/Sprite";
+	static readonly string kShaderLitURP2D = "Universal Render Pipeline/2D/Spine/Sprite";
 	static readonly int kSolidQueue = 2000;
 	static readonly int kAlphaTestQueue = 2450;
 	static readonly int kTransparentQueue = 3000;
@@ -61,7 +63,9 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		VertexLit,
 		PixelLit,
 		Unlit,
-		LitLightweight
+		LitLightweight,
+		LitUniversal,
+		LitUniversal2D
 	};
 
 	private enum eCulling {
@@ -74,10 +78,22 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		MeshNormals = -1,
 		FixedNormalsViewSpace = 0,
 		FixedNormalsModelSpace = 1,
+		FixedNormalsWorldSpace = 2
+	};
+
+	private enum eDiffuseRampMode {
+		NoRampSpecified = -1,
+		FullRangeHard = 0,
+		FullRangeSoft = 1,
+		OldHard = 2,
+		OldSoft = 3,
+
+		DefaultRampMode = OldHard
 	};
 
 	MaterialProperty _mainTexture = null;
 	MaterialProperty _color = null;
+	MaterialProperty _maskTexture = null;
 
 	MaterialProperty _pixelSnap = null;
 
@@ -114,6 +130,7 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	MaterialProperty _smoothnessScale = null;
 
 	static GUIContent _albedoText = new GUIContent("Albedo", "Albedo (RGB) and Transparency (A)");
+	static GUIContent _maskText = new GUIContent("Light Mask", "Light mask texture (secondary Sprite texture)");
 	static GUIContent _altAlbedoText = new GUIContent("Secondary Albedo", "When a secondary albedo texture is set the albedo will be a blended mix of the two textures based on the blend value.");
 	static GUIContent _metallicMapText = new GUIContent("Metallic", "Metallic (R) and Smoothness (A)");
 	static GUIContent _smoothnessText = new GUIContent("Smoothness", "Smoothness value");
@@ -136,7 +153,9 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		new GUIContent("Vertex Lit"),
 		new GUIContent("Pixel Lit"),
 		new GUIContent("Unlit"),
-		new GUIContent("Lit Lightweight")
+		new GUIContent("Lit Lightweight"),
+		new GUIContent("Lit Universal"),
+		new GUIContent("Lit Universal2D")
 	};
 	static GUIContent _blendModeText = new GUIContent("Blend Mode", "Blend Mode");
 	static GUIContent[] _blendModeOptions = {
@@ -148,13 +167,13 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		new GUIContent("Multiply"),
 		new GUIContent("Multiply x2")
 	};
-	static GUIContent _rendererQueueText = new GUIContent("Renderer Queue");
+	static GUIContent _rendererQueueText = new GUIContent("Render Queue Offset");
 	static GUIContent _cullingModeText = new GUIContent("Culling Mode");
 	static GUIContent[] _cullingModeOptions = { new GUIContent("Off"), new GUIContent("Front"), new GUIContent("Back") };
 	static GUIContent _pixelSnapText = new GUIContent("Pixel Snap");
 	//static GUIContent _customRenderTypetagsText = new GUIContent("Use Custom RenderType tags");
 	static GUIContent _fixedNormalSpaceText = new GUIContent("Fixed Normal Space");
-	static GUIContent[] _fixedNormalSpaceOptions = { new GUIContent("View-Space"), new GUIContent("Model-Space") };
+	static GUIContent[] _fixedNormalSpaceOptions = { new GUIContent("View-Space"), new GUIContent("Model-Space"), new GUIContent("World-Space") };
 	static GUIContent _rimLightingToggleText = new GUIContent("Rim Lighting", "Enable Rim Lighting.");
 	static GUIContent _rimColorText = new GUIContent("Rim Color");
 	static GUIContent _rimPowerText = new GUIContent("Rim Power");
@@ -168,6 +187,7 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	static GUIContent _meshRequiresTangentsText = new GUIContent("Note: Material requires a mesh with tangents.");
 	static GUIContent _meshRequiresNormalsText = new GUIContent("Note: Material requires a mesh with normals.");
 	static GUIContent _meshRequiresNormalsAndTangentsText = new GUIContent("Note: Material requires a mesh with Normals and Tangents.");
+	static GUIContent[] _fixedDiffuseRampModeOptions = { new GUIContent("Hard"), new GUIContent("Soft"), new GUIContent("Old Hard"), new GUIContent("Old Soft") };
 
 	const string _primaryMapsText = "Main Maps";
 	const string _depthLabelText = "Depth";
@@ -188,7 +208,9 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		//If not originally a sprite shader set default keywords
 		if (oldShader.name != kShaderVertexLit && oldShader.name != kShaderPixelLit && oldShader.name != kShaderUnlit &&
 			oldShader.name != kShaderVertexLitOutline && oldShader.name != kShaderPixelLitOutline && oldShader.name != kShaderUnlitOutline &&
-			oldShader.name != kShaderLitLW) {
+			oldShader.name != kShaderLitLW &&
+			oldShader.name != kShaderLitURP &&
+			oldShader.name != kShaderLitURP2D) {
 			SetDefaultSpriteKeywords(material, newShader);
 		}
 
@@ -203,6 +225,7 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		base.FindProperties(props);
 
 		_mainTexture = FindProperty("_MainTex", props);
+		_maskTexture = FindProperty("_MaskTex", props, false);
 		_color = FindProperty("_Color", props);
 
 		_pixelSnap = FindProperty("PixelSnap", props);
@@ -301,6 +324,11 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 
 		{
 			EditorGUILayout.Space();
+			RenderStencilProperties();
+		}
+
+		{
+			EditorGUILayout.Space();
 			RenderOutlineProperties();
 		}
 
@@ -345,6 +373,14 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 						if (material.shader.name != kShaderLitLW)
 							_materialEditor.SetShader(Shader.Find(kShaderLitLW), false);
 						break;
+					case eLightMode.LitUniversal:
+						if (material.shader.name != kShaderLitURP)
+							_materialEditor.SetShader(Shader.Find(kShaderLitURP), false);
+						break;
+					case eLightMode.LitUniversal2D:
+						if (material.shader.name != kShaderLitURP2D)
+							_materialEditor.SetShader(Shader.Find(kShaderLitURP2D), false);
+						break;
 					}
 				}
 
@@ -379,13 +415,13 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 			}
 		}
 
-		//	GUILayout.Label(Styles.advancedText, EditorStyles.boldLabel);
-		//	m_MaterialEditor.RenderQueueField();
-		//	m_MaterialEditor.EnableInstancingField();
+		EditorGUI.BeginDisabledGroup(true);
+		_materialEditor.RenderQueueField();
+		EditorGUI.EndDisabledGroup();
 
 		EditorGUI.BeginChangeCheck();
 		EditorGUI.showMixedValue = _renderQueue.hasMixedValue;
-		int renderQueue = EditorGUILayout.IntSlider(_rendererQueueText, (int)_renderQueue.floatValue, 0, 49);
+		int renderQueue = EditorGUILayout.IntField(_rendererQueueText, (int)_renderQueue.floatValue);
 		if (EditorGUI.EndChangeCheck()) {
 			SetInt("_RenderQueue", renderQueue);
 			dataChanged = true;
@@ -419,8 +455,10 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		if (_bumpMap != null)
 			_materialEditor.TexturePropertySingleLine(_normalMapText, _bumpMap, _bumpMap.textureValue != null ? _bumpScale : null);
 
-		if (_diffuseRamp != null)
-			_materialEditor.TexturePropertySingleLine(_diffuseRampText, _diffuseRamp);
+		if (_maskTexture != null)
+			_materialEditor.TexturePropertySingleLine(_maskText, _maskTexture);
+
+		dataChanged |= RenderDiffuseRampProperties();
 
 		dataChanged |= EditorGUI.EndChangeCheck();
 
@@ -584,6 +622,52 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		return dataChanged;
 	}
 
+	protected virtual bool RenderDiffuseRampProperties () {
+		bool dataChanged = false;
+
+		eDiffuseRampMode rampMode = GetMaterialDiffuseRampMode((Material)_materialEditor.target);
+		bool mixedRampMode = false;
+		foreach (Material material in _materialEditor.targets) {
+			if (rampMode != GetMaterialDiffuseRampMode(material)) {
+				mixedRampMode = true;
+				break;
+			}
+		}
+
+		EditorGUI.BeginChangeCheck();
+		EditorGUI.showMixedValue = mixedRampMode;
+		EditorGUILayout.BeginHorizontal();
+
+		if (_diffuseRamp != null)
+			_materialEditor.TexturePropertySingleLine(_diffuseRampText, _diffuseRamp);
+
+		if (EditorGUI.EndChangeCheck()) {
+			if (rampMode == eDiffuseRampMode.NoRampSpecified)
+				rampMode = eDiffuseRampMode.DefaultRampMode;
+
+			SetDiffuseRampMode(_materialEditor, rampMode);
+			mixedRampMode = false;
+			dataChanged = true;
+		}
+
+		if (_diffuseRamp != null && _diffuseRamp.textureValue != null) {
+			//Show drop down for ramp mode
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = mixedRampMode;
+			rampMode = (eDiffuseRampMode)EditorGUILayout.Popup((int)rampMode, _fixedDiffuseRampModeOptions);
+			if (EditorGUI.EndChangeCheck()) {
+				SetDiffuseRampMode(_materialEditor, rampMode);
+				mixedRampMode = false;
+				dataChanged = true;
+			}
+		}
+		EditorGUILayout.EndHorizontal();
+
+		EditorGUI.showMixedValue = false;
+
+		return dataChanged;
+	}
+
 	protected virtual bool RenderShadowsProperties () {
 		bool dataChanged = false;
 
@@ -591,12 +675,10 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		_materialEditor.RangeProperty(_shadowAlphaCutoff, _shadowAlphaCutoffText.text);
 		dataChanged = EditorGUI.EndChangeCheck();
 		bool areMixedShaders = false;
-		bool hasReceiveShadowsParameter = IsLWRPShader(_materialEditor, out areMixedShaders);
+		bool hasReceiveShadowsParameter = IsLWRPShader(_materialEditor, out areMixedShaders) ||
+			IsURP3DShader(_materialEditor, out areMixedShaders);
 
 		if (hasReceiveShadowsParameter) {
-			bool forceDisableReceiveShadows = !_writeToDepth.hasMixedValue && _writeToDepth.floatValue == 0;
-			EditorGUI.BeginDisabledGroup(forceDisableReceiveShadows);
-
 			EditorGUI.BeginChangeCheck();
 			bool mixedValue;
 			bool enableReceive = !IsKeywordEnabled(_materialEditor, "_RECEIVE_SHADOWS_OFF", out mixedValue);
@@ -605,11 +687,10 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 
 			EditorGUI.showMixedValue = false;
 
-			if (EditorGUI.EndChangeCheck() || forceDisableReceiveShadows) {
-				SetKeyword(_materialEditor, "_RECEIVE_SHADOWS_OFF", !enableReceive || forceDisableReceiveShadows);
+			if (EditorGUI.EndChangeCheck()) {
+				SetKeyword(_materialEditor, "_RECEIVE_SHADOWS_OFF", !enableReceive);
 				dataChanged = true;
 			}
-			EditorGUI.EndDisabledGroup(); // forceDisableReceiveShadows
 		}
 
 		return dataChanged;
@@ -619,7 +700,9 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 
 		bool areMixedShaders = false;
 		bool isLWRPShader = IsLWRPShader(_materialEditor, out areMixedShaders);
-		bool hasSHParameter = areMixedShaders || !isLWRPShader;
+		bool isURP3DShader = IsURP3DShader(_materialEditor, out areMixedShaders);
+		bool isURP2DShader = IsURP2DShader(_materialEditor, out areMixedShaders);
+		bool hasSHParameter = !(isLWRPShader || isURP3DShader || isURP2DShader);
 		if (!hasSHParameter)
 			return false;
 
@@ -639,6 +722,13 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	}
 
 	protected virtual bool RenderFogProperties () {
+
+		bool areMixedShaders = false;
+		bool isURP2DShader = IsURP2DShader(_materialEditor, out areMixedShaders);
+
+		if (isURP2DShader && !areMixedShaders)
+			return false;
+
 		EditorGUI.BeginChangeCheck();
 		bool mixedValue;
 		bool fog = IsKeywordEnabled(_materialEditor, "_FOG", out mixedValue);
@@ -806,6 +896,7 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		SetKeyword(material, "_EMISSION", false);
 		//Start with preMultiply alpha by default
 		SetBlendMode(material, eBlendMode.PreMultipliedAlpha);
+		SetDiffuseRampMode(material, eDiffuseRampMode.DefaultRampMode);
 		//Start with mesh normals by default
 		SetNormalsMode(material, eNormalsMode.MeshNormals, false);
 		if (_fixedNormal != null)
@@ -893,18 +984,30 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	}
 
 	static bool IsLWRPShader (MaterialEditor editor, out bool mixedValue) {
+		return IsShaderType(kShaderLitLW, editor, out mixedValue);
+	}
+
+	static bool IsURP3DShader (MaterialEditor editor, out bool mixedValue) {
+		return IsShaderType(kShaderLitURP, editor, out mixedValue);
+	}
+
+	static bool IsURP2DShader (MaterialEditor editor, out bool mixedValue) {
+		return IsShaderType(kShaderLitURP2D, editor, out mixedValue);
+	}
+
+	static bool IsShaderType (string shaderType, MaterialEditor editor, out bool mixedValue) {
 
 		mixedValue = false;
-		bool isAnyLWRPShader = false;
+		bool isAnyTargetTypeShader = false;
 		foreach (Material material in editor.targets) {
-			if (material.shader.name == kShaderLitLW) {
-				isAnyLWRPShader = true;
+			if (material.shader.name == shaderType) {
+				isAnyTargetTypeShader = true;
 			}
-			else if (isAnyLWRPShader) {
+			else if (isAnyTargetTypeShader) {
 				mixedValue = true;
 			}
 		}
-		return isAnyLWRPShader;
+		return isAnyTargetTypeShader;
 	}
 
 	static bool IsKeywordEnabled (MaterialEditor editor, string keyword, out bool mixedValue) {
@@ -932,6 +1035,12 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 		}
 		else if (material.shader.name == kShaderLitLW) {
 			return eLightMode.LitLightweight;
+		}
+		else if (material.shader.name == kShaderLitURP) {
+			return eLightMode.LitUniversal;
+		}
+		else if (material.shader.name == kShaderLitURP2D) {
+			return eLightMode.LitUniversal2D;
 		}
 		else { // if (material.shader.name == kShaderVertexLit || kShaderVertexLitOutline)
 			return eLightMode.VertexLit;
@@ -1029,15 +1138,16 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	static eNormalsMode GetMaterialNormalsMode (Material material) {
 		if (material.IsKeywordEnabled("_FIXED_NORMALS_VIEWSPACE") || material.IsKeywordEnabled("_FIXED_NORMALS_VIEWSPACE_BACKFACE"))
 			return eNormalsMode.FixedNormalsViewSpace;
+		if (material.IsKeywordEnabled("_FIXED_NORMALS_WORLDSPACE"))
+			return eNormalsMode.FixedNormalsWorldSpace;
 		if (material.IsKeywordEnabled("_FIXED_NORMALS_MODELSPACE") || material.IsKeywordEnabled("_FIXED_NORMALS_MODELSPACE_BACKFACE"))
 			return eNormalsMode.FixedNormalsModelSpace;
 
 		return eNormalsMode.MeshNormals;
 	}
 
-	static void SetNormalsMode (MaterialEditor materialEditor, eNormalsMode normalsMode, bool allowBackFaceRendering) {
-		SetNormalsMode((Material)materialEditor.target, normalsMode, allowBackFaceRendering);
 
+	static void SetNormalsMode (MaterialEditor materialEditor, eNormalsMode normalsMode, bool allowBackFaceRendering) {
 		foreach (Material material in materialEditor.targets) {
 			SetNormalsMode(material, normalsMode, allowBackFaceRendering);
 		}
@@ -1046,12 +1156,39 @@ public class SpineSpriteShaderGUI : SpineShaderWithOutlineGUI {
 	static void SetNormalsMode (Material material, eNormalsMode normalsMode, bool allowBackFaceRendering) {
 		SetKeyword(material, "_FIXED_NORMALS_VIEWSPACE", normalsMode == eNormalsMode.FixedNormalsViewSpace && !allowBackFaceRendering);
 		SetKeyword(material, "_FIXED_NORMALS_VIEWSPACE_BACKFACE", normalsMode == eNormalsMode.FixedNormalsViewSpace && allowBackFaceRendering);
+		SetKeyword(material, "_FIXED_NORMALS_WORLDSPACE", normalsMode == eNormalsMode.FixedNormalsWorldSpace);
 		SetKeyword(material, "_FIXED_NORMALS_MODELSPACE", normalsMode == eNormalsMode.FixedNormalsModelSpace && !allowBackFaceRendering);
 		SetKeyword(material, "_FIXED_NORMALS_MODELSPACE_BACKFACE", normalsMode == eNormalsMode.FixedNormalsModelSpace && allowBackFaceRendering);
 	}
 
 	static bool GetMaterialFixedNormalsBackfaceRenderingOn (Material material) {
 		return material.IsKeywordEnabled("_FIXED_NORMALS_VIEWSPACE_BACKFACE") || material.IsKeywordEnabled("_FIXED_NORMALS_MODELSPACE_BACKFACE");
+	}
+
+	static eDiffuseRampMode GetMaterialDiffuseRampMode (Material material) {
+		if (material.IsKeywordEnabled("_FULLRANGE_HARD_RAMP"))
+			return eDiffuseRampMode.FullRangeHard;
+		if (material.IsKeywordEnabled("_FULLRANGE_SOFT_RAMP"))
+			return eDiffuseRampMode.FullRangeSoft;
+		if (material.IsKeywordEnabled("_OLD_HARD_RAMP"))
+			return eDiffuseRampMode.OldHard;
+		if (material.IsKeywordEnabled("_OLD_SOFT_RAMP"))
+			return eDiffuseRampMode.OldSoft;
+
+		return eDiffuseRampMode.NoRampSpecified;
+	}
+
+	static void SetDiffuseRampMode (MaterialEditor materialEditor, eDiffuseRampMode rampMode) {
+		foreach (Material material in materialEditor.targets) {
+			SetDiffuseRampMode(material, rampMode);
+		}
+	}
+
+	static void SetDiffuseRampMode (Material material, eDiffuseRampMode rampMode) {
+		SetKeyword(material, "_FULLRANGE_HARD_RAMP", rampMode == eDiffuseRampMode.FullRangeHard);
+		SetKeyword(material, "_FULLRANGE_SOFT_RAMP", rampMode == eDiffuseRampMode.FullRangeSoft);
+		SetKeyword(material, "_OLD_HARD_RAMP", rampMode == eDiffuseRampMode.OldHard);
+		SetKeyword(material, "_OLD_SOFT_RAMP", rampMode == eDiffuseRampMode.OldSoft);
 	}
 
 	static bool HasZWriteEnabled (Material material) {

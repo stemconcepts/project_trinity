@@ -57,6 +57,9 @@ namespace AssemblyCSharp
         public bool allEnemy;
         public bool targetAndSelf;
         public bool summon;
+        [Header("Sounds")]
+        public AudioClip chargeSound;
+        public AudioClip castSound;
         [Header("Extra Effect:")]
         [ConditionalHide(true)]
         public bool useModifier;
@@ -127,7 +130,8 @@ namespace AssemblyCSharp
                     singleStatus = singleStatusGroup[i],
                     power = power,
                     turnDuration = skillModel.turnDuration,
-                    baseManager = baseManager
+                    baseManager = baseManager,
+                    isFlat = skillModel.isFlat
                 };
                 sm.singleStatus.dispellable = skillModel.statusDispellable;
                 baseManager.statusManager.RunStatusFunction(sm);
@@ -278,7 +282,7 @@ namespace AssemblyCSharp
                 action?.Invoke();
                 skillActive = false;
                 turnToComplete = 0;
-                Debug.Log(string.Format("{0} Cooldown reset ", skillName));
+                //Debug.Log(string.Format("{0} Cooldown reset ", skillName));
                 turnToReset = 0;
             }));
         }

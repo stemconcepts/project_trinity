@@ -20,7 +20,7 @@ namespace AssemblyCSharp
         public void TakeDmg(DamageModel damageModel, string eventName)
         {
             GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : hitFX;
-            Battle_Manager.gameEffectManager.ScreenShake(1f, 2);
+            Battle_Manager.gameEffectManager.ScreenShake(0.6f, 2);
             if (damageModel.hitEffectPositionScript != null && gameObject.tag == "Player" && eventName == "hit")
             {
                 damageModel.effectObject = (GameObject)Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
@@ -57,6 +57,7 @@ namespace AssemblyCSharp
                 damageModel.damageTaken -= damageBlocked;
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
                 battleDetailsManager.getDmg(damageModel, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>");
+                Battle_Manager.soundManager.playSound("block");
             }
             else
             {
@@ -109,6 +110,11 @@ namespace AssemblyCSharp
             Battle_Manager.eventManager.BuildEvent(eventModel);
         }
 
+        public float GetValueAfterResist(float incomingDmg, float resistance)
+        {
+            return incomingDmg - (incomingDmg * resistance);
+        }
+
         public void calculatedamage(DamageModel damageModel)
         {
             if (damageModel.skillModel != null)
@@ -124,7 +130,7 @@ namespace AssemblyCSharp
                 var defences = damageModel.isMagicDmg ? baseManager.characterManager.characterModel.MDef : baseManager.characterManager.characterModel.PDef;
                 var resistance = damageModel.element != elementType.none ? baseManager.characterManager.GetResistanceValue(damageModel.element.ToString()) : 0;
                 var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : damageModel.incomingDmg - defences;
-                var elementDamageTaken = (damageModel.incomingDmg - resistance) < 0 ? 0 : damageModel.incomingDmg - resistance;
+                var elementDamageTaken = GetValueAfterResist(damageModel.incomingDmg, resistance) < 0 ? 0 : GetValueAfterResist(damageModel.incomingDmg, resistance);
                 damageModel.damageTaken = damageModel.element != elementType.none ? elementDamageTaken : damageTaken;
                 if (baseManager.statusManager.DoesStatusExist("damageImmune"))
                 {
@@ -143,7 +149,7 @@ namespace AssemblyCSharp
                             tumor.buffPower += damageModel.damageTaken * 0.70f;
                         }
 
-                        battleDetailsManager.getDmg(damageModel);
+                        battleDetailsManager.getDmg(damageModel, damageModel.showExtraInfo ? damageModel.skillSource : "");
                     }
                     else
                     {

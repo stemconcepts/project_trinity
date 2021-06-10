@@ -1,5 +1,7 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -39,6 +41,12 @@ namespace AssemblyCSharp
         }
     
         public void callEffectTarget( Character_Manager target, GameObject fxObject, string position = "center"){
+            fxObject.GetComponent<ParticleSystemRenderer>().sortingLayerName = "SFX";
+            var x = fxObject.GetComponentsInChildren<ParticleSystemRenderer>().ToList();
+            x.ForEach(o =>
+            {
+                o.sortingLayerName = "SFX";
+            });
             GameObject fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXcenter").gameObject;
             if( position == "bottom" ){
                 fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfloor").gameObject;
