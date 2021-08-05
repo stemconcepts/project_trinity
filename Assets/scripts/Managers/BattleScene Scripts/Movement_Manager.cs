@@ -41,17 +41,24 @@ namespace AssemblyCSharp
 
         void OnRenderObject()
         {
-            if( currentPosition != (Vector2)this.gameObject.transform.position){
+            /*if( currentPosition != (Vector2)this.gameObject.transform.position){
                 currentPosition = this.gameObject.transform.position;
-            }
+            }*/
         }
 
         void Update(){
-            CheckPanelPosition();
+            if (currentPanel)
+            {
+                CheckPanelPosition();
+            }
         }
 
         public void CheckPanelPosition()
         {
+            if (currentPosition != (Vector2)this.gameObject.transform.position)
+            {
+                currentPosition = this.gameObject.transform.position;
+            }
             var panel = currentPanel.GetComponent<Panels_Manager>();
             switch (panel.panelNumber)
             {

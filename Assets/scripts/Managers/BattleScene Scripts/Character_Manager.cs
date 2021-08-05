@@ -9,6 +9,7 @@ namespace AssemblyCSharp
 {
     public class Character_Manager : MonoBehaviour
     {
+        public bool initialSetupDone;
         public Base_Character_Manager baseManager;
         [Header("Character Template")]
         public Character_Template template;
@@ -39,37 +40,33 @@ namespace AssemblyCSharp
 
         void Start()
         {
+            if (characterModel != null)
+            {
+                characterModel.SetUp();
+                characterModel.healthBarText = healthBar.gameObject.transform.Find("healthdata").GetComponent<Text>();
+                characterModel.sliderScript = healthBar.GetComponent<Slider>();
+                updateBarSize();
+                initialSetupDone = true;
+            }
             if (baseManager.movementManager.currentPanel == null && gameObject.tag == "Enemy")
             {
                 baseManager.movementManager.currentPanel = Battle_Manager.GetRandomPanel(false);
             }
-            if ( baseManager.movementManager.currentPanel != null && characterModel != null ){
-                characterModel.healthBarText = healthBar.gameObject.transform.Find("healthdata").GetComponent<Text>();
-                characterModel.SetUp();
+            if (baseManager.movementManager.currentPanel != null)
+            {
                 baseManager.movementManager.currentPanel.GetComponent<Panels_Manager>().currentOccupier = gameObject;
-                //characterModel.target = GetTarget(true);
-                characterModel.sliderScript = healthBar.GetComponent<Slider>();
-                //characterModel.apSliderScript = actionBar != null ? actionBar.GetComponent<Slider>() : null;
-                /*if (actionBar != null)
-                {
-                    actionPointsText = actionBar.transform.Find("apSlot").Find("Text").GetComponent<Text>();
-                    RegenApStart();
-                }*/
-                updateBarSize();
             }
         }
 
-        void Update(){
-            if( this.gameObject && characterModel != null ){
+        void Update()
+        {
+            if(initialSetupDone)
+            {
                 updateBarSize();
                 ResetAbsorbPoints();
                 maintainHealthValue();
                 characterModel.attackedPos = baseManager.movementManager.posMarker.transform.position;
                 characterModel.currentRotation = this.transform.rotation;
-                /*if (actionBar != null)
-                {
-                    UpdateAPAmount();
-                }*/
             }
         }
 

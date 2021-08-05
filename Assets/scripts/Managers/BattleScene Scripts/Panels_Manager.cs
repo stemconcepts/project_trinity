@@ -54,14 +54,15 @@ namespace AssemblyCSharp
             counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
             threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 1f);
             imageScript.color = isVoidZone ? voidZoneColor : isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
+            Invoke("SetPosition", 0.01f);
         }
 
-        void OnRenderObject()
+        void SetPosition()
         {
-            if( !moved && currentOccupier ){
+            if (currentOccupier /*&& !moved*/)
+            {
                 SetStartingPanel(currentOccupier);
             }
-            moved = true;
         }
 
         public void SetStartingPanel(GameObject currentOccupier, bool forceMove = false)
@@ -82,6 +83,7 @@ namespace AssemblyCSharp
                 if(movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + 6f))
                 {
                     currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
+                    moved = true;
                 }
             }
         }

@@ -348,3 +348,5 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\com.un
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.ShaderGraph.Editor.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.RenderPipelines.Core.ShaderLibrary.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.ShaderGraph.Utilities.pdb
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Mathematics.dll
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Mathematics.pdb

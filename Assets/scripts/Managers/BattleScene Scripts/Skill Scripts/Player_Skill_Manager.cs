@@ -88,6 +88,7 @@ namespace AssemblyCSharp
             if (skillModel.allFriendly) { finalTargets.AddRange(friendlyPlayers); }
             if (skillModel.friendly || skillModel.enemy)
             {
+                //Battle_Manager.gameEffectManager.DrawLineFromMouseToPoint(baseManager.movementManager.currentPosition);
                 Battle_Manager.taskManager.waitForTargetTask(player, classSkill: skillModel, weaponSkill: weaponSkill, skillAction: () =>
                 {
                     //baseManager.characterManager.characterModel.target = target;

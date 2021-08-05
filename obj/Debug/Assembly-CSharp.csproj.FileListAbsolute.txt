@@ -675,7 +675,6 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.RenderPipelines.Universal.Shaders.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Searcher.Editor.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.ShaderGraph.Editor.dll
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\ICSharpCode.NRefactory.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.ShaderGraph.Utilities.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.RenderPipeline.Universal.ShaderLibrary.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Cinemachine.pdb
@@ -692,3 +691,5 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\com.un
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.ShaderGraph.Editor.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.RenderPipelines.Core.ShaderLibrary.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.ShaderGraph.Utilities.pdb
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Mathematics.dll
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.Mathematics.pdb

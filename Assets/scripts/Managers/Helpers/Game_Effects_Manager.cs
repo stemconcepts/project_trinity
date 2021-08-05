@@ -21,6 +21,7 @@ namespace AssemblyCSharp
         public GameObject backGround;
         public GameObject midGround;
         public GameObject foreGround;
+        public GameObject lineObject;
         void Awake()
         {
             mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
@@ -106,6 +107,12 @@ namespace AssemblyCSharp
                 gameObject.transform.position = new Vector2(xPos, yPos);
                 yield return null;
             }
+        }
+
+        public void DrawLineFromMouseToPoint(Vector2 position)
+        {
+            var line = Instantiate(lineObject);
+            line.GetComponent<LineRendererController>().SetUpLineFromMouse(position);
         }
 
         public void FadeOutSpine(SkeletonAnimation skeletonAnimation)
