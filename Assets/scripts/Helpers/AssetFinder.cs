@@ -9,17 +9,23 @@ namespace AssemblyCSharp
     public class AssetFinder : MonoBehaviour
     {
         private string[] skillFolders = new string[]{
-            "Assets/scripts/skills/mainSkills/tankSkills/ClassSkills", 
-            "Assets/scripts/skills/mainSkills/dpsSkills/ClassSkills", 
-            "Assets/scripts/skills/mainSkills/healerSkills/ClassSkills"
-        }; 
+            "Assets/scripts/Models/skillModels/tankSkills/ClassSkills",
+            "Assets/scripts/Models/skillModels/dpsSkills/ClassSkills", 
+            "Assets/scripts/Models/skillModels/healerSkills/ClassSkills"
+        };
+
+        private string[] weaponFolders = new string[] { 
+            "Assets/scripts/Models/equipmentModels/dpsWeapons",
+            "Assets/scripts/Models/equipmentModels/tankWeapons", 
+            "Assets/scripts/Models/equipmentModels/healerWeapons" 
+        };
 
         private string[] statusFolders = new string[]{
             "Assets/scripts/Models/statusModels/status"
         };
 
         private string[] equipmentFolders = new string[]{
-            "Assets/scripts/gear/baubles"
+            "Assets/scripts/Models/equipmentModels/baubles"
         };
 
         private string[] helperFolders = new string[]{
@@ -76,6 +82,22 @@ namespace AssemblyCSharp
                 }
             }
             return baubles;
+        }
+
+        public List<weaponModel> GetAllWeapons()
+        {
+            List<weaponModel> weapons = new List<weaponModel>();
+            var weaponList = AssetDatabase.FindAssets("t:weaponModel", weaponFolders);
+            foreach (var weaponItem in weaponList)
+            {
+                string item = AssetDatabase.GUIDToAssetPath(weaponItem);
+                var weapon = AssetDatabase.LoadAssetAtPath<weaponModel>(item);
+                if (weapon.owned)
+                {
+                    weapons.Add(weapon);
+                }
+            }
+            return weapons;
         }
     }
 }

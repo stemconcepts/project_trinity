@@ -1,60 +1,384 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+using static AssemblyCSharp.miniMapIconBase;
 
 namespace AssemblyCSharp
 {
     public class Explore_Manager : MonoBehaviour
     {
-        //public int maxAdditionalRoutes;
-        public int minRooms;
-        public int maxDetours;
-        public int maxDetourLength;
-        public List<DungeonRoom> rooms;
+        public static Game_Manager gameManager;
+        public static AssetFinder assetFinder;
+        public static string currentRoom;
+        public static GameObject backButton;
+        public static GameObject inventoryHolder;
+        public DungeonSettings dungeonSettings;
+        DungeonSettings dungeonSettingsCopy;
+        public static List<DungeonRoom> allRooms = new List<DungeonRoom>();
+        public static List<DungeonRoom> mainRooms = new List<DungeonRoom>();
+        public static List<miniMapIconBase> iconControllers = new List<miniMapIconBase>();
+        public static List<DungeonRoom> previousRooms = new List<DungeonRoom>();
+        public static int rand;
+        [Header("Encounters")]
+        public int largeEncounters;
+        public int smallEncounters;
+        [Header("Explorer Objects")]
+        public GameObject explorerCanvas;
+        public GameObject miniMap;
+        Transform roomIconPosition;
         public GameObject roomTemplate;
-        public Difficulty difficulty;
-        public int rand;
-        public enum Difficulty
+        public GameObject routeTemplate;
+        public GameObject roomIconTemplate;
+        public GameObject objectTemplate;
+        public GameObject explorerItemTemplate;
+        public GameObject enemyEncounterTemplate;
+        [Header("Inventory")]
+        public static List<ItemBase> obtainedItems = new List<ItemBase>();
+
+        void Awake()
         {
-            Normal,
-            Hard,
-            Elite
+            gameManager = gameObject.GetComponent<Game_Manager>();
+            assetFinder = gameObject.GetComponent<AssetFinder>();
         }
 
         void Start()
         {
+            dungeonSettingsCopy = UnityEngine.Object.Instantiate(dungeonSettings);
+            backButton = GameObject.Find("backButton");
+            inventoryHolder = GameObject.Find("inventoryHolder");
             Invoke("LevelGenerator", 0.1f);
+        }
+
+        public void LevelGenerator()
+        {
+            GenerateRooms(dungeonSettings.minRooms);
+            GenerateDetours(dungeonSettingsCopy.maxDetourLength);
+            GetTotalRoomsAndHide();
+            AddRandomEncounters();
+            SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
+        }
+
+        public static BackRoute GetBackButton()
+        {
+            return backButton.GetComponent<BackRoute>();
+        }
+
+        public static void AddToObtainedItems(ItemBase item)
+        {
+            obtainedItems.Add(item);
+        }
+
+        public static void RemoveObtainedItem(ItemBase item)
+        {
+            obtainedItems.Remove(item);
+            //var x = inventoryHolder.transform.
+            GameObject itemObj = inventoryHolder.transform.Find($"{item.name}").gameObject;
+            Destroy(itemObj);
+        }
+
+        public static void AddPreviousRoom(DungeonRoom room)
+        {
+            previousRooms.Add(room);
+            GameObject backButton = Explore_Manager.GetBackButton().gameObject;
+            if (!backButton.gameObject.activeSelf)
+            {
+                backButton.SetActive(true);
+            }
+        }
+
+        public static void ChangeRouteInBackButton(DungeonRoom lastRoom)
+        {
+            BackRoute r = Explore_Manager.GetBackButton();
+            r.UpdateRouteDetails(r.gameObject.name = $"{r.gameObject.name}_Route_Back", lastRoom.gameObject.name, lastRoom.lockObj);
+        }
+
+        public static void ToggleRooms(bool show)
+        {
+            allRooms.ForEach(o =>
+            {
+                o.gameObject.SetActive(show);
+            });
+        }
+
+        public static void SetCurrentRoom(string roomName)
+        {
+            currentRoom = roomName;
+            miniMapIconBase currentIcon = iconControllers.Where(o => o.label == roomName).FirstOrDefault();
+            iconControllers.ForEach(o =>
+            {
+                o.SetActive(false);
+            });
+            if (currentIcon)
+            {
+                currentIcon.SetActive(true);
+            }
+        }
+
+        void AddCustomRoomIcon(GameObject roomIconGroupTemplate, miniMapIconBase startIconController)
+        {
+            GameObject roomIconGroup = Instantiate(roomIconGroupTemplate, miniMap.transform);
+
+            for (int i = 0; i < roomIconGroup.transform.childCount; i++)
+            {
+                miniMapCustomIcon mmc = roomIconGroup.transform.GetChild(i).gameObject.GetComponent<miniMapCustomIcon>();
+                iconControllers.Add(mmc);
+                if (mmc.mapPosition == miniMapCustomIcon.mapPositionEnum.end)
+                {
+                    roomIconPosition = mmc.transform;
+                }
+            }
+            Transform lastRoomLocation = startIconController.transform;
+            roomIconGroup.transform.position = new Vector3(lastRoomLocation.position.x, lastRoomLocation.position.y + 0.4f);
+        }
+
+        void GenerateRoomIcon(DungeonRoom dr, bool leftDirection)
+        {
+            GameObject roomIcon = Instantiate(roomIconTemplate, miniMap.transform);
+            miniMapIconController mmc = roomIcon.GetComponent<miniMapIconController>();
+            mmc.label = dr.gameObject.name;
+            if (iconControllers.Count > 0)
+            {
+                Transform lastRoomLocation = iconControllers[iconControllers.Count - 1].transform;
+                if (dr.isDetour)
+                {
+                    Transform parentRoomTransform = iconControllers.Where(o => o.label == dr.parentRoom.gameObject.name).FirstOrDefault().transform;
+                    float x = leftDirection ? parentRoomTransform.position.x - 0.4f : parentRoomTransform.position.x + 0.4f;
+                    mmc.ShowLine(leftDirection ? lineDirectionEnum.left : lineDirectionEnum.right);
+                    if (parentRoomTransform)
+                    {
+                        roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
+                    } else
+                    {
+                        roomIcon.transform.position = new Vector3(x, lastRoomLocation.position.y);
+                    }
+                } else
+                {
+                    mmc.ShowLine(lineDirectionEnum.down);
+                    Transform trueLocation = roomIconPosition != null ? roomIconPosition : iconControllers[iconControllers.Count - 1].transform;
+                    roomIcon.transform.position = new Vector3(trueLocation.position.x, trueLocation.position.y + 0.4f);
+                    roomIconPosition = roomIconPosition != null ? null : roomIconPosition;
+                }
+            }
+            dr.roomIcon = mmc;
+            iconControllers.Add(mmc);
+        }
+
+        bool CanAddEncounter(enemyEncounter ee)
+        {
+            return dungeonSettingsCopy.enemyEncounters.Count > 0 && !ee.spawnOnce && dungeonSettingsCopy.maxSmallEncounters > smallEncounters;
+        }
+
+        void GenerateCustomRooms(DungeonRoom parentRoom)
+        {
+            int randomIndex = Explore_Manager.gameManager.ReturnRandom(dungeonSettingsCopy.customRouteObjects.Count);
+            GameObject customRoute = dungeonSettingsCopy.customRouteObjects[randomIndex];
+            List<DungeonRoom> customRooms = new List<DungeonRoom>();
+            if (customRoute)
+            {
+                for (int c = 0; c < customRoute.transform.childCount; c++)
+                {
+                    GameObject customRoom = Instantiate(roomTemplate, explorerCanvas.transform);
+                    customRoom.name = $"CustomRoom_{c}";
+                    DungeonRoom dr = customRoom.GetComponent<DungeonRoom>();
+                    dr.isCustomRoom = true;
+                    dr.roomIcon = customRoute.transform.GetChild(c).GetComponent<miniMapCustomIcon>();
+                    if (c == 0)
+                    {
+                        dr.InheritRouteFromParent(parentRoom, routeTemplate);
+                    } else
+                    {
+                        dr.InheritRouteFromParent(customRooms[customRooms.Count - 1], routeTemplate);
+                    }
+                    GenerateRoomObject(dr, 3);
+                    customRooms.Add(dr);
+                    mainRooms.Add(dr);
+                }
+                if(customRooms.Any(o => o.name == "CustomRoom_0"))
+                {
+                    DungeonRoom firstCustomRoom = customRooms.Where(o => o.name == "CustomRoom_0").FirstOrDefault();
+                    DungeonRoom lastCustomRoom = customRooms.Where(o => o.name == $"CustomRoom_{customRooms.Count - 1}").FirstOrDefault();
+                    //firstCustomRoom.InheritRouteFromParent(lastCustomRoom, routeTemplate);
+                    lastCustomRoom.InheritRouteFromParent(firstCustomRoom, routeTemplate);
+                }
+            }
+            AddCustomRoomIcon(customRoute, iconControllers[iconControllers.Count - 1]);
+            dungeonSettingsCopy.customRouteObjects.RemoveAt(randomIndex);
+        }
+
+        bool CanGenerateCustomRoute(int roomCount)
+        {
+            int actualRoomPosition = dungeonSettings.minRooms - dungeonSettingsCopy.minRoomsBeforeCustomRoutes; //Do this because rooms are traversed backwards
+            return roomCount > 0 && dungeonSettings.minRooms != (roomCount + 1) && actualRoomPosition < roomCount && dungeonSettingsCopy.customRouteObjects.Count > 0;
+        }
+
+        bool CanLockDoor(int roomCount)
+        {
+            int actualLockedDoorPosition = dungeonSettings.minRooms - dungeonSettingsCopy.roomsBeforeLockedDoor; //Do this because rooms are traversed backwards
+            actualLockedDoorPosition = actualLockedDoorPosition == 2 ? 3 : actualLockedDoorPosition;
+            return dungeonSettings.minRooms != roomCount && roomCount != dungeonSettings.minRooms && roomCount >= actualLockedDoorPosition && dungeonSettingsCopy.locks.Count > 0;
+        }
+
+        void DropKeysInRoom(List<KeyItem> keys)
+        {
+            mainRooms.Reverse();
+            List<DungeonRoom> allowedRooms = mainRooms.Take(dungeonSettingsCopy.roomsBeforeLockedDoor).ToList();
+            for (int i = 0; i < keys.Count; i++)
+            {
+                DungeonRoom room = allowedRooms[Explore_Manager.gameManager.ReturnRandom(allowedRooms.Count)];
+                room.AddKey(keys[i], explorerItemTemplate);
+            }
+            mainRooms.Reverse();
+        }
+
+        void AddRandomEncounters()
+        {
+            var attempt = 0;
+            while (smallEncounters < dungeonSettingsCopy.maxSmallEncounters && attempt != 3)
+            {
+                foreach (DungeonRoom room in allRooms)
+                {
+                    if (dungeonSettingsCopy.enemyEncounters.Count > 0 && GetChance(2) && room.encounter == null && !room.isStartingRoom)
+                    {
+                        AddEncounter(room);
+                    }
+                }
+                ++attempt;
+            }
+        }
+
+        void AddEncounter(DungeonRoom dr)
+        {
+            int encounterIndex = Explore_Manager.gameManager.ReturnRandom(dungeonSettingsCopy.enemyEncounters.Count);
+            enemyEncounter ee = dungeonSettingsCopy.enemyEncounters[encounterIndex];
+            if (CanAddEncounter(ee))
+            {
+                dr.AddEncounter(ee, enemyEncounterTemplate);
+                ++smallEncounters;
+                Debug.Log($"Encounter created at {dr.name}");
+            }
+            else if (ee.spawnOnce)
+            {
+                dr.AddEncounter(ee, enemyEncounterTemplate);
+                dungeonSettingsCopy.locks.RemoveAt(encounterIndex);
+                ++largeEncounters;
+                Debug.Log($"Large encounter created at {dr.name}");
+            }
         }
 
         void GenerateRooms(int numberOfRooms)
         {
-            for (int i = 0; i < minRooms; i++)
+            List<KeyItem> savedKeys = new List<KeyItem>();
+            for (int i = 0; i < numberOfRooms; i++)
             {
-                GameObject room = Instantiate(roomTemplate);
-                DungeonRoom dr = room.GetComponent<DungeonRoom>();
-                room.tag = $"Room_{rooms.Count}";
-                if (rooms.Count > 1)
+                if (CanGenerateCustomRoute(i) /*&& GetChance(chanceToGenerateCustomRoute)*/)
                 {
-                    dr.InheritRouteFromParent(rooms[rooms.Count - 1]);
+                    GenerateCustomRooms(mainRooms[mainRooms.Count - 1]);
+                } else
+                {
+                    GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
+                    DungeonRoom dr = room.GetComponent<DungeonRoom>();
+                    room.name = $"Room_{mainRooms.Count}";
+                    dr.isStartingRoom = i == (numberOfRooms - 1);
+                    if (mainRooms.Count > 0)
+                    {
+                        DungeonRoom parentRoom = mainRooms[mainRooms.Count - 1];
+                        if (CanLockDoor(i) && GetChance(3))
+                        {
+                            Debug.Log($"Locked door created at {parentRoom.name}");
+                            int lockIndex = Explore_Manager.gameManager.ReturnRandom(dungeonSettingsCopy.locks.Count);
+                            parentRoom.lockObj = UnityEngine.Object.Instantiate(dungeonSettingsCopy.locks[lockIndex]);
+                            dungeonSettingsCopy.locks.RemoveAt(lockIndex);
+                            savedKeys.Add(parentRoom.lockObj.key);
+                        }
+                        dr.InheritRouteFromParent(parentRoom, routeTemplate);
+                    }
+                    GenerateRoomObject(dr, 3);
+                    mainRooms.Add(dr);
+                    if (!dr.isCustomRoom)
+                    {
+                        GenerateRoomIcon(dr, true);
+                    }
                 }
-                rooms.Add(dr);
             }
+            if (savedKeys.Count > 0)
+            {
+                DropKeysInRoom(savedKeys);
+            }
+        }
+
+        Transform GetFreeSection(DungeonRoom room)
+        {
+            bool freeSpot = false;
+            Transform result = null;
+            int count = 0;
+            while (!freeSpot && count < 5)
+            {
+                Transform section = room.foregroundHolder.transform.GetChild(Explore_Manager.gameManager.ReturnRandom(room.foregroundHolder.transform.childCount)).transform;
+                if (section.childCount == 0)
+                {
+                    result = section;
+                    freeSpot = true;
+                };
+                count++;
+            }
+            return result;
+        }
+
+        void GenerateRoomObject(DungeonRoom room, int amount)
+        {
+            amount = amount > 3 ? 3 : amount;
+            for (int i = 1; i <= amount; i++)
+            {
+                if (GetChance(3))
+                {
+                    GameObject objectT = Instantiate(objectTemplate, GetFreeSection(room));
+                    objectT.GetComponent<RoomObject>().GenerateItems(1);
+                }
+            }
+        }
+
+        DungeonRoom AddRoomFromParentRoom(DungeonRoom parentRoom, string suffix)
+        {
+            GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
+            DungeonRoom dr = room.GetComponent<DungeonRoom>();
+            room.name = $"{suffix}_Room_{Guid.NewGuid()}";
+            dr.CreateRouteFromRoom(parentRoom, routeTemplate);
+            if (suffix.ToLower() == "detour")
+            {
+                parentRoom.detourRooms.Add(dr);
+                dr.parentRoom = parentRoom;
+                dr.isDetour = true;
+            }
+            GenerateRoomObject(dr, 3);
+            return dr;
         }
 
         void GenerateDetours(int detourLength)
         {
-            rooms.ForEach(o =>
+            mainRooms.Where(m => !m.isCustomRoom).ToList().ForEach(o =>
             {
-                for (int i = 0; i < maxDetours; i++)
+                for (int i = 1; i <= (int)dungeonSettingsCopy.maxDetours; i++)
                 {
-                    if (GetChance(1))
+                    if (GetChance(1) && detourLength > 0)
                     {
-                        DungeonRoom r = AddRoom(o, "Detour");
-                        for (int x = 0; x < detourLength; x++)
+                        DungeonRoom r = AddRoomFromParentRoom(o, "Detour");
+                        GenerateRoomIcon(r, i == 1);
+                        if (r.roomIcon)
+                        {
+                            r.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
+                        }
+                        for (int x = 1; x <= detourLength; x++)
                         {
                             if (GetChance(1))
                             {
-                                AddRoom(r, "Detour");
+                                DungeonRoom parentRoom = r.detourRooms.Count == 0 ? r : r.detourRooms[r.detourRooms.Count - 1];
+                                DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour");
+                                GenerateRoomIcon(n, i == 1);
+                                if (n.roomIcon)
+                                {
+                                    n.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
+                                }
                             }
                         }
                     }
@@ -62,34 +386,30 @@ namespace AssemblyCSharp
             });
         }
 
-        bool GetChance(int maxChance)
+        public static bool GetChance(int maxChance)
         {
-            rand = UnityEngine.Random.Range(0, maxChance);
+            rand = UnityEngine.Random.Range(0, (maxChance + 1));
             return rand == 1;
         }
 
-        DungeonRoom AddRoom(DungeonRoom parentRoom, string suffix)
+        int ReturnRandom(int maxNumber)
         {
-            GameObject room = Instantiate(roomTemplate);
-            DungeonRoom dr = room.GetComponent<DungeonRoom>();
-            room.tag = $"Room_{rooms.Count}_{suffix}";
-            Route route = new Route();
-            route.UpdateRouteDetails($"{parentRoom.gameObject.tag}_Route_{suffix}", parentRoom.gameObject.tag, parentRoom.isLocked);
-
-            dr.routes.Add(route);
-            parentRoom.routes.Add(route);
-            ++dr.currentRoutes;
-            ++parentRoom.currentRoutes;
-
-            rooms.Add(dr);
-
-            return dr;
+            rand = UnityEngine.Random.Range(0, maxNumber);
+            return rand;
         }
 
-        public void LevelGenerator()
+        void GetTotalRoomsAndHide()
         {
-            GenerateRooms(minRooms);
-            GenerateDetours(maxDetourLength);
+            var allRoomGameObjects = GameObject.FindGameObjectsWithTag("dungeonRoom").ToList();
+            allRoomGameObjects.ForEach(o =>
+            {
+                allRooms.Add(o.GetComponent<DungeonRoom>());
+                o.SetActive(false);
+            });
+            mainRooms[mainRooms.Count - 1].gameObject.SetActive(true);
+            allRooms[allRooms.Count - 1].roomIcon.SetStartIcon();
+            allRooms[0].roomIcon.SetEndIcon();
+            backButton.gameObject.SetActive(false);
         }
     }
 }

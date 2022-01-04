@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    
     [System.Serializable]
     public class weaponModel : ScriptableObject {
         public bool enablesAutoAttacks;

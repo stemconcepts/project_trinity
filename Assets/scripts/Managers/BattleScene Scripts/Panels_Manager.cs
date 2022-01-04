@@ -16,7 +16,7 @@ namespace AssemblyCSharp
         public int sortingLayerNumber;
         public int panelNumber;
         //public bool isOccupied;
-        private RectTransform UItransform;
+       // private RectTransform UItransform;
         public bool isVoidZone;
         public bool isVoidCounter;
         public bool isThreatPanel;
@@ -27,12 +27,12 @@ namespace AssemblyCSharp
         public Color voidZoneColor;
         public Color counterZoneColor;
         public bool friendlyPanel;
-        private bool dragging = false;
+        //private bool dragging = false;
         public GameObject positionArrowType;
-        private float distance;
-        private Vector2 currentPosition;
-        private Task holdTimeTask;
-        private GameObject positionArrow;
+        //private float distance;
+        //private Vector2 currentPosition;
+        //private Task holdTimeTask;
+        //private GameObject positionArrow;
         public Image imageScript;
         public voidZoneType voidZonesTypes;
         public enum voidZoneType{
@@ -54,7 +54,7 @@ namespace AssemblyCSharp
             counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
             threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 1f);
             imageScript.color = isVoidZone ? voidZoneColor : isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
-            Invoke("SetPosition", 0.01f);
+            Invoke("SetPosition", 0.2f);
         }
 
         void SetPosition()

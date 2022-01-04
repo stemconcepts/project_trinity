@@ -8,9 +8,9 @@ namespace AssemblyCSharp
 {
     public class Game_Effects_Manager : MonoBehaviour
     {
-        private Task SloMoTask;
-        Vector3 originalCameraPosition;
-        float shakeAmt = 0;
+        //private Task SloMoTask;
+        //Vector3 originalCameraPosition;
+        //float shakeAmt = 0;
         private Camera mainCamera;
         private Task CancelShake;
         private Vector2 originalForPos;
@@ -25,7 +25,7 @@ namespace AssemblyCSharp
         void Awake()
         {
             mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-            originalCameraPosition = mainCamera.GetComponent<Transform>().position;
+            //originalCameraPosition = mainCamera.GetComponent<Transform>().position;
             originalCamGuidePos = camGuide.transform.position;
             originalForPos = foreGround.transform.position;
             originalMidPos = midGround.transform.position;

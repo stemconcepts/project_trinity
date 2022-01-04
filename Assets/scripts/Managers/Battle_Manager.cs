@@ -79,6 +79,7 @@ namespace AssemblyCSharp
             originalActionPoints = actionPoints;
             actionPointsText = GameObject.Find("SkillPointsText").GetComponent<Text>();
             playerTurnText = GameObject.Find("PlayerTurnText").GetComponent<Text>();
+            LoadEquipment();
             UpdateAPAmount();
         }
 
@@ -223,8 +224,25 @@ namespace AssemblyCSharp
             return !friendly ? characterSelectManager.enemyCharacters : characterSelectManager.friendlyCharacters;
         }
 
-        public void LoadSkillDisplay(){
-            
+        public void LoadEquipment(){
+            if (SavedDataManager.SavedDataManagerInstance != null)
+            {
+                //equips tank skills
+                AttachWeapon(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.weapon,
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.secondWeapon,
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.bauble, characterSelectManager.guardianObject);
+                AttachClassSkill(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.classSkill, characterSelectManager.guardianObject);
+                //equips healer skills
+                AttachWeapon(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.weapon,
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon,
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.bauble, characterSelectManager.walkerObject);
+                AttachClassSkill(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill, characterSelectManager.walkerObject);
+                //equips dps skills
+                AttachWeapon(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.weapon,
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.secondWeapon,
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.bauble, characterSelectManager.stalkerObject);
+                AttachClassSkill(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.classSkill, characterSelectManager.stalkerObject);
+            }
         }
 
         public static void ClearAllVoidZones()
@@ -269,6 +287,19 @@ namespace AssemblyCSharp
                     }
                 }
             }
+        }
+
+        public void AttachClassSkill(SkillModel equipedSkill, GameObject charData)
+        {
+            charData.GetComponent<Equipment_Manager>().classSkill = equipedSkill;
+            charData.GetComponent<Equipment_Manager>().PopulateSkills();
+        }
+
+        public void AttachWeapon(weaponModel equipedWeapon, weaponModel secondEquipedWeapon, bauble equipedBauble, GameObject charData)
+        {
+            charData.GetComponent<Equipment_Manager>().primaryWeapon = equipedWeapon;
+            charData.GetComponent<Equipment_Manager>().secondaryWeapon = secondEquipedWeapon;
+            charData.GetComponent<Equipment_Manager>().bauble = equipedBauble;
         }
 
         public static bool IsTankInThreatZone()

@@ -11,8 +11,10 @@ namespace AssemblyCSharp
         public RectTransform canvas;
         void Awake()
         {
-            canvas = GameObject.Find("Canvas - Tooltip").GetComponent<RectTransform>();
-            //rectTransform = GetComponent<RectTransform>();
+            if (!canvas)
+            {
+                canvas = GameObject.Find("Canvas - Tooltip").GetComponent<RectTransform>();
+            }
         }
 
         // Start is called before the first frame update

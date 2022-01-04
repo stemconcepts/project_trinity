@@ -56,12 +56,46 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\scripts\Helpers\sceneControl\sceneManager.cs" />
+    <Compile Include="Assets\scripts\Helpers\ToolTipTriggerController.cs" />
     <Compile Include="Assets\scripts\Managers\Base Class\Base_Character_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\Base Class\Base_Generic_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\equipControl.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\equipmentManager.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\hoverManager.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\itemBehaviour.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\itemData.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\itemDetailsControl.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\skillBuilder.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\slotBehaviour.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\slotManager.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\skillMenu\skillItemBehaviour.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\skillMenu\skillItemData.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\skillMenu\skillSlotManager.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\BackRoute.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\DungeonController Scrips\DungeonSettings.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\DungeonObjectBase.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\DungeonRoom.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\enemies\enemyEncounter.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\enemies\enemyEncounterController.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\ExplorerItemsController.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\KeyItem.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\LockObject.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapController.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapCustomIcon.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapIconBase.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapIconController.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\RoomObject.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\Route.cs" />
     <Compile Include="Assets\scripts\Managers\Explore_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\menuBtnConrol.cs" />
+    <Compile Include="Assets\scripts\Managers\Helpers\PersistentData.cs" />
+    <Compile Include="Assets\scripts\Managers\Helpers\SavedDataManager.cs" />
+    <Compile Include="Assets\scripts\Managers\ToolTipManager.cs" />
     <Compile Include="Assets\scripts\Models\characterModels\Resistances.cs" />
     <Compile Include="Assets\scripts\Managers\Helpers\Game_Effects_Manager.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\Consumable.cs" />
+    <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\ItemBase.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\SkillModel.cs" />
     <Compile Include="Assets\scripts\Models\equipmentModels\baubles\equipedBauble.cs" />
     <Compile Include="Assets\scripts\Models\damageModels\DamageModel.cs" />
@@ -107,7 +141,6 @@
     <Compile Include="Assets\scripts\Models\skillModels\GenericSkillModel.cs" />
     <Compile Include="Assets\scripts\Models\equipmentModels\baubles\bauble.cs" />
     <Compile Include="Assets\scripts\Models\equipmentModels\weaponModel.cs" />
-    <Compile Include="Assets\ExplorerManager.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\MovementArrowManager.cs" />
     <Compile Include="Assets\scripts\Managers\Battle_Manager.cs" />
     <Compile Include="Assets\scripts\Helpers\AssetFinder.cs" />
