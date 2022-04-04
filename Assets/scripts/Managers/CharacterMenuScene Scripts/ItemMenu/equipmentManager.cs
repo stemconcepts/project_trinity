@@ -8,7 +8,7 @@ namespace AssemblyCSharp
 	{
 		//public GameObject sceneControllerObject;
 		//sceneManager sceneControlScript;
-		public Game_Manager gameManager;
+		//public GameManager gameManager;
 		//public static equipmentManager _Instance;
 
 		public weaponModel tankWeaponObject;
@@ -31,22 +31,28 @@ namespace AssemblyCSharp
 
 		void Awake()
 		{
-			gameManager = GetComponent<Game_Manager>();
+			/*gameManager = GetComponent<GameManager>();
+			//Came from explorer scene -- GameManager should be instanced
+            if (gameManager == null)
+            {
+				GameObject explorerManager = GameObject.Find("ExplorerManager");
+				gameManager = explorerManager.GetComponent<GameManager>();
+            }*/
 		}
 
 		void Update()
 		{
 			if (tankWeaponObject && tankSecondWeaponObject && tankClassSkill != null)
 			{
-				gameManager.SceneManager.tankReady = true;
+				MainGameManager.instance.SceneManager.tankReady = true;
 			}
 			if (healerWeaponObject && healerSecondWeaponObject && healerClassSkill != null)
 			{
-				gameManager.SceneManager.healerReady = true;
+				MainGameManager.instance.SceneManager.healerReady = true;
 			}
 			if (dpsWeaponObject && dpsSecondWeaponObject && dpsClassSkill != null)
 			{
-				gameManager.SceneManager.dpsReady = true;
+				MainGameManager.instance.SceneManager.dpsReady = true;
 			}
 		}
 	}

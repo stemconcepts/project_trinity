@@ -34,7 +34,7 @@ namespace AssemblyCSharp
 
         public void SlowMo( float slowAmount ){
             Time.timeScale = slowAmount;
-            Battle_Manager.taskManager.CallSoloMoTask(1f);
+            BattleManager.taskManager.CallSoloMoTask(1f);
         }
 
         public void PanCamera(bool friendly)
@@ -64,13 +64,13 @@ namespace AssemblyCSharp
 
         public void MoveGameObject(GameObject gameObject, Vector2 newPositon, float speed, string taskName)
         {
-            if (Battle_Manager.taskManager.taskList.ContainsKey(taskName))
+            if (BattleManager.taskManager.taskList.ContainsKey(taskName))
             {
-                Battle_Manager.taskManager.taskList[taskName].Stop();
-                Battle_Manager.taskManager.taskList.Remove(taskName);
+                BattleManager.taskManager.taskList[taskName].Stop();
+                BattleManager.taskManager.taskList.Remove(taskName);
             }
             var myTask = new Task(MoveUntil(gameObject, newPositon, speed));
-            Battle_Manager.taskManager.taskList.Add(taskName, myTask);
+            BattleManager.taskManager.taskList.Add(taskName, myTask);
         }
         IEnumerator MoveUntil(GameObject gameObject, Vector2 newPosition, float speed)
         {
@@ -119,13 +119,13 @@ namespace AssemblyCSharp
         {
             skeletonAnimation.skeleton.Slots.ForEach(o =>
             {
-                Battle_Manager.taskManager.CallFadeOutSpineTask(o);
+                BattleManager.taskManager.CallFadeOutSpineTask(o);
             });
         }
 
         public void FadeOut(MeshRenderer renderer)
         {
-            Battle_Manager.taskManager.CallFadeOutMeshRendererTask(renderer);
+            BattleManager.taskManager.CallFadeOutMeshRendererTask(renderer);
         }
 
         public void ScreenShake( float shakeAmt, int frequency = 0 ){
@@ -136,7 +136,7 @@ namespace AssemblyCSharp
                 pp.y = originalCamGuidePos.y + quakeAmt;
                 pp.x = originalCamGuidePos.x + quakeAmt;
                 camGuide.transform.position = pp;
-                Battle_Manager.taskManager.CallTask(0.1f, () =>
+                BattleManager.taskManager.CallTask(0.1f, () =>
                     {
                         camGuide.transform.position = originalCamGuidePos;
                     }

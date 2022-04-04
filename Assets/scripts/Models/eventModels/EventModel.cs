@@ -6,8 +6,8 @@ namespace AssemblyCSharp
     public class EventModel
     {
         public string eventName;
-        public Character_Manager eventCaller;
-        public Character_Manager extTarget;
+        public BaseCharacterManager eventCaller;
+        public BaseCharacterManager extTarget;
         public float extraInfo;
         public EventModel()
         {

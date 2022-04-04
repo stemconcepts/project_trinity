@@ -8,6 +8,7 @@ namespace AssemblyCSharp
     {
         public bool isDetour, isCustomRoom, isStartingRoom;
         public LockObject lockObj;
+        private bool visited;
         public GameObject mainPanel;
         public GameObject encounterHolder;
         public GameObject foregroundHolder;
@@ -35,9 +36,9 @@ namespace AssemblyCSharp
         {
             if (encounter)
             {
-                Explore_Manager.gameManager.TaskManager.CallTask(3f, () =>
+                ExploreManager.gameManager.TaskManager.CallTask(3f, () =>
                 {
-                    Explore_Manager.gameManager.SceneManager.LoadBattle();
+                    ExploreManager.gameManager.SceneManager.LoadBattle(encounter.enemies);
                 });
             }
         }
@@ -108,6 +109,12 @@ namespace AssemblyCSharp
                 route.lockObj = room.lockObj;
             }
             routes.Add(route);
+        }
+
+        public void SetVisited()
+        {
+            this.visited = true;
+            roomIcon.SetVisited();
         }
     }
 }

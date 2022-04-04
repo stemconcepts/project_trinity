@@ -19,8 +19,8 @@ namespace AssemblyCSharp
         public float buffpower;
     	public int statusposition;
     	public bool active;
-    	public string hitAnim;
-    	public string holdAnim;
+    	public animationOptionsEnum hitAnim;
+    	public animationOptionsEnum holdAnim;
     	public statusFunction selectedStatusFunction;
     	public enum statusFunction {
     		AttributeChange,

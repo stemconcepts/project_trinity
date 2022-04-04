@@ -24,15 +24,15 @@ namespace AssemblyCSharp
 
 		public void AttachClassSkill(SkillModel equipedSkill, GameObject charData)
 		{
-			charData.GetComponent<Equipment_Manager>().classSkill = equipedSkill;
-			charData.GetComponent<Equipment_Manager>().PopulateSkills();
+			charData.GetComponent<EquipmentManager>().classSkill = equipedSkill;
+			charData.GetComponent<EquipmentManager>().PopulateSkills();
 		}
 
 		public void AttachWeapon(weaponModel equipedWeapon, weaponModel secondEquipedWeapon, bauble equipedBauble, GameObject charData)
 		{
-			charData.GetComponent<Equipment_Manager>().primaryWeapon = equipedWeapon;
-			charData.GetComponent<Equipment_Manager>().secondaryWeapon = secondEquipedWeapon;
-			charData.GetComponent<Equipment_Manager>().bauble = equipedBauble;
+			charData.GetComponent<EquipmentManager>().primaryWeapon = equipedWeapon;
+			charData.GetComponent<EquipmentManager>().secondaryWeapon = secondEquipedWeapon;
+			charData.GetComponent<EquipmentManager>().bauble = equipedBauble;
 		}
 
 		// Use this for initialization

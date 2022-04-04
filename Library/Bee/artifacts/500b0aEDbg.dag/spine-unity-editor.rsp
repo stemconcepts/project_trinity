@@ -108,6 +108,8 @@
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -r:"Assets/codeandweb.com/Editor/TexturePackerImporter.dll"
+-r:"Assets/Plugins/Demigiant/DOTween/DOTween.dll"
+-r:"Assets/Plugins/Demigiant/DOTween/Editor/DOTweenEditor.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEditor.Graphs.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll"
@@ -312,6 +314,7 @@
 -r:"C:/Users/Sean/OneDrive/Documents/HydraHorn/project_trinity/Library/PackageCache/com.unity.collab-proxy@1.5.7/Lib/Editor/PlasticSCM/unityplastic.dll"
 -r:"C:/Users/Sean/OneDrive/Documents/HydraHorn/project_trinity/Library/PackageCache/com.unity.ext.nunit@1.0.6/net35/unity-custom/nunit.framework.dll"
 -r:"C:/Users/Sean/OneDrive/Documents/HydraHorn/project_trinity/Library/PackageCache/com.unity.nuget.newtonsoft-json@2.0.0/Runtime/Newtonsoft.Json.dll"
+-r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-csharp.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/UnityEditor.TestRunner.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/UnityEditor.UI.ref.dll"
@@ -349,6 +352,7 @@
 "Assets/Spine/Editor/spine-unity/Editor/Utility/Icons.cs"
 "Assets/Spine/Editor/spine-unity/Editor/Utility/Instantiation.cs"
 "Assets/Spine/Editor/spine-unity/Editor/Utility/Preferences.cs"
+"Assets/Spine/Editor/spine-unity/Editor/Utility/SpineBuildProcessor.cs"
 "Assets/Spine/Editor/spine-unity/Editor/Utility/SpineEditorUtilities.cs"
 "Assets/Spine/Editor/spine-unity/Editor/Utility/SpineHandles.cs"
 "Assets/Spine/Editor/spine-unity/Editor/Utility/SpineInspectorUtility.cs"
@@ -360,7 +364,6 @@
 "Assets/Spine/Editor/spine-unity/Editor/Windows/SpriteAtlasImportWindow.cs"
 "Assets/Spine/Editor/spine-unity/Modules/SkeletonRenderSeparator/Editor/SkeletonPartsRendererInspector.cs"
 "Assets/Spine/Editor/spine-unity/Modules/SkeletonRenderSeparator/Editor/SkeletonRenderSeparatorInspector.cs"
-"Assets/Spine/Editor/spine-unity/Modules/SlotBlendModes/Editor/SlotBlendModesEditor.cs"
 -langversion:8.0
 
 /deterministic

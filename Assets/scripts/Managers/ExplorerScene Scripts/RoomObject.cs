@@ -13,9 +13,9 @@ namespace AssemblyCSharp
             amount = amount > 3 ? 3 : amount;
             for (int i = 1; i <= amount; i++)
             {
-                if (Explore_Manager.GetChance(1))
+                if (ExploreManager.GetChance(1))
                 {
-                    GameObject itemT = Instantiate(itemTemplate, itemsHolder.transform.GetChild(Explore_Manager.gameManager.ReturnRandom(itemsHolder.transform.childCount)).transform);
+                    GameObject itemT = Instantiate(itemTemplate, itemsHolder.transform.GetChild(ExploreManager.gameManager.ReturnRandom(itemsHolder.transform.childCount)).transform);
                 }
             }
         }

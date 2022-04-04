@@ -11,7 +11,7 @@ namespace AssemblyCSharp
     public class Task_Manager : MonoBehaviour
     {
         //public Base_Character_Manager baseManager;
-        public Battle_Details_Manager battleDetailsManager;
+        public BattleDetailsManager battleDetailsManager;
         public Dictionary<string, Task> taskList = new Dictionary<string, Task>();
         void Start()
         {
@@ -62,21 +62,21 @@ namespace AssemblyCSharp
                 statusModel.power = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
             }*/
 
-            var newPower = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
+            //var newPower = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
 
-            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName);
-            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName);
+            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName, statusModel.baseManager.characterManager.characterModel);
+            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName, statusModel.baseManager.characterManager.characterModel);
             var damageManager = statusModel.baseManager.damageManager;
             if (currentStat <= maxStat && currentStat > 0)
             {
                 if (statusModel.singleStatus.name == "regen")
                 {
-                    var damageModel = new DamageModel()
+                    var damageModel = new BaseDamageModel()
                     {
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         showExtraInfo = true,
-                        incomingHeal = newPower,
+                        incomingHeal = statusModel.power,
                         damageImmidiately = true,
                         fontSize = 150
                     };
@@ -84,14 +84,15 @@ namespace AssemblyCSharp
                 }
                 else
                 {
-                    var damageModel = new DamageModel()
+                    var damageModel = new BaseDamageModel()
                     {
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         showExtraInfo = true,
-                        incomingDmg = newPower,
+                        incomingDmg = statusModel.power,
                         damageImmidiately = true,
                         element = statusModel.singleStatus.element,
+                        textColor = statusModel.dmgTextColor,
                         fontSize = 100
                     };
                     damageManager.calculatedamage(damageModel);
@@ -107,14 +108,14 @@ namespace AssemblyCSharp
         }
         IEnumerator ChangePoints(StatusModel statusModel, System.Action action = null)
         {
-            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName);
-            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName);
+            var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName, statusModel.baseManager.characterManager.characterModel);
+            var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName, statusModel.baseManager.characterManager.characterModel);
             var damageManager = statusModel.baseManager.damageManager;
             while (currentStat <= maxStat && currentStat > 0)
             {
                 if (statusModel.singleStatus.name == "regen")
                 {
-                    var damageModel = new DamageModel() {
+                    var damageModel = new PlayerDamageModel() {
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         incomingHeal = statusModel.power,
@@ -125,7 +126,7 @@ namespace AssemblyCSharp
                 }
                 else
                 {
-                    var damageModel = new DamageModel(){
+                    var damageModel = new PlayerDamageModel(){
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         incomingDmg = statusModel.power,
@@ -217,11 +218,11 @@ namespace AssemblyCSharp
             }
         }
 
-        public void MoveForwardTask(Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject effect)
+        public void MoveForwardTask(BaseCharacterManagerGroup movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject effect)
         {
             var myTask = new Task(moveForward( movingObjectScripts, targetpos, effect, movementSpeed));
         }
-        IEnumerator moveForward( Base_Character_Manager movingObjectScripts, Vector2 targetPosVar, GameObject effect, float movementSpeedVar ){
+        IEnumerator moveForward( BaseCharacterManagerGroup movingObjectScripts, Vector2 targetPosVar, GameObject effect, float movementSpeedVar ){
             if (effect)
             {
                 movingObjectScripts.effectsManager.CallEffect(effect, "bottom");
@@ -234,11 +235,11 @@ namespace AssemblyCSharp
             }
         }
 
-        public void StartMoveTask( Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject dashEffect = null, System.Action action = null)
+        public void StartMoveTask( BaseCharacterManagerGroup movingObjectScripts, float movementSpeed, Vector2 targetpos, GameObject dashEffect = null, System.Action action = null)
         {
             var myTask = new Task(StartMove( movingObjectScripts, 0.009f, targetpos, dashEffect, movementSpeed));
         }
-        public IEnumerator StartMove( Base_Character_Manager movingObjectScripts, float waitTime, Vector2 panelPosVar, GameObject dashEffect, float movementSpeedVar ){
+        public IEnumerator StartMove( BaseCharacterManagerGroup movingObjectScripts, float waitTime, Vector2 panelPosVar, GameObject dashEffect, float movementSpeedVar ){
             if (dashEffect != null)
             {
                 movingObjectScripts.effectsManager.CallEffect(dashEffect, "bottom");
@@ -251,11 +252,11 @@ namespace AssemblyCSharp
             }
         }
 
-        public void moveBackTask(Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 origPosVar, Vector2 currentPosition )
+        public void moveBackTask(BaseCharacterManagerGroup movingObjectScripts, float movementSpeed, Vector2 origPosVar, Vector2 currentPosition )
         {
             var myTask = new Task(moveBackward( movingObjectScripts, movementSpeed, origPosVar, currentPosition));
         }
-        IEnumerator moveBackward( Base_Character_Manager movingObjectScripts, float movementSpeed, Vector2 origPosVar, Vector2 currentPosition ){
+        IEnumerator moveBackward( BaseCharacterManagerGroup movingObjectScripts, float movementSpeed, Vector2 origPosVar, Vector2 currentPosition ){
             while( (Vector2)movingObjectScripts.gameObject.transform.position != origPosVar  ){
                 float step = movementSpeed * Time.deltaTime;
                 movingObjectScripts.gameObject.transform.position = Vector2.MoveTowards(movingObjectScripts.gameObject.transform.position, origPosVar, step);     
@@ -265,8 +266,8 @@ namespace AssemblyCSharp
 
         public bool waitForTargetTask( GameObject character, SkillModel classSkill = null, bool weaponSkill = true, System.Action skillAction = null)
         {
-            Battle_Manager.waitingForSkillTarget = true;
-            Battle_Manager.offensiveSkill = classSkill.enemy;
+            BattleManager.waitingForSkillTarget = true;
+            BattleManager.offensiveSkill = classSkill.enemy;
             var myTask = new Task(waitForTarget( classSkill, character, weaponSkill, skillAction));
             if (!taskList.ContainsKey("waitForTarget"))
             {
@@ -276,26 +277,23 @@ namespace AssemblyCSharp
         }
         public IEnumerator waitForTarget( SkillModel classSkill, GameObject player, bool weaponSkill = true, System.Action skillAction = null)
         {
-            Battle_Manager.gameEffectManager.SlowMo(0.01f);
-            var bm = player.GetComponent<Base_Character_Manager>();
+            BattleManager.gameEffectManager.SlowMo(0.01f);
+            var bm = player.GetComponent<CharacterManagerGroup>();
             var target = bm.skillManager.currenttarget;
             while( target == null ) {
                 if( bm.statusManager.DoesStatusExist("stun") ){
-                    ((Player_Skill_Manager)bm.skillManager).SkillActiveSet(classSkill, false);
-                    Battle_Manager.waitingForSkillTarget = false;
+                    ((PlayerSkillManager)bm.skillManager).SkillActiveSet(classSkill, false);
+                    BattleManager.waitingForSkillTarget = false;
                     //bm.skillManager.finalTargets.Clear();
                     Time.timeScale = 1f;
                     yield break;
                 }
-                target = player.GetComponent<Skill_Manager>().currenttarget;
+                target = player.GetComponent<PlayerSkillManager>().currenttarget;
                 yield return 0;
             }
-            Battle_Manager.waitingForSkillTarget = false;
+            BattleManager.waitingForSkillTarget = false;
             bm.skillManager.finalTargets.Add( target );
-            if (skillAction != null)
-            {
-                skillAction();
-            }
+            skillAction?.Invoke();
             Time.timeScale = 1f;
         }
 
@@ -385,7 +383,7 @@ namespace AssemblyCSharp
         public IEnumerator CompareTurns(int turnToCheck, Action action)
         {
             yield return new WaitForSeconds(0.5f);
-            while (Battle_Manager.turnCount < turnToCheck)
+            while (BattleManager.turnCount < turnToCheck)
             {
                 yield return null;
             }

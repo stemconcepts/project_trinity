@@ -20,7 +20,7 @@ namespace AssemblyCSharp
             if (allowedPathSprites.Count > 0)
             {
                 spriteRenderer = GetComponent<SpriteRenderer>();
-                spriteRenderer.sprite = allowedPathSprites[Explore_Manager.gameManager.ReturnRandom(allowedPathSprites.Count)];
+                spriteRenderer.sprite = allowedPathSprites[ExploreManager.gameManager.ReturnRandom(allowedPathSprites.Count)];
             }
         }
 

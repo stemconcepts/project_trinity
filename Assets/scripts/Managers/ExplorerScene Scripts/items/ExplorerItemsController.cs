@@ -37,9 +37,9 @@ namespace AssemblyCSharp
 
         void OnMouseUp()
         {
-            Explore_Manager.AddToObtainedItems(itemBase);
+            ExploreManager.AddToObtainedItems(itemBase);
             this.gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
-            this.gameObject.transform.SetParent(Explore_Manager.inventoryHolder.transform);
+            this.gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform);
         }
     }
 }

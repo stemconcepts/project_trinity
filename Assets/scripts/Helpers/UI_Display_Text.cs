@@ -10,19 +10,19 @@ namespace AssemblyCSharp
         private Text displayText;
         public string healthdata;
         public bool On = true;
-        public Character_Manager characterManager;
+        public CharacterManager characterManager;
         public GameObject characterObject;
 
         public UI_Display_Text()
         {
         }
         void Start(){
-            if( On ){
+            /*if( On ){
                 if( characterObject ){
-                    characterManager = characterObject.GetComponent<Base_Character_Manager>().characterManager;
+                    characterManager = characterObject.GetComponent<Character_Manager_Group>().characterManager;
                 }
                 displayText = GetComponent<Text>();
-            }
+            }*/
         }
 
         void Update () {
@@ -38,11 +38,11 @@ namespace AssemblyCSharp
             }
         }
         
-        public void SetDataObjects( int i ){
+        /*public void SetDataObjects( int i ){
             characterObject = transform.parent.parent.parent.GetChild(2 + i).gameObject;
             characterManager = transform.parent.parent.parent.GetChild(2 + i).GetComponent<Character_Manager>();
             displayText = GetComponent<Text>();
-        }
+        }*/
     }
 }
 

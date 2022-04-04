@@ -2,95 +2,208 @@
 using Spine;
 using UnityEngine;
 using Spine.Unity;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
+    public enum animationOptionsEnum
+    {
+        none,
+        intro,
+        idle,
+        idleHeavy,
+        hop,
+        hopHeavy,
+        hit,
+        hitHeavy,
+        toHeavy,
+        stunned,
+        toStunned,
+        stunToIdle,
+        //Attacks
+        attack1,
+        attack1Heavy,
+        attack2,
+        attack3,
+        attack4,
+        rangeAttack,
+        rangeAttackHeavy,
+        attackCharge,
+        attackChargeWait,
+        attackRelease,
+        jumpAttack,
+        jumpAttackHeavy,
+        jumpAttackHeavy2,
+        castAoe,
+        castSelf,
+        castSelf2,
+        castTarget,
+        crush,
+        toDeath,
+        death
+    };
+
     [System.Serializable]
     public class Animation_Manager : MonoBehaviour
     {
-        public Base_Character_Manager baseManager;
+        public BaseCharacterManagerGroup baseManager;
         public SkeletonAnimation skeletonAnimation;
+        public SkeletonAnimationMulti skeletonAnimationMulti;
         public MeshRenderer meshRenderer;
         public bool inAnimation;
-        public string idleAnimation;
-        public string hopAnimation;
-        public string hitAnimation;
-        public string toHeavy;
-        public string stunToIdle;
-        public string attackAnimation;
+        public animationOptionsEnum idleAnimation;
+        public animationOptionsEnum hopAnimation;
+        public animationOptionsEnum hitAnimation;
+        public animationOptionsEnum toHeavy;
+        public animationOptionsEnum stunToIdle;
+        public animationOptionsEnum attackAnimation;
+        private float timeTillNextIdle;
+
         void Awake()
         {
-            idleAnimation = "idle";
-            hopAnimation = "hop";
-            hitAnimation = "hit";
-            toHeavy = "toHeavy";
-            stunToIdle = "stunToIdle";
-            attackAnimation = "attack1";
-            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            idleAnimation = animationOptionsEnum.idle;
+            hopAnimation = animationOptionsEnum.hop;
+            hitAnimation =  animationOptionsEnum.hit;
+            toHeavy = animationOptionsEnum.toHeavy;
+            stunToIdle = animationOptionsEnum.stunToIdle;
+            attackAnimation = animationOptionsEnum.attack1;
+            baseManager = this.gameObject.GetComponent<BaseCharacterManagerGroup>();
             skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
+            skeletonAnimationMulti = this.transform.Find("Animations").GetComponent<SkeletonAnimationMulti>();
+        }
+
+        void Update()
+        {
+            
+        }
+
+        public Bounds GetSpriteBounds()
+        {
+            List<MeshRenderer> mr = skeletonAnimationMulti != null ? skeletonAnimationMulti.GetMeshRenderers() : new List<MeshRenderer>();
+            if (mr.Count > 0)
+            {
+                return mr[0].bounds;
+            }
+            return meshRenderer.bounds;
+        }
+
+        void IdleToggle()
+        {
+            if (skeletonAnimation.state.Data.SkeletonData.FindAnimation("idle2") != null && BattleManager.gameManager.GetChance(5))
+            {
+                var duration = PlaySetAnimation("idle2", false);
+                PlayAddAnimation("idle", true, duration);
+                //skeletonAnimation.state.SetAnimation(0, "intro", false);
+                //skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
+            }
+            BattleManager.taskManager.CallTask(5f, () =>
+            {
+                IdleToggle();
+            });
         }
 
         void Start()
         {
             if( skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
             {
-                skeletonAnimation.state.SetAnimation(0, "intro", false);
-                skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
+                PlaySetAnimation("intro", false);
+                PlayAddAnimation("idle", true);
+                //skeletonAnimation.state.SetAnimation(0, "intro", false);
+                //skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
             } else
             {
-                skeletonAnimation.state.SetAnimation(0, "idle", true);
+                PlaySetAnimation("idle", true);
+                //skeletonAnimation.state.SetAnimation(0, "idle", true);
             }
+            IdleToggle();
         }
 
         public void SetSortingLayer(int sortingLayer ){
-            meshRenderer.sortingOrder = sortingLayer;
+            if (skeletonAnimationMulti != null)
+            {
+                //Set instantiated animation gameobject properties
+                skeletonAnimationMulti.GetMeshRenderers().ForEach(o => {
+                    o.gameObject.layer = 8; 
+                    o.sortingOrder = sortingLayer;
+                    o.sortingLayerName = "characters";
+                    });
+            } else if(meshRenderer != null)
+            {
+                meshRenderer.sortingOrder = sortingLayer;
+            }   
         }
 
         public void SetBusyAnimation( float animationDuration ){
-            Battle_Manager.taskManager.CallTask( animationDuration, () => {
+            BattleManager.taskManager.CallTask( animationDuration, () => {
                 inAnimation = false;
             });
         }
 
-        public float PlayAnimation( string animationName, bool loop = false)
+        public float PlaySetAnimation( string animationName, bool loop = false)
         {
-            skeletonAnimation.state.SetAnimation(0, animationName, loop);
-            return skeletonAnimation.state.SetAnimation(0, animationName, loop).Animation.Duration;
+            if (skeletonAnimationMulti != null && skeletonAnimationMulti.FindAnimation(animationName) != null)
+            {
+                var trackEntry = skeletonAnimationMulti.SetAnimation(animationName, loop);
+                return trackEntry.Animation.Duration;
+            } else
+            {
+                var trackEntry = skeletonAnimation.state.SetAnimation(0, animationName, loop);
+                return trackEntry.Animation.Duration;
+            }
         }
 
-        public void AddStatusAnimation( bool addAnimation, string animationName, string holdAnimation = null ){
+        public float PlayAddAnimation(string animationName, bool loop = false, float delay = 0)
+        {
+            if (skeletonAnimationMulti != null && skeletonAnimationMulti.FindAnimation(animationName) != null)
+            {
+                var trackEntry = skeletonAnimationMulti.AddAnimation(animationName, loop, delay);
+                return trackEntry.Animation.Duration;
+            }
+            else
+            {
+                var trackEntry = skeletonAnimation.state.AddAnimation(0, animationName, loop, delay);
+                return trackEntry.Animation.Duration;
+            }
+        }
+
+        public void AddStatusAnimation( bool addAnimation, animationOptionsEnum animationName, animationOptionsEnum holdAnimation = animationOptionsEnum.none)
+        {
             if( addAnimation ){
-                if( animationName == "toDeath" ){
+                if( animationName == animationOptionsEnum.toDeath)
+                {
+                    PlaySetAnimation("toDeath", false);
                     skeletonAnimation.state.SetAnimation( 0, "toDeath", false);
                 } else {
                     if ( !inAnimation )
                     {
-                        skeletonAnimation.state.SetAnimation(0, animationName, false);
+                        PlaySetAnimation(animationName.ToString(), false);
+                        //skeletonAnimation.state.SetAnimation(0, animationName.ToString(), false);
                     }
-                    if (!string.IsNullOrEmpty(holdAnimation))
+                    if (holdAnimation == animationOptionsEnum.none)
                     {
                         hitAnimation = animationName;
                         idleAnimation = holdAnimation;
-                        skeletonAnimation.state.AddAnimation(0, holdAnimation, true, 0);
+
+                        PlayAddAnimation(holdAnimation.ToString(), true);
+                        //skeletonAnimation.state.AddAnimation(0, holdAnimation.ToString(), true, 0);
                     }
                 }
             } else {
-                hitAnimation = "hit";
-                idleAnimation = "idle";
-                //skeletonAnimation.state.SetAnimation(0, stunToIdle, false );
-                //baseManager.damageManager.charDamageModel.hitAnimation = "";       
-                //baseManager.damageManager.charDamageModel.animationHold = addStatus;
-                var animationDuration = skeletonAnimation.state.SetAnimation(0, stunToIdle, false).Animation.Duration;
-                skeletonAnimation.state.AddAnimation(0, idleAnimation, true, animationDuration);
+                hitAnimation = animationOptionsEnum.hit;
+                idleAnimation = animationOptionsEnum.idle;
+                var animationDuration = PlaySetAnimation(stunToIdle.ToString(), false);
+                PlayAddAnimation(idleAnimation.ToString(), false, animationDuration);
+                //var animationDuration = skeletonAnimation.state.SetAnimation(0, stunToIdle.ToString(), false).Animation.Duration;
+                //skeletonAnimation.state.AddAnimation(0, idleAnimation.ToString(), true, animationDuration);
                 SetBusyAnimation(animationDuration);
             }
         }
 
-        public void SetHitIdleAnimation(string hitAnimation, string hitIdleAnimation)
+        public void SetHitIdleAnimation(animationOptionsEnum hitAnimation, animationOptionsEnum hitIdleAnimation)
         {
-            this.hitAnimation = !string.IsNullOrEmpty(hitAnimation) ? hitAnimation : this.hitAnimation;
-            this.idleAnimation = !string.IsNullOrEmpty(hitIdleAnimation) ? hitIdleAnimation : this.idleAnimation;
+            this.hitAnimation = hitAnimation != animationOptionsEnum.none ? hitAnimation : this.hitAnimation;
+            this.idleAnimation = hitIdleAnimation != animationOptionsEnum.none ? hitIdleAnimation : this.idleAnimation;
         }
     }
 }

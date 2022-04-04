@@ -6,7 +6,7 @@ namespace AssemblyCSharp
 {
     public class EffectOnEventModel : ScriptableObject {
         public GameObject owner;
-        public Character_Manager target;
+        public BaseCharacterManager target;
         public bool affectSelf;
         public float power;
         public float coolDown;
@@ -43,19 +43,19 @@ namespace AssemblyCSharp
         }
 
         public void RunEffect(){
-            if ( Battle_Manager.eventManager.eventModel.eventName == trigger && owner.name == Battle_Manager.eventManager.eventModel.eventCaller.name && ready && CheckChance( triggerChance ) ){
-                target = affectSelf ? Battle_Manager.eventManager.eventModel.eventCaller : Battle_Manager.eventManager.eventModel.extTarget;
-                var baseManager = target.GetComponent<Base_Character_Manager>();
-                var extraPower = Battle_Manager.eventManager.eventModel.extraInfo != 0 ? Battle_Manager.eventManager.eventModel.extraInfo * power : power;
+            if ( BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready && CheckChance( triggerChance ) ){
+                target = affectSelf ? BattleManager.eventManager.eventModel.eventCaller : BattleManager.eventManager.eventModel.extTarget;
+                var baseManager = target.GetComponent<BaseCharacterManagerGroup>();
+                var extraPower = BattleManager.eventManager.eventModel.extraInfo != 0 ? BattleManager.eventManager.eventModel.extraInfo * power : power;
                 var targetDmgCalc = baseManager.damageManager; //add functionality to effect multiple targets
                 var targetStatus = baseManager.statusManager;
-                DamageModel dm = new DamageModel();
+                PlayerDamageModel dm = new PlayerDamageModel();
                 switch( effect ) {
                 case effectGrp.None:
                         break;
                 case effectGrp.Reset:
-                        var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute);
-                        baseManager.characterManager.SetAttribute(focusAttribute, origAttribute);
+                        var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute, baseManager.characterManager.characterModel);
+                        baseManager.characterManager.SetAttribute(focusAttribute, origAttribute, baseManager.characterManager.characterModel);
                         break;
                 case effectGrp.Heal:
                         dm.incomingHeal = extraPower != 0 ? extraPower : power;
@@ -69,11 +69,11 @@ namespace AssemblyCSharp
                         targetDmgCalc.calculateFlatDmg( dm );
                         break;
                 case effectGrp.StatChange:
-                        baseManager.characterManager.SetAttribute(focusAttribute, power);
+                        baseManager.characterManager.SetAttribute(focusAttribute, power, baseManager.characterManager.characterModel);
                         break;
                 case effectGrp.EquipmentStatChange:
-                        baseManager.characterManager.SetAttribute("original" + focusAttribute, power);
-                        baseManager.characterManager.SetAttribute(focusAttribute, power);
+                        baseManager.characterManager.SetAttribute("original" + focusAttribute, power, baseManager.characterManager.characterModel);
+                        baseManager.characterManager.SetAttribute(focusAttribute, power, baseManager.characterManager.characterModel);
                         break;
                 case effectGrp.Status:
                         if( singleStatusGroupFriendly.Count > 0 ){
@@ -104,7 +104,7 @@ namespace AssemblyCSharp
                         }
                         break;
                 }
-                Battle_Manager.taskManager.CallTask(coolDown, () =>
+                BattleManager.taskManager.CallTask(coolDown, () =>
                 {
                     ready = true;
                 });
@@ -113,25 +113,25 @@ namespace AssemblyCSharp
 
         public void RunResetEffect()
         {
-            if (Battle_Manager.eventManager.eventModel.eventName == trigger && owner.name == Battle_Manager.eventManager.eventModel.eventCaller.name && ready && CheckChance(triggerChance))
+            if (BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready && CheckChance(triggerChance))
             {
-                target = affectSelf ? Battle_Manager.eventManager.eventModel.eventCaller : Battle_Manager.eventManager.eventModel.extTarget;
-                var baseManager = target.GetComponent<Base_Character_Manager>();
-                var extraPower = Battle_Manager.eventManager.eventModel.extraInfo != 0 ? Battle_Manager.eventManager.eventModel.extraInfo * power : power;
+                target = affectSelf ? BattleManager.eventManager.eventModel.eventCaller : BattleManager.eventManager.eventModel.extTarget;
+                var baseManager = target.GetComponent<BaseCharacterManagerGroup>();
+                var extraPower = BattleManager.eventManager.eventModel.extraInfo != 0 ? BattleManager.eventManager.eventModel.extraInfo * power : power;
                 var targetDmgCalc = baseManager.damageManager; //add functionality to effect multiple targets
                 var targetStatus = baseManager.statusManager;
-                DamageModel dm = new DamageModel();
+                PlayerDamageModel dm = new PlayerDamageModel();
                 switch (effect)
                 {
                     case effectGrp.None:
                         break;
                     case effectGrp.Reset:
-                        var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute);
-                        baseManager.characterManager.SetAttribute(focusAttribute, origAttribute);
+                        var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute, baseManager.characterManager.characterModel);
+                        baseManager.characterManager.SetAttribute(focusAttribute, origAttribute, baseManager.characterManager.characterModel);
                         break;
                     
                 }
-                Battle_Manager.taskManager.CallTask(coolDown, () =>
+                BattleManager.taskManager.CallTask(coolDown, () =>
                 {
                     ready = true;
                 });

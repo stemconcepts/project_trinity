@@ -7,14 +7,14 @@ namespace AssemblyCSharp
 {
     public class Effects_Manager : MonoBehaviour
     {
-        public Base_Character_Manager baseManager;
+        public BaseCharacterManagerGroup baseManager;
         public GameObject fxBottom;
         public GameObject fxFront;
         public GameObject fxCenter;
         public GameObject stompEffect;
         void Start()
         {
-            baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
+            baseManager = this.gameObject.GetComponent<BaseCharacterManagerGroup>();
         }
 
         public void CallEffect( GameObject fxObject, string position = "center" ){
@@ -40,8 +40,8 @@ namespace AssemblyCSharp
             }   
         }
     
-        public void callEffectTarget( Character_Manager target, GameObject fxObject, string position = "center"){
-            fxObject.GetComponent<ParticleSystemRenderer>().sortingLayerName = "SFX";
+        public void callEffectTarget(BaseCharacterManager target, GameObject fxObject, string position = "center"){
+            //fxObject.GetComponent<ParticleSystemRenderer>().sortingLayerName = "SFX";
             var x = fxObject.GetComponentsInChildren<ParticleSystemRenderer>().ToList();
             x.ForEach(o =>
             {

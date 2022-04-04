@@ -107,6 +107,7 @@
 -define:UNITY_POST_PROCESSING_STACK_V2
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
+-r:"Assets/Plugins/Demigiant/DOTween/DOTween.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.dll"
@@ -311,9 +312,8 @@
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/com.unity.multiplayer-hlapi.Runtime.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/com.unity.multiplayer-weaver.Editor.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/Purchasing.Common.ref.dll"
+-r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-csharp.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity-editor.ref.dll"
--r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity-examples-editor.ref.dll"
--r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity-examples.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/Unity.2D.Sprite.Editor.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/Unity.2D.Tilemap.Editor.ref.dll"
@@ -355,6 +355,14 @@
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/UnityEngine.SpatialTracking.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/UnityEngine.UI.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/UnityEngine.XR.LegacyInputHelpers.ref.dll"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleAudio.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleEPOOutline.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModulePhysics2D.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleSprite.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUI.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUnityVersion.cs"
+"Assets/Plugins/Demigiant/DOTween/Modules/DOTweenModuleUtils.cs"
 "Assets/Standard Assets/2D/Scripts/Camera2DFollow.cs"
 "Assets/Standard Assets/2D/Scripts/CameraFollow.cs"
 "Assets/Standard Assets/2D/Scripts/Platformer2DUserControl.cs"

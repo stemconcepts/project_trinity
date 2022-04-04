@@ -1,0 +1,155 @@
+slugMaggot.png
+size:1095,269
+filter:Linear,Linear
+pma:true
+Layer 10
+bounds:133,2,100,71
+offsets:1,1,103,73
+Layer 11
+bounds:631,156,280,111
+Layer 12
+bounds:235,2,71,64
+offsets:1,2,73,67
+rotate:90
+Layer 13
+bounds:290,75,54,70
+offsets:2,1,57,73
+rotate:90
+Layer 14
+bounds:366,7,59,66
+offsets:1,2,61,70
+Layer 15
+bounds:642,2,39,33
+offsets:1,1,43,39
+rotate:90
+Layer 16
+bounds:362,75,54,54
+offsets:1,2,56,57
+Layer 17
+bounds:818,4,40,45
+offsets:1,2,43,49
+rotate:90
+Layer 18
+bounds:443,77,51,60
+offsets:2,1,54,63
+Layer 19
+bounds:752,46,107,108
+offsets:1,1,109,110
+Layer 20
+bounds:496,80,57,26
+offsets:1,1,59,28
+rotate:90
+Layer 21
+bounds:865,4,77,47
+offsets:1,1,79,49
+Layer 22
+bounds:66,2,43,23
+offsets:1,2,45,26
+rotate:90
+Layer 23
+bounds:91,3,42,40
+offsets:1,1,44,42
+rotate:90
+Layer 24
+bounds:513,23,55,25
+offsets:1,1,57,27
+rotate:90
+Layer 25
+bounds:513,3,18,36
+offsets:1,1,20,38
+rotate:90
+Layer 26
+bounds:551,6,41,16
+offsets:1,1,44,18
+Layer 27
+bounds:418,77,52,23
+offsets:1,1,54,25
+rotate:90
+Layer 28
+bounds:789,3,41,27
+offsets:1,1,43,29
+rotate:90
+Layer 29
+bounds:39,2,43,25
+offsets:1,1,45,27
+rotate:90
+Layer 3
+bounds:290,131,136,132
+offsets:1,1,138,134
+rotate:90
+Layer 30
+bounds:2,2,35,43
+offsets:1,1,42,45
+Layer 31
+bounds:484,14,61,27
+offsets:1,1,63,29
+rotate:90
+Layer 32
+bounds:1060,70,31,22
+offsets:1,1,33,24
+Layer 4
+bounds:540,24,113,100
+offsets:2,1,116,102
+rotate:90
+Layer 5
+bounds:961,7,97,85
+offsets:1,1,99,87
+Layer 6
+bounds:1011,182,85,82
+offsets:1,2,89,85
+rotate:90
+Layer 7
+bounds:642,43,108,111
+offsets:2,1,111,113
+Layer 8
+bounds:913,169,98,96
+offsets:2,1,101,98
+rotate:90
+Layer 9
+bounds:861,53,101,98
+offsets:1,1,103,100
+rotate:90
+body
+bounds:114,75,174,192
+head
+bounds:301,3,70,63
+offsets:1,1,73,65
+rotate:90
+mand1_2
+bounds:1060,42,26,30
+offsets:1,1,28,32
+rotate:90
+mandi1_0
+bounds:704,5,23,36
+offsets:1,1,25,38
+mandi1_1
+bounds:758,2,42,29
+offsets:1,1,44,31
+rotate:90
+mandi2_0
+bounds:677,4,25,37
+offsets:1,1,27,39
+mandi2_1
+bounds:1060,15,30,25
+offsets:1,1,32,27
+mandi2_2
+bounds:729,7,34,27
+offsets:1,1,36,29
+rotate:90
+shell1
+bounds:1011,94,81,86
+offsets:1,1,83,88
+shell2
+bounds:424,139,128,119
+offsets:1,1,130,121
+rotate:90
+shell3
+bounds:545,154,84,113
+offsets:1,1,86,115
+shell4
+bounds:2,47,220,110
+offsets:1,1,222,112
+rotate:90
+shell5
+bounds:427,9,55,66
+offsets:1,1,57,68

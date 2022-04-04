@@ -6,7 +6,7 @@ namespace AssemblyCSharp
     public enum elementType
     {
         none,
-        bleed,
+        physical,
         poison,
         fire,
         water,

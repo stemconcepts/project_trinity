@@ -5,6 +5,16 @@ using System.Collections;
 
 namespace AssemblyCSharp
 {
+    public enum DamageColorEnum
+    {
+        White,
+        Red,
+        Blue,
+        Green,
+        Yellow,
+        Purple
+    }
+
     public class Floating_Combat_Text : Generic_Manager
     {
         private float currentPositionX;
@@ -21,6 +31,7 @@ namespace AssemblyCSharp
         public int fixedData;
         public GameObject textObject;
         private Text displayText;
+        public DamageColorEnum textColor;
         public int fontSize;
 
         void Move(){
@@ -38,18 +49,19 @@ namespace AssemblyCSharp
         void CreateData() {
             displayText = textObject.GetComponent<Text>();
             displayText.fontSize = fontSize == 0 ? 200 : fontSize;
-            if ( isDmg ){
+            if (isDmg){
                 //displayText.text = skillLabel + ": -" + damageData.ToString();
                 displayText.text = string.IsNullOrEmpty(extraInfo) ? (showDmgNumber ? damageData.ToString() : "") : (showDmgNumber ? damageData.ToString() : "") + extraInfo;
+                displayText.color = ConvertEnumToColor(textColor);
                 //displayText.text += (modifiedDamage ? "*" : "");
             } else 
-            if ( isAbsorb ) {
+            if (isAbsorb) {
                 //displayText.text = skillLabel + ":" + absorbData.ToString();
                 displayText.text = /*absorbData.ToString() +*/extraInfo;
                 displayText.color = new Color(0.1f, 0.5f, 0.9f, 1f);
                 //displayText.text += (modifiedDamage ? "*" : "");
             } else 
-            if ( isImmune ) {
+            if (isImmune) {
                     //displayText.text = skillLabel + ": Immune";
                     displayText.text = "Immune";
                     displayText.color = Color.white;
@@ -60,26 +72,51 @@ namespace AssemblyCSharp
                 //displayText.text += (modifiedDamage ? "*" : "");
             }
         }
-    
+
         // Use this for initialization
-        void Start () {
+        void Start()
+        {
             CreateData();
-                    CanvasGroup cg = displayText.GetComponent<CanvasGroup>();
-                        if( cg ) {
-                            cg.alpha = 1;
-                            canvasFader cf = cg.gameObject.GetComponent<canvasFader>();
-            
-                            if ( cf ){
-                                cf.Restart();
-                            } else {
-                                cg.gameObject.AddComponent<canvasFader>();
-                            }
-                        }
-            Battle_Manager.taskManager.CallTask(3f, () => {
+            CanvasGroup cg = displayText.GetComponent<CanvasGroup>();
+            if (cg)
+            {
+                cg.alpha = 1;
+                canvasFader cf = cg.gameObject.GetComponent<canvasFader>();
+
+                if (cf)
+                {
+                    cf.Restart();
+                }
+                else
+                {
+                    cg.gameObject.AddComponent<canvasFader>();
+                }
+            }
+            BattleManager.taskManager.CallTask(3f, () =>
+            {
                 Destroy(this.gameObject);
             });
         }
-        
+
+        Color ConvertEnumToColor(DamageColorEnum color)
+        {
+            switch (color)
+            {
+                case DamageColorEnum.Red:
+                    return new Color(1f, 0.3f, 0.3f, 1f);
+                case DamageColorEnum.Green:
+                    return new Color(0.3f, 1f, 0.3f, 1f);
+                case DamageColorEnum.Purple:
+                    return new Color(0.5f, 0.09f, 0.9f, 1f);
+                case DamageColorEnum.Yellow:
+                    return new Color(0.1f, 0.5f, 0.9f, 1f);
+                case DamageColorEnum.Blue:
+                    return new Color(0.01f, 0.03f, 1f, 1f);
+                default:
+                    return new Color(1f, 1f, 1f, 1f);
+            }
+        }
+
         // Update is called once per frame
         void Update () {
             Move();

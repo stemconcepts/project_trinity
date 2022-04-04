@@ -46,7 +46,7 @@ namespace AssemblyCSharp
         // Use this for initialization
         void Start()
         {
-            hoverObj = Explore_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/tooltipHoverObject.prefab");
+            hoverObj = ExploreManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/tooltipHoverObject.prefab");
             hoverObj.GetComponent<ToolTipBehaviour>().canvas = ToolTipManager.canvasTooltip.GetComponent<RectTransform>();
         }
 

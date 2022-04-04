@@ -146,6 +146,7 @@ namespace AssemblyCSharp
                         hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
                         hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedSkill = classSkill;
                         this.transform.parent.GetComponent<Image>().color = equipColor;
+                        SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "guardian");
                     }
                     else
                     {
@@ -167,6 +168,7 @@ namespace AssemblyCSharp
                         hoverControlScript.hoveredEquipSlot.GetComponent<Image>().enabled = true;
                         hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
                         this.transform.parent.GetComponent<Image>().color = equipColor;
+                        SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "stalker");
                     }
                     else
                     {
@@ -188,6 +190,7 @@ namespace AssemblyCSharp
                         hoverControlScript.hoveredEquipSlot.GetComponent<Image>().enabled = true;
                         hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
                         this.transform.parent.GetComponent<Image>().color = equipColor;
+                        SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "walker");
                     }
                     else
                     {
@@ -246,16 +249,16 @@ namespace AssemblyCSharp
         // Use this for initialization
         void Awake()
         {
-            colliderScript = GetComponent<BoxCollider2D>();
-            detailsControlScript = GameObject.FindGameObjectWithTag("Panel-item-details").GetComponent<itemDetailsControl>();
-            hoverControlScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<hoverManager>();
-            equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<equipmentManager>();
             //skillItemScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<skillItems>();
             //soundContScript = GetComponent<soundController>();
         }
 
         void Start()
         {
+            colliderScript = GetComponent<BoxCollider2D>();
+            detailsControlScript = GameObject.FindGameObjectWithTag("Panel-item-details").GetComponent<itemDetailsControl>();
+            hoverControlScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<hoverManager>();
+            equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<equipmentManager>();
             if (type == classType.guardian)
             {
                 equipColor = new Vector4(0.9f, 0.4f, 0.4f, 1f);

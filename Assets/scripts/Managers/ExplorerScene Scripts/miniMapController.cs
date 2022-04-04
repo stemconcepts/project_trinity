@@ -26,7 +26,7 @@ namespace AssemblyCSharp
         void Update()
         {
             if (dragging) {
-                Explore_Manager.gameManager.DragObject(miniMapIconsHolder.transform);
+                ExploreManager.gameManager.DragObject(miniMapIconsHolder.transform);
             }
         }
 
@@ -45,7 +45,7 @@ namespace AssemblyCSharp
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Explore_Manager.gameManager.SetDragOrigin();
+                ExploreManager.gameManager.SetDragOrigin();
             }
             dragging = true;
         }

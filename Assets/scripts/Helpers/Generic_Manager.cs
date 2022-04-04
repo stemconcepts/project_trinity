@@ -7,7 +7,7 @@ namespace AssemblyCSharp
 {
     public class Generic_Manager : MonoBehaviour {
         public void DestroyObject(){
-            Battle_Manager.battleDetailsManager.DestroyObject(this.gameObject);
+            BattleManager.battleDetailsManager.DestroyObject(this.gameObject);
         }
     }
 }

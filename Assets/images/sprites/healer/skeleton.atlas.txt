@@ -1,146 +1,69 @@
-
 skeleton.png
-size: 689,535
-format: RGBA8888
-filter: Linear,Linear
-repeat: none
+size:689,535
+filter:Linear,Linear
+pma:true
 healerHQ_0000_Layer-65
-  rotate: true
-  xy: 290, 216
-  size: 151, 185
-  orig: 153, 186
-  offset: 1, 0
-  index: -1
+bounds:290,216,151,185
+offsets:1,0,153,186
+rotate:90
 healerHQ_0000s_0000s_0000_Layer-54
-  rotate: false
-  xy: 477, 185
-  size: 99, 182
-  orig: 99, 183
-  offset: 0, 0
-  index: -1
+bounds:477,185,99,182
+offsets:0,0,99,183
 healerHQ_0000s_0001s_0000_Layer-52
-  rotate: true
-  xy: 266, 5
-  size: 51, 161
-  orig: 52, 161
-  offset: 1, 0
-  index: -1
+bounds:266,5,51,161
+offsets:1,0,52,161
+rotate:90
 healerHQ_0000s_0002s_0000_Layer-53
-  rotate: false
-  xy: 635, 274
-  size: 52, 103
-  orig: 58, 107
-  offset: 5, 4
-  index: -1
+bounds:635,274,52,103
+offsets:5,4,58,107
 healerHQ_0001s_0000s_0000_Layer-43
-  rotate: true
-  xy: 157, 102
-  size: 114, 121
-  orig: 115, 122
-  offset: 0, 0
-  index: -1
+bounds:157,102,114,121
+offsets:0,0,115,122
+rotate:90
 healerHQ_0001s_0001s_0000_Layer-45
-  rotate: false
-  xy: 154, 26
-  size: 110, 74
-  orig: 111, 74
-  offset: 0, 0
-  index: -1
+bounds:154,26,110,74
+offsets:0,0,111,74
 healerHQ_0001s_0002s_0000_Layer-44
-  rotate: false
-  xy: 636, 424
-  size: 51, 50
-  orig: 52, 50
-  offset: 0, 0
-  index: -1
+bounds:636,424,51,50
+offsets:0,0,52,50
 healerHQ_0001s_0003s_0000_Layer-61
-  rotate: false
-  xy: 541, 7
-  size: 91, 58
-  orig: 93, 58
-  offset: 1, 0
-  index: -1
+bounds:541,7,91,58
+offsets:1,0,93,58
 healerHQ_0002s_0000s_0000_Layer-51
-  rotate: true
-  xy: 564, 379
-  size: 95, 70
-  orig: 95, 70
-  offset: 0, 0
-  index: -1
+bounds:564,379,95,70
+rotate:90
 healerHQ_0002s_0001s_0000_Layer-46
-  rotate: true
-  xy: 280, 58
-  size: 156, 157
-  orig: 157, 157
-  offset: 0, 0
-  index: -1
+bounds:280,58,156,157
+offsets:0,0,157,157
+rotate:90
 healerHQ_0003s_0000s_0000_Layer-57
-  rotate: false
-  xy: 439, 10
-  size: 100, 55
-  orig: 100, 55
-  offset: 0, 0
-  index: -1
+bounds:439,10,100,55
 healerHQ_0003s_0001s_0000_Layer-56
-  rotate: true
-  xy: 578, 275
-  size: 102, 55
-  orig: 102, 55
-  offset: 0, 0
-  index: -1
+bounds:578,275,102,55
+rotate:90
 healerHQ_0003s_0002s_0000_Layer-55
-  rotate: false
-  xy: 2, 2
-  size: 150, 129
-  orig: 151, 129
-  offset: 0, 0
-  index: -1
+bounds:2,2,150,129
+offsets:0,0,151,129
 healerHQ_0004s_0000s_0000_Layer-64
-  rotate: false
-  xy: 578, 214
-  size: 57, 58
-  orig: 57, 59
-  offset: 0, 1
-  index: -1
+bounds:578,214,57,58
+offsets:0,1,57,59
 healerHQ_0004s_0001s_0000_Layer-63
-  rotate: false
-  xy: 2, 133
-  size: 153, 334
-  orig: 154, 334
-  offset: 0, 0
-  index: -1
+bounds:2,133,153,334
+offsets:0,0,154,334
 healerHQ_0004s_0002s_0000_Layer-62
-  rotate: true
-  xy: 439, 67
-  size: 116, 211
-  orig: 117, 211
-  offset: 0, 0
-  index: -1
+bounds:439,67,116,211
+offsets:0,0,117,211
+rotate:90
 healerHQ_0005s_0000s_0000_Layer-58
-  rotate: false
-  xy: 157, 218
-  size: 131, 249
-  orig: 133, 249
-  offset: 1, 0
-  index: -1
+bounds:157,218,131,249
+offsets:1,0,133,249
 healerHQ_0005s_0001s_0000_Layer-60
-  rotate: false
-  xy: 552, 476
-  size: 102, 57
-  orig: 103, 57
-  offset: 0, 0
-  index: -1
+bounds:552,476,102,57
+offsets:0,0,103,57
 healerHQ_0005s_0002s_0000_Layer-59
-  rotate: true
-  xy: 290, 369
-  size: 98, 272
-  orig: 100, 273
-  offset: 0, 1
-  index: -1
+bounds:290,369,98,272
+offsets:0,1,100,273
+rotate:90
 shadow
-  rotate: false
-  xy: 2, 469
-  size: 548, 64
-  orig: 548, 65
-  offset: 0, 1
-  index: -1
+bounds:2,469,548,64
+offsets:0,1,548,65

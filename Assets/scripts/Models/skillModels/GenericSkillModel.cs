@@ -9,8 +9,8 @@ namespace AssemblyCSharp
     {
         //public float modifier = 1f;
         //public List<Character_Manager> targets;
-        public Character_Manager target;
-        public Character_Manager caster;
+        public BaseCharacterManager target;
+        public BaseCharacterManager caster;
         public SkillModel skillModel;
         public enemySkill enemySkillModel;
     }
@@ -45,9 +45,9 @@ namespace AssemblyCSharp
         public int skillCooldown = 0;
         [Header("Animation:")]
         public string skinChange;
-        public string animationType;
-        public string animationCastingType;
-        public string animationRepeatCasting;
+        public animationOptionsEnum EndAnimation;
+        public animationOptionsEnum BeginCastingAnimation;
+        public animationOptionsEnum CastingAnimation;
         public bool loopAnimation;
         [Header("Target choices:")]
         public bool self;
@@ -102,7 +102,7 @@ namespace AssemblyCSharp
             Back,
             Forward
         }
-        
+
         [Header("FX Animation:")]
         public GameObject fxObject;
         public fxPosEnum fxPos;
@@ -113,6 +113,7 @@ namespace AssemblyCSharp
             front,
             top
         }
+        public DamageColorEnum dmgTextColor;
 
         [Header("Status Effects:")]
         public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
@@ -121,37 +122,57 @@ namespace AssemblyCSharp
         public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
         public bool statusFriendlyDispellable = true;
 
-        public void AttachStatus(List<SingleStatusModel> singleStatusGroup, Base_Character_Manager baseManager, float power, SkillModel skillModel)
+        public void AttachStatus(List<SingleStatusModel> singleStatusGroup, BaseCharacterManagerGroup baseManager, float power, SkillModel skillModel)
         {
             for (int i = 0; i < singleStatusGroup.Count; i++)
             {
-                var sm = new StatusModel
+                GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
+                /*var sm = new StatusModel
                 {
                     singleStatus = singleStatusGroup[i],
                     power = power,
                     turnDuration = skillModel.turnDuration,
                     baseManager = baseManager,
-                    isFlat = skillModel.isFlat
+                    isFlat = skillModel.isFlat,
+                    dmgTextColor = skillModel.dmgTextColor
                 };
                 sm.singleStatus.dispellable = skillModel.statusDispellable;
-                baseManager.statusManager.RunStatusFunction(sm);
+                baseManager.statusManager.RunStatusFunction(sm);*/
             }
         }
 
-        public void AttachStatus(List<SingleStatusModel> singleStatusGroup, Base_Character_Manager baseManager, float power, enemySkill skillModel)
+        public void AttachStatus(List<SingleStatusModel> singleStatusGroup, BaseCharacterManagerGroup baseManager, float power, enemySkill skillModel)
         {
             for (int i = 0; i < singleStatusGroup.Count; i++)
             {
-                var sm = new StatusModel
+                GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
+                /*var sm = new StatusModel
                 {
                     singleStatus = singleStatusGroup[i],
                     power = power,
                     turnDuration = skillModel.turnDuration,
-                    baseManager = baseManager
+                    baseManager = baseManager,
+                    isFlat = skillModel.isFlat,
+                    dmgTextColor = skillModel.dmgTextColor
                 };
                 sm.singleStatus.dispellable = skillModel.statusDispellable;
-                baseManager.statusManager.RunStatusFunction(sm);
+                baseManager.statusManager.RunStatusFunction(sm);*/
             }
+        }
+
+        void GenerateStatusModelAndRun(SingleStatusModel singleStatus, BaseCharacterManagerGroup baseManager, float power, GenericSkillModel skillModel)
+        {
+            var sm = new StatusModel
+            {
+                singleStatus = singleStatus,
+                power = power,
+                turnDuration = skillModel.turnDuration,
+                baseManager = baseManager,
+                isFlat = skillModel.isFlat,
+                dmgTextColor = skillModel.dmgTextColor
+            };
+            sm.singleStatus.dispellable = skillModel.statusDispellable;
+            baseManager.statusManager.RunStatusFunction(sm);
         }
 
         public void RunExtraEffect(SkillData data)
@@ -190,13 +211,13 @@ namespace AssemblyCSharp
         {
             if (data.caster != null)
             {
-                var casterSkillSelection = data.caster != null ? data.caster.GetComponent<Skill_Manager>() : null;
+                var casterSkillSelection = data.caster != null ? data.caster.GetComponent<BaseSkillManager>() : null;
                 if (data.skillModel)
                 {
-                    ((Player_Skill_Manager)casterSkillSelection).PrepSkill((SkillModel)data.skillModel.ExtraSkillToRun);
+                    ((PlayerSkillManager)casterSkillSelection).PrepSkill((SkillModel)data.skillModel.ExtraSkillToRun);
                 } else if(data.enemySkillModel)
                 {
-                    ((Enemy_Skill_Manager)casterSkillSelection).PrepSkill((enemySkill)data.enemySkillModel.ExtraSkillToRun);
+                    ((EnemySkillManager)casterSkillSelection).PrepSkill((enemySkill)data.enemySkillModel.ExtraSkillToRun);
                 }
             }
         }
@@ -209,7 +230,7 @@ namespace AssemblyCSharp
             {
                 if (buffsRemoved < debuffPower && activeStatus.buff && activeStatus.dispellable)
                 {
-                    Battle_Manager.battleDetailsManager.RemoveLabel(activeStatus);
+                    BattleManager.battleDetailsManager.RemoveLabel(activeStatus);
                     activeStatus.statusModel.turnOff = true;
                     data.target.baseManager.statusManager.RunStatusFunction(activeStatus.statusModel);
                     buffsRemoved++;
@@ -246,20 +267,21 @@ namespace AssemblyCSharp
 
         public void SaveTurnToReset()
         {
-            turnToReset = Battle_Manager.turnCount + (skillCooldown * 2);
+            turnToReset = BattleManager.turnCount + (skillCooldown * 2);
         }
 
         public void SaveTurnToComplete()
         {
-            turnToComplete = Battle_Manager.turnCount + castTurnTime;
+            turnToComplete = BattleManager.turnCount + castTurnTime;
+            //Debug.Log($"{skillName} will complete on turn {turnToComplete}");
         }
 
         public void ResetSkillOnCurrentTurn(bool player, Action action = null)
         {
-            Battle_Interface_Manager relevantBIM = null;
+            BattleInterfaceManager relevantBIM = null;
 
             if (player) {
-                Battle_Manager.battleInterfaceManager.ForEach(o =>
+                BattleManager.battleInterfaceManager.ForEach(o =>
                 {
                     if (o.skill == (SkillModel)this)
                     {
@@ -269,25 +291,20 @@ namespace AssemblyCSharp
                 });
             }
 
-            var myTask = new Task(Battle_Manager.taskManager.CompareTurns(turnToReset, () =>
+            var myTask = new Task(BattleManager.taskManager.CompareTurns(turnToReset, () =>
             {
                 if (relevantBIM != null)
                 {
                     relevantBIM.skillCDImage.fillAmount = 0;
                 }
-                /*if (action != null)
-                {
-                    action();
-                }*/
                 action?.Invoke();
                 skillActive = false;
                 turnToComplete = 0;
-                //Debug.Log(string.Format("{0} Cooldown reset ", skillName));
                 turnToReset = 0;
             }));
         }
 
-        public void RepositionCharacters(List<Character_Manager> targets, GenericSkillModel skillModel)
+        public void RepositionCharacters(List<BaseCharacterManager> targets, GenericSkillModel skillModel)
         {
             targets.ForEach(o =>
             {
@@ -298,7 +315,7 @@ namespace AssemblyCSharp
 
         public bool CompleteSkillOnCurrentTurn()
         {
-            if (Battle_Manager.turnCount >= turnToComplete)
+            if (BattleManager.turnCount >= turnToComplete)
             {
                 return true;
             }

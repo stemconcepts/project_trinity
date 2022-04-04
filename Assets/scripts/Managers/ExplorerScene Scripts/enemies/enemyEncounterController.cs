@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
     public class enemyEncounterController : MonoBehaviour
     {
-        public void GoToBattle()
-        {
-            Explore_Manager.gameManager.SceneManager.LoadBattle();
-        }
+        
     }
 }

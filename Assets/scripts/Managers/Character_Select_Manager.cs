@@ -13,20 +13,22 @@ namespace AssemblyCSharp
         public GameObject guardianObject;
         public GameObject stalkerObject;
         public GameObject walkerObject;
-        public static List<Battle_Manager.classState> classStates = new List<Battle_Manager.classState>();
+        public static List<BattleManager.classState> classStates = new List<BattleManager.classState>();
         public characterSelect characterSelected;
         public enum characterSelect {
             guardianSelected,
             walkerSelected,
             stalkerSelected
         }
-        public List<Character_Manager> friendlyCharacters = new List<Character_Manager>();
-        public List<Character_Manager> enemyCharacters = new List<Character_Manager>();
+        public List<CharacterManager> friendlyCharacters = new List<CharacterManager>();
+        public List<EnemyCharacterManager> enemyCharacters = new List<EnemyCharacterManager>();
 
 
         void Awake()
         {
-            UpdateCharacters();
+            guardianObject = GameObject.Find("Guardian");
+            walkerObject = GameObject.Find("Walker");
+            stalkerObject = GameObject.Find("Stalker");
             /*enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
             enemyCharacters.Capacity = enemyCharacters.Count;
             friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
@@ -34,28 +36,28 @@ namespace AssemblyCSharp
         }
 
         void Start(){
-            guardianObject = GameObject.Find("Guardian");
-            walkerObject = GameObject.Find("Walker");
-            stalkerObject = GameObject.Find("Stalker");
-            classStates.Add( new Battle_Manager.classState( "Guardian", guardianObject.GetComponent<Character_Manager>().characterModel.isAlive, characterSelected == characterSelect.guardianSelected, false ) );
-            classStates.Add( new Battle_Manager.classState( "Stalker", stalkerObject.GetComponent<Character_Manager>().characterModel.isAlive, characterSelected == characterSelect.stalkerSelected, false ) );
-            classStates.Add( new Battle_Manager.classState( "Walker", walkerObject.GetComponent<Character_Manager>().characterModel.isAlive, characterSelected == characterSelect.walkerSelected, true ) );
+            UpdateCharacters();
+            
+            classStates.Add( new BattleManager.classState( "Guardian", guardianObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.guardianSelected, false ) );
+            classStates.Add( new BattleManager.classState( "Stalker", stalkerObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.stalkerSelected, false ) );
+            classStates.Add( new BattleManager.classState( "Walker", walkerObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.walkerSelected, true ) );
         }
 
-        public List<Character_Manager> GetCharacterManagers( List<GameObject> go){
-            var y = go.Select(o => o.GetComponent<Character_Manager>()).Where(c => c.characterModel.isAlive).ToList();
+        public List<T> GetCharacterManagers<T>(List<GameObject> go){
+            var y = go.Select(o => o.GetComponent<T>()).ToList();
+            //var y = go.Select(o => o.GetComponent<T>()).Where(c => c.characterModel.isAlive).ToList();
             y.Capacity = y.Count;
             return y;
         }
 
         public void SelectCharacterWithTurnsLeft()
         {
-            var selectedChar = GetSelectedClassObject().GetComponent<Base_Character_Manager>();
-            if (((Player_Skill_Manager)selectedChar.skillManager).turnsTaken >= selectedChar.characterManager.characterModel.Haste)
+            var selectedChar = GetSelectedClassObject().GetComponent<BaseCharacterManagerGroup>();
+            if (((PlayerSkillManager)selectedChar.skillManager).turnsTaken >= selectedChar.characterManager.characterModel.Haste)
             {
                 friendlyCharacters.ForEach(o =>
                 {
-                    if (((Player_Skill_Manager)o.baseManager.skillManager).turnsTaken < o.characterModel.Haste)
+                    if (((PlayerSkillManager)o.baseManager.skillManager).turnsTaken < o.characterModel.Haste)
                     {
                         SetSelectedCharacter(o.gameObject.name);
                         return;
@@ -74,7 +76,7 @@ namespace AssemblyCSharp
             } else if( characterClass == "Stalker" ){
                 characterSelected = characterSelect.stalkerSelected;
             }
-            var selectedChar = GetSelectedClassObject().GetComponent<Character_Interaction_Manager>();
+            var selectedChar = GetSelectedClassObject().GetComponent<CharacterInteractionManager>();
             selectedChar.DisplaySkills();
             classStates.ForEach(o => o.Selected = false);
             classStates.Where(o => o.Name == characterClass).FirstOrDefault().Selected = true;
@@ -124,17 +126,21 @@ namespace AssemblyCSharp
         }
         void ToggleThroughLiveCharacters()
         {
-            var swapTo = Battle_Manager.characterSelectManager.GetAlive();
-            Battle_Manager.characterSelectManager.SetSelectedCharacter(swapTo);
-            GetSelectedClassObject().GetComponent<Character_Interaction_Manager>().DisplaySkills();
-            Battle_Manager.soundManager.playSound(Battle_Manager.soundManager.charSwapSound);
+            var swapTo = BattleManager.characterSelectManager.GetAlive();
+            BattleManager.characterSelectManager.SetSelectedCharacter(swapTo);
+            GetSelectedClassObject().GetComponent<CharacterInteractionManager>().DisplaySkills();
+            BattleManager.soundManager.playSound(BattleManager.soundManager.charSwapSound);
         }
 
         public void UpdateCharacters(string deadCharacterName = null)
         {
-            enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
+            /*var x = GameObject.FindGameObjectsWithTag("Enemy").ToList();
+            var y = GameObject.FindGameObjectsWithTag("Player").ToList();
+            enemyCharacters = x.Select(o => o.GetComponent<EnemyCharacterManager>()).ToList();
+            friendlyCharacters = y.Select(o => o.GetComponent<CharacterManager>()).ToList();*/
+            enemyCharacters = GetCharacterManagers<EnemyCharacterManager>(GameObject.FindGameObjectsWithTag("Enemy").ToList()).Where(o => o.characterModel.isAlive).ToList();
             enemyCharacters.Capacity = enemyCharacters.Count;
-            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
+            friendlyCharacters = GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList()).Where(o => o.characterModel.isAlive).ToList();
             friendlyCharacters.Capacity = friendlyCharacters.Count;
 
             if (deadCharacterName != null)

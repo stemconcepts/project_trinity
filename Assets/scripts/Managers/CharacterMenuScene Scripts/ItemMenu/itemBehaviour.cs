@@ -176,13 +176,13 @@ namespace AssemblyCSharp
 						{
 							weaponItemScript.isEquipped = true;
 							equipmentManagerScript.tankWeaponObject = weaponItemScript;
-							equipmentManagerScript.gameManager.SavedDataManager.AddWeaponModel(weaponItemScript, true);
+							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, true);
 						}
 						else if (hoverControlScript.hoveredEquipSlot.name == "Panel-secondTankWeapon")
 						{
 							weaponItemScript.isEquipped = true;
 							equipmentManagerScript.tankSecondWeaponObject = weaponItemScript;
-							equipmentManagerScript.gameManager.SavedDataManager.AddWeaponModel(weaponItemScript, false);
+							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, false);
 						}
 						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
 						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
@@ -201,13 +201,13 @@ namespace AssemblyCSharp
 						{
 							weaponItemScript.isEquipped = true;
 							equipmentManagerScript.dpsWeaponObject = weaponItemScript;
-							equipmentManagerScript.gameManager.SavedDataManager.AddWeaponModel(weaponItemScript, true);
+							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, true);
 						}
 						else if (hoverControlScript.hoveredEquipSlot.name == "Panel-secondDpsweapon")
 						{
 							weaponItemScript.isEquipped = true;
 							equipmentManagerScript.dpsSecondWeaponObject = weaponItemScript;
-							equipmentManagerScript.gameManager.SavedDataManager.AddWeaponModel(weaponItemScript, false);
+							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, false);
 						}
 						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
 						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
@@ -226,13 +226,13 @@ namespace AssemblyCSharp
 						{
 							weaponItemScript.isEquipped = true;
 							equipmentManagerScript.healerWeaponObject = weaponItemScript;
-							equipmentManagerScript.gameManager.SavedDataManager.AddWeaponModel(weaponItemScript, true);
+							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, true);
 						}
 						else if (hoverControlScript.hoveredEquipSlot.name == "Panel-secondHealerweapon")
 						{
 							weaponItemScript.isEquipped = true;
 							equipmentManagerScript.healerSecondWeaponObject = weaponItemScript;
-							equipmentManagerScript.gameManager.SavedDataManager.AddWeaponModel(weaponItemScript, false);
+							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, false);
 						}
 						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
 						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
@@ -252,6 +252,7 @@ namespace AssemblyCSharp
 						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
 						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
 						this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
+						SavedDataManager.SavedDataManagerInstance.AddBauble(baubleItemScript, "guardian");
 					}
 					else
 					{
@@ -267,6 +268,7 @@ namespace AssemblyCSharp
 						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
 						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
 						this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
+						SavedDataManager.SavedDataManagerInstance.AddBauble(baubleItemScript, "stalker");
 					}
 					else
 					{
@@ -282,6 +284,7 @@ namespace AssemblyCSharp
 						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
 						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
 						this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
+						SavedDataManager.SavedDataManagerInstance.AddBauble(baubleItemScript, "walker");
 					}
 					else
 					{
@@ -318,16 +321,17 @@ namespace AssemblyCSharp
 
 		void Awake()
 		{
+			
+		}
+
+		void Start()
+		{
 			colliderScript = GetComponent<BoxCollider2D>();
 			detailsControlScript = GameObject.FindGameObjectWithTag("Panel-item-details").GetComponent<itemDetailsControl>();
 			hoverControlScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<hoverManager>();
 			equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<equipmentManager>();
 			//soundContScript = GetComponent<soundController>();
 			particleSystem = GetComponent<ParticleSystem>();
-		}
-
-		void Start()
-		{
 			if (itemIcon != null)
 			{
 				gameObject.GetComponent<Image>().sprite = itemIcon;

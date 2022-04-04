@@ -27,7 +27,7 @@ namespace AssemblyCSharp
             if(allowedPathSprites.Count > 0)
             {
                 spriteRenderer = GetComponent<SpriteRenderer>();
-                spriteRenderer.sprite = allowedPathSprites[Explore_Manager.gameManager.ReturnRandom(allowedPathSprites.Count)];
+                spriteRenderer.sprite = allowedPathSprites[ExploreManager.gameManager.ReturnRandom(allowedPathSprites.Count)];
             }
         }
 
@@ -41,7 +41,7 @@ namespace AssemblyCSharp
 
         bool CanUnlock()
         {
-            return lockObj != null && lockObj.locked && Explore_Manager.obtainedItems.Any(o => o.name == lockObj.key.name);
+            return lockObj != null && lockObj.locked && ExploreManager.obtainedItems.Any(o => o.name == lockObj.key.name);
         }
 
         void OnMouseEnter()
@@ -62,21 +62,22 @@ namespace AssemblyCSharp
         {
             if (lockObj == null || !lockObj.locked)
             {
-                Explore_Manager.AddPreviousRoom(Explore_Manager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
+                ExploreManager.AddPreviousRoom(ExploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
                 //Explore_Manager.ChangeRouteInBackButton(Explore_Manager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
-                Explore_Manager.ToggleRooms(true);
+                ExploreManager.ToggleRooms(true);
                 GameObject targetRoom = GameObject.Find(location);
-                Explore_Manager.ToggleRooms(false);
+                ExploreManager.ToggleRooms(false);
                 targetRoom.SetActive(true);
-                Explore_Manager.SetCurrentRoom(targetRoom.name);
-
-                targetRoom.GetComponent<DungeonRoom>().CheckEncounterAndStart();
+                ExploreManager.SetCurrentRoom(targetRoom.name);
+                DungeonRoom dr = targetRoom.GetComponent<DungeonRoom>();
+                dr.SetVisited();
+                dr.CheckEncounterAndStart();
             } else if (CanUnlock())
             {
                 lockObj.locked = false;
                 toolTipController.DestroyToolTipDisplay();
                 toolTipController.enabled = false;
-                Explore_Manager.RemoveObtainedItem(lockObj.key);
+                ExploreManager.RemoveObtainedItem(lockObj.key);
             }
         }
     }

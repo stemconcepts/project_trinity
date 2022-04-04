@@ -7,7 +7,7 @@ namespace AssemblyCSharp
     public class StatusModel 
     {
         public SingleStatusModel singleStatus;
-        public Base_Character_Manager baseManager; 
+        public BaseCharacterManagerGroup baseManager; 
         public SkillModel onHitSkill; 
         public int turnDuration = 2;
         public bool isFlat;
@@ -16,10 +16,11 @@ namespace AssemblyCSharp
         public float triggerChance;
         public int stacks;
         public int turnToReset;
+        public DamageColorEnum dmgTextColor;
 
         public void SaveTurnToReset()
         {
-            turnToReset = Battle_Manager.turnCount + (turnDuration * 2);
+            turnToReset = BattleManager.turnCount + (turnDuration * 2);
         }
     }
 

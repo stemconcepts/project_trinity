@@ -51,7 +51,7 @@ namespace AssemblyCSharp
                 var statusName = liveStatusHoverObj.transform.Find("statusName").GetComponent<Text>();
                 var statusDesc = liveStatusHoverObj.transform.Find("statusDesc").GetComponent<Text>();
                 layoutElement = liveStatusHoverObj.GetComponent<LayoutElement>();
-                liveStatusHoverObj.transform.SetParent(Battle_Manager.tooltipCanvas.transform);
+                liveStatusHoverObj.transform.SetParent(BattleManager.tooltipCanvas.transform);
                 liveStatusHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
                 var substatusName = statusModel.singleStatus.subStatus != null ? "<i>(" + statusModel.singleStatus.subStatus.subStatusLabel + ")</i>" : "";
                 statusName.text = "<b>" + statusModel.singleStatus.displayName + " " + substatusName + "</b>";

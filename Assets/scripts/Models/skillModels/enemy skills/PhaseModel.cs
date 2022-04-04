@@ -7,6 +7,12 @@ using UnityEngine.UI;
 namespace AssemblyCSharp
 {
     [System.Serializable]
+    public class PhaseDetail
+    {
+        public PowerLevelEnum powerLevel;
+        public List<enemySkill> phaseSkills;
+    }
+    [System.Serializable]
     public class PhaseBuff
     {
         public SingleStatusModel singleStatusModel;
@@ -16,18 +22,21 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class PhaseThreshHold
     {
-        public float maxHealthPercentage;
+        [Range(0,100)]
+        public float maxHealthPercentage = 100;
+        [Range(0, 100)]
         public float minHealthPercentage;
     }
     [System.Serializable]
     public class PhaseModel
     {
-            public PhaseThreshHold healthThreshhold;
-            public EnemyPhase enemyPhase;
-            public List<GameObject> summonList = new List<GameObject>();
-            public List<enemySkill> phaseSkills  = new List<enemySkill>();
-            public List<PhaseBuff> phaseBuffs = new List<PhaseBuff>();
-            public string skinChange;
-            public string phaseChangeAnimation;
+        public PhaseThreshHold healthThreshhold;
+        public EnemyPhase enemyPhase;
+        public List<GameObject> summonList = new List<GameObject>();
+        //public List<enemySkill> phaseSkills  = new List<enemySkill>();
+        public List<PhaseDetail> phaseDetails = new List<PhaseDetail>();
+        public List<PhaseBuff> phaseBuffs = new List<PhaseBuff>();
+        public string skinChange;
+        public string phaseChangeAnimation;
     }
 }

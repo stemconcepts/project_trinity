@@ -7,7 +7,7 @@ namespace AssemblyCSharp
 {
     public class SavedDataManager : MonoBehaviour
     {
-        private sceneManager sceneManager;
+        //private sceneManager sceneManager;
         public static SavedDataManager _savedDataManagerInstance;
         public PersistentData persistentData = new PersistentData();
         private string path = "";
@@ -41,7 +41,7 @@ namespace AssemblyCSharp
 
         void Awake()
         {
-            sceneManager = GetComponent<sceneManager>();
+            //sceneManager = GetComponent<sceneManager>();
 
             if (_savedDataManagerInstance == null)
 			{
@@ -104,6 +104,44 @@ namespace AssemblyCSharp
             PlayersReady();
         }
 
+        public void AddBauble(bauble bauble, string character)
+        {
+            switch (character)
+            {
+                case "guardian":
+                        persistentData.playerData.tankEquipment.bauble = bauble;
+                    break;
+                case "walker":
+                    persistentData.playerData.healerEquipment.bauble = bauble;
+                    break;
+                case "stalker":
+                    persistentData.playerData.dpsEquipment.bauble = bauble;
+                    break;
+            }
+            SavedDataManagerInstance.persistentData = persistentData;
+            SaveData();
+            PlayersReady();
+        }
+
+        public void AddSkill(SkillModel skill, string character)
+        {
+            switch (character)
+            {
+                case "guardian":
+                    persistentData.playerData.tankEquipment.classSkill = skill;
+                    break;
+                case "walker":
+                    persistentData.playerData.healerEquipment.classSkill = skill;
+                    break;
+                case "stalker":
+                    persistentData.playerData.dpsEquipment.classSkill = skill;
+                    break;
+            }
+            SavedDataManagerInstance.persistentData = persistentData;
+            SaveData();
+            PlayersReady();
+        }
+
         private void SetPaths()
         {
             path = $"{Application.dataPath}{Path.AltDirectorySeparatorChar}PersistentData.json";
@@ -112,7 +150,6 @@ namespace AssemblyCSharp
 
         public void SaveData()
         {
-
             if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(persistentPath))
             {
                 SetPaths();
@@ -127,10 +164,14 @@ namespace AssemblyCSharp
         private void PlayersReady()
         {
             PlayerData playerData = LoadPlayerData();
-            SavedDataManagerInstance.persistentData.playerData = playerData;
-            sceneManager.healerReady = playerData.healerEquipment.weapon && playerData.healerEquipment.secondWeapon;
-            sceneManager.dpsReady = playerData.dpsEquipment.weapon && playerData.dpsEquipment.secondWeapon;
-            sceneManager.tankReady = playerData.tankEquipment.weapon && playerData.tankEquipment.secondWeapon;
+            if(playerData != null)
+            {
+                persistentData.playerData = playerData;
+                SavedDataManagerInstance.persistentData.playerData = playerData;
+                MainGameManager.instance.SceneManager.healerReady = playerData.healerEquipment.weapon && playerData.healerEquipment.secondWeapon;
+                MainGameManager.instance.SceneManager.dpsReady = playerData.dpsEquipment.weapon && playerData.dpsEquipment.secondWeapon;
+                MainGameManager.instance.SceneManager.tankReady = playerData.tankEquipment.weapon && playerData.tankEquipment.secondWeapon;
+            }
         }
 
         public PlayerData LoadPlayerData()
@@ -142,7 +183,7 @@ namespace AssemblyCSharp
             using StreamReader reader = new StreamReader(path);
             string json = reader.ReadToEnd();
             PersistentData data = JsonUtility.FromJson<PersistentData>(json);
-            return data.playerData;
+            return data != null && data.playerData != null ? data.playerData : null;
         }
     }
 }

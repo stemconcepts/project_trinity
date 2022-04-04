@@ -1,321 +1,132 @@
-
 skeleton.png
-size: 1986,1190
-format: RGBA8888
-filter: Linear,Linear
-repeat: none
+size:1986,1175
+filter:Linear,Linear
+pma:true
 arm_backangle
-  rotate: true
-  xy: 473, 2
-  size: 107, 217
-  orig: 108, 217
-  offset: 0, 0
-  index: -1
+bounds:1649,448,107,217
+offsets:0,0,108,217
 basicHeavy
-  rotate: false
-  xy: 430, 829
-  size: 836, 93
-  orig: 836, 93
-  offset: 0, 0
-  index: -1
+bounds:430,814,836,93
 chestback
-  rotate: false
-  xy: 1344, 12
-  size: 170, 218
-  orig: 229, 271
-  offset: 20, 26
-  index: -1
+bounds:1606,228,170,218
+offsets:20,26,229,271
 dustcircle0
-  rotate: false
-  xy: 2, 2
-  size: 469, 107
-  orig: 543, 177
-  offset: 36, 12
-  index: -1
+bounds:1354,934,469,107
+offsets:36,12,543,177
 dustcircle1
-  rotate: false
-  xy: 419, 111
-  size: 486, 119
-  orig: 543, 177
-  offset: 23, 12
-  index: -1
+bounds:419,96,486,119
+offsets:23,12,543,177
 dustcircle2
-  rotate: false
-  xy: 419, 232
-  size: 507, 132
-  orig: 543, 177
-  offset: 17, 11
-  index: -1
+bounds:430,319,507,132
+offsets:17,11,543,177
 dustcircle3
-  rotate: false
-  xy: 1354, 1058
-  size: 511, 130
-  orig: 543, 177
-  offset: 17, 16
-  index: -1
+bounds:1354,1043,511,130
+offsets:17,16,543,177
 dustcircle4
-  rotate: true
-  xy: 1867, 670
-  size: 518, 117
-  orig: 543, 177
-  offset: 14, 37
-  index: -1
+bounds:1867,655,518,117
+offsets:14,37,543,177
+rotate:90
 dustcircle5
-  rotate: false
-  xy: 430, 366
-  size: 521, 100
-  orig: 543, 177
-  offset: 13, 61
-  index: -1
+bounds:419,217,521,100
+offsets:13,61,543,177
 leftfist
-  rotate: false
-  xy: 1784, 710
-  size: 62, 67
-  orig: 62, 67
-  offset: 0, 0
-  index: -1
+bounds:1856,38,62,67
 lefthand
-  rotate: true
-  xy: 1710, 594
-  size: 57, 75
-  orig: 58, 75
-  offset: 0, 0
-  index: -1
+bounds:1797,30,57,75
+offsets:0,0,58,75
 ringFX
-  rotate: false
-  xy: 1328, 603
-  size: 282, 282
-  orig: 300, 300
-  offset: 10, 9
-  index: -1
+bounds:942,123,282,282
+offsets:10,9,300,300
 shadow
-  rotate: false
-  xy: 928, 232
-  size: 548, 64
-  orig: 548, 65
-  offset: 0, 1
-  index: -1
+bounds:1298,868,548,64
+offsets:0,1,548,65
 sheildFront
-  rotate: true
-  xy: 1354, 981
-  size: 75, 373
-  orig: 75, 373
-  offset: 0, 0
-  index: -1
+bounds:939,407,75,373
+rotate:90
 shieldback
-  rotate: true
-  xy: 929, 499
-  size: 265, 397
-  orig: 265, 415
-  offset: 0, 0
-  index: -1
+bounds:929,484,265,397
+offsets:0,0,265,415
+rotate:90
 sideslash0
-  rotate: false
-  xy: 430, 1057
-  size: 922, 131
-  orig: 1000, 131
-  offset: 0, 0
-  index: -1
+bounds:430,1042,922,131
+offsets:0,0,1000,131
 sideslash1
-  rotate: false
-  xy: 430, 924
-  size: 866, 131
-  orig: 1000, 131
-  offset: 0, 0
-  index: -1
+bounds:430,909,866,131
+offsets:0,0,1000,131
 sideslash2
-  rotate: false
-  xy: 953, 298
-  size: 408, 199
-  orig: 805, 338
-  offset: 1, 139
-  index: -1
+bounds:1328,667,408,199
+offsets:1,139,805,338
 sideslashup
-  rotate: false
-  xy: 2, 383
-  size: 426, 805
-  orig: 1000, 807
-  offset: 0, 1
-  index: -1
+bounds:2,368,426,805
+offsets:0,1,1000,807
 sidesword
-  rotate: false
-  xy: 1298, 887
-  size: 349, 92
-  orig: 377, 97
-  offset: 9, 3
-  index: -1
+bounds:426,2,349,92
+offsets:9,3,377,97
 skirt
-  rotate: false
-  xy: 1363, 321
-  size: 242, 280
-  orig: 242, 280
-  offset: 0, 0
-  index: -1
+bounds:1362,199,242,280
 skirtback
-  rotate: false
-  xy: 430, 468
-  size: 497, 296
-  orig: 497, 296
-  offset: 0, 0
-  index: -1
+bounds:430,453,497,296
 slamArm
-  rotate: false
-  xy: 1205, 9
-  size: 137, 127
-  orig: 139, 131
-  offset: 1, 0
-  index: -1
+bounds:1738,729,137,127
+offsets:1,0,139,131
+rotate:90
 tank_0000s_0000_Rectangle-1
-  rotate: false
-  xy: 907, 138
-  size: 422, 92
-  orig: 460, 97
-  offset: 19, 3
-  index: -1
+bounds:2,2,422,92
+offsets:19,3,460,97
 tank_0001s_0000_Layer-36
-  rotate: true
-  xy: 2, 116
-  size: 265, 415
-  orig: 265, 415
-  offset: 0, 0
-  index: -1
+bounds:2,101,265,415
+rotate:90
 tank_0002s_0000_Layer-30
-  rotate: true
-  xy: 1901, 300
-  size: 77, 61
-  orig: 77, 65
-  offset: 0, 4
-  index: -1
+bounds:1778,207,77,61
+offsets:0,4,77,65
 tank_0002s_0000s_0000_Layer-35
-  rotate: false
-  xy: 1710, 779
-  size: 112, 120
-  orig: 112, 120
-  offset: 0, 0
-  index: -1
+bounds:1655,106,112,120
 tank_0002s_0001s_0000_Layer-22
-  rotate: true
-  xy: 1691, 49
-  size: 53, 93
-  orig: 53, 93
-  offset: 0, 0
-  index: -1
+bounds:1738,674,53,93
+rotate:90
 tank_0003s_0000s_0000_Layer-29
-  rotate: true
-  xy: 1649, 901
-  size: 76, 178
-  orig: 77, 225
-  offset: 1, 47
-  index: -1
+bounds:1329,23,76,178
+offsets:1,47,77,225
+rotate:90
 tank_0003s_0001s_0000_Layer-17
-  rotate: false
-  xy: 1889, 490
-  size: 85, 178
-  orig: 85, 178
-  offset: 0, 0
-  index: -1
+bounds:1509,14,85,178
+rotate:90
 tank_0004s_0000s_0000_Layer-25
-  rotate: true
-  xy: 1710, 653
-  size: 124, 72
-  orig: 124, 72
-  offset: 0, 0
-  index: -1
+bounds:1203,35,124,72
 tank_0004s_0000s_0000s_0000_Layer-24
-  rotate: true
-  xy: 692, 24
-  size: 85, 208
-  orig: 85, 208
-  offset: 0, 0
-  index: -1
+bounds:1778,270,85,208
 tank_0004s_0001s_0000_Layer-18
-  rotate: false
-  xy: 1516, 53
-  size: 173, 218
-  orig: 173, 218
-  offset: 0, 0
-  index: -1
+bounds:1758,480,173,218
+rotate:90
 tank_0005s_0000s_0000_Layer-21
-  rotate: true
-  xy: 907, 2
-  size: 134, 296
-  orig: 134, 296
-  offset: 0, 0
-  index: -1
+bounds:1226,109,134,296
 tank_0005s_0001s_0000_Layer-27
-  rotate: false
-  xy: 1793, 273
-  size: 106, 99
-  orig: 106, 99
-  offset: 0, 0
-  index: -1
+bounds:1689,5,106,99
 tank_0005s_0002s_0000_Layer-26
-  rotate: false
-  xy: 1612, 594
-  size: 96, 291
-  orig: 96, 291
-  offset: 0, 0
-  index: -1
+bounds:1362,101,96,291
+rotate:90
 tank_0006s_0000s_0000_Layer-20
-  rotate: false
-  xy: 1607, 273
-  size: 184, 319
-  orig: 184, 319
-  offset: 0, 0
-  index: -1
+bounds:1328,481,184,319
+rotate:90
 tank_0006s_0001s_0000_Layer-32
-  rotate: false
-  xy: 1793, 374
-  size: 94, 294
-  orig: 95, 294
-  offset: 0, 0
-  index: -1
+bounds:907,27,94,294
+offsets:0,0,95,294
+rotate:90
 tank_0006s_0002s_0000_Layer-33
-  rotate: false
-  xy: 1889, 379
-  size: 77, 109
-  orig: 77, 110
-  offset: 0, 1
-  index: -1
+bounds:1865,232,77,109
+offsets:0,1,77,110
+rotate:90
 tank_0007s_0000s_0000_Layer-34
-  rotate: true
-  xy: 1786, 39
-  size: 62, 67
-  orig: 62, 67
-  offset: 0, 0
-  index: -1
+bounds:1920,38,62,67
 tank_0007s_0001s_0000_Layer-31
-  rotate: false
-  xy: 1691, 104
-  size: 109, 167
-  orig: 109, 167
-  offset: 0, 0
-  index: -1
+bounds:1865,311,109,167
 tank_0007s_0002s_0000_Layer-19
-  rotate: false
-  xy: 1802, 103
-  size: 98, 168
-  orig: 98, 168
-  offset: 0, 0
-  index: -1
+bounds:1769,107,98,168
+rotate:90
 tank_Rarmside
-  rotate: false
-  xy: 1729, 979
-  size: 124, 77
-  orig: 124, 77
-  offset: 0, 0
-  index: -1
+bounds:777,17,124,77
 tank_fist
-  rotate: true
-  xy: 1298, 991
-  size: 64, 54
-  orig: 64, 54
-  offset: 0, 0
-  index: -1
+bounds:1298,976,64,54
+rotate:90
 thrust
-  rotate: false
-  xy: 430, 766
-  size: 886, 61
-  orig: 886, 61
-  offset: 0, 0
-  index: -1
+bounds:430,751,886,61

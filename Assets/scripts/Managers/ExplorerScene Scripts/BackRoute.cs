@@ -17,11 +17,11 @@ namespace AssemblyCSharp
 
         void OnMouseUp()
         {
-            Explore_Manager.ToggleRooms(false);
-            Explore_Manager.previousRooms[Explore_Manager.previousRooms.Count - 1].gameObject.SetActive(true);
-            Explore_Manager.SetCurrentRoom(Explore_Manager.previousRooms[Explore_Manager.previousRooms.Count - 1].gameObject.name);
-            Explore_Manager.previousRooms.RemoveAt(Explore_Manager.previousRooms.Count - 1);
-            if (Explore_Manager.previousRooms.Count == 0)
+            ExploreManager.ToggleRooms(false);
+            ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 1].gameObject.SetActive(true);
+            ExploreManager.SetCurrentRoom(ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 1].gameObject.name);
+            ExploreManager.previousRooms.RemoveAt(ExploreManager.previousRooms.Count - 1);
+            if (ExploreManager.previousRooms.Count == 0)
             {
                 this.gameObject.SetActive(false);
             }

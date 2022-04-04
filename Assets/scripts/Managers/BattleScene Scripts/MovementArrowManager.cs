@@ -6,13 +6,13 @@ namespace AssemblyCSharp
     public class MovementArrowManager : MonoBehaviour
     {
         public float distance;
-        public Base_Character_Manager occupier;
-        public Panels_Manager hoveredPanel;
-        public Panels_Manager originalPanel;
+        public BaseCharacterManagerGroup occupier;
+        public PanelsManager hoveredPanel;
+        public PanelsManager originalPanel;
 
         void OnTriggerStay2D(Collider2D coll)
         {
-            hoveredPanel = coll.gameObject.tag == "movementPanels" ? coll.gameObject.GetComponent<Panels_Manager>() : null;
+            hoveredPanel = coll.gameObject.tag == "movementPanels" ? coll.gameObject.GetComponent<PanelsManager>() : null;
         }
 
         public void SetPanelandDestroy()
@@ -27,14 +27,7 @@ namespace AssemblyCSharp
                     originalPanel.movementManager = null;
                     originalPanel.characterManager = null;
                     hoveredPanel.currentOccupier = occupier.gameObject;
-                    /*hoveredPanel.animationManager = occupier.animationManager;
-                    hoveredPanel.movementManager = occupier.movementManager;*/
-                    occupier.characterManager.characterModel.isMoving = true;
-                    /*occupier.movementManager.currentPanel = hoveredPanel.gameObject;
-                    occupier.characterManager.characterModel.inVoidZone = hoveredPanel.isVoidZone;
-                    occupier.characterManager.characterModel.inVoidCounter = hoveredPanel.isVoidCounter;
-                    occupier.characterManager.characterModel.inThreatZone = hoveredPanel.isThreatPanel;*/
-
+                    ((CharacterManager)occupier.characterManager).characterModel.isMoving = true;
                     hoveredPanel.SetStartingPanel(occupier.gameObject);
                 }
             }

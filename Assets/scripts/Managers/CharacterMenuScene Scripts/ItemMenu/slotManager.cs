@@ -51,33 +51,43 @@ namespace AssemblyCSharp
         void SetEquippedItemsAndSkills()
         {
             PlayerData playerData = savedDataManager.LoadPlayerData();
-            equipmentManager.tankWeaponObject = playerData.tankEquipment.weapon;
-            equipmentManager.tankSecondWeaponObject = playerData.tankEquipment.secondWeapon;
-            equipmentManager.tankBaubleObject = playerData.tankEquipment.bauble;
-            equipmentManager.tankClassSkill = playerData.tankEquipment.classSkill;
+            if (playerData != null)
+            {
+                equipmentManager.tankWeaponObject = playerData.tankEquipment.weapon;
+                equipmentManager.tankSecondWeaponObject = playerData.tankEquipment.secondWeapon;
+                equipmentManager.tankBaubleObject = playerData.tankEquipment.bauble;
+                equipmentManager.tankClassSkill = playerData.tankEquipment.classSkill;
 
-            equipmentManager.dpsWeaponObject = playerData.dpsEquipment.weapon;
-            equipmentManager.dpsSecondWeaponObject = playerData.dpsEquipment.secondWeapon;
-            equipmentManager.dpsBaubleObject = playerData.dpsEquipment.bauble;
-            equipmentManager.dpsClassSkill = playerData.dpsEquipment.classSkill;
+                equipmentManager.dpsWeaponObject = playerData.dpsEquipment.weapon;
+                equipmentManager.dpsSecondWeaponObject = playerData.dpsEquipment.secondWeapon;
+                equipmentManager.dpsBaubleObject = playerData.dpsEquipment.bauble;
+                equipmentManager.dpsClassSkill = playerData.dpsEquipment.classSkill;
 
-            equipmentManager.healerWeaponObject = playerData.healerEquipment.weapon;
-            equipmentManager.healerSecondWeaponObject = playerData.healerEquipment.secondWeapon;
-            equipmentManager.healerBaubleObject = playerData.healerEquipment.bauble;
-            equipmentManager.healerClassSkill = playerData.healerEquipment.classSkill;
+                equipmentManager.healerWeaponObject = playerData.healerEquipment.weapon;
+                equipmentManager.healerSecondWeaponObject = playerData.healerEquipment.secondWeapon;
+                equipmentManager.healerBaubleObject = playerData.healerEquipment.bauble;
+                equipmentManager.healerClassSkill = playerData.healerEquipment.classSkill;
+            }
         }
 
         // Use this for initialization
         void Awake()
         {
             equipmentManager = menuManager.GetComponent<equipmentManager>();
-            savedDataManager = menuManager.GetComponent<SavedDataManager>();
-            assetFinder = menuManager.GetComponent<AssetFinder>();
-            sceneManager = menuManager.GetComponent<sceneManager>();
+            //savedDataManager = menuManager.GetComponent<SavedDataManager>();
+            assetFinder = MainGameManager.instance.assetFinder; //menuManager.GetComponent<AssetFinder>();
+            //sceneManager = menuManager.GetComponent<sceneManager>();
+
+            var dataInstance = GameObject.Find("DataInstance");
+            sceneManager = dataInstance != null ? dataInstance.GetComponent<sceneManager>() : null;
+            savedDataManager = dataInstance != null ? dataInstance.GetComponent<SavedDataManager>() : null;
 
             var weapons = assetFinder.GetAllWeapons();
             var baubles = assetFinder.GetAllBaubles();
-            SetEquippedItemsAndSkills();
+            if (savedDataManager)
+            {
+                SetEquippedItemsAndSkills();
+            }
 
             slotAmount = 54;
 
@@ -124,7 +134,7 @@ namespace AssemblyCSharp
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondTankWeapon").transform);
                             }
-                            sceneManager.dpsReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject;
+                            MainGameManager.instance.SceneManager.dpsReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject;
                             break;
                         case weaponModel.weaponType.clawAndCannon:
                         case weaponModel.weaponType.dualBlades:
@@ -136,7 +146,7 @@ namespace AssemblyCSharp
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondDpsweapon").transform);
                             }
-                            sceneManager.dpsReady = equipmentManager.dpsWeaponObject && equipmentManager.dpsSecondWeaponObject;
+                            MainGameManager.instance.SceneManager.dpsReady = equipmentManager.dpsWeaponObject && equipmentManager.dpsSecondWeaponObject;
                             break;
                         case weaponModel.weaponType.cursedGlove:
                         case weaponModel.weaponType.glove:
@@ -148,7 +158,7 @@ namespace AssemblyCSharp
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondHealerweapon").transform);
                             }
-                            sceneManager.healerReady = equipmentManager.healerWeaponObject && equipmentManager.healerSecondWeaponObject;
+                            MainGameManager.instance.SceneManager.healerReady = equipmentManager.healerWeaponObject && equipmentManager.healerSecondWeaponObject;
                             break;
                         default:
                             break;

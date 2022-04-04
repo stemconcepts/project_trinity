@@ -13,6 +13,7 @@ namespace AssemblyCSharp
         public Color origColor;
         public Color hoverColor;
         public Color activeColor;
+        public Color visitedColor;
         public GameObject lineDown;
         public GameObject lineRight;
         public GameObject lineLeft;
@@ -74,7 +75,7 @@ namespace AssemblyCSharp
 
         public void SetStartIcon()
         {
-            this.gameObject.GetComponent<SpriteRenderer>().color = startColor;
+            origColor = startColor;
         }
 
         public void SetEndIcon()
@@ -85,6 +86,11 @@ namespace AssemblyCSharp
         public void SetActive(bool active)
         {
             this.gameObject.GetComponent<SpriteRenderer>().color = active ? activeColor : origColor;
+        }
+
+        public void SetVisited()
+        {
+            origColor = visitedColor;
         }
     }
 }

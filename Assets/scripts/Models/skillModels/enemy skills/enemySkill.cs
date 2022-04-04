@@ -42,7 +42,7 @@ namespace AssemblyCSharp
             var chosenPanels = new List<GameObject>();
             foreach (var panel in panels)
             {
-                if (!panel.GetComponent<Panels_Manager>().currentOccupier)
+                if (!panel.GetComponent<PanelsManager>().currentOccupier)
                 {
                     chosenPanels.Add(panel);
                 }
@@ -54,21 +54,21 @@ namespace AssemblyCSharp
         public void ShowVoidPanel(voidZoneType voidZoneEnumVar, bool monsterPanels = false)
         {
             var randomRowNumber = Random.Range(0, 3);
-            var randomVertical = Panels_Manager.voidZoneType.VerticalA;
+            var randomVertical = PanelsManager.voidZoneType.VerticalA;
 
             switch (randomRowNumber)
             {
                 case 0:
-                    randomVertical = Panels_Manager.voidZoneType.VerticalA;
+                    randomVertical = PanelsManager.voidZoneType.VerticalA;
                     break;
                 case 1:
-                    randomVertical = Panels_Manager.voidZoneType.VerticalB;
+                    randomVertical = PanelsManager.voidZoneType.VerticalB;
                     break;
                 case 2:
-                    randomVertical = Panels_Manager.voidZoneType.VerticalC;
+                    randomVertical = PanelsManager.voidZoneType.VerticalC;
                     break;
                 default:
-                    randomVertical = Panels_Manager.voidZoneType.VerticalA;
+                    randomVertical = PanelsManager.voidZoneType.VerticalA;
                     break;
             }
             switch (voidZoneEnumVar)
@@ -77,24 +77,24 @@ namespace AssemblyCSharp
                     var allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
                     for (int i = 0; allPanels.Length > i; i++)
                     {
-                        var panelScript = allPanels[i].GetComponent<Panels_Manager>();
+                        var panelScript = allPanels[i].GetComponent<PanelsManager>();
                         panelScript.VoidZoneMark();
                     }
-                    GetSafePanel(allPanels).GetComponent<Panels_Manager>().SafePanel();
+                    GetSafePanel(allPanels).GetComponent<PanelsManager>().SafePanel();
                     break;
                 case voidZoneType.Hline:
                     var HPanel = !monsterPanels ? GameObject.Find("FriendlyMovementPanel") : GameObject.Find("EnemyMovementPanel");
                     var HRow = HPanel.transform.GetChild(randomRowNumber);
                     foreach (Transform panel in HRow.transform)
                     {
-                        var panelScript = panel.GetComponent<Panels_Manager>();
+                        var panelScript = panel.GetComponent<PanelsManager>();
                         panelScript.VoidZoneMark();
                     }
                     break;
                 case voidZoneType.Vline:
                     var VPanel = !monsterPanels ? GameObject.Find("FriendlyMovementPanel") : GameObject.Find("EnemyMovementPanel");
-                    var VRows = VPanel.transform.GetComponentsInChildren<Panels_Manager>();
-                    foreach (Panels_Manager panelManager in VRows)
+                    var VRows = VPanel.transform.GetComponentsInChildren<PanelsManager>();
+                    foreach (PanelsManager panelManager in VRows)
                     {
                         if (panelManager.voidZonesTypes == randomVertical)
                         {
@@ -105,7 +105,7 @@ namespace AssemblyCSharp
                     break;
                 case voidZoneType.Random:
                     allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
-                    GetRandomPanelFromPanels(allPanels).GetComponent<Panels_Manager>().VoidZoneMark();
+                    GetRandomPanelFromPanels(allPanels).GetComponent<PanelsManager>().VoidZoneMark();
                     break;
             }
         }
@@ -115,7 +115,7 @@ namespace AssemblyCSharp
             var allPanels = GameObject.FindGameObjectsWithTag("movementPanels");
             for (var i = 0; allPanels.Length > i; i++)
             {
-                var panelScript = allPanels[i].GetComponent<Panels_Manager>();
+                var panelScript = allPanels[i].GetComponent<PanelsManager>();
                 panelScript.ClearVoidZone();
             }
         }
@@ -124,7 +124,7 @@ namespace AssemblyCSharp
         {
             //var allPanels = GameObject.FindGameObjectsWithTag("movementPanels");
             var randomPanelNumber = Random.Range(0, panels.Length);
-            var safePanelScript = panels[randomPanelNumber].GetComponent<Panels_Manager>();
+            var safePanelScript = panels[randomPanelNumber].GetComponent<PanelsManager>();
             if (safePanelScript.currentOccupier == null)
             {
                 return panels[randomPanelNumber];
@@ -141,30 +141,29 @@ namespace AssemblyCSharp
         {
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                    var enemyIndex = Battle_Manager.characterSelectManager.enemyCharacters.Count() + i;
-                    var singleMinionDataItem = Battle_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
+                    var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
+                    var singleMinionDataItem = BattleManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
                     var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
                     creatureData.name = "minion_" + enemyIndex + "_data";
                     var panel = GetRandomPanelFromPanels();
-                    var panelManager = panel.GetComponent<Panels_Manager>();
+                    var panelManager = panel.GetComponent<PanelsManager>();
                     if (panel)
                     {
                         //creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
                             var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
                             newCreature.name = "minion_" + enemyIndex;
-                            var minionBaseManager = newCreature.GetComponent<Base_Character_Manager>();
+                            var minionBaseManager = newCreature.GetComponent<BaseCharacterManagerGroup>();
                             minionBaseManager.autoAttackManager.hasAttacked = true;
                             panelManager.currentOccupier = newCreature;
                             minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
                             minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
                             panelManager.SetStartingPanel(newCreature, true);
+                        panelManager.SaveCharacterPositionFromPanel();
                     }
                     else
                     {
                         Debug.Log("No Panel");
                     }
-                
-                
             }
         }
     }
