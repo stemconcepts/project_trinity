@@ -33,7 +33,7 @@ namespace AssemblyCSharp
         public Vector3 dragOrigin;
         Vector3 lastMousePosition = new Vector3();
 
-        int rand;
+        //int rand;
 
         void Awake(){
             SoundManager = gameObject.GetComponent<Sound_Manager>();
@@ -65,8 +65,14 @@ namespace AssemblyCSharp
 
         public bool GetChance(int maxChance)
         {
-            rand = UnityEngine.Random.Range(0, (maxChance + 1));
-            return rand == 1;
+            var rand = UnityEngine.Random.Range(0, (maxChance + 1));
+            return rand == 0;
+        }
+
+        public static bool GetChanceByPercentage(float chance)
+        {
+            var rand = UnityEngine.Random.Range(0.0f, 2.0f);
+            return chance >= rand;
         }
 
         public void SetDragOrigin()
@@ -90,7 +96,7 @@ namespace AssemblyCSharp
 
         public int ReturnRandom(int maxNumber)
         {
-            rand = UnityEngine.Random.Range(0, maxNumber);
+            var rand = UnityEngine.Random.Range(0, maxNumber);
             return rand;
         }
     }

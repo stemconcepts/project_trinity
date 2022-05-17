@@ -263,6 +263,7 @@ C:\Users\Sean\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.dll
 C:\Users\Sean\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\spine-unity.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\spine-unity.pdb
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\ICSharpCode.NRefactory.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Microsoft.Win32.Primitives.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\mscorlib.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\netstandard.dll
@@ -431,6 +432,7 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityE
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.TLSModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UI.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsModule.dll
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsNativeModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UmbraModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UNETModule.dll
@@ -445,6 +447,7 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityE
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VehiclesModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VFXModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VideoModule.dll
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VirtualTexturingModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VRModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.WindModule.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.XRModule.dll
@@ -456,6 +459,8 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\Unity.CecilTools.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.xml
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.UI.pdb
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UI.pdb
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.AIModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.ARModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.AccessibilityModule.xml
@@ -499,6 +504,7 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityE
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.TilemapModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsModule.xml
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsNativeModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UNETModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UmbraModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UnityAnalyticsModule.xml
@@ -513,17 +519,10 @@ C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityE
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VRModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VehiclesModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VideoModule.xml
+C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VirtualTexturingModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.WindModule.xml
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.XRModule.xml
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEditor.UI.pdb
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UI.pdb
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.csprojAssemblyReference.cache
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.csproj.CoreCompileInputs.cache
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.csproj.CopyComplete
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.dll
 C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\obj\Debug\spine-unity.pdb
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsNativeModule.dll
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VirtualTexturingModule.dll
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.UIElementsNativeModule.xml
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\UnityEngine.VirtualTexturingModule.xml
-C:\Users\Sean\OneDrive\Documents\HydraHorn\project_trinity\Temp\bin\Debug\ICSharpCode.NRefactory.dll

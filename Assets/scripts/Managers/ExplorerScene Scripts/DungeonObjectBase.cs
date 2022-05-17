@@ -6,6 +6,7 @@ namespace AssemblyCSharp
 {
     public class DungeonObjectBase : MonoBehaviour
     {
+        public int position;
         public SpriteRenderer spriteRenderer;
         public List<Sprite> allowedPathSprites;
 

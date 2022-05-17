@@ -6,6 +6,14 @@ using static AssemblyCSharp.miniMapIconBase;
 
 namespace AssemblyCSharp
 {
+
+    public class detourLink
+    {
+        public miniMapIconBase start;
+        public miniMapIconBase end;
+        public int distance;
+    }
+
     public class ExploreManager : MonoBehaviour
     {
         public static GameManager gameManager;
@@ -52,11 +60,58 @@ namespace AssemblyCSharp
 
         public void LevelGenerator()
         {
-            GenerateRooms(dungeonSettings.minRooms);
-            GenerateDetours(dungeonSettingsCopy.maxDetourLength);
-            GetTotalRoomsAndHide();
-            AddRandomEncounters();
-            SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
+            //needs to check if its loading a new level or not
+            var d = LoadDungeon();
+            if (d.allRooms.Length == 0 && string.IsNullOrEmpty(d.currentRoomId))
+            {
+                dungeonSettings.enemyEncounters.ForEach(o =>
+                {
+                    o.lootAdded = false;
+                });
+                GenerateRooms(dungeonSettings.minRooms);
+                GenerateDetours(dungeonSettingsCopy.maxDetourLength);
+                LinkDetours();
+                GetTotalRoomsAndHide();
+                AddRandomEncounters();
+                SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
+                SavedDataManager.SavedDataManagerInstance.SaveIconPos(iconControllers);
+            }
+        }
+
+        void LinkDetours()
+        {
+            List<detourLink> x = new List<detourLink>();
+            iconControllers.ForEach(o =>
+            {
+                var match = iconControllers.Find(i => i.depth == o.depth && i.lineDirection == o.lineDirection && !i.isMainIcon && !i.isCustomIcon && i.label != o.label);
+                if (match)
+                {
+                    var item = new detourLink()
+                    {
+                        start = o,
+                        end = match
+                    };
+                    item.distance = Math.Abs(item.start.masterDepth - item.end.masterDepth) - 1;
+                    x.Add(item);
+                }
+            });
+
+            x.ForEach(o =>
+            {
+                DungeonRoom lastRoom = null;
+                for (int i = 0; i < o.distance; i++)
+                {
+                    var room = lastRoom == null ? allRooms.Find(a => a.name == o.start.label) : lastRoom; //AllRooms is empty till after detourLink, save detour rooms seperately
+                    if (room)
+                    {
+                        DungeonRoom r = AddRoomFromParentRoom(room, "Detour_Connector");
+                        r.id = $"room_detour_connector_{i}_{room.id}";
+                        GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
+                        lastRoom = r;
+                    }
+                }
+                lastRoom = null;
+            });
         }
 
         public static BackRoute GetBackButton()
@@ -67,6 +122,7 @@ namespace AssemblyCSharp
         public static void AddToObtainedItems(ItemBase item)
         {
             obtainedItems.Add(item);
+            SavedDataManager.SavedDataManagerInstance.SaveObtainedItem(item.id);
         }
 
         public static void RemoveObtainedItem(ItemBase item)
@@ -75,6 +131,7 @@ namespace AssemblyCSharp
             //var x = inventoryHolder.transform.
             GameObject itemObj = inventoryHolder.transform.Find($"{item.name}").gameObject;
             Destroy(itemObj);
+            SavedDataManager.SavedDataManagerInstance.RemoveObtainedItem(item.id);
         }
 
         public static void AddPreviousRoom(DungeonRoom room)
@@ -85,6 +142,7 @@ namespace AssemblyCSharp
             {
                 backButton.SetActive(true);
             }
+            SavedDataManager.SavedDataManagerInstance.EditPreviousRoom(room.name, true);
         }
 
         public static void ChangeRouteInBackButton(DungeonRoom lastRoom)
@@ -104,6 +162,7 @@ namespace AssemblyCSharp
         public static void SetCurrentRoom(string roomName)
         {
             currentRoom = roomName;
+            iconControllers = iconControllers.Where(o => o != null).ToList();
             miniMapIconBase currentIcon = iconControllers.Where(o => o.label == roomName).FirstOrDefault();
             iconControllers.ForEach(o =>
             {
@@ -113,6 +172,85 @@ namespace AssemblyCSharp
             {
                 currentIcon.SetActive(true);
             }
+            //var x = allRooms.Where(o => o.visited).Select(o => o.name).ToString();
+            SavedDataManager.SavedDataManagerInstance.SaveCurrentRoomData(roomName);
+        }
+
+        DungeonData LoadDungeon()
+        {
+            DungeonData data = SavedDataManager.SavedDataManagerInstance.LoadDungeonData();
+            if (data.allRooms.Length > 0 && !string.IsNullOrEmpty(data.currentRoomId))
+            {
+                foreach (var r in data.allRooms)
+                {
+                    GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
+                    DungeonRoom dr = room.GetComponent<DungeonRoom>();
+                    room.name = r.name;
+                    dr.isStartingRoom = r.isStartingRoom;
+                    dr.isDetour = r.isDetour;
+                    dr.isCustomRoom = r.isCustomRoom;
+                    dr.id = r.id;
+                    dr.visited = r.visited;
+                    dr.parentRoom = allRooms.Where(a => a.id == r.parentRoomId).FirstOrDefault();
+                    dr.gameObject.SetActive(r.name == data.currentRoomId);
+                    r.roomObjects.ToList().ForEach(o =>
+                    {
+                        PlaceRoomObject(dr, o.position);
+                    });
+                    r.routes.ToList().ForEach(ru =>
+                    {
+                        dr.InsertRouteFromData(ru, routeTemplate);
+                    });
+                    allRooms.Add(dr);
+                }
+
+                allRooms = allRooms.Where(o => o != null).ToList();
+                var roomsVisited = allRooms.Where(o => o.visited).Select(c =>
+                {
+                    return c.gameObject.name;
+                }).ToArray();
+
+                previousRooms = allRooms.Where(o => data.previousRooms.Contains(o.name)).ToList();
+                previousRooms.Reverse();
+                PlaceSavedIcons(data.miniMapIconData, roomsVisited);
+                SetCurrentRoom(data.currentRoomId);
+                dungeonSettings.enemyEncounters = dungeonSettings.enemyEncounters.Where(o => !data.enemysKilled.Contains(o.id)).ToList();
+            }
+            return data;
+        }
+
+        void PlaceSavedIcons(IconData[] icons, string[] visitedRooms)
+        {
+            var i = 1;
+            icons.ToList().ForEach(o =>
+            {
+                GameObject roomIcon = Instantiate(roomIconTemplate, miniMap.transform);
+                miniMapIconController mmc = roomIcon.GetComponent<miniMapIconController>();
+                roomIcon.transform.position = new Vector2(o.position.x, o.position.y);
+                mmc.label = o.label;
+                mmc.ShowLine((lineDirectionEnum)o.direction);
+                if (visitedRooms.ToList().Any(r => r == mmc.label))
+                {
+                    mmc.SetVisited();
+                }
+                if (i == icons.Length)
+                {
+                    mmc.SetStartIcon();
+                }
+                if (i == 0)
+                {
+                    mmc.SetEndIcon();
+                }
+                iconControllers.Add(mmc);
+                allRooms.ForEach(r =>
+                {
+                    if (r.gameObject.name == mmc.label)
+                    {
+                        r.roomIcon = mmc;
+                    }
+                });
+                i++;
+            });
         }
 
         void AddCustomRoomIcon(GameObject roomIconGroupTemplate, miniMapIconBase startIconController)
@@ -122,6 +260,7 @@ namespace AssemblyCSharp
             for (int i = 0; i < roomIconGroup.transform.childCount; i++)
             {
                 miniMapCustomIcon mmc = roomIconGroup.transform.GetChild(i).gameObject.GetComponent<miniMapCustomIcon>();
+                mmc.isCustomIcon = true;
                 iconControllers.Add(mmc);
                 if (mmc.mapPosition == miniMapCustomIcon.mapPositionEnum.end)
                 {
@@ -132,12 +271,23 @@ namespace AssemblyCSharp
             roomIconGroup.transform.position = new Vector3(lastRoomLocation.position.x, lastRoomLocation.position.y + 0.4f);
         }
 
-        void GenerateRoomIcon(DungeonRoom dr, lineDirectionEnum direction)
+        void GenerateRoomIcon(DungeonRoom dr, lineDirectionEnum direction, bool isMainIcon, int depth, int masterDepth = 0)
         {
             GameObject roomIcon = Instantiate(roomIconTemplate, miniMap.transform);
             miniMapIconController mmc = roomIcon.GetComponent<miniMapIconController>();
+            mmc.isMainIcon = isMainIcon;
+            mmc.depth = depth;
+            if (!isMainIcon)
+            {
+                mmc.masterDepth = masterDepth;
+            }
             mmc.label = dr.gameObject.name;
-            if (iconControllers.Count > 0)
+            if (direction == lineDirectionEnum.down && !isMainIcon)
+            {
+                Transform parentRoomTransform = dr.roomIcon.transform;
+                mmc.ShowLine(direction);
+                roomIcon.transform.position = new Vector3(parentRoomTransform.position.x, parentRoomTransform.position.y - 0.4f);
+            } else if (iconControllers.Count > 0)
             {
                 Transform lastRoomLocation = iconControllers[iconControllers.Count - 1].transform;
                 if (dr.isDetour)
@@ -195,7 +345,7 @@ namespace AssemblyCSharp
                     customRooms.Add(dr);
                     mainRooms.Add(dr);
                 }
-                if(customRooms.Any(o => o.name == "CustomRoom_0"))
+                if (customRooms.Any(o => o.name == "CustomRoom_0"))
                 {
                     DungeonRoom firstCustomRoom = customRooms.Where(o => o.name == $"CustomRoom_{firstCustomRoomIndex}").FirstOrDefault();
                     DungeonRoom lastCustomRoom = customRooms.Where(o => o.name == $"CustomRoom_{customRooms.Count - 1}").FirstOrDefault();
@@ -209,8 +359,13 @@ namespace AssemblyCSharp
 
         bool CanGenerateCustomRoute(int roomCount)
         {
+            if(mainRooms.Any(o => o.isCustomRoom) && mainRooms[mainRooms.Count - 1].isCustomRoom)
+            {
+                return false;
+            }
+            
             int actualRoomPosition = dungeonSettings.minRooms - dungeonSettingsCopy.minRoomsBeforeCustomRoutes; //Do this because rooms are traversed backwards
-            return roomCount > 0 && dungeonSettings.minRooms != (roomCount + 1) && actualRoomPosition <= roomCount && dungeonSettingsCopy.customRouteObjects.Count > 0;
+            return roomCount > 0 && dungeonSettings.minRooms != (roomCount + 1) && actualRoomPosition >= roomCount && dungeonSettingsCopy.customRouteObjects.Count > 0;
         }
 
         bool CanLockDoor(int roomCount)
@@ -239,7 +394,7 @@ namespace AssemblyCSharp
             {
                 foreach (DungeonRoom room in allRooms)
                 {
-                    if (dungeonSettingsCopy.enemyEncounters.Count > 0 && GetChance(2) && room.encounter == null && !room.isStartingRoom)
+                    if (dungeonSettingsCopy.enemyEncounters.Count > 0 && GameManager.GetChanceByPercentage(0.3f) /*GetChance(2)*/ && room.encounter == null && !room.isStartingRoom)
                     {
                         AddEncounter(room);
                     }
@@ -265,6 +420,16 @@ namespace AssemblyCSharp
                 ++largeEncounters;
                 Debug.Log($"Large encounter created at {dr.name}");
             }
+
+            if (!ee.lootAdded)
+            {
+                ee.loot.ForEach(o =>
+                {
+                    int monsterIndex = ExploreManager.gameManager.ReturnRandom(dr.encounter.enemies.Count);
+                    dr.encounter.enemies[monsterIndex].GetComponent<EnemyCharacterModel>().loot.Add(o);
+                });
+                ee.lootAdded = true;
+            }
         }
 
         void GenerateRooms(int numberOfRooms)
@@ -272,7 +437,7 @@ namespace AssemblyCSharp
             List<KeyItem> savedKeys = new List<KeyItem>();
             for (int i = 0; i < numberOfRooms; i++)
             {
-                if (CanGenerateCustomRoute(i) && GetChance(dungeonSettings.chanceToGenerateCustomRoute))
+                if (CanGenerateCustomRoute(i) && GameManager.GetChanceByPercentage(dungeonSettings.chanceToGenerateCustomRoute)/*GetChance(dungeonSettings.chanceToGenerateCustomRoute)*/)
                 {
                     GenerateCustomRooms(mainRooms[mainRooms.Count - 1]);
                 } else
@@ -281,10 +446,11 @@ namespace AssemblyCSharp
                     DungeonRoom dr = room.GetComponent<DungeonRoom>();
                     room.name = $"Room_{mainRooms.Count}";
                     dr.isStartingRoom = i == (numberOfRooms - 1);
+                    dr.id = $"room_{i}";
                     if (mainRooms.Count > 0)
                     {
                         DungeonRoom parentRoom = mainRooms[mainRooms.Count - 1];
-                        if (CanLockDoor(i) && GetChance(2))
+                        if (CanLockDoor(i) && GameManager.GetChanceByPercentage(0.3f))
                         {
                             Debug.Log($"Locked door created at {parentRoom.name}");
                             int lockIndex = ExploreManager.gameManager.ReturnRandom(dungeonSettingsCopy.locks.Count);
@@ -298,7 +464,7 @@ namespace AssemblyCSharp
                     mainRooms.Add(dr);
                     if (!dr.isCustomRoom)
                     {
-                        GenerateRoomIcon(dr, lineDirectionEnum.left);
+                        GenerateRoomIcon(dr, lineDirectionEnum.left, true, i);
                     }
                 }
             }
@@ -308,14 +474,14 @@ namespace AssemblyCSharp
             }
         }
 
-        Transform GetFreeSection(DungeonRoom room)
+        Transform GetFreeSection(DungeonRoom room, int randIntFromForeGround)
         {
             bool freeSpot = false;
             Transform result = null;
             int count = 0;
             while (!freeSpot && count < 5)
             {
-                Transform section = room.foregroundHolder.transform.GetChild(ExploreManager.gameManager.ReturnRandom(room.foregroundHolder.transform.childCount)).transform;
+                Transform section = room.foregroundHolder.transform.GetChild(randIntFromForeGround).transform;
                 if (section.childCount == 0)
                 {
                     result = section;
@@ -326,15 +492,24 @@ namespace AssemblyCSharp
             return result;
         }
 
+        void PlaceRoomObject(DungeonRoom room, int position)
+        {
+            GameObject objectT = Instantiate(objectTemplate, GetFreeSection(room, position));
+            var ro = objectT.GetComponent<RoomObject>();
+            ro.position = position;
+            ro.GenerateItems(1);
+            room.roomObjects.Add(ro);
+        }
+
         void GenerateRoomObject(DungeonRoom room, int amount)
         {
             amount = amount > 3 ? 3 : amount;
             for (int i = 1; i <= amount; i++)
             {
-                if (GetChance(3))
+                if (/*GetChance(3)*/ GameManager.GetChanceByPercentage(0.2f))
                 {
-                    GameObject objectT = Instantiate(objectTemplate, GetFreeSection(room));
-                    objectT.GetComponent<RoomObject>().GenerateItems(1);
+                    int randIntFromForeGround = ExploreManager.gameManager.ReturnRandom(room.foregroundHolder.transform.childCount);
+                    PlaceRoomObject(room, randIntFromForeGround);
                 }
             }
         }
@@ -350,6 +525,11 @@ namespace AssemblyCSharp
                 parentRoom.detourRooms.Add(dr);
                 dr.parentRoom = parentRoom;
                 dr.isDetour = true;
+                dr.depth = parentRoom.detourRooms.Count;
+            } else if (suffix.ToLower() == "detour_connector")
+            {
+                dr.parentRoom = parentRoom;
+                dr.isDetour = true;
             }
             GenerateRoomObject(dr, 3);
             return dr;
@@ -357,6 +537,7 @@ namespace AssemblyCSharp
 
         void GenerateDetours(int detourLength)
         {
+            var masterIndex = 0;
             mainRooms.Where(m => !m.isCustomRoom).ToList().ForEach(o =>
             {
                 for (int i = 1; i <= (int)dungeonSettingsCopy.maxDetours; i++)
@@ -365,36 +546,41 @@ namespace AssemblyCSharp
                     {
                         GenerateCustomRooms(o.detourRooms[o.detourRooms.Count - 1]);
                     }
-                    else*/ if (GetChance(1) && detourLength > 0)
+                    else*/
+                    if (GameManager.GetChanceByPercentage(0.5f) && detourLength > 0)
                     {
                         DungeonRoom r = AddRoomFromParentRoom(o, "Detour");
-                        GenerateRoomIcon(r, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right);
+                        r.id = $"room_detour_{i}_{o.id}";
+                        GenerateRoomIcon(r, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right, false, 0, masterIndex);
                         if (r.roomIcon)
                         {
                             r.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
                         }
                         for (int x = 1; x <= detourLength; x++)
                         {
-                            if (GetChance(1))
+                            var depthIndex = 1;
+                            if (GameManager.GetChanceByPercentage(0.5f))
                             {
                                 DungeonRoom parentRoom = r.detourRooms.Count == 0 ? r : r.detourRooms[r.detourRooms.Count - 1];
                                 DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour");
-                                GenerateRoomIcon(n, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right);
+                                GenerateRoomIcon(n, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right, false, depthIndex, masterIndex);
                                 if (n.roomIcon)
                                 {
                                     n.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
                                 }
+                                depthIndex++;
                             }
                         }
                     }
                 }
+                masterIndex++;
             });
         }
 
         public static bool GetChance(int maxChance)
         {
             rand = UnityEngine.Random.Range(0, (maxChance + 1));
-            return rand == 1;
+            return rand == 0;
         }
 
         int ReturnRandom(int maxNumber)
@@ -408,7 +594,9 @@ namespace AssemblyCSharp
             var allRoomGameObjects = GameObject.FindGameObjectsWithTag("dungeonRoom").ToList();
             allRoomGameObjects.ForEach(o =>
             {
-                allRooms.Add(o.GetComponent<DungeonRoom>());
+                var dr = o.GetComponent<DungeonRoom>();
+                allRooms.Add(dr);
+                SavedDataManager.SavedDataManagerInstance.SaveRoomsAndData(dr, dr.roomObjects);
                 o.SetActive(false);
             });
             mainRooms[mainRooms.Count - 1].gameObject.SetActive(true);

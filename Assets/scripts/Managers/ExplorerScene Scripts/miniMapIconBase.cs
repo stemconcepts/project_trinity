@@ -6,6 +6,7 @@ namespace AssemblyCSharp
 {
     public class miniMapIconBase : MonoBehaviour
     {
+        public string id;
         public bool isCurrent;
         public string label;
         public Color startColor;
@@ -25,6 +26,9 @@ namespace AssemblyCSharp
             left = 2,
             none = 3
         }
+        public bool isMainIcon, isCustomIcon;
+        public int depth;
+        public int masterDepth;
 
         public miniMapIconController ConvertToIconController(miniMapIconBase mmb)
         {
@@ -46,6 +50,7 @@ namespace AssemblyCSharp
 
         public void ShowLine(lineDirectionEnum lineDirection)
         {
+            this.lineDirection = lineDirection;
             switch (lineDirection)
             {
                 case lineDirectionEnum.down:

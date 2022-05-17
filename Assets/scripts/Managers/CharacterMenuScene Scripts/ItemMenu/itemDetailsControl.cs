@@ -35,7 +35,7 @@ namespace AssemblyCSharp
 			var itemName = weapon.DisplayName;
 			var itemDetails = weapon.WeaponDescription;
 			var attachedSkills = weapon;
-			var nameText = itemNameHolder.transform.GetChild(1).Find("Text").GetComponent<Text>();
+			var nameText = itemNameHolder.transform.Find("Text").GetComponent<Text>();
 			var previewText = itemPreviewHolder.transform.Find("Text").GetComponent<Text>();
 			var skillsTitle2 = itemSkillHolder.transform.Find("Panel2").Find("skillTextHolder").Find("Text-title2").GetComponent<Text>();
 			var skillsCost2 = itemSkillHolder.transform.Find("Panel2").Find("skillTextHolder").Find("CostandCD").Find("Text-cost").GetComponent<Text>();
@@ -71,7 +71,7 @@ namespace AssemblyCSharp
 			var itemName = bauble.baubleName;
 			var itemDetails = bauble.baubleDesc;
 			var attachedEffect = bauble;
-			var nameText = itemNameHolder.transform.GetChild(1).Find("Text").GetComponent<Text>();
+			var nameText = itemNameHolder.transform.Find("Text").GetComponent<Text>();
 			var previewText = itemPreviewHolder.transform.Find("Text").GetComponent<Text>();
 			var skillsTitle2 = itemSkillHolder.transform.Find("Panel2").Find("skillTextHolder").Find("Text-title2").GetComponent<Text>();
 			var skillsCost2 = itemSkillHolder.transform.Find("Panel2").Find("skillTextHolder").Find("CostandCD").Find("Text-cost").GetComponent<Text>();
@@ -114,7 +114,7 @@ namespace AssemblyCSharp
 
 		public void DisplaySkillData(SkillModel classSkill)
 		{
-			var nameText = itemNameHolder.transform.GetChild(0).Find("Text-skill name").GetComponent<Text>();
+			var nameText = itemNameHolder.transform.Find("Text-skill name").GetComponent<Text>();
 			var previewText = itemPreviewHolder.transform.Find("Panel-skill preview").Find("Text-skill detail").GetComponent<Text>();
 			var skillsCost = itemSkillHolder.transform.Find("Panel-skill preview").Find("Text-skill cost").GetComponent<Text>();
 			nameText.text = classSkill.skillName;

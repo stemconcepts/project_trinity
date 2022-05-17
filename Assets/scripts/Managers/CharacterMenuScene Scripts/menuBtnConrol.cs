@@ -17,7 +17,7 @@ namespace AssemblyCSharp
 
 		public void HideInventory()
 		{
-			ExploreManager.gameManager.SceneManager.UnLoadInventory();
+			ExploreManager.gameManager.SceneManager.UnLoadScene("Inventory");
 		}
 
 		public void ShowItemMenu()
@@ -32,6 +32,13 @@ namespace AssemblyCSharp
 			itemMenu.SetActive(false);
 			skillMenu.SetActive(true);
 			menuTitle.transform.Find("Title").GetComponent<Text>().text = "SKILLS";
+		}
+
+		public void LoadExploration()
+		{
+            if (MainGameManager.instance.SceneManager.TeamReady()){
+				MainGameManager.instance.SceneManager.LoadExploration(false);
+			}
 		}
 
 		public void Start()

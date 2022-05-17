@@ -7,7 +7,9 @@ namespace AssemblyCSharp
     {
         [Header("Custom Route Settings")]
         public List<GameObject> customRouteObjects;
-        public int minRoomsBeforeCustomRoutes, chanceToGenerateCustomRoute;
+        [Range(0.0f, 1.0f)]
+        public float chanceToGenerateCustomRoute;
+        public int minRoomsBeforeCustomRoutes;
         [Header("Detour Settings")]
         public detourAmount maxDetours;
         public enum detourAmount

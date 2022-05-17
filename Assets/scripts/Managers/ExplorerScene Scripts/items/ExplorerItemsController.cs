@@ -6,6 +6,7 @@ namespace AssemblyCSharp
     public class ExplorerItemsController : MonoBehaviour
     {
         public ItemBase itemBase;
+        public int position;
         ToolTipTriggerController tooltipController;
         SpriteRenderer spriteRenderer;
 

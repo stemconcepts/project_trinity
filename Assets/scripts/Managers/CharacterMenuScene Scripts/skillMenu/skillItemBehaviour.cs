@@ -191,6 +191,7 @@ namespace AssemblyCSharp
                         hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
                         this.transform.parent.GetComponent<Image>().color = equipColor;
                         SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "walker");
+                        //MainGameManager.instance.SceneManager.healerReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject && equipmentManager.tankClassSkill;
                     }
                     else
                     {

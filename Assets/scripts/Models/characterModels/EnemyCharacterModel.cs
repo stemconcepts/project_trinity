@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -31,7 +32,8 @@ namespace AssemblyCSharp
             originalCritChance = critChance;
             originalEvasion = evasion;
         }
-
+        public int experience;
+        public List<ItemBase> loot;
         public PowerLevelEnum powerLevel = PowerLevelEnum.Normal;
     }
 }

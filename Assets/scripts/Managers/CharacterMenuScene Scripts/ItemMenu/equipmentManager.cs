@@ -40,6 +40,14 @@ namespace AssemblyCSharp
             }*/
 		}
 
+		void Start()
+        {
+			if (MainGameManager.instance.ShowTutorialText())
+			{
+				MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Inventory"), MainGameManager.instance.GlobalCanvas.transform, 0, "Inventory Tutorial");
+			}
+		}
+
 		void Update()
 		{
 			if (tankWeaponObject && tankSecondWeaponObject && tankClassSkill != null)

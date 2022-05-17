@@ -19,12 +19,13 @@ namespace AssemblyCSharp
         public static Game_Effects_Manager gameEffectManager;
         public static Task_Manager taskManager;
         public static BattleDetailsManager battleDetailsManager;
-        public static List<BattleInterfaceManager> battleInterfaceManager  = new List<BattleInterfaceManager>();
+        public static List<BattleInterfaceManager> battleInterfaceManager = new List<BattleInterfaceManager>();
         public static Character_Select_Manager characterSelectManager;
         public static AssetFinder assetFinder;
         public static bool waitingForSkillTarget;
         public static bool offensiveSkill;
         public static bool battleStarted = false;
+        public static bool battleOver = false;
         public static GameObject pauseScreenHolder;
         public static bool disableActions = true;
         public static float vigor = 6;
@@ -33,6 +34,8 @@ namespace AssemblyCSharp
         public static float maxActionPoints = 6;
         public static float originalActionPoints;
         static Text actionPointsText;
+        private static int totalEXP;
+        private static List<ItemBase> loot = new List<ItemBase>();
         //Turn properties
         //public static GameObject turnScreenHolder;
         static Image turnTimer;
@@ -60,7 +63,7 @@ namespace AssemblyCSharp
             assetFinder = gameManager.AssetFinder;
             UICanvas = GameObject.Find("Canvas - UI");
             tooltipCanvas = GameObject.Find("Canvas - Tooltip");
-            pauseScreenHolder = GameObject.Find("PauseOverlayUI");
+            //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
             if(pauseScreenHolder != null)
             {
@@ -70,6 +73,10 @@ namespace AssemblyCSharp
 
         void Start()
         {
+            if (MainGameManager.instance.ShowTutorialText())
+            {
+                MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Battle"), headerText: "A Battle has begun", waitTime : 2f, pauseGame: true);
+            }
             LoadEnemies();
             allPanelManagers = GameObject.FindGameObjectsWithTag("movementPanels").Select(o => o.GetComponent<PanelsManager>()).ToList();
             taskManager.battleDetailsManager = battleDetailsManager;
@@ -95,13 +102,44 @@ namespace AssemblyCSharp
                     ResetTurnTimer();
                 });
             }
+            CheckBattleOver();
+        }
+
+        public static int GetEXPValue()
+        {
+            return totalEXP;
+        }
+
+        public static List<ItemBase> GetLoot()
+        {
+            return loot;
+        }
+
+        public static void AddToEXP(int value)
+        {
+            totalEXP += value;
+        }
+
+        public static void AddToLoot(ItemBase l)
+        {
+            loot.Add(l);
+        }
+
+        void CheckBattleOver()
+        {
+            if(characterSelectManager.enemyCharacters.Count == 0 && !BattleManager.battleOver)
+            {
+                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => MainGameManager.instance.SceneManager.LoadExploration(false));
+                BattleManager.battleOver = true;
+            }
         }
 
         void LoadEnemies()
         {
-            if (MainGameManager.instance.SceneManager.enemies.Count() > 0)
+            var enemies = MainGameManager.instance.SceneManager.enemies;
+            if (enemies.Count() > 0)
             {
-                SummonCreatures(gameManager.SceneManager.enemies, "monster", false);
+                SummonCreatures(enemies, "monster", false);
             }
             
             /*foreach (var e in gameManager.SceneManager.enemies)
@@ -217,7 +255,7 @@ namespace AssemblyCSharp
 
         public static void PauseGame()
         {
-            pauseScreenHolder.SetActive(gamePaused ? false : true);
+            //pauseScreenHolder.SetActive(gamePaused ? false : true);
             Time.timeScale = gamePaused ? 1 : 0;
             gamePaused = !gamePaused;
         }
@@ -396,8 +434,6 @@ namespace AssemblyCSharp
             taskManager.CallTask( waitTime, () => {
                 BattleManager.battleStarted = true;
                 CheckAndSetTurn();
-                //friendlyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
-                //enemyCharacters.ForEach(o => o.baseManager.autoAttackManager.RunAttackLoop());
             });
         }
     }

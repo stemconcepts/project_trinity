@@ -37,9 +37,8 @@ namespace AssemblyCSharp
                 characterModel.isAlive = false;
                 BattleManager.characterSelectManager.UpdateCharacters(this.gameObject.name);
                 characterModel.Health = 0;
-                var duration = baseManager.animationManager.PlaySetAnimation("death");
+                var duration =  baseManager.animationManager.PlaySetAnimation("death");
                 BattleManager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
-
                 foreach (var task in BattleManager.taskManager.taskList)
                 {
                     if (task.Key == baseManager.name)
@@ -47,15 +46,22 @@ namespace AssemblyCSharp
                         BattleManager.taskManager.taskList.Remove(task.Key);
                     }
                 }
-                BattleManager.taskManager.CallTask(duration, () =>
+                if (characterModel.characterType == CharacterModel.CharacterTypeEnum.enemy)
                 {
-                    if (characterModel.characterType == CharacterModel.CharacterTypeEnum.enemy)
+                    Destroy(this.gameObject, duration);
+                    var dataUI = GameObject.Find(this.gameObject.name + "_data");
+                    Destroy(dataUI, duration);
+                    BattleManager.AddToEXP((baseManager.characterManager.characterModel as EnemyCharacterModel).experience);
+
+                    (baseManager.characterManager.characterModel as EnemyCharacterModel).loot.ForEach(l =>
                     {
-                        Destroy(this.gameObject);
-                        var dataUI = GameObject.Find(this.gameObject.name + "_data");
-                        Destroy(dataUI);
-                    }
-                });
+                        if (GameManager.GetChanceByPercentage((l as GenericItem).dropChancePercentage))
+                        {
+                            BattleManager.AddToLoot(l);
+                        }
+                    });
+
+                }
             }
         }
 

@@ -8,7 +8,7 @@ namespace AssemblyCSharp
     {
         public string routeTag;
         public string location;
-        //public bool locked;
+        public int position;
         public LockObject lockObj;
         public SpriteRenderer spriteRenderer;
         public List<Sprite> allowedPathSprites;

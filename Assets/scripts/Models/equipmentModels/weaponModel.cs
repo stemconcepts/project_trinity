@@ -15,12 +15,6 @@ namespace AssemblyCSharp
     	public int itemNumber;
     	[Multiline]
     	public string WeaponDescription;
-    	public enum itemQuality {
-    		Common,
-    		Rare,
-    		Epic,
-    		Legendary
-    	};
     	public itemQuality quality;
         public enum weaponType {
     		bladeAndBoard,

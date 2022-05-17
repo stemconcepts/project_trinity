@@ -8,21 +8,13 @@ using Spine;
 
 namespace AssemblyCSharp
 {
-    public class Task_Manager : MonoBehaviour
+    public class Task_Manager : MainGameTaskManager
     {
         //public Base_Character_Manager baseManager;
         public BattleDetailsManager battleDetailsManager;
-        public Dictionary<string, Task> taskList = new Dictionary<string, Task>();
-        void Start()
-        {
-            //baseManager = this.gameObject.GetComponent<Base_Character_Manager>();
-        }
+       // public Dictionary<string, Task> taskList = new Dictionary<string, Task>();
 
-        /*public Task_Manager( Battle_Details_Manager bdm ){
-            battleDetailsManager = bdm;
-        }*/
-
-        public void CallTask(float waitTime, System.Action action = null, string taskName = null)
+        /*public void CallTask(float waitTime, System.Action action = null, string taskName = null)
         {
             var myTask = new Task(CountDown(waitTime, action));
             if (!string.IsNullOrEmpty(taskName) && !taskList.ContainsKey(taskName))
@@ -37,7 +29,7 @@ namespace AssemblyCSharp
             {
                 action();
             }
-        }
+        }*/
 
         public bool RemoveLabelTask(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {

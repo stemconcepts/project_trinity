@@ -3,6 +3,7 @@ using System.Collections;
 
 namespace AssemblyCSharp
 {
+    [System.Serializable]
     public class LockObject : ScriptableObject
     {
         public KeyItem key;

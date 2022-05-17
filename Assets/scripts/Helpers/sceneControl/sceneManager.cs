@@ -11,15 +11,39 @@ namespace AssemblyCSharp
 		public bool healerReady = false;
 		public bool dpsReady = false;
 		public List<GameObject> enemies;
+		public string currentScene;
+
+		void OnEnable()
+        {
+			SceneManager.sceneLoaded += OnSceneLoaded;
+		}
+
+		void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+		{
+			MainGameManager.instance.GetCanvasAndMainCamera();
+			Debug.Log("OnSceneLoaded: " + scene.name);
+			Debug.Log(mode);
+		}
 
 		public void LoadInventory(bool additive)
         {
 			SceneManager.LoadScene("Inventory", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+			MainGameManager.instance.SaveScene("Inventory");
 		}
 
 		public void LoadExploration(bool additive)
 		{
 			SceneManager.LoadScene("Exploration", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+			MainGameManager.instance.SaveScene("Exploration");
+		}
+
+		public void UnLoadScene(string sceneName)
+		{
+			int n = SceneManager.sceneCount;
+			if (n > 1)
+			{
+				SceneManager.UnloadSceneAsync(sceneName);
+			}
 		}
 
 		public void UnLoadInventory()
@@ -31,12 +55,19 @@ namespace AssemblyCSharp
 			}
 		}
 
+		public bool TeamReady()
+        {
+			return tankReady && healerReady && dpsReady;
+		}
+
 		public void LoadBattle(List<GameObject> enemies)
 		{
-			if (tankReady && healerReady && dpsReady)
+			if (MainGameManager.instance.SceneManager.TeamReady())
 			{
-				this.enemies = enemies;
+				//this.enemies = enemies;
+				MainGameManager.instance.SceneManager.enemies = enemies;
 				SceneManager.LoadScene("battle", LoadSceneMode.Single);
+				
 			}
 			else if (tankReady == false)
 			{

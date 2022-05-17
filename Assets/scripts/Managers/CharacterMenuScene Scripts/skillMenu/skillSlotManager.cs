@@ -13,7 +13,7 @@ namespace AssemblyCSharp
         public GameObject skillPrefab;
         //skillItems skillDataScript;
         public int slotAmount;
-        public GameObject menuManager;
+        //public GameObject menuManager;
         AssetFinder assetFinder;
 
         Transform AddItemToSlot(int slotID)
@@ -39,7 +39,7 @@ namespace AssemblyCSharp
         // Use this for initialization
         void Awake()
         {
-            assetFinder = menuManager.GetComponent<AssetFinder>();
+            assetFinder = MainGameManager.instance.assetFinder;
             //skillDataScript = menuManager.GetComponent<skillItems>();
             var allSkills = assetFinder.GetAllSkills();
             //}
