@@ -25,6 +25,7 @@ namespace AssemblyCSharp
         DungeonSettings dungeonSettingsCopy;
         public static List<DungeonRoom> allRooms = new List<DungeonRoom>();
         public static List<DungeonRoom> mainRooms = new List<DungeonRoom>();
+        public static List<DungeonRoom> detourRooms = new List<DungeonRoom>();
         public static List<miniMapIconBase> iconControllers = new List<miniMapIconBase>();
         public static List<DungeonRoom> previousRooms = new List<DungeonRoom>();
         public static int rand;
@@ -84,13 +85,14 @@ namespace AssemblyCSharp
             iconControllers.ForEach(o =>
             {
                 var match = iconControllers.Find(i => i.depth == o.depth && i.lineDirection == o.lineDirection && !i.isMainIcon && !i.isCustomIcon && i.label != o.label);
-                if (match)
+                if (match && !x.Any(d => d.end == match) && !x.Any(d => d.start == match))
                 {
                     var item = new detourLink()
                     {
-                        start = o,
-                        end = match
+                        start = match,
+                        end = o
                     };
+
                     item.distance = Math.Abs(item.start.masterDepth - item.end.masterDepth) - 1;
                     x.Add(item);
                 }
@@ -101,12 +103,20 @@ namespace AssemblyCSharp
                 DungeonRoom lastRoom = null;
                 for (int i = 0; i < o.distance; i++)
                 {
-                    var room = lastRoom == null ? allRooms.Find(a => a.name == o.start.label) : lastRoom; //AllRooms is empty till after detourLink, save detour rooms seperately
+                    var room = lastRoom == null ? detourRooms.Find(a => a.name == o.start.label) : lastRoom;
+                    var linkedEndRoom = detourRooms.Find(a => a.name == o.end.label);
                     if (room)
                     {
                         DungeonRoom r = AddRoomFromParentRoom(room, "Detour_Connector");
+                        if (i == (o.distance - 1))
+                        {
+                            r.InheritRouteFromParent(linkedEndRoom, routeTemplate);
+                        }
                         r.id = $"room_detour_connector_{i}_{room.id}";
                         GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
+                        r.roomIcon.SetDetourConnectorColour();
+                        r.roomIcon.SetObjectName($"RoomIcon_Detour_Connector_Parent-{o.start.label}");
+                        detourRooms.Add(r);
                         lastRoom = r;
                     }
                 }
@@ -284,7 +294,8 @@ namespace AssemblyCSharp
             mmc.label = dr.gameObject.name;
             if (direction == lineDirectionEnum.down && !isMainIcon)
             {
-                Transform parentRoomTransform = dr.roomIcon.transform;
+                Transform parentRoomTransform = dr.parentRoom.roomIcon.transform;
+                dr.parentRoom.roomIcon.ShowLine(lineDirectionEnum.down);
                 mmc.ShowLine(direction);
                 roomIcon.transform.position = new Vector3(parentRoomTransform.position.x, parentRoomTransform.position.y - 0.4f);
             } else if (iconControllers.Count > 0)
@@ -294,7 +305,7 @@ namespace AssemblyCSharp
                 {
                     Transform parentRoomTransform = iconControllers.Where(o => o.label == dr.parentRoom.gameObject.name).FirstOrDefault().transform;
                     float x = lineDirectionEnum.left == direction ? parentRoomTransform.position.x - 0.4f : parentRoomTransform.position.x + 0.4f;
-                    mmc.ShowLine(direction);
+                    //mmc.ShowLine(direction);
                     if (parentRoomTransform)
                     {
                         roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
@@ -514,23 +525,23 @@ namespace AssemblyCSharp
             }
         }
 
-        DungeonRoom AddRoomFromParentRoom(DungeonRoom parentRoom, string suffix)
+        DungeonRoom AddRoomFromParentRoom(DungeonRoom parentRoom, string prefix, string suffix = "")
         {
             GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
             DungeonRoom dr = room.GetComponent<DungeonRoom>();
-            room.name = $"{suffix}_Room_{Guid.NewGuid()}";
+            room.name = $"{prefix}_Room_{detourRooms.Count}{suffix}";
             dr.CreateRouteFromRoom(parentRoom, routeTemplate);
-            if (suffix.ToLower() == "detour")
+            if (prefix.ToLower() == "detour")
             {
-                parentRoom.detourRooms.Add(dr);
                 dr.parentRoom = parentRoom;
                 dr.isDetour = true;
                 dr.depth = parentRoom.detourRooms.Count;
-            } else if (suffix.ToLower() == "detour_connector")
+            } else if (prefix.ToLower() == "detour_connector")
             {
                 dr.parentRoom = parentRoom;
                 dr.isDetour = true;
             }
+            parentRoom.detourRooms.Add(dr);
             GenerateRoomObject(dr, 3);
             return dr;
         }
@@ -555,6 +566,7 @@ namespace AssemblyCSharp
                         if (r.roomIcon)
                         {
                             r.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
+                            r.roomIcon.SetDetourColour();
                         }
                         for (int x = 1; x <= detourLength; x++)
                         {
@@ -562,15 +574,18 @@ namespace AssemblyCSharp
                             if (GameManager.GetChanceByPercentage(0.5f))
                             {
                                 DungeonRoom parentRoom = r.detourRooms.Count == 0 ? r : r.detourRooms[r.detourRooms.Count - 1];
-                                DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour");
+                                DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour", $"_{x}");
                                 GenerateRoomIcon(n, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right, false, depthIndex, masterIndex);
                                 if (n.roomIcon)
                                 {
-                                    n.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
+                                   n.roomIcon.ShowLine(i == 1 ? lineDirectionEnum.right : lineDirectionEnum.left);
                                 }
                                 depthIndex++;
+                                n.roomIcon.SetDetourColour();
+                                detourRooms.Add(n);
                             }
                         }
+                        detourRooms.Add(r);
                     }
                 }
                 masterIndex++;

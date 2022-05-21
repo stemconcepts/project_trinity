@@ -15,6 +15,8 @@ namespace AssemblyCSharp
         public Color hoverColor;
         public Color activeColor;
         public Color visitedColor;
+        public Color detourConnectorColor;
+        public Color detourColor;
         public GameObject lineDown;
         public GameObject lineRight;
         public GameObject lineLeft;
@@ -55,18 +57,12 @@ namespace AssemblyCSharp
             {
                 case lineDirectionEnum.down:
                     lineDown.SetActive(true);
-                    //lineLeft.SetActive(false);
-                    //lineRight.SetActive(false);
                     break;
                 case lineDirectionEnum.right:
                     lineRight.SetActive(true);
-                    //lineLeft.SetActive(false);
-                    //lineDown.SetActive(false);
                     break;
                 case lineDirectionEnum.left:
                     lineLeft.SetActive(true);
-                    //lineRight.SetActive(false);
-                    //lineDown.SetActive(false);
                     break;
                 case lineDirectionEnum.none:
                     lineLeft.SetActive(false);
@@ -96,6 +92,21 @@ namespace AssemblyCSharp
         public void SetVisited()
         {
             origColor = visitedColor;
+        }
+
+        public void SetDetourColour()
+        {
+            origColor = detourColor;
+        }
+
+        public void SetDetourConnectorColour()
+        {
+            origColor = detourConnectorColor;
+        }
+
+        public void SetObjectName(string value)
+        {
+            this.gameObject.name = value;
         }
     }
 }
