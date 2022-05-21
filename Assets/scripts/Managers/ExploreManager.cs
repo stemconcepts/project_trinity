@@ -111,6 +111,8 @@ namespace AssemblyCSharp
                         if (i == (o.distance - 1))
                         {
                             r.InheritRouteFromParent(linkedEndRoom, routeTemplate);
+
+                            linkedEndRoom.InheritRouteFromParent(r, routeTemplate);
                         }
                         r.id = $"room_detour_connector_{i}_{room.id}";
                         GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
