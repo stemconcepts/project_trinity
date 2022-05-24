@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace AssemblyCSharp
@@ -159,6 +160,20 @@ namespace AssemblyCSharp
                 AddLockToolTip(room, route);
             }
             routes.Add(route);
+        }
+
+        public void AddBackRoute()
+        {
+            if(routes.Count > 0)
+            {
+                ExploreManager.mainRooms.ForEach(o =>
+                {
+                    if (o.gameObject.name == routes[0].location && o.routes.Count > 0)
+                    {
+                        o.routes[0].backwardLocation = this.gameObject.name;
+                    }
+                });
+            }
         }
 
         void AddLockToolTip(DungeonRoom room, Route route)

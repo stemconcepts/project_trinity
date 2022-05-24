@@ -8,6 +8,7 @@ namespace AssemblyCSharp
     {
         public string routeTag;
         public string location;
+        public string backwardLocation;
         public int position;
         public LockObject lockObj;
         public SpriteRenderer spriteRenderer;

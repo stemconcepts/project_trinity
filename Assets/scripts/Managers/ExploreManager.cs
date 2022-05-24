@@ -70,6 +70,7 @@ namespace AssemblyCSharp
                     o.lootAdded = false;
                 });
                 GenerateRooms(dungeonSettings.minRooms);
+                AddBackwardRoutes();
                 GenerateDetours(dungeonSettingsCopy.maxDetourLength);
                 LinkDetours();
                 GetTotalRoomsAndHide();
@@ -485,6 +486,14 @@ namespace AssemblyCSharp
             {
                 DropKeysInRoom(savedKeys);
             }
+        }
+
+        void AddBackwardRoutes()
+        {
+            mainRooms.ForEach(o =>
+            {
+                o.AddBackRoute();
+            });
         }
 
         Transform GetFreeSection(DungeonRoom room, int randIntFromForeGround)
