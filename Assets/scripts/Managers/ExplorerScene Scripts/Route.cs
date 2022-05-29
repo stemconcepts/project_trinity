@@ -8,7 +8,6 @@ namespace AssemblyCSharp
     {
         public string routeTag;
         public string location;
-        public string backwardLocation;
         public int position;
         public LockObject lockObj;
         public SpriteRenderer spriteRenderer;
@@ -66,7 +65,13 @@ namespace AssemblyCSharp
                 ExploreManager.AddPreviousRoom(ExploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
                 //Explore_Manager.ChangeRouteInBackButton(Explore_Manager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
                 ExploreManager.ToggleRooms(true);
+                var cRoom = ExploreManager.GetCurrentRoom();
                 GameObject targetRoom = GameObject.Find(location);
+                if (ExploreManager.previousRooms.Count > 1 && ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 2].name == location)
+                {
+                    string otherRouteLocation = cRoom.routeLocations.Where(o => o != location).Where(a => !cRoom.routes.Any(r => r.location == a)).FirstOrDefault();
+                    targetRoom = GameObject.Find(otherRouteLocation);
+                }
                 ExploreManager.ToggleRooms(false);
                 targetRoom.SetActive(true);
                 ExploreManager.SetCurrentRoom(targetRoom.name);

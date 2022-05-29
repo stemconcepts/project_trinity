@@ -16,6 +16,7 @@ namespace AssemblyCSharp
 
     public class ExploreManager : MonoBehaviour
     {
+        private static bool useBackwardRoute;
         public static GameManager gameManager;
         public static AssetFinder assetFinder;
         public static string currentRoom;
@@ -70,7 +71,6 @@ namespace AssemblyCSharp
                     o.lootAdded = false;
                 });
                 GenerateRooms(dungeonSettings.minRooms);
-                AddBackwardRoutes();
                 GenerateDetours(dungeonSettingsCopy.maxDetourLength);
                 LinkDetours();
                 GetTotalRoomsAndHide();
@@ -78,6 +78,16 @@ namespace AssemblyCSharp
                 SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
                 SavedDataManager.SavedDataManagerInstance.SaveIconPos(iconControllers);
             }
+        }
+
+        public static void SetUseBackwardRoute(bool setTrue)
+        {
+            useBackwardRoute = setTrue;
+        }
+
+        public static bool IsBackwardRoute()
+        {
+            return useBackwardRoute;
         }
 
         void LinkDetours()
@@ -111,9 +121,9 @@ namespace AssemblyCSharp
                         DungeonRoom r = AddRoomFromParentRoom(room, "Detour_Connector");
                         if (i == (o.distance - 1))
                         {
-                            r.InheritRouteFromParent(linkedEndRoom, routeTemplate);
-
-                            linkedEndRoom.InheritRouteFromParent(r, routeTemplate);
+                            r.CreateRouteFromRoom(linkedEndRoom, routeTemplate, null);
+                            //Create new class that inherits from Route class that triggers useBackWardRoute call
+                            linkedEndRoom.CreateRouteFromRoom(r, routeTemplate, null);
                         }
                         r.id = $"room_detour_connector_{i}_{room.id}";
                         GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
@@ -170,6 +180,11 @@ namespace AssemblyCSharp
             {
                 o.gameObject.SetActive(show);
             });
+        }
+
+        public static DungeonRoom GetCurrentRoom()
+        {
+            return allRooms.Find(o => o.name == currentRoom);
         }
 
         public static void SetCurrentRoom(string roomName)
@@ -488,14 +503,6 @@ namespace AssemblyCSharp
             }
         }
 
-        void AddBackwardRoutes()
-        {
-            mainRooms.ForEach(o =>
-            {
-                o.AddBackRoute();
-            });
-        }
-
         Transform GetFreeSection(DungeonRoom room, int randIntFromForeGround)
         {
             bool freeSpot = false;
@@ -536,12 +543,20 @@ namespace AssemblyCSharp
             }
         }
 
-        DungeonRoom AddRoomFromParentRoom(DungeonRoom parentRoom, string prefix, string suffix = "")
+        /// <summary>
+        /// Creates room from parent room given, direction 0-1 indicates left route, 3-4 indicates a right route, anything in the middle a forward route
+        /// </summary>
+        /// <param name="parentRoom"></param>
+        /// <param name="prefix"></param>
+        /// <param name="direction"></param>
+        /// <param name="suffix"></param>
+        /// <returns></returns>
+        DungeonRoom AddRoomFromParentRoom(DungeonRoom parentRoom, string prefix, int? direction = null, string suffix = "")
         {
             GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
             DungeonRoom dr = room.GetComponent<DungeonRoom>();
             room.name = $"{prefix}_Room_{detourRooms.Count}{suffix}";
-            dr.CreateRouteFromRoom(parentRoom, routeTemplate);
+            dr.CreateRouteFromRoom(parentRoom, routeTemplate, direction);
             if (prefix.ToLower() == "detour")
             {
                 dr.parentRoom = parentRoom;
@@ -571,7 +586,7 @@ namespace AssemblyCSharp
                     else*/
                     if (GameManager.GetChanceByPercentage(0.5f) && detourLength > 0)
                     {
-                        DungeonRoom r = AddRoomFromParentRoom(o, "Detour");
+                        DungeonRoom r = AddRoomFromParentRoom(o, "Detour", i);
                         r.id = $"room_detour_{i}_{o.id}";
                         GenerateRoomIcon(r, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right, false, 0, masterIndex);
                         if (r.roomIcon)
@@ -585,7 +600,7 @@ namespace AssemblyCSharp
                             if (GameManager.GetChanceByPercentage(0.5f))
                             {
                                 DungeonRoom parentRoom = r.detourRooms.Count == 0 ? r : r.detourRooms[r.detourRooms.Count - 1];
-                                DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour", $"_{x}");
+                                DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour", i, $"_{x}");
                                 GenerateRoomIcon(n, i == 1 ? lineDirectionEnum.left : lineDirectionEnum.right, false, depthIndex, masterIndex);
                                 if (n.roomIcon)
                                 {

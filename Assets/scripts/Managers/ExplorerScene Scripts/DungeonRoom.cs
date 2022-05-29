@@ -18,6 +18,7 @@ namespace AssemblyCSharp
         public DungeonRoom parentRoom;
         public List<DungeonRoom> detourRooms;
         public List<Route> routes;
+        public List<string> routeLocations;
         public enemyEncounter encounter;
         public miniMapIconBase roomIcon;
         public int depth;
@@ -29,15 +30,25 @@ namespace AssemblyCSharp
             Route r = route.GetComponent<Route>();
             r.position = section.position;
             AddRoute(parentRoom, r, "Route_Main");
+            routeLocations.Add(parentRoom.gameObject.name);
+            parentRoom.routeLocations.Add(this.gameObject.name);
+            //parentRoom.routes.Add(r);
         }
 
-        public void CreateRouteFromRoom(DungeonRoom room, GameObject routeTemplate)
+        public void CreateRouteFromRoom(DungeonRoom room, GameObject routeTemplate, int? direction)
         {
-            SectionObject section = GetFreeSectionFromRoom(room.gameObject);
-            GameObject route = Instantiate(routeTemplate, section.transform);
-            Route r = route.GetComponent<Route>();
-            r.position = section.position;
-            AddRoute(this, r, "Route_Detour");
+            var range = direction == 1 ? new List<int> { 0, 2 } : new List<int> { 2, 4 };
+            SectionObject section = GetFreeSectionFromRoom(room.gameObject, direction == null ? null : range);
+            if (section != null)
+            {
+                GameObject route = Instantiate(routeTemplate, section.transform);
+                Route r = route.GetComponent<Route>();
+                r.position = section.position;
+                AddRoute(this, r, "Route_Detour");
+                routeLocations.Add(room.gameObject.name);
+                room.routeLocations.Add(this.gameObject.name);
+                //room.routes.Add(r);
+            }
         }
 
         public void InsertRouteFromData(RouteData routeData, GameObject routeTemplate)
@@ -75,7 +86,7 @@ namespace AssemblyCSharp
 
         public void AddKey(KeyItem key, GameObject explorerItemTemplate)
         {
-            var section = GetFreeSectionFromRoom(this.gameObject);
+            var section = GetFreeSectionFromRoom(this.gameObject, new List<int> { 0, 4 });
             GameObject keyObj = Instantiate(explorerItemTemplate, section.transform);
             keyObj.name = key.name;
             ExplorerItemsController itemController = keyObj.GetComponent<ExplorerItemsController>();
@@ -109,7 +120,25 @@ namespace AssemblyCSharp
             return result;
         }
 
-        SectionObject GetFreeSectionFromRoom(GameObject room = null)
+        /// <summary>
+        /// Replaces the route locations in room being entered by removing the room location you just left from the options
+        /// </summary>
+        /// <param name="routeLocationToDisable"></param>
+        public void SetRouteLocations(string routeLocationToDisable)
+        {
+            var freeRouteLocations = routeLocations.Where(o => o != routeLocationToDisable).ToList();
+            var relevantRoute = routes.Where(o => o.location == routeLocationToDisable).FirstOrDefault();
+            var otherRoutes = routes.Where(o => o.location != routeLocationToDisable).ToList();
+            if (freeRouteLocations.Count == 1)
+            {
+                relevantRoute.location = freeRouteLocations[0];
+            } else
+            {
+                relevantRoute.location = freeRouteLocations.Where(o => otherRoutes.Any(r => r.location != o)).Select(o => o).FirstOrDefault();
+            }
+        }
+
+        SectionObject GetFreeSectionFromRoom(GameObject room = null, List<int> allowedRange = null)
         {
             GameObject parentRoom = room ? room : this.gameObject;
             bool freeSpot = false;
@@ -117,7 +146,7 @@ namespace AssemblyCSharp
             int count = 0;
             while (!freeSpot && count < 5)
             {
-                int range = Random.Range(0, 4);
+                int range = allowedRange != null && allowedRange.Count > 0 ? Random.Range(allowedRange[0], allowedRange[1]) : Random.Range(1, 3);
                 Transform section = parentRoom.GetComponent<DungeonRoom>().mainPanel.transform.Find($"routeHolder{range}");
                 if (section.childCount == 0)
                 {
@@ -160,20 +189,6 @@ namespace AssemblyCSharp
                 AddLockToolTip(room, route);
             }
             routes.Add(route);
-        }
-
-        public void AddBackRoute()
-        {
-            if(routes.Count > 0)
-            {
-                ExploreManager.mainRooms.ForEach(o =>
-                {
-                    if (o.gameObject.name == routes[0].location && o.routes.Count > 0)
-                    {
-                        o.routes[0].backwardLocation = this.gameObject.name;
-                    }
-                });
-            }
         }
 
         void AddLockToolTip(DungeonRoom room, Route route)
