@@ -9,7 +9,7 @@ namespace AssemblyCSharp
     public class MainGameManager : MonoBehaviour
     {
         [HideInInspector]
-        bool showTutorial = true;
+        bool showTutorial = false;
         [HideInInspector]
         public AssetFinder assetFinder;
         public sceneManager SceneManager;

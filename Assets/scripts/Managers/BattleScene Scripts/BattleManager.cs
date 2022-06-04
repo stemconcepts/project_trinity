@@ -96,7 +96,7 @@ namespace AssemblyCSharp
             if (turn == activeTurn && battleStarted && CheckIfActionsComplete())
             {
                 battleStarted = false;
-                taskManager.CallTask(3f, () =>
+                taskManager.CallTask(1f, () =>
                 {
                     battleStarted = true;
                     ResetTurnTimer();
@@ -129,8 +129,8 @@ namespace AssemblyCSharp
         {
             if(characterSelectManager.enemyCharacters.Count == 0 && !BattleManager.battleOver)
             {
-                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => MainGameManager.instance.SceneManager.LoadExploration(false));
                 BattleManager.battleOver = true;
+                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => MainGameManager.instance.SceneManager.LoadExploration(false));
             }
         }
 

@@ -30,5 +30,7 @@ namespace AssemblyCSharp
             Stalker,
             Walker
         };
+        [Range(0.0f, 1.0f)]
+        public float dropChancePercentage;
     }
 }

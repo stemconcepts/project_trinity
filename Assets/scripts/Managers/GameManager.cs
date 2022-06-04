@@ -71,7 +71,7 @@ namespace AssemblyCSharp
 
         public static bool GetChanceByPercentage(float chance)
         {
-            var rand = UnityEngine.Random.Range(0.0f, 2.0f);
+            var rand = UnityEngine.Random.Range(0.0f, 1.1f);
             return chance >= rand;
         }
 

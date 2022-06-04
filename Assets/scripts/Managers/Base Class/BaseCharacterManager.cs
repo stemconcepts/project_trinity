@@ -55,7 +55,7 @@ namespace AssemblyCSharp
 
                     (baseManager.characterManager.characterModel as EnemyCharacterModel).loot.ForEach(l =>
                     {
-                        if (GameManager.GetChanceByPercentage((l as GenericItem).dropChancePercentage))
+                        if (GameManager.GetChanceByPercentage(l.dropChancePercentage))
                         {
                             BattleManager.AddToLoot(l);
                         }

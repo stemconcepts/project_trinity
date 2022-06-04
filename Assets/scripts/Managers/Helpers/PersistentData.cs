@@ -38,21 +38,23 @@ namespace AssemblyCSharp
         public bool isDetour, isCustomRoom, isStartingRoom;
         public bool visited;
         public string encounterId;
-        public string parentRoomId;
+        public string parentRoomName;
         public RoomObjectData[] roomObjects;
+        public string[] routeLocations;
         public RouteData[] routes;
         //public RoomData(string id, string name, bool visited, bool isDetour, bool isCustomRoom, bool isStartingRoom, string parentRoomId, RoomObjectData[] roomObjects, RouteData[] routes)
         public RoomData(DungeonRoom room, RoomObjectData[] roomObjects, RouteData[] routes)
         {
             this.id = room.id;
-            this.name = room.name;
+            this.name = room.gameObject.name;
             this.visited = room.visited;
-            this.parentRoomId = room.parentRoom ? room.parentRoom.id : "";
+            this.parentRoomName = room.parentRoom ? room.parentRoom.gameObject.name : "";
             this.isDetour = room.isDetour;
             this.isCustomRoom = room.isCustomRoom;
             this.isStartingRoom = room.isStartingRoom;
             this.roomObjects = roomObjects;
             this.routes = routes;
+            this.routeLocations = room.routeLocations.ToArray();
         }
     }
 

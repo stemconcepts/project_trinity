@@ -7,7 +7,7 @@ namespace AssemblyCSharp
     {
         public int sellPrice;
         public int buyPrice;
-        [Range(0.0f, 1.0f)]
-        public float dropChancePercentage;
+        /*[Range(0.0f, 1.0f)]
+        public float dropChancePercentage;*/
     }
 }

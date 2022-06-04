@@ -242,7 +242,7 @@ namespace AssemblyCSharp
         {
             SetPaths(fileName);
             string savePath = path;
-            Debug.Log($"Saving data to {path}");
+            //Debug.Log($"Saving data to {path}");
             string json = JsonHelper.ToJson<T>(data.ToArray());
             FileStream fileStream = new FileStream(savePath, FileMode.Create);
             using (StreamWriter writer = new StreamWriter(fileStream))
@@ -259,7 +259,7 @@ namespace AssemblyCSharp
             }*/
             SetPaths("PersistentData");
             string savePath = path;
-            Debug.Log($"Saving data to {path}");
+            //Debug.Log($"Saving data to {path}");
             string json = JsonUtility.ToJson(persistentData);
             using (StreamWriter writer = new StreamWriter(savePath))
             {

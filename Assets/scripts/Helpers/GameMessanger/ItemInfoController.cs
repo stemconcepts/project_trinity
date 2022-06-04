@@ -8,10 +8,10 @@ namespace AssemblyCSharp
     {
         public TextMeshProUGUI ItemName;
         public ItemBase itemBase;
-
+        public int amount;
         void Start()
         {
-            ItemName.text = itemBase.name;
+            ItemName.text = $"{itemBase.itemName} x{amount}";
         }
     }
 }

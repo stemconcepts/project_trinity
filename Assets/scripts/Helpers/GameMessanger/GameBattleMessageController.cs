@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using TMPro;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 
@@ -28,6 +29,8 @@ namespace AssemblyCSharp
         public GameObject healerBauble;
 
         public Action closeAction;
+        [HideInInspector]
+        public List<ItemInfoController> itemsInfo = new List<ItemInfoController>();
 
         public void CloseMessage()
         {
@@ -39,9 +42,18 @@ namespace AssemblyCSharp
         {
             items.ForEach(l =>
             {
-                var i = Instantiate(itemTemplate, itemsHolder);
-                var itemInfoController = i.GetComponent<ItemInfoController>();
-                itemInfoController.itemBase = l;
+                var iInfo = itemsInfo.Find(o => l.itemName == o.itemBase.itemName);
+                if (iInfo && l.canStack && iInfo.amount > 0)
+                {
+                    ++iInfo.amount;
+                } else
+                {
+                    var i = Instantiate(itemTemplate, itemsHolder);
+                    var itemInfoController = i.GetComponent<ItemInfoController>();
+                    itemInfoController.itemBase = l;
+                    itemInfoController.amount = 1;
+                    itemsInfo.Add(itemInfoController);
+                }
             });
         }
 

@@ -17,6 +17,7 @@ namespace AssemblyCSharp
     public class ExploreManager : MonoBehaviour
     {
         private static bool useBackwardRoute;
+        public bool lootAdded;
         public static GameManager gameManager;
         public static AssetFinder assetFinder;
         public static string currentRoom;
@@ -66,13 +67,11 @@ namespace AssemblyCSharp
             var d = LoadDungeon();
             if (d.allRooms.Length == 0 && string.IsNullOrEmpty(d.currentRoomId))
             {
-                dungeonSettings.enemyEncounters.ForEach(o =>
-                {
-                    o.lootAdded = false;
-                });
+                //lootAdded = false;
                 GenerateRooms(dungeonSettings.minRooms);
                 GenerateDetours(dungeonSettingsCopy.maxDetourLength);
                 LinkDetours();
+                AddLockedDoors();
                 GetTotalRoomsAndHide();
                 AddRandomEncounters();
                 SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
@@ -96,7 +95,7 @@ namespace AssemblyCSharp
             iconControllers.ForEach(o =>
             {
                 var match = iconControllers.Find(i => i.depth == o.depth && i.lineDirection == o.lineDirection && !i.isMainIcon && !i.isCustomIcon && i.label != o.label);
-                if (match && !x.Any(d => d.end == match) && !x.Any(d => d.start == match))
+                if (match && !x.Any(d => d.end == match) /*&& !x.Any(d => d.start == match)*/)
                 {
                     var item = new detourLink()
                     {
@@ -109,20 +108,26 @@ namespace AssemblyCSharp
                 }
             });
 
+            x.Reverse();
             x.ForEach(o =>
             {
                 DungeonRoom lastRoom = null;
-                for (int i = 0; i < o.distance; i++)
+                Debug.Log(o.distance);
+                for (int i = 0; i <= o.distance; i++)
                 {
                     var room = lastRoom == null ? detourRooms.Find(a => a.name == o.start.label) : lastRoom;
                     var linkedEndRoom = detourRooms.Find(a => a.name == o.end.label);
-                    if (room)
+                    if (room && o.distance == 0)
+                    {
+                        room.CreateRouteFromRoom(linkedEndRoom, routeTemplate, null);
+                        room.roomIcon.ShowLine(lineDirectionEnum.down);
+                        linkedEndRoom.CreateRouteFromRoom(room, routeTemplate, null);
+                    } else if (room && o.distance != i && GameManager.GetChanceByPercentage(0.9f))
                     {
                         DungeonRoom r = AddRoomFromParentRoom(room, "Detour_Connector");
                         if (i == (o.distance - 1))
                         {
                             r.CreateRouteFromRoom(linkedEndRoom, routeTemplate, null);
-                            //Create new class that inherits from Route class that triggers useBackWardRoute call
                             linkedEndRoom.CreateRouteFromRoom(r, routeTemplate, null);
                         }
                         r.id = $"room_detour_connector_{i}_{room.id}";
@@ -219,8 +224,9 @@ namespace AssemblyCSharp
                     dr.isCustomRoom = r.isCustomRoom;
                     dr.id = r.id;
                     dr.visited = r.visited;
-                    dr.parentRoom = allRooms.Where(a => a.id == r.parentRoomId).FirstOrDefault();
+                    dr.parentRoom = allRooms.Where(a => a.name == r.parentRoomName).FirstOrDefault();
                     dr.gameObject.SetActive(r.name == data.currentRoomId);
+                    dr.routeLocations = r.routeLocations.ToList();
                     r.roomObjects.ToList().ForEach(o =>
                     {
                         PlaceRoomObject(dr, o.position);
@@ -404,16 +410,17 @@ namespace AssemblyCSharp
             return /*roomCount > 0 &&*/ dungeonSettings.minRooms != (roomCount + 1) && roomCount >= actualLockedDoorPosition && dungeonSettingsCopy.locks.Count > 0;
         }
 
-        void DropKeysInRoom(List<KeyItem> keys)
+        void DropKeysInRoom(List<KeyItem> keys, int roomIndex)
         {
-            mainRooms.Reverse();
-            List<DungeonRoom> allowedRooms = mainRooms.Take(dungeonSettingsCopy.roomsBeforeLockedDoor).ToList();
-            for (int i = 0; i < keys.Count; i++)
+            var combinedRooms = mainRooms.Concat(detourRooms);
+            combinedRooms.Reverse();
+            List<DungeonRoom> allowedRooms = combinedRooms.Take(roomIndex).ToList();  //mainRooms.Take(dungeonSettingsCopy.roomsBeforeLockedDoor).ToList();
+            for (int i = 0; i < keys.Count && allowedRooms[i].routes.Any(r => r.lockObj == null); i++)
             {
                 DungeonRoom room = allowedRooms[ExploreManager.gameManager.ReturnRandom(allowedRooms.Count)];
                 room.AddKey(keys[i], explorerItemTemplate);
             }
-            mainRooms.Reverse();
+            //mainRooms.Reverse();
         }
 
         void AddRandomEncounters()
@@ -423,7 +430,7 @@ namespace AssemblyCSharp
             {
                 foreach (DungeonRoom room in allRooms)
                 {
-                    if (dungeonSettingsCopy.enemyEncounters.Count > 0 && GameManager.GetChanceByPercentage(0.3f) /*GetChance(2)*/ && room.encounter == null && !room.isStartingRoom)
+                    if (dungeonSettingsCopy.enemyEncounters.Count > 0 && GameManager.GetChanceByPercentage(0.8f) && room.encounter == null && !room.isStartingRoom)
                     {
                         AddEncounter(room);
                     }
@@ -435,7 +442,7 @@ namespace AssemblyCSharp
         void AddEncounter(DungeonRoom dr)
         {
             int encounterIndex = ExploreManager.gameManager.ReturnRandom(dungeonSettingsCopy.enemyEncounters.Count);
-            enemyEncounter ee = dungeonSettingsCopy.enemyEncounters[encounterIndex];
+            enemyEncounter ee = UnityEngine.Object.Instantiate(dungeonSettingsCopy.enemyEncounters[encounterIndex]);
             if (CanAddEncounter(ee))
             {
                 dr.AddEncounter(ee, enemyEncounterTemplate);
@@ -450,14 +457,13 @@ namespace AssemblyCSharp
                 Debug.Log($"Large encounter created at {dr.name}");
             }
 
-            if (!ee.lootAdded)
+            if (!lootAdded)
             {
                 ee.loot.ForEach(o =>
                 {
-                    int monsterIndex = ExploreManager.gameManager.ReturnRandom(dr.encounter.enemies.Count);
-                    dr.encounter.enemies[monsterIndex].GetComponent<EnemyCharacterModel>().loot.Add(o);
+                    BattleManager.AddToLoot(o);
                 });
-                ee.lootAdded = true;
+                lootAdded = true;
             }
         }
 
@@ -479,14 +485,14 @@ namespace AssemblyCSharp
                     if (mainRooms.Count > 0)
                     {
                         DungeonRoom parentRoom = mainRooms[mainRooms.Count - 1];
-                        if (CanLockDoor(i) && GameManager.GetChanceByPercentage(0.3f))
+                        /*if (CanLockDoor(i) && GameManager.GetChanceByPercentage(0.3f))
                         {
                             Debug.Log($"Locked door created at {parentRoom.name}");
                             int lockIndex = ExploreManager.gameManager.ReturnRandom(dungeonSettingsCopy.locks.Count);
                             parentRoom.lockObj = UnityEngine.Object.Instantiate(dungeonSettingsCopy.locks[lockIndex]);
                             dungeonSettingsCopy.locks.RemoveAt(lockIndex);
                             savedKeys.Add(parentRoom.lockObj.key);
-                        }
+                        }*/
                         dr.InheritRouteFromParent(parentRoom, routeTemplate);
                     }
                     GenerateRoomObject(dr, 3);
@@ -497,10 +503,10 @@ namespace AssemblyCSharp
                     }
                 }
             }
-            if (savedKeys.Count > 0)
+            /*if (savedKeys.Count > 0)
             {
                 DropKeysInRoom(savedKeys);
-            }
+            }*/
         }
 
         Transform GetFreeSection(DungeonRoom room, int randIntFromForeGround)
@@ -575,7 +581,7 @@ namespace AssemblyCSharp
         void GenerateDetours(int detourLength)
         {
             var masterIndex = 0;
-            mainRooms.Where(m => !m.isCustomRoom).ToList().ForEach(o =>
+            mainRooms.Where(m => !m.isCustomRoom && !m.isStartingRoom).ToList().ForEach(o =>
             {
                 for (int i = 1; i <= (int)dungeonSettingsCopy.maxDetours; i++)
                 {
@@ -628,6 +634,37 @@ namespace AssemblyCSharp
         {
             rand = UnityEngine.Random.Range(0, maxNumber);
             return rand;
+        }
+
+        /// <summary>
+        /// Adds a locked door to a mainRoom and a key in a room before a mainRoom
+        /// </summary>
+        void AddLockedDoors()
+        {
+            List<KeyItem> savedKeys = new List<KeyItem>();
+            int i = 0;
+            mainRooms.Reverse();
+            mainRooms.ForEach(m =>
+            {
+                if (dungeonSettingsCopy.locks.Count == 0)
+                {
+                    return;
+                }
+                if (CanLockDoor(i) && GameManager.GetChanceByPercentage(0.3f))
+                {
+                    Debug.Log($"Locked door created at {m.name}");
+                    int lockIndex = ExploreManager.gameManager.ReturnRandom(dungeonSettingsCopy.locks.Count);
+                    m.lockObj = UnityEngine.Object.Instantiate(dungeonSettingsCopy.locks[lockIndex]);
+                    dungeonSettingsCopy.locks.RemoveAt(lockIndex);
+                    savedKeys.Add(m.lockObj.key);
+                }
+                i++;
+            });
+            mainRooms.Reverse();
+            if (savedKeys.Count > 0)
+            {
+                DropKeysInRoom(savedKeys, i);
+            }
         }
 
         void GetTotalRoomsAndHide()

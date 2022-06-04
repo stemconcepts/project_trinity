@@ -68,10 +68,10 @@ namespace AssemblyCSharp
         {
             if (encounter)
             {
-                ExploreManager.gameManager.TaskManager.CallTask(3f, () =>
+                ExploreManager.gameManager.TaskManager.CallTask(1f, () =>
                 {
                     ExploreManager.gameManager.SceneManager.LoadBattle(encounter.enemies);
-                    Destroy(encounter.instanciatedObject);
+                    //Destroy(encounter.instanciatedObject);
                 });
             }
         }
@@ -144,7 +144,7 @@ namespace AssemblyCSharp
             bool freeSpot = false;
             SectionObject result = null;
             int count = 0;
-            while (!freeSpot && count < 5)
+            while (!freeSpot && count < 10)
             {
                 int range = allowedRange != null && allowedRange.Count > 0 ? Random.Range(allowedRange[0], allowedRange[1]) : Random.Range(1, 3);
                 Transform section = parentRoom.GetComponent<DungeonRoom>().mainPanel.transform.Find($"routeHolder{range}");
@@ -167,10 +167,10 @@ namespace AssemblyCSharp
             bool freeSpot = false;
             Transform result = null;
             int count = 0;
-            while (!freeSpot && count < 5)
+            while (!freeSpot && count < 10)
             {
                 Transform section = room.GetComponent<DungeonRoom>().mainPanel.transform.GetChild(position);
-                if (section.childCount == 0)
+                if (section && section.childCount == 0)
                 {
                     result = section;
                     freeSpot = true;
