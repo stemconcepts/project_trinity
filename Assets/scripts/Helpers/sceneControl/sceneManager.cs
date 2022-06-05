@@ -66,8 +66,7 @@ namespace AssemblyCSharp
 			{
 				//this.enemies = enemies;
 				MainGameManager.instance.SceneManager.enemies = enemies;
-				SceneManager.LoadScene("battle", LoadSceneMode.Single);
-				
+                SceneManager.LoadScene("battle", LoadSceneMode.Additive);
 			}
 			else if (tankReady == false)
 			{

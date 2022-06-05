@@ -71,7 +71,7 @@ namespace AssemblyCSharp
                 ExploreManager.gameManager.TaskManager.CallTask(1f, () =>
                 {
                     ExploreManager.gameManager.SceneManager.LoadBattle(encounter.enemies);
-                    //Destroy(encounter.instanciatedObject);
+                     Destroy(encounter.instanciatedObject);
                 });
             }
         }

@@ -127,11 +127,22 @@ namespace AssemblyCSharp
 
         void CheckBattleOver()
         {
-            if(characterSelectManager.enemyCharacters.Count == 0 && !BattleManager.battleOver)
+            if (characterSelectManager.enemyCharacters.Count == 0 && !BattleManager.battleOver)
             {
-                BattleManager.battleOver = true;
-                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => MainGameManager.instance.SceneManager.LoadExploration(false));
+                foreach (KeyValuePair<string, Task> t in taskManager.taskList)
+                {
+                    t.Value.Stop();
+                   // taskManager.taskList[t.Key].Stop();
+                }
+                battleOver = true;
+                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
             }
+        }
+
+        void UnloadBattle()
+        {
+            MainGameManager.instance.SceneManager.UnLoadScene("battle");
+           // GameObject.FindGameObjectWithTag("ExplorerCamera").SetActive(true);
         }
 
         void LoadEnemies()

@@ -63,10 +63,10 @@ namespace AssemblyCSharp
 
         public void LevelGenerator()
         {
-            //needs to check if its loading a new level or not
+            /*needs to check if its loading a new level or not
             var d = LoadDungeon();
             if (d.allRooms.Length == 0 && string.IsNullOrEmpty(d.currentRoomId))
-            {
+            {*/
                 //lootAdded = false;
                 GenerateRooms(dungeonSettings.minRooms);
                 GenerateDetours(dungeonSettingsCopy.maxDetourLength);
@@ -76,7 +76,7 @@ namespace AssemblyCSharp
                 AddRandomEncounters();
                 SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
                 SavedDataManager.SavedDataManagerInstance.SaveIconPos(iconControllers);
-            }
+            //}
         }
 
         public static void SetUseBackwardRoute(bool setTrue)
