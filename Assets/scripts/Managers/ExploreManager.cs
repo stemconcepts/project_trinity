@@ -46,11 +46,14 @@ namespace AssemblyCSharp
         public GameObject enemyEncounterTemplate;
         [Header("Inventory")]
         public static List<ItemBase> obtainedItems = new List<ItemBase>();
+        public static Camera explorerCamera;
+        public Camera explorerCameraTarget;
 
         void Awake()
         {
             gameManager = gameObject.GetComponent<GameManager>();
             assetFinder = gameObject.GetComponent<AssetFinder>();
+            explorerCamera = explorerCameraTarget;
         }
 
         void Start()
@@ -147,10 +150,22 @@ namespace AssemblyCSharp
             return backButton.GetComponent<BackRoute>();
         }
 
-        public static void AddToObtainedItems(ItemBase item)
+        //Move to external script that sits on obtained items slot
+        public static void AddToObtainedItems(ItemBase item, GameObject gameObject = null)
         {
             obtainedItems.Add(item);
-            SavedDataManager.SavedDataManagerInstance.SaveObtainedItem(item.id);
+            if (!gameObject)
+            {
+                var x = Instantiate(new GameObject());// doesnt work
+                var explorererItemController = x.AddComponent<ExplorerItemsController>();
+                x.AddComponent<ToolTipTriggerController>();
+                explorererItemController.itemBase = item;
+                explorererItemController.SetUpItem();
+                gameObject = x;
+            } 
+            gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform);
+            gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
+            //SavedDataManager.SavedDataManagerInstance.SaveObtainedItem(item.id);
         }
 
         public static void RemoveObtainedItem(ItemBase item)
@@ -159,7 +174,7 @@ namespace AssemblyCSharp
             //var x = inventoryHolder.transform.
             GameObject itemObj = inventoryHolder.transform.Find($"{item.name}").gameObject;
             Destroy(itemObj);
-            SavedDataManager.SavedDataManagerInstance.RemoveObtainedItem(item.id);
+            //SavedDataManager.SavedDataManagerInstance.RemoveObtainedItem(item.id);
         }
 
         public static void AddPreviousRoom(DungeonRoom room)

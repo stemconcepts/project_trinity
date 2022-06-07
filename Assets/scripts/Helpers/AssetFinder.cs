@@ -32,6 +32,10 @@ namespace AssemblyCSharp
             "Assets/prefabs/status"
         };
 
+        private string[] genericItems = new string[]{
+            "Assets/prefabs/explorer/items/genericItems/"
+        };
+
         public AssetFinder()
         {
         }
@@ -98,6 +102,22 @@ namespace AssemblyCSharp
                 }
             }
             return weapons;
+        }
+
+        public List<GenericItem> GetGenericItem(string itemName)
+        {
+            List<GenericItem> items = new List<GenericItem>();
+            var itemsList = AssetDatabase.FindAssets("t:ItemBase", genericItems);
+            foreach (var i in itemsList)
+            {
+                string item = AssetDatabase.GUIDToAssetPath(i);
+                var genericItem = AssetDatabase.LoadAssetAtPath<GenericItem>(item);
+                if (genericItem.name == "itemName")
+                {
+                    items.Add(genericItem);
+                }
+            }
+            return items;
         }
     }
 }

@@ -4,6 +4,7 @@ using TMPro;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 
 namespace AssemblyCSharp
 {
@@ -49,6 +50,8 @@ namespace AssemblyCSharp
                 } else
                 {
                     var i = Instantiate(itemTemplate, itemsHolder);
+                    i.transform.DOLocalMoveX(-50f, 1f).SetEase(Ease.OutSine);
+
                     var itemInfoController = i.GetComponent<ItemInfoController>();
                     itemInfoController.itemBase = l;
                     itemInfoController.amount = 1;

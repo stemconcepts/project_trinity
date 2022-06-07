@@ -16,11 +16,25 @@ namespace AssemblyCSharp
 		void OnEnable()
         {
 			SceneManager.sceneLoaded += OnSceneLoaded;
+			SceneManager.sceneUnloaded += OnSceneUnloaded;
 		}
 
-		void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+		private void OnSceneUnloaded(Scene current)
+		{
+            if (SceneManager.GetActiveScene().name == "exploration")
+			{
+				ExploreManager.explorerCamera.gameObject.SetActive(true);
+			}
+			Debug.Log("OnSceneUnloaded: " + current);
+		}
+
+		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
 			MainGameManager.instance.GetCanvasAndMainCamera();
+            if (mode == LoadSceneMode.Additive)
+            {
+				ExploreManager.explorerCamera.gameObject.SetActive(false);
+			}
 			Debug.Log("OnSceneLoaded: " + scene.name);
 			Debug.Log(mode);
 		}
@@ -66,7 +80,7 @@ namespace AssemblyCSharp
 			{
 				//this.enemies = enemies;
 				MainGameManager.instance.SceneManager.enemies = enemies;
-                SceneManager.LoadScene("battle", LoadSceneMode.Additive);
+				SceneManager.LoadScene("battle", LoadSceneMode.Additive);
 			}
 			else if (tankReady == false)
 			{

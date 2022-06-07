@@ -14,6 +14,7 @@ namespace AssemblyCSharp
         public static GameManager gameManager;
         public static GameObject UICanvas;
         public static GameObject tooltipCanvas;
+        public GameObject tooltipCanvasTarget;
         public static List<PanelsManager> allPanelManagers;
         public static Sound_Manager soundManager;
         public static Game_Effects_Manager gameEffectManager;
@@ -62,7 +63,7 @@ namespace AssemblyCSharp
             eventManager = gameManager.EventManager;
             assetFinder = gameManager.AssetFinder;
             UICanvas = GameObject.Find("Canvas - UI");
-            tooltipCanvas = GameObject.Find("Canvas - Tooltip");
+            tooltipCanvas = tooltipCanvasTarget;
             //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
             if(pauseScreenHolder != null)
@@ -132,7 +133,6 @@ namespace AssemblyCSharp
                 foreach (KeyValuePair<string, Task> t in taskManager.taskList)
                 {
                     t.Value.Stop();
-                   // taskManager.taskList[t.Key].Stop();
                 }
                 battleOver = true;
                 MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
@@ -141,8 +141,18 @@ namespace AssemblyCSharp
 
         void UnloadBattle()
         {
+            loot.ForEach(l =>
+            {
+                if (l.GetType() == typeof(GenericItem))
+                {
+                    ExploreManager.AddToObtainedItems(l);
+                } else
+                {
+                    gameManager.AddGearToInventory(l);
+                }
+            });
+            
             MainGameManager.instance.SceneManager.UnLoadScene("battle");
-           // GameObject.FindGameObjectWithTag("ExplorerCamera").SetActive(true);
         }
 
         void LoadEnemies()
@@ -152,11 +162,6 @@ namespace AssemblyCSharp
             {
                 SummonCreatures(enemies, "monster", false);
             }
-            
-            /*foreach (var e in gameManager.SceneManager.enemies)
-            {
-                GameObject enemy = Instantiate(e, GameObject.Find("enemyHolder").transform);
-            }   */
         }
 
         static void RegenerateAp()
@@ -196,7 +201,6 @@ namespace AssemblyCSharp
                     (o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost < BattleManager.actionPoints) || 
                     o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost < BattleManager.actionPoints) ||
                     o.gameObject.GetComponent<PlayerSkillManager>().skillModel.skillCost < BattleManager.actionPoints)).Any();
-                //print(hasTurnsLeft);
                 return BattleManager.actionPoints == 0 || !hasTurnsLeft;
             }
         }

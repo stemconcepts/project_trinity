@@ -8,12 +8,13 @@ namespace AssemblyCSharp
     {
         //public List<string> FriendlyCharacters = new List<string>();
         //public List<string> EmenyCharacters = new List<string>();
-        string Backgrounds;        
-        public enum GameState {
-           Inventory,
-           Exploration,
-           Battle,
-           MainMenu
+        string Backgrounds;
+        public enum GameState
+        {
+            Inventory,
+            Exploration,
+            Battle,
+            MainMenu
         };
         public GameState State;
         public BattleManager BattleManager;
@@ -35,7 +36,8 @@ namespace AssemblyCSharp
 
         //int rand;
 
-        void Awake(){
+        void Awake()
+        {
             SoundManager = gameObject.GetComponent<Sound_Manager>();
             TaskManager = gameObject.GetComponent<Task_Manager>();
             battleDetailsManager = gameObject.GetComponent<BattleDetailsManager>();
@@ -57,8 +59,10 @@ namespace AssemblyCSharp
 
         }
 
-        void Start(){
-            if(State == GameState.Battle){
+        void Start()
+        {
+            if (State == GameState.Battle)
+            {
                 BattleManager.StartBattle(5f);
             }
         }
@@ -98,6 +102,22 @@ namespace AssemblyCSharp
         {
             var rand = UnityEngine.Random.Range(0, maxNumber);
             return rand;
+        }
+
+        public void AddGearToInventory(ItemBase gearItem)
+        {
+            switch (gearItem.GetType().Name)
+            {
+                case nameof(baubleItem):
+                    ((baubleItem)gearItem).bauble.owned = true;
+                    break;
+                case nameof(weaponItem):
+                    ((weaponItem)gearItem).weapon.owned = true;
+                    break;
+                default:
+                    break;
+            }
+            //SavedDataManager.SavedDataManagerInstance.SaveObtainedItem(gearItem.id);
         }
     }
 }

@@ -6,8 +6,6 @@ namespace AssemblyCSharp
     public class weaponItem : ItemBase
     {
         public weaponModel weapon;
-        [Range(0.0f, 1.0f)]
-        public float dropChancePercentage;
 
         public void SetGearData()
         {

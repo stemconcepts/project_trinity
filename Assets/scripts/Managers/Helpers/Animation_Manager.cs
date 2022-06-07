@@ -169,7 +169,7 @@ namespace AssemblyCSharp
 
         public void AddStatusAnimation( bool addAnimation, animationOptionsEnum animationName, animationOptionsEnum holdAnimation = animationOptionsEnum.none)
         {
-            if( addAnimation ){
+            if( addAnimation){
                 if( animationName == animationOptionsEnum.toDeath)
                 {
                     PlaySetAnimation("toDeath", false);

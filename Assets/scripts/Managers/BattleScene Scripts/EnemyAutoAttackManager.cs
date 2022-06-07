@@ -37,7 +37,7 @@ namespace AssemblyCSharp
         bool CanAttack(BaseDamageManager targetDmgManager)
         {
             var turnType = BattleManager.TurnEnum.EnemyTurn;
-            return /*targetDmgManager != null &&*/ baseManager.characterManager.characterModel.isAlive &&
+            return baseManager.characterManager.characterModel.isAlive &&
                 baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
                 !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive && (BattleManager.turn == turnType);
         }

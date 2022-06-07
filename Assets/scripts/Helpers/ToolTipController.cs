@@ -18,9 +18,8 @@ namespace AssemblyCSharp
 
         public void OnMouseEnter()
         {
-            liveHoverObj = (GameObject)Instantiate(hoverObj);
+            liveHoverObj = (GameObject)Instantiate(hoverObj, BattleManager.tooltipCanvas.transform);
             layoutElement = liveHoverObj.GetComponent<LayoutElement>();
-            liveHoverObj.transform.SetParent(BattleManager.tooltipCanvas.transform);
             liveHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
             var statusName = liveHoverObj.transform.Find("statusName").GetComponent<Text>();
             var statusDesc = liveHoverObj.transform.Find("statusDesc").GetComponent<Text>();
