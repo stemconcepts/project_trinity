@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AssemblyCSharp
 {
@@ -26,7 +27,15 @@ namespace AssemblyCSharp
         // Update is called once per frame
         void Update()
         {
-            Vector2 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Camera camera = null;
+            if (MainGameManager.instance.SceneManager.currentScene == "exploration")
+            {
+                camera = ExploreManager.explorerCamera;
+            } else
+            {
+                camera = Camera.main;
+            }
+            Vector2 position = camera.ScreenToWorldPoint(Input.mousePosition);
             float pivotX = (position.x / Screen.width) * 100;
             float pivotY = (position.y / Screen.height) * 100;
             var x = (int)Math.Round(pivotX);

@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using static AssemblyCSharp.miniMapIconBase;
+using Assets.scripts.Managers.ExplorerScene_Scripts;
 
 namespace AssemblyCSharp
 {
@@ -23,6 +24,8 @@ namespace AssemblyCSharp
         public static string currentRoom;
         public static GameObject backButton;
         public static GameObject inventoryHolder;
+        public static GameObject corruptionHolder;
+        private static int stepCounter;
         public DungeonSettings dungeonSettings;
         DungeonSettings dungeonSettingsCopy;
         public static List<DungeonRoom> allRooms = new List<DungeonRoom>();
@@ -61,7 +64,21 @@ namespace AssemblyCSharp
             dungeonSettingsCopy = UnityEngine.Object.Instantiate(dungeonSettings);
             backButton = GameObject.Find("backButton");
             inventoryHolder = GameObject.Find("inventoryHolder");
+            corruptionHolder = GameObject.Find("CorruptionCounter");
             Invoke("LevelGenerator", 0.1f);
+        }
+
+        /// <summary>
+        /// increases step count and adds 1 curroption to counter every 2 steps, forwards or backwards
+        /// </summary>
+        /// <param name="amount"></param>
+        public static void AddStep(int amount)
+        {
+            stepCounter += amount;
+            if (stepCounter%2 == 0)
+            {
+                corruptionHolder.GetComponent<corruptionController>().AddCorruption(1);
+            }
         }
 
         public void LevelGenerator()
@@ -153,19 +170,7 @@ namespace AssemblyCSharp
         //Move to external script that sits on obtained items slot
         public static void AddToObtainedItems(ItemBase item, GameObject gameObject = null)
         {
-            obtainedItems.Add(item);
-            if (!gameObject)
-            {
-                var x = Instantiate(new GameObject());// doesnt work
-                var explorererItemController = x.AddComponent<ExplorerItemsController>();
-                x.AddComponent<ToolTipTriggerController>();
-                explorererItemController.itemBase = item;
-                explorererItemController.SetUpItem();
-                gameObject = x;
-            } 
-            gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform);
-            gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
-            //SavedDataManager.SavedDataManagerInstance.SaveObtainedItem(item.id);
+            inventoryHolder.GetComponent<fieldInventoryController>().AddToObtainedItems(item, gameObject);
         }
 
         public static void RemoveObtainedItem(ItemBase item)
@@ -441,9 +446,12 @@ namespace AssemblyCSharp
         void AddRandomEncounters()
         {
             var attempt = 0;
+            //var rooms = allRooms;
+            var rnd = new System.Random();
+            List<DungeonRoom> randomRooms = allRooms.OrderBy(x => rnd.Next()).ToList();
             while (smallEncounters < dungeonSettingsCopy.maxSmallEncounters && attempt != 3)
             {
-                foreach (DungeonRoom room in allRooms)
+                foreach (DungeonRoom room in randomRooms)
                 {
                     if (dungeonSettingsCopy.enemyEncounters.Count > 0 && GameManager.GetChanceByPercentage(0.8f) && room.encounter == null && !room.isStartingRoom)
                     {
@@ -484,7 +492,7 @@ namespace AssemblyCSharp
 
         void GenerateRooms(int numberOfRooms)
         {
-            List<KeyItem> savedKeys = new List<KeyItem>();
+           // List<KeyItem> savedKeys = new List<KeyItem>();
             for (int i = 0; i < numberOfRooms; i++)
             {
                 if (CanGenerateCustomRoute(i) && GameManager.GetChanceByPercentage(dungeonSettings.chanceToGenerateCustomRoute)/*GetChance(dungeonSettings.chanceToGenerateCustomRoute)*/)

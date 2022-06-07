@@ -9,7 +9,13 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class BattleManager : MonoBehaviour
     {
-        //public static BattleModel battleModel = new BattleModel();
+        static int startingTankHealth;
+        static int startingHealerHealth;
+        static int startingDpsHealth;
+        static List<StatusModel> tankStatus = new List<StatusModel>();
+        static List<StatusModel> healerStatus = new List<StatusModel>();
+        static List<StatusModel> dpsStatus = new List<StatusModel>();
+
         public static Event_Manager eventManager;
         public static GameManager gameManager;
         public static GameObject UICanvas;
@@ -82,14 +88,16 @@ namespace AssemblyCSharp
             allPanelManagers = GameObject.FindGameObjectsWithTag("movementPanels").Select(o => o.GetComponent<PanelsManager>()).ToList();
             taskManager.battleDetailsManager = battleDetailsManager;
             var bi = GameObject.FindGameObjectsWithTag("skillDisplayControl").ToList();
-            //characterSelectManager.UpdateCharacters();
             battleInterfaceManager = bi.Select( x => x.GetComponent<BattleInterfaceManager>() ).ToList();
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
             originalActionPoints = actionPoints;
             actionPointsText = GameObject.Find("SkillPointsText").GetComponent<Text>();
             playerTurnText = GameObject.Find("PlayerTurnText").GetComponent<Text>();
+            actionPoints = 6;
             LoadEquipment();
             UpdateAPAmount();
+            SetStartingHealthAndStats();
+            battleOver = false;
         }
 
         void Update()
@@ -135,6 +143,7 @@ namespace AssemblyCSharp
                     t.Value.Stop();
                 }
                 battleOver = true;
+                loot.Clear();
                 MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
             }
         }
@@ -171,6 +180,49 @@ namespace AssemblyCSharp
                 actionPoints += vigor;
                 UpdateAPAmount();
             }
+        }
+
+        public void SetStartingHealthAndStats()
+        {
+            var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
+            characters.ForEach(c =>
+            {
+                switch (c.characterModel.role)
+                {
+                    case BaseCharacterModel.RoleEnum.tank:
+                        if (startingTankHealth > 0)
+                        {
+                            c.characterModel.current_health = startingTankHealth;
+                        }
+                        tankStatus.ForEach(o =>
+                        {
+                            c.baseManager.statusManager.RunStatusFunction(o);
+                        });
+                        break;
+                    case BaseCharacterModel.RoleEnum.healer:
+                        if (startingHealerHealth > 0)
+                        {
+                            c.characterModel.current_health = startingHealerHealth;
+                        }
+                        healerStatus.ForEach(o =>
+                        {
+                            c.baseManager.statusManager.RunStatusFunction(o);
+                        });
+                        break;
+                    case BaseCharacterModel.RoleEnum.dps:
+                        if (startingDpsHealth > 0)
+                        {
+                            c.characterModel.current_health = startingDpsHealth;
+                        }
+                        dpsStatus.ForEach(o =>
+                        {
+                            c.baseManager.statusManager.RunStatusFunction(o);
+                        });
+                        break;
+                    default:
+                        break;
+                }
+            });
         }
 
         public static void UpdateAPAmount()
@@ -261,23 +313,12 @@ namespace AssemblyCSharp
         public static List<BattleInterfaceManager> GetBattleInterfaces(){
             return battleInterfaceManager;
         }
-        
-        /*public List<Character_Manager> GetCharacterManagers( List<GameObject> go){
-            var y = go.Select(o => o.GetComponent<Character_Manager>()).ToList();
-            y.Capacity = y.Count;
-            return y;
-        }*/
 
         public static void PauseGame()
         {
-            //pauseScreenHolder.SetActive(gamePaused ? false : true);
             Time.timeScale = gamePaused ? 1 : 0;
             gamePaused = !gamePaused;
         }
-
-        /*public List<Character_Manager> GetCharacterManagerByLoyalty(bool getFriendly){
-            return getFriendly ? characterSelectManager.friendlyCharacters : characterSelectManager.enemyCharacters;
-        }*/
 
         public class classState{
             public string Name;

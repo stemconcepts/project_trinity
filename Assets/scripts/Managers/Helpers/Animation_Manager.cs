@@ -3,6 +3,7 @@ using Spine;
 using UnityEngine;
 using Spine.Unity;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -148,8 +149,12 @@ namespace AssemblyCSharp
                 return trackEntry.Animation.Duration;
             } else
             {
-                var trackEntry = skeletonAnimation.state.SetAnimation(0, animationName, loop);
-                return trackEntry.Animation.Duration;
+                if (skeletonAnimation.state.Data.SkeletonData.Animations.Items.ToList().Any(o => o.Name == animationName))
+                {
+                    var trackEntry = skeletonAnimation.state.SetAnimation(0, animationName, loop);
+                    return trackEntry.Animation.Duration;
+                }
+                return 0;
             }
         }
 
@@ -162,8 +167,12 @@ namespace AssemblyCSharp
             }
             else
             {
-                var trackEntry = skeletonAnimation.state.AddAnimation(0, animationName, loop, delay);
-                return trackEntry.Animation.Duration;
+                if (skeletonAnimation.state.Data.SkeletonData.Animations.Items.ToList().Any(o => o.Name == animationName))
+                {
+                    var trackEntry = skeletonAnimation.state.AddAnimation(0, animationName, loop, delay);
+                    return trackEntry.Animation.Duration;
+                }
+                return 0;
             }
         }
 

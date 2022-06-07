@@ -78,7 +78,9 @@ namespace AssemblyCSharp
                 DungeonRoom dr = targetRoom.GetComponent<DungeonRoom>();
                 dr.SetVisited();
                 dr.CheckEncounterAndStart();
-            } else if (CanUnlock())
+                ExploreManager.AddStep(1);
+            }
+            else if (CanUnlock())
             {
                 lockObj.locked = false;
                 toolTipController.DestroyToolTipDisplay();

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
+using TMPro;
 
 namespace AssemblyCSharp
 {
@@ -7,16 +9,18 @@ namespace AssemblyCSharp
     {
         public ItemBase itemBase;
         public int position;
+        public int total;
+        public TextMeshPro text;
+        public SpriteRenderer spriteRenderer;
         ToolTipTriggerController tooltipController;
-        SpriteRenderer spriteRenderer;
 
         public void SetUpItem()
         {
             tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
-            spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
             tooltipController.toolTipName = itemBase.itemName;
             tooltipController.toolTipDesc = itemBase.itemDesc;
             spriteRenderer.sprite = itemBase.itemIcon;
+            text.text = total > 1 ? $"x{total.ToString()}" : "";
         }
 
         // Use this for initialization
@@ -38,9 +42,12 @@ namespace AssemblyCSharp
 
         void OnMouseUp()
         {
-            ExploreManager.AddToObtainedItems(itemBase, this.gameObject);
-            //this.gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
-            //this.gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform);
+            if (!ExploreManager.obtainedItems.Any(o => o == itemBase))
+            {
+                ExploreManager.AddToObtainedItems(itemBase, this.gameObject);
+                //this.gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
+                //this.gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform);
+            }
         }
     }
 }

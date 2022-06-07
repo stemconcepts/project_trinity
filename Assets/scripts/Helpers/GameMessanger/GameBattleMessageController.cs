@@ -51,7 +51,6 @@ namespace AssemblyCSharp
                 {
                     var i = Instantiate(itemTemplate, itemsHolder);
                     i.transform.DOLocalMoveX(-50f, 1f).SetEase(Ease.OutSine);
-
                     var itemInfoController = i.GetComponent<ItemInfoController>();
                     itemInfoController.itemBase = l;
                     itemInfoController.amount = 1;

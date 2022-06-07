@@ -22,10 +22,11 @@ namespace AssemblyCSharp
 		private void OnSceneUnloaded(Scene current)
 		{
             if (SceneManager.GetActiveScene().name == "exploration")
-			{
-				ExploreManager.explorerCamera.gameObject.SetActive(true);
+            {
+                ExploreManager.explorerCamera.gameObject.SetActive(true);
+				MainGameManager.instance.SaveScene("exploration");
 			}
-			Debug.Log("OnSceneUnloaded: " + current);
+            Debug.Log("OnSceneUnloaded: " + current);
 		}
 
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -33,7 +34,8 @@ namespace AssemblyCSharp
 			MainGameManager.instance.GetCanvasAndMainCamera();
             if (mode == LoadSceneMode.Additive)
             {
-				ExploreManager.explorerCamera.gameObject.SetActive(false);
+                ExploreManager.explorerCamera.gameObject.SetActive(false);
+				MainGameManager.instance.SaveScene(scene.name);
 			}
 			Debug.Log("OnSceneLoaded: " + scene.name);
 			Debug.Log(mode);

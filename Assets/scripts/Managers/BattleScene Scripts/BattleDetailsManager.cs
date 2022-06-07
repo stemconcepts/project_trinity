@@ -26,7 +26,7 @@ namespace AssemblyCSharp
             {
                 //warningText.text = "";
                 warningTextHolder.SetActive(false);
-            });
+            }, "battleWarningTask");
         }
 
         public void AddStacks(StatusLabelModel singleStatusLabel)
