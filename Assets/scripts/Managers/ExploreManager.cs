@@ -27,6 +27,7 @@ namespace AssemblyCSharp
         public static GameObject corruptionHolder;
         private static int stepCounter;
         public DungeonSettings dungeonSettings;
+        public static DungeonSettings dungeonSettingsStatic;
         DungeonSettings dungeonSettingsCopy;
         public static List<DungeonRoom> allRooms = new List<DungeonRoom>();
         public static List<DungeonRoom> mainRooms = new List<DungeonRoom>();
@@ -62,6 +63,7 @@ namespace AssemblyCSharp
         void Start()
         {
             dungeonSettingsCopy = UnityEngine.Object.Instantiate(dungeonSettings);
+            dungeonSettingsStatic = dungeonSettingsCopy;
             backButton = GameObject.Find("backButton");
             inventoryHolder = GameObject.Find("inventoryHolder");
             corruptionHolder = GameObject.Find("CorruptionCounter");
@@ -72,13 +74,14 @@ namespace AssemblyCSharp
         /// increases step count and adds 1 curroption to counter every 2 steps, forwards or backwards
         /// </summary>
         /// <param name="amount"></param>
-        public static void AddStep(int amount)
+        public static void AddStep(int steps, int curroptionAmount)
         {
-            stepCounter += amount;
-            if (stepCounter%2 == 0)
+            corruptionHolder.GetComponent<corruptionController>().AddCorruption(curroptionAmount);
+            stepCounter += steps;
+            /*if (stepCounter%2 == 0)
             {
                 corruptionHolder.GetComponent<corruptionController>().AddCorruption(1);
-            }
+            }*/
         }
 
         public void LevelGenerator()
@@ -94,9 +97,25 @@ namespace AssemblyCSharp
                 AddLockedDoors();
                 GetTotalRoomsAndHide();
                 AddRandomEncounters();
+                AddCurroptionToRoutes();
                 SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
                 SavedDataManager.SavedDataManagerInstance.SaveIconPos(iconControllers);
             //}
+        }
+
+        /// <summary>
+        /// Add random curroption 0 - 3 to random routes
+        /// </summary>
+        void AddCurroptionToRoutes()
+        {
+            allRooms.ForEach(o =>
+            {
+                o.routes.ForEach(r =>
+                {
+                    var curroption = UnityEngine.Random.Range(0, 4);
+                    r.curroptionAmount = curroption;
+                });
+            });
         }
 
         public static void SetUseBackwardRoute(bool setTrue)
@@ -446,7 +465,6 @@ namespace AssemblyCSharp
         void AddRandomEncounters()
         {
             var attempt = 0;
-            //var rooms = allRooms;
             var rnd = new System.Random();
             List<DungeonRoom> randomRooms = allRooms.OrderBy(x => rnd.Next()).ToList();
             while (smallEncounters < dungeonSettingsCopy.maxSmallEncounters && attempt != 3)
@@ -688,6 +706,15 @@ namespace AssemblyCSharp
             {
                 DropKeysInRoom(savedKeys, i);
             }
+        }
+
+        /// <summary>
+        /// Return player status for battle
+        /// </summary>
+        /// <returns></returns>
+        public static List<environmentStatuses> GetDungeonStatus(bool friendly)
+        {
+            return friendly ? dungeonSettingsStatic.environmentStatuses : dungeonSettingsStatic.enemyEnvironmentStatuses;
         }
 
         void GetTotalRoomsAndHide()

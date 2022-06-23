@@ -6,7 +6,6 @@ namespace AssemblyCSharp
 {
     public class PlayerMovementManager : BaseMovementManager
     {
-        // Use this for initialization
         void Start()
         {
             baseManager = this.gameObject.GetComponent<CharacterManagerGroup>();
@@ -34,24 +33,13 @@ namespace AssemblyCSharp
         {
             if (!baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive)
             {
-                BattleManager.HitBoxControl(false);
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 var distance = Vector2.Distance(transform.position, Camera.main.transform.position);
-                /*if (Input.GetMouseButtonDown(0))
-                {
-                    if (baseManager.characterManager.characterModel.characterType == CharacterModel.CharacterTypeEnum.Player && baseManager.characterManager.characterModel.Haste > ((PlayerSkillManager)baseManager.skillManager).turnsTaken)
-                    {
-                        positionArrow = (GameObject)Instantiate(BattleManager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
-                        var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
-                        movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
-                        movementArrowManager.distance = distance;
-                        movementArrowManager.occupier = baseManager;
-                    }
-                }*/
                 BattleManager.taskManager.CallTask(0.4f, () =>
                 {
                     if (PlayerCanMove())
                     {
+                        BattleManager.HitBoxControl(false);
                         positionArrow = (GameObject)Instantiate(BattleManager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
                         var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
                         movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
@@ -82,9 +70,9 @@ namespace AssemblyCSharp
                     positionArrowManager.occupier.animationManager.meshRenderer.sortingOrder = origSortingOrder = positionArrowManager.hoveredPanel.sortingLayerNumber;
                     positionArrowManager.occupier.characterManager.characterModel.rowNumber = positionArrowManager.hoveredPanel.sortingLayerNumber;
                 }
+                Destroy(positionArrow);
+                BattleManager.HitBoxControl(true);
             }
-            Destroy(positionArrow);
-            BattleManager.HitBoxControl(true);
         }
     }
 }

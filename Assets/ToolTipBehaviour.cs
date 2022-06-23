@@ -28,7 +28,7 @@ namespace AssemblyCSharp
         void Update()
         {
             Camera camera = null;
-            if (MainGameManager.instance.SceneManager.currentScene == "exploration")
+            if (MainGameManager.instance.SceneManager.currentScene.ToLower() == "exploration")
             {
                 camera = ExploreManager.explorerCamera;
             } else

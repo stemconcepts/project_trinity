@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
-    public class StatusModel 
+    public class StatusModel
     {
         public SingleStatusModel singleStatus;
         public BaseCharacterManagerGroup baseManager; 

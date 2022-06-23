@@ -11,8 +11,8 @@ namespace AssemblyCSharp
         public void SetUp()
         {
             attackedPos = new Vector2();
-            maxHealth = Health;
-            full_health = Health;
+            Health = Health == 0 ? fullHealth : Health;
+            maxHealth = fullHealth;
             isAlive = true;
             originalthornsDmg = 0;
             originalPDef = PDef;

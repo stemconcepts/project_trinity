@@ -195,8 +195,9 @@ namespace AssemblyCSharp
         void AddLockToolTip(DungeonRoom room, Route route)
         {
             ToolTipTriggerController tooltip = route.gameObject.GetComponent<ToolTipTriggerController>();
-            tooltip.toolTipName = room.lockObj.lockName;
-            tooltip.toolTipDesc = room.lockObj.lockDesc;
+            tooltip.AddtoolTip("lock", room.lockObj.lockName, room.lockObj.lockDesc);
+            //tooltip.toolTipName = room.lockObj.lockName;
+            //tooltip.toolTipDesc = room.lockObj.lockDesc;
             tooltip.enabled = room.lockObj.locked;
             route.lockObj = room.lockObj;
         }

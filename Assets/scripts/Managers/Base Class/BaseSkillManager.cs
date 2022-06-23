@@ -10,9 +10,7 @@ namespace AssemblyCSharp
     public class BaseSkillManager : MonoBehaviour
     {
         public bool hasCasted;
-        //public GenericSkillModel activeSkill;
         public BaseCharacterManagerGroup baseManager;
-        //private float multiplier;
         public List<BaseCharacterManager> finalTargets = new List<BaseCharacterManager>();
         public bool isSkillactive;
         public BaseCharacterManager currenttarget;

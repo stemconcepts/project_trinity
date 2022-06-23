@@ -21,24 +21,20 @@ namespace AssemblyCSharp
         }
 
         void OnMouseUp(){
-            //var charManager = this.gameObject.tag == "Enemy" ? (Character_Manager)baseManager.characterManager : (Enemy_Character_Manager)baseManager.characterManager;
-
             if (!BattleManager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive && !baseManager.statusManager.DoesStatusExist("stun") ){
                 if(baseManager.characterManager.characterModel.characterType != CharacterModel.CharacterTypeEnum.enemy ){
                     BattleManager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
                     BattleManager.soundManager.playSound(characterSelectSound);
-                    //DisplaySkills();
                 }
             } else if (BattleManager.waitingForSkillTarget)
             {
                 Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
                 RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-                if (hit.collider != null)
+                if (hit.collider != null && (hit.transform.gameObject.tag.ToLower() == "enemy" || hit.transform.gameObject.tag.ToLower() == "player"))
                 {
                     var activeCharacter = BattleManager.characterSelectManager.GetSelectedClassObject();
                     var isEnemy = hit.transform.gameObject.tag == "Enemy";
-                    //var selectedTarget = hit.transform.gameObject.GetComponent<BaseCharacterManager>();
                     if ((BattleManager.offensiveSkill && !isEnemy) || (!BattleManager.offensiveSkill && isEnemy))
                     {
                         print("Not a valid target, select another");

@@ -12,12 +12,12 @@ namespace AssemblyCSharp
 
 		public void ShowInventory()
 		{
-			ExploreManager.gameManager.SceneManager.LoadInventory(true);
+			MainGameManager.instance.SceneManager.LoadInventory(true);
 		}
 
 		public void HideInventory()
 		{
-			ExploreManager.gameManager.SceneManager.UnLoadScene("Inventory");
+			MainGameManager.instance.SceneManager.UnLoadScene("Inventory");
 		}
 
 		public void ShowItemMenu()

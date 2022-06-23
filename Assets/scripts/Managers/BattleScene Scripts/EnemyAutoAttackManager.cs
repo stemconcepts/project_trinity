@@ -146,6 +146,7 @@ namespace AssemblyCSharp
                     RunAttackLoop();
                 }
             }));
+            //BattleManager.taskManager.taskList.Add("EnemyAutoAttackLoop", myTask);
         }
     }
 }

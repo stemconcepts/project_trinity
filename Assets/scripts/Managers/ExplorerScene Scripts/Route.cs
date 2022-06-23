@@ -8,18 +8,28 @@ namespace AssemblyCSharp
     {
         public string routeTag;
         public string location;
-        public int position;
+        public int position, curroptionAmount;
         public LockObject lockObj;
         public SpriteRenderer spriteRenderer;
         public List<Sprite> allowedPathSprites;
         public Color origColor;
         public Color hoverColor;
         ToolTipTriggerController toolTipController;
+        bool curroptionAdded = false;
 
         void Start()
         {
             ChoosePathSprite();
             toolTipController = GetComponent<ToolTipTriggerController>();
+            if (curroptionAmount > 0) {
+                AddCurroptionToolTip();
+            }
+        }
+
+        void AddCurroptionToolTip()
+        {
+            toolTipController.AddtoolTip("curroption", $"Curroption <b> +{curroptionAmount}</b>", $"");
+            toolTipController.enabled = true;
         }
 
         void ChoosePathSprite()
@@ -49,8 +59,18 @@ namespace AssemblyCSharp
             this.gameObject.GetComponent<SpriteRenderer>().color = hoverColor;
             if (CanUnlock())
             {
-                toolTipController.toolTipDesc = $"Open lock with <b>{lockObj.key.name}</b>. <i>Click to unlock</i>";
+                if(toolTipController.toolTipList.Any(o => o.id.ToLower() == "lock"))
+                {
+                    toolTipController.toolTipList.First(o => o.id.ToLower() == "lock").toolTipDesc = $"Open lock with <b>{lockObj.key.name}</b>. <i>Click to unlock</i>";
+                }
             }
+            /*if (!curroptionAdded)
+            {
+                if (toolTipController.toolTipList.Any(o => o.id.ToLower() == "curroption"))
+                {
+                    toolTipController.toolTipList.First(o => o.id.ToLower() == "curroption").toolTipName += $" <b color='#000'>+{curroptionAmount}</b>";
+                }
+            }*/
         }
 
         void OnMouseExit()
@@ -63,7 +83,6 @@ namespace AssemblyCSharp
             if (lockObj == null || !lockObj.locked)
             {
                 ExploreManager.AddPreviousRoom(ExploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
-                //Explore_Manager.ChangeRouteInBackButton(Explore_Manager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
                 ExploreManager.ToggleRooms(true);
                 var cRoom = ExploreManager.GetCurrentRoom();
                 GameObject targetRoom = GameObject.Find(location);
@@ -78,12 +97,22 @@ namespace AssemblyCSharp
                 DungeonRoom dr = targetRoom.GetComponent<DungeonRoom>();
                 dr.SetVisited();
                 dr.CheckEncounterAndStart();
-                ExploreManager.AddStep(1);
+                if (!curroptionAdded)
+                {
+                    ExploreManager.AddStep(1, curroptionAmount);
+                    curroptionAdded = true;
+                }
+                else
+                {
+                    ExploreManager.AddStep(1, 0);
+                }
+                toolTipController.DestroyToolTipDisplay("curroption");
             }
             else if (CanUnlock())
             {
                 lockObj.locked = false;
-                toolTipController.DestroyToolTipDisplay();
+                toolTipController.DestroyToolTipDisplay("lock");
+                toolTipController.DestroyToolTipDisplay("curroption");
                 toolTipController.enabled = false;
                 ExploreManager.RemoveObtainedItem(lockObj.key);
             }

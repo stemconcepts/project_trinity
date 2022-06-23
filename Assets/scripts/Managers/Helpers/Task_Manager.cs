@@ -10,26 +10,7 @@ namespace AssemblyCSharp
 {
     public class Task_Manager : MainGameTaskManager
     {
-        //public Base_Character_Manager baseManager;
         public BattleDetailsManager battleDetailsManager;
-       // public Dictionary<string, Task> taskList = new Dictionary<string, Task>();
-
-        /*public void CallTask(float waitTime, System.Action action = null, string taskName = null)
-        {
-            var myTask = new Task(CountDown(waitTime, action));
-            if (!string.IsNullOrEmpty(taskName) && !taskList.ContainsKey(taskName))
-            {
-                taskList.Add(taskName, myTask);
-            }
-        }
-        IEnumerator CountDown(float waitTime, System.Action action = null)
-        {
-            yield return new WaitForSeconds(waitTime);
-            if (action != null)
-            {
-                action();
-            }
-        }*/
 
         public bool RemoveLabelTask(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
@@ -289,69 +270,6 @@ namespace AssemblyCSharp
             Time.timeScale = 1f;
         }
 
-        /*public bool skillcoolDownTask( SkillModel skill, Image image ){
-            var myTask = new Task(skillcoolDownDisplay( skill, image ));
-
-            CallTask( skill.skillCooldown, () => {
-                skill.skillActive = false;
-            });
-            if (!taskList.ContainsKey("skillcoolDownDisplay_" + skill.skillName))
-            {
-                taskList.Add("skillcoolDownDisplay_" + skill.skillName, myTask);
-            }
-            return true;
-        }*/
-
-        /*IEnumerator skillcoolDownDisplay( SkillModel skill, Image image ){
-            image.fillAmount = 1f;
-            while( skill.skillActive ){
-                yield return new WaitForSeconds(1f);
-                skill.currentCDAmount += 1;
-                float timeSpent;
-                timeSpent = 1f/skill.skillCooldown;
-                Battle_Manager.battleInterfaceManager.ForEach((o =>
-                    {
-                        if (o.skill == skill)
-                        {
-                            image.fillAmount -= timeSpent;
-                        }
-                    }
-                ));
-            }
-            skill.currentCDAmount = 0;
-        }*/
-
-        /*public bool skillcoolDownTask(enemySkill skill, Image image)
-        {
-            var myTask = new Task(skillcoolDownDisplay(skill, image));
-            /*var myTask2 = new Task(CallTask( skill.skillCooldown, () => {
-                skill.skillActive = false;
-            }));
-
-            CallTask(skill.skillCooldown, () => {
-                skill.skillActive = false;
-            });
-
-            if (!taskList.ContainsKey("skillcoolDownDisplay_" + skill.skillName))
-            {
-                taskList.Add("skillcoolDownDisplay_" + skill.skillName, myTask);
-            }
-            return true;
-        }
-        IEnumerator skillcoolDownDisplay(enemySkill skill, Image image)
-        {
-            image.fillAmount = 1f;
-            while (skill.skillActive)
-            {
-                yield return new WaitForSeconds(1f);
-                skill.currentCDAmount += 1;
-                //float timeSpent;
-                //timeSpent = 1f / skill.skillCooldown;
-                //image.fillAmount -= timeSpent;
-            }
-            skill.currentCDAmount = 0;
-        }*/
-
         public void TimerDisplayTask(float time, Image image, string taskName = null)
         {
             var myTask = new Task(TimerDisplay(time, image));
@@ -364,7 +282,7 @@ namespace AssemblyCSharp
         {
             var timeRemaining = 0f;
             image.fillAmount = 1f;
-            while (time > timeRemaining)
+            while (time > timeRemaining && image)
             { 
                 yield return new WaitForSeconds(1f);
                 timeRemaining += 1f;

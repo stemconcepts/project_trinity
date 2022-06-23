@@ -3,8 +3,18 @@ using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
+    [System.Serializable]
+    public class environmentStatuses
+    {
+        public bool affectAll;
+        public List<SingleStatusModel> status = new List<SingleStatusModel>();
+    }
+
     public class DungeonSettings : ScriptableObject
     {
+        [Header("environment Status Settings")]
+        public List<environmentStatuses> environmentStatuses = new List<environmentStatuses>();
+        public List<environmentStatuses> enemyEnvironmentStatuses = new List<environmentStatuses>();
         [Header("Custom Route Settings")]
         public List<GameObject> customRouteObjects;
         [Range(0.0f, 1.0f)]

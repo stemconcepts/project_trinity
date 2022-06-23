@@ -17,8 +17,7 @@ namespace AssemblyCSharp
         public void SetUpItem()
         {
             tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
-            tooltipController.toolTipName = itemBase.itemName;
-            tooltipController.toolTipDesc = itemBase.itemDesc;
+            tooltipController.AddtoolTip(itemBase.itemName, itemBase.itemName, itemBase.itemDesc);
             spriteRenderer.sprite = itemBase.itemIcon;
             text.text = total > 1 ? $"x{total.ToString()}" : "";
         }

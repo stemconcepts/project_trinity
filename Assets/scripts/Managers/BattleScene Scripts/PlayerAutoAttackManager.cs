@@ -137,6 +137,7 @@ namespace AssemblyCSharp
                     RunAttackLoop();
                 }
             }));
+            //BattleManager.taskManager.taskList.Add("PlayerAutoAttackLoop", myTask);
         }
     }
 }

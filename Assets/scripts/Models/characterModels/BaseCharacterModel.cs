@@ -29,6 +29,7 @@ namespace AssemblyCSharp
         public float Health;
         [HideInInspector]
         public float maxHealth;
+        public float fullHealth;
         public float blockPoints;
         public float absorbPoints;
         [HideInInspector]
@@ -93,8 +94,6 @@ namespace AssemblyCSharp
         public float incomingHeal;
         [HideInInspector]
         public float current_health;
-        [HideInInspector]
-        public float full_health;
         public Text healthBarText;
         public Slider sliderScript;
         public GameObject targetActionBar;

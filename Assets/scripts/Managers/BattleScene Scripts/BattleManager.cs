@@ -12,9 +12,9 @@ namespace AssemblyCSharp
         static int startingTankHealth;
         static int startingHealerHealth;
         static int startingDpsHealth;
-        static List<StatusModel> tankStatus = new List<StatusModel>();
-        static List<StatusModel> healerStatus = new List<StatusModel>();
-        static List<StatusModel> dpsStatus = new List<StatusModel>();
+        static List<SingleStatusModel> tankStatus = new List<SingleStatusModel>();
+        static List<SingleStatusModel> healerStatus = new List<SingleStatusModel>();
+        static List<SingleStatusModel> dpsStatus = new List<SingleStatusModel>();
 
         public static Event_Manager eventManager;
         public static GameManager gameManager;
@@ -32,7 +32,7 @@ namespace AssemblyCSharp
         public static bool waitingForSkillTarget;
         public static bool offensiveSkill;
         public static bool battleStarted = false;
-        public static bool battleOver = false;
+        //public static bool battleOver = false;
         public static GameObject pauseScreenHolder;
         public static bool disableActions = true;
         public static float vigor = 6;
@@ -76,6 +76,7 @@ namespace AssemblyCSharp
             {
                 pauseScreenHolder.SetActive(false);
             }
+            LoadEnemies();
         }
 
         void Start()
@@ -84,7 +85,6 @@ namespace AssemblyCSharp
             {
                 MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Battle"), headerText: "A Battle has begun", waitTime : 2f, pauseGame: true);
             }
-            LoadEnemies();
             allPanelManagers = GameObject.FindGameObjectsWithTag("movementPanels").Select(o => o.GetComponent<PanelsManager>()).ToList();
             taskManager.battleDetailsManager = battleDetailsManager;
             var bi = GameObject.FindGameObjectsWithTag("skillDisplayControl").ToList();
@@ -97,7 +97,7 @@ namespace AssemblyCSharp
             LoadEquipment();
             UpdateAPAmount();
             SetStartingHealthAndStats();
-            battleOver = false;
+            //battleOver = false;
         }
 
         void Update()
@@ -134,22 +134,52 @@ namespace AssemblyCSharp
             loot.Add(l);
         }
 
+        /// <summary>
+        /// Adds statuses to starting status that will be active at the start of the battle
+        /// </summary>
+        /// <param name="roles"></param>
+        /// <param name="status"></param>
+        public static void AddToPlayerStatus(List<BaseCharacterModel.RoleEnum> roles, List<SingleStatusModel> status)
+        {
+            roles.ForEach(o =>
+            {
+                switch (o)
+                {
+                    case BaseCharacterModel.RoleEnum.tank:
+                        tankStatus = status;
+                        break;
+                    case BaseCharacterModel.RoleEnum.healer:
+                        healerStatus = status;
+                        break;
+                    case BaseCharacterModel.RoleEnum.dps:
+                        dpsStatus = status;
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
         void CheckBattleOver()
         {
-            if (characterSelectManager.enemyCharacters.Count == 0 && !BattleManager.battleOver)
+            if (characterSelectManager.enemyCharacters.Count == 0 && /*!battleOver &&*/ battleStarted)
             {
                 foreach (KeyValuePair<string, Task> t in taskManager.taskList)
                 {
                     t.Value.Stop();
+                    //Debug.Log(t.Key);
                 }
-                battleOver = true;
+                //battleOver = true;
                 loot.Clear();
+                battleStarted = false;
                 MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
             }
         }
 
         void UnloadBattle()
         {
+            battleStarted = false;
+            turn = TurnEnum.PlayerTurn;
             loot.ForEach(l =>
             {
                 if (l.GetType() == typeof(GenericItem))
@@ -160,7 +190,25 @@ namespace AssemblyCSharp
                     gameManager.AddGearToInventory(l);
                 }
             });
-            
+
+            var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
+            characters.ForEach(c =>
+            {
+                switch (c.characterModel.role)
+                {
+                    case BaseCharacterModel.RoleEnum.tank:
+                        startingTankHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                        break;
+                    case BaseCharacterModel.RoleEnum.healer:
+                        startingHealerHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                        break;
+                    case BaseCharacterModel.RoleEnum.dps:
+                        startingDpsHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                        break;
+                    default:
+                        break;
+                }
+            });
             MainGameManager.instance.SceneManager.UnLoadScene("battle");
         }
 
@@ -192,31 +240,52 @@ namespace AssemblyCSharp
                     case BaseCharacterModel.RoleEnum.tank:
                         if (startingTankHealth > 0)
                         {
-                            c.characterModel.current_health = startingTankHealth;
+                            c.characterModel.Health = startingTankHealth;
                         }
                         tankStatus.ForEach(o =>
                         {
-                            c.baseManager.statusManager.RunStatusFunction(o);
+                            var sm = new StatusModel
+                            {
+                                singleStatus = o,
+                                power = 2,
+                                turnDuration = 4,
+                                baseManager = c.baseManager
+                            };
+                            c.baseManager.statusManager.RunStatusFunction(sm);
                         });
                         break;
                     case BaseCharacterModel.RoleEnum.healer:
                         if (startingHealerHealth > 0)
                         {
-                            c.characterModel.current_health = startingHealerHealth;
+                            c.characterModel.Health = startingHealerHealth;
                         }
                         healerStatus.ForEach(o =>
                         {
-                            c.baseManager.statusManager.RunStatusFunction(o);
+                            var sm = new StatusModel
+                            {
+                                singleStatus = o,
+                                power = 2,
+                                turnDuration = 4,
+                                baseManager = c.baseManager
+                            };
+                            c.baseManager.statusManager.RunStatusFunction(sm);
                         });
                         break;
                     case BaseCharacterModel.RoleEnum.dps:
                         if (startingDpsHealth > 0)
                         {
-                            c.characterModel.current_health = startingDpsHealth;
+                            c.characterModel.Health = startingDpsHealth;
                         }
                         dpsStatus.ForEach(o =>
                         {
-                            c.baseManager.statusManager.RunStatusFunction(o);
+                            var sm = new StatusModel
+                            {
+                                singleStatus = o,
+                                power = 2,
+                                turnDuration = 4,
+                                baseManager = c.baseManager
+                            };
+                            c.baseManager.statusManager.RunStatusFunction(sm);
                         });
                         break;
                     default:

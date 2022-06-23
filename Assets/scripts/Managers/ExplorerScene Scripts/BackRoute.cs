@@ -26,7 +26,6 @@ namespace AssemblyCSharp
             {
                 this.gameObject.SetActive(false);
             }
-            ExploreManager.AddStep(1);
         }
     }
 }

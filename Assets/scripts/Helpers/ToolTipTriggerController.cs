@@ -4,23 +4,37 @@ using UnityEditor;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
-    public class ToolTipTriggerController : MonoBehaviour
+    [System.Serializable]
+    public class ToolTipItem
     {
+        public string id;
         public string toolTipName;
         public string toolTipDesc;
-        private GameObject liveHoverObj;
+        public int characterWrapLimit;
+        public GameObject liveHoverObj;
+    }
+
+    public class ToolTipTriggerController : MonoBehaviour
+    {
+        public List<ToolTipItem> toolTipList = new List<ToolTipItem>();
+        //public string toolTipName;
+       // public string toolTipDesc;
+        //private GameObject liveHoverObj;
         public GameObject hoverObj;
         LayoutElement layoutElement;
-        public int characterWrapLimit;
+        //public int characterWrapLimit;
 
         public void OnMouseEnter()
         {
             if (this.isActiveAndEnabled)
             {
-                liveHoverObj = (GameObject)Instantiate(hoverObj, ToolTipManager.canvasTooltip.transform);
+                GenerateToolTips();
+                /*liveHoverObj = (GameObject)Instantiate(hoverObj, ToolTipManager.canvasTooltip.transform);
                 layoutElement = liveHoverObj.GetComponent<LayoutElement>();
                 liveHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
                 var Name = liveHoverObj.transform.Find("Name").GetComponent<Text>();
@@ -29,18 +43,50 @@ namespace AssemblyCSharp
                 Desc.text = toolTipDesc;
                 int headerLength = toolTipName.Length;
                 int contentLength = toolTipDesc.Length;
-                layoutElement.enabled = (headerLength > characterWrapLimit || contentLength > characterWrapLimit) ? true : false;
+                layoutElement.enabled = (headerLength > characterWrapLimit || contentLength > characterWrapLimit) ? true : false;*/
             }
         }
 
-        public void DestroyToolTipDisplay()
+        public void AddtoolTip(string id, string title, string desc)
         {
-            Destroy(liveHoverObj);
+            var t = new ToolTipItem()
+            {
+                id = id,
+                toolTipName = title,
+                toolTipDesc = desc
+            };
+            toolTipList.Add(t);
+        }
+
+        void GenerateToolTips()
+        {
+            toolTipList.ForEach(t =>
+            {
+                t.liveHoverObj = (GameObject)Instantiate(hoverObj, ToolTipManager.canvasTooltip.transform);
+                layoutElement = t.liveHoverObj.GetComponent<LayoutElement>();
+                t.liveHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
+                var Name = t.liveHoverObj.transform.Find("Name").GetComponent<Text>();
+                var Desc = t.liveHoverObj.transform.Find("Desc").GetComponent<Text>();
+                Name.text = t.toolTipName;
+                Desc.text = t.toolTipDesc;
+                layoutElement.enabled = (t.toolTipName.Length > t.characterWrapLimit || t.toolTipDesc.Length > t.characterWrapLimit) ? true : false;
+            });
+        }
+
+        public void DestroyToolTipDisplay(string id)
+        {
+            if (toolTipList.Any(o => o.id.ToLower() == id.ToLower()))
+            {
+                Destroy(toolTipList.First(o => o.id.ToLower() == id.ToLower()).liveHoverObj);
+            }
         }
 
         public void OnMouseExit()
         {
-            Destroy(liveHoverObj);
+            toolTipList.ForEach(t =>
+            {
+                Destroy(t.liveHoverObj);
+            });
         }
 
         // Use this for initialization

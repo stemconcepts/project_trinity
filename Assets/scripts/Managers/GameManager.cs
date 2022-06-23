@@ -25,9 +25,9 @@ namespace AssemblyCSharp
         public BattleDetailsManager battleDetailsManager;
         public Game_Effects_Manager GameEffectsManager;
         public Event_Manager EventManager;
-        public sceneManager SceneManager;
+        //public sceneManager SceneManager;
         public AssetFinder AssetFinder;
-        public SavedDataManager SavedDataManager;
+        //public SavedDataManager SavedDataManager;
         public Character_Select_Manager characterSelectManager;
         public static ILogger logger = Debug.unityLogger;
         public Camera camera;
@@ -46,12 +46,12 @@ namespace AssemblyCSharp
             EventManager = gameObject.GetComponent<Event_Manager>();
             BattleManager = gameObject.GetComponent<BattleManager>();
             AssetFinder = gameObject.GetComponent<AssetFinder>();
-            var dataInstance = GameObject.Find("DataInstance");
+            /*var dataInstance = GameObject.Find("DataInstance");
             if (dataInstance)
             {
                 SceneManager = dataInstance.GetComponent<sceneManager>();
                 SavedDataManager = dataInstance.GetComponent<SavedDataManager>();
-            }
+            }*/
         }
 
         void Update()
