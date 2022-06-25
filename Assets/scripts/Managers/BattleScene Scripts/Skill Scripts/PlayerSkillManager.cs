@@ -47,9 +47,9 @@ namespace AssemblyCSharp
 
         public void PrepSkill(SkillModel skillModel, bool weaponSkill = true)
         {
-            isSkillactive = true;
             if (CheckSkillAvail(skillModel) && skillModel.castTurnTime <= 0)
             {
+                isSkillactive = true;
                 skillModel.skillActive = true;
                 BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
                 SkillActiveSet(skillModel, true);
@@ -57,6 +57,7 @@ namespace AssemblyCSharp
             }
             else if(CheckSkillAvail(skillModel))
             {
+                isSkillactive = true;
                 skillModel.skillActive = true;
                 BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} is casting {skillModel.skillName} in {skillModel.castTurnTime} turns", 3f);
                 SkillActiveSet(skillModel, true);
@@ -97,13 +98,10 @@ namespace AssemblyCSharp
             if (skillModel.allFriendly) { finalTargets.AddRange(friendlyPlayers); }
             if (skillModel.friendly || skillModel.enemy)
             {
-                //Battle_Manager.gameEffectManager.DrawLineFromMouseToPoint(baseManager.movementManager.currentPosition);
                 BattleManager.taskManager.waitForTargetTask(player, classSkill: skillModel, weaponSkill: weaponSkill, skillAction: () =>
                 {
-                    //baseManager.characterManager.characterModel.target = target;
                     Time.timeScale = 1f;
                     SetAnimations(skillModel);
-                    //SkillComplete(finalTargets, skillModel: skillModel);
                 });
                 BattleManager.actionPoints -= skillModel.skillCost;
                 BattleManager.UpdateAPAmount();
@@ -115,7 +113,6 @@ namespace AssemblyCSharp
                 {
                     finalTargets.Capacity = finalTargets.Count;
                     SetAnimations(skillModel);
-                    //SkillComplete(finalTargets, skillModel: skillModel);
                 }
                 else
                 {

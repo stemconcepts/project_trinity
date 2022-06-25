@@ -25,17 +25,17 @@ namespace AssemblyCSharp
 
         public void PrepSkill(enemySkill skillModel)
         {
-            isSkillactive = true;
-            //activeSkill = skillModel;
-            skillModel.skillActive = true;
-            //SkillActiveSet(skillModel, true);
-            if (skillModel.castTurnTime <= 0)
+            if (CheckSkillAvail(skillModel) && skillModel.castTurnTime <= 0)
             {
+                isSkillactive = true;
+                skillModel.skillActive = true;
                 BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
                 GetTargets(skillModel);
             }
-            else
+            else if(CheckSkillAvail(skillModel))
             {
+                isSkillactive = true;
+                skillModel.skillActive = true;
                 BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} is casting {skillModel.skillName} in {skillModel.castTurnTime} turns", 3f);
                 StartCasting(skillModel);
             }
@@ -48,9 +48,6 @@ namespace AssemblyCSharp
 
             baseManager.animationManager.PlaySetAnimation(skillModel.BeginCastingAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), false);
-
-            //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.BeginCastingAnimation.ToString(), false);
-            //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, skillModel.CastingAnimation.ToString(), true, 0);
             if (skillModel.chargeSound != null)
             {
                 BattleManager.soundManager.playSoundUsingAudioSource(skillModel.chargeSound, baseManager.gameObject.GetComponent<AudioSource>());
@@ -104,20 +101,14 @@ namespace AssemblyCSharp
             targets.ForEach(o =>
             {
                 var movementScript = o.baseManager.movementManager;
-                movementScript.ForceMoveOrReposition(skillModel);
                 if (movementScript.isInBackRow)
                 {
-                    var dmgModel = new BaseDamageModel()
-                    {
-                        baseManager = o.baseManager,
-                        incomingDmg = 50, //skillModel.useModifier ? power + (power * skillModel.modifierAmount) : power,
-                        enemySkillModel = skillModel,
-                        dmgSource = baseManager.characterManager,
-                        dueDmgTargets = new List<BaseCharacterManager>() { o },
-                        hitEffectPositionScript = o.baseManager.effectsManager.fxCenter.transform,
-                        modifiedDamage = skillModel.useModifier
-                    };
-                    o.baseManager.damageManager.calculatedamage(dmgModel);
+                    o.baseManager.damageManager.DoDamage(3, o, skillModel);
+                    o.baseManager.statusManager.MakeStunned(1);
+                }
+                else
+                {
+                    movementScript.ForceMoveOrReposition(skillModel);
                 }
             });
         }
@@ -152,11 +143,7 @@ namespace AssemblyCSharp
             currenttarget = null;
             isSkillactive = false;
             enemySkillModel.skillActive = false;
-            //SkillActiveSet(enemySkillModel, false);
-            enemySkillModel.ResetSkillOnCurrentTurn(false, () => {
-                //finalTargets.Clear();
-                //Debug.Log("final targets cleared");
-            });
+            enemySkillModel.ResetSkillOnCurrentTurn(false);
         }
 
         private void GetTargets(enemySkill skillModel, bool randomTarget = false)
@@ -172,7 +159,6 @@ namespace AssemblyCSharp
             }
             if (skillModel.friendly)
             {
-                //finalTargets.Add(((Enemy_Character_Manager)baseManager.characterManager).GetFriendlyTarget().characterManager);
                 finalTargets.Add((baseManager.characterManager).GetTarget<EnemyCharacterManagerGroup>().characterManager);
             }
             else if (skillModel.enemy)
@@ -195,6 +181,7 @@ namespace AssemblyCSharp
                 finalTargets.Clear();
                 isSkillactive = false;
             }
+            BattleManager.enemyActionPoints -= skillModel.skillCost;
         }
 
         private void DealHealDmg(enemySkill enemySkillModel, List<BaseCharacterManager> targets, float power)
@@ -243,10 +230,6 @@ namespace AssemblyCSharp
                             {
                                 baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
                             }
-                            /*if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
-                            {
-                                target.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
-                            }*/
                             target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                             target.baseManager.damageManager.calculatedamage(dmgModel);
                         }
@@ -262,10 +245,6 @@ namespace AssemblyCSharp
                                 {
                                     baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
                                 }
-                                /*if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
-                                {
-                                    target.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
-                                }*/
                                 dmgModel.modifiedDamage = true;
                                 dmgModel.incomingDmg = dmgModel.incomingDmg * 1.5f;
                                 tankData.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
@@ -354,69 +333,25 @@ namespace AssemblyCSharp
             return null;
         }
 
-        public void BeginSkillRotation( /*EnemyPhase phase*/ )
+        public void BeginSkillRotation()
         {
-            if (!isSkillactive)
+            if (!isSkillactive && BattleManager.turn == BattleManager.TurnEnum.EnemyTurn)
             {
                 var randomSkill = SkillToRun(copiedSkillList);
-                if (!hasCasted && !BattleManager.disableActions && (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn) && baseManager.characterManager.characterModel.isAlive
+                if (!hasCasted && !BattleManager.disableActions && baseManager.characterManager.characterModel.isAlive
                      && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && randomSkill != null)
                 {
                         PrepSkill(randomSkill);
-                        BattleManager.taskManager.CallTask(5f, () => {
-                            BeginSkillRotation();
-                        });
                 }
-                else if (baseManager.characterManager.characterModel.isAlive)
-                {
-                    BattleManager.taskManager.CallTask(3f, () => {
-                        BeginSkillRotation();
-                    });
-                }
-            }
-            else if (isSkillactive)
-            {
-                BattleManager.taskManager.CallTask(1f, () => {
-                    BeginSkillRotation();
-                });
-            }
-            else
-            {
-                BattleManager.taskManager.CallTask(1f, () => {
-                    BeginSkillRotation();
-                });
             }
         }
-
-        /*public void SkillActiveSet(enemySkill skillModel, bool setActive)
-        {
-            try
-            {
-                skillModel.skillActive = setActive;
-                //isSkillactive = setActive;
-                //isCasting = setActive;
-                //activeSkill = setActive ? skillModel : null;
-                if (!setActive)
-                {
-                    //finalTargets.Clear();
-                }
-            }
-            catch (System.Exception e)
-            {
-                GameManager.logger.Log(e.Message);
-            }
-        }*/
 
         private void SetAnimations(enemySkill skillModel)
         {
             if (skillModel.EndAnimation != animationOptionsEnum.none)
             {
                 baseManager.animationManager.inAnimation = true;
-
                 var animationDuration = baseManager.animationManager.PlaySetAnimation(skillModel.EndAnimation.ToString(), skillModel.loopAnimation);
-
-                //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.EndAnimation.ToString(), skillModel.loopAnimation);
-                // = baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, skillModel.EndAnimation.ToString(), skillModel.loopAnimation).Animation.Duration;
                 baseManager.animationManager.SetBusyAnimation(animationDuration);
                 if (skillModel.attackMovementSpeed > 0)
                 {
@@ -425,7 +360,6 @@ namespace AssemblyCSharp
                 else
                 {
                     baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, animationDuration);
-                    //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation.ToString(), true, 0);
                 }
             }
         }
@@ -466,18 +400,19 @@ namespace AssemblyCSharp
                     }
                 });
             }
-            /*if (e.Data.Name == "endEvent")
-            {
-                foreach (var target in finalTargets)
-                {
-                    var targetDamageManager = target.baseManager.damageManager;
-                    if (targetDamageManager.skillDmgModels.ContainsKey(gameObject.name))
-                    {
-                        targetDamageManager.skillDmgModels.Remove(gameObject.name);
-                    }
-                }
-            }*/
             BattleManager.soundManager.OnEventHit(state, e);
+        }
+
+        private bool CheckSkillAvail(enemySkill skillModel)
+        {
+            if (BattleManager.enemyActionPoints >= skillModel.skillCost && !skillModel.skillActive)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         void Update()
@@ -506,28 +441,25 @@ namespace AssemblyCSharp
             }
         }
 
+        public void StartSkill()
+        {
+            BattleManager.taskManager.ScheduleAction(BeginSkillRotation, 3f);
+        }
+
         void Start()
         {
             baseManager = this.gameObject.GetComponent<EnemyCharacterManagerGroup>();
-            if (this.gameObject.tag == "Enemy")
-            {
-                RefreshSkillList((baseManager as EnemyCharacterManagerGroup).phaseManager.GetPhaseDetail().phaseSkills);
-            }
+            RefreshSkillList((baseManager as EnemyCharacterManagerGroup).phaseManager.GetPhaseDetail().phaseSkills);
             if (baseManager.animationManager.skeletonAnimation && baseManager.animationManager.skeletonAnimation.isActiveAndEnabled)
             {
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventSkillTrigger;
-            } else if(baseManager.animationManager.skeletonAnimationMulti)
+            }
+            else if (baseManager.animationManager.skeletonAnimationMulti)
             {
                 baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(o => {
                     o.state.Event += OnEventSkillTrigger;
                 });
             }
-            BattleManager.taskManager.CallTask(5f, () => {
-                if (copiedSkillList.Count > 0)
-                {
-                    BeginSkillRotation();
-                }
-            });
         }
     }
 }

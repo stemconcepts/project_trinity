@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace AssemblyCSharp
 {
-    public class CharacterManager : BaseCharacterManager/*<Character_Manager_Group>*/
+    public class CharacterManager : BaseCharacterManager
     {
         //public override Character_Model characterModelTest { get; set; }
         //[Header("Character Model")]
@@ -17,7 +17,6 @@ namespace AssemblyCSharp
             if (template != null)
             {
                 resistances = useResistance ? template.resistances : resistances;
-                //this.characterModel = useStats ? template.this.characterModel as Character_Model : this.characterModel;
             }
         }
 
@@ -28,17 +27,9 @@ namespace AssemblyCSharp
                 UpdateBarSize(characterModel);
                 ResetAbsorbPoints(characterModel);
                 MaintainHealthValue(characterModel);
-                //characterModel.attackedPos = baseManager.movementManager.posMarker.transform.position;
                 characterModel.currentRotation = this.transform.rotation;
             }
         }
-        /*void UpdateBarSize(Character_Model characterModel)
-        {
-            characterModel.current_health = characterModel.Health;
-            characterModel.sliderScript.maxValue = characterModel.full_health;
-            characterModel.sliderScript.value = characterModel.current_health;
-            characterModel.healthBarText.text = characterModel.current_health.ToString();
-        }*/
 
         void Start()
         {
@@ -56,15 +47,6 @@ namespace AssemblyCSharp
             }
             baseManager.movementManager.currentPanel.GetComponent<PanelsManager>().currentOccupier = gameObject;
         }
-
-        /*public T GetFriendlyTarget<T>()
-        {
-            var otherTargets = Battle_Manager.GetFriendlyCharacterManagers();
-            otherTargets = otherTargets.Where(o => o.name != gameObject.name).ToList();
-            var targetCount = otherTargets.Count;
-            var i = UnityEngine.Random.Range(0, targetCount);
-            return otherTargets[i].GetComponent<T>();
-        }*/
     }
 }
 

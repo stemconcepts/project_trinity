@@ -39,7 +39,6 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
                     explorererItemController.itemBase = item;
                     explorererItemController.SetUpItem();
                 }
-                //gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
                 fieldItems.Add(gameObject);
             }
         }

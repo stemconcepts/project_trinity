@@ -18,6 +18,7 @@ namespace AssemblyCSharp
         public MainGameTaskManager taskManager;
         public static MainGameManager instance;
         Dictionary<string, string> TutorialText = new Dictionary<string, string>();
+        public Queue<IEnumerator> actionQueue = new Queue<IEnumerator>();
 
         void Awake()
         {
@@ -98,6 +99,17 @@ namespace AssemblyCSharp
         public bool ShowTutorialText()
         {
             return showTutorial;
+        }
+
+        public IEnumerator StartActionQueue()
+        {
+            while (true)
+            {
+                while (actionQueue.Count > 0)
+                    yield return StartCoroutine(actionQueue.Dequeue());
+
+                yield return null;
+            }
         }
 
         // Use this for initialization

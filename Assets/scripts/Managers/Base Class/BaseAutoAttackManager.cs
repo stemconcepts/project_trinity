@@ -13,7 +13,6 @@ namespace AssemblyCSharp
         public int turnToReset = 0;
         public int turnToComplete = 0;
         public BaseCharacterManagerGroup autoAttackTarget;
-        //public DamageModel dmgModel;
 
         public void OnEventAAComplete(Spine.TrackEntry state, Spine.Event e)
         {

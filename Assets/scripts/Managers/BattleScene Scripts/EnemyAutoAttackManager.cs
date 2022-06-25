@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace AssemblyCSharp
 {
@@ -14,23 +17,20 @@ namespace AssemblyCSharp
             }
             else if (baseManager.animationManager.skeletonAnimationMulti)
             {
-                baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(o => {
+                baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(o =>
+                {
                     o.state.Event += OnEventAAHit;
                     o.state.Event += OnEventAAComplete;
                 });
             }
-            StartAutoAttack();
         }
 
-        void StartAutoAttack()
+        public void StartAutoAttack()
         {
             if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn && baseManager.characterManager.characterModel.canAutoAttack)
             {
-                BattleManager.taskManager.CallTask(7f, () =>
-                {
-                    autoAttackTarget = baseManager.characterManager.GetTarget<CharacterManagerGroup>(true);
-                    RunAttackLoopOnNextTurn();
-                });
+                autoAttackTarget = baseManager.characterManager.GetTarget<CharacterManagerGroup>(true);
+                BattleManager.taskManager.ScheduleAction(RunAttackLoopOnNextTurn, 1f);
             }
         }
 
@@ -44,7 +44,6 @@ namespace AssemblyCSharp
 
         public void RunAttackLoop()
         {
-            //var turnType = BattleManager.TurnEnum.PlayerTurn;
             var targetDmgManager = autoAttackTarget ? autoAttackTarget.damageManager : null;
             if (CanAttack(targetDmgManager))
             {
@@ -52,7 +51,6 @@ namespace AssemblyCSharp
                 if (baseManager.animationManager.attackAnimation != animationOptionsEnum.none && baseManager.animationManager.inAnimation == false)
                 {
                     var animationDuration = baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
-                    //var animationDuration = baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.attackAnimation.ToString(), false).Animation.Duration;
                     baseManager.movementManager.movementSpeed = 50f;
                     baseManager.animationManager.inAnimation = true;
                     var dmgModel = new BaseDamageModel()
@@ -78,21 +76,22 @@ namespace AssemblyCSharp
                         dmgModel.isMiss = true;
                         targetDmgManager.calculatedamage(dmgModel);
                     }
-
                     BattleManager.taskManager.CallTask(animationDuration, () =>
                     {
                         baseManager.animationManager.inAnimation = false;
                     });
                     baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
-                    //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.attackAnimation.ToString(), false);
                     SaveTurnToReset();
-                    RunAttackLoopOnNextTurn();
+                    //ScheduleAction(RunAttackLoopOnNextTurn, 1f);
+                    //RunAttackLoopOnNextTurn();
                 }
+                BattleManager.enemyActionPoints -= 1;
             }
             else if (this != null && baseManager.characterManager.characterModel.canAutoAttack)
             {
                 SaveTurnToReset();
-                RunAttackLoopOnNextTurn();
+                //ScheduleAction(RunAttackLoopOnNextTurn, 1f);
+                //RunAttackLoopOnNextTurn();
             }
         }
 
@@ -146,7 +145,6 @@ namespace AssemblyCSharp
                     RunAttackLoop();
                 }
             }));
-            //BattleManager.taskManager.taskList.Add("EnemyAutoAttackLoop", myTask);
         }
     }
 }

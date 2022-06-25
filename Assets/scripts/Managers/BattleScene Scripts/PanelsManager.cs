@@ -69,7 +69,15 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SetStartingPanel(GameObject currentOccupier, bool forceMove = false)
+        public void ClearCurrentPanel()
+        {
+            currentOccupier = null;
+            animationManager = null;
+            characterManager = null;
+            movementManager = null;
+        }
+
+        public void SetStartingPanel(GameObject currentOccupier)
         {
             this.currentOccupier = currentOccupier;
             animationManager = currentOccupier.GetComponent<Animation_Manager>();
@@ -84,25 +92,32 @@ namespace AssemblyCSharp
                 (characterManager.characterModel as CharacterModel).inVoidCounter = isVoidCounter;
                 characterManager.characterModel.inVoidZone = isVoidZone;
             }
-            
-            if (!moved || forceMove)
+        }
+
+        /// <summary>
+        /// Set transform and position reference (origPosition) to character occupying space
+        /// Use bool parameter to change only the transform, used for manually moving characters were origPosition is changed externally
+        /// </summary>
+        /// <param name="changeOrigPosition"></param>
+        public void SaveCharacterPositionFromPanel(bool changeOrigPosition = true)
+        {
+            float spriteSize = movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
+            if (movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f)))
             {
-                /*panelTransform = GetComponent<RectTransform>();
-                if(movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + 6f))
+                var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f));
+                currentOccupier.transform.position = newPos;
+                if (changeOrigPosition)
                 {
-                    currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + 6f);
-                    moved = true;
-                }*/
+                    movementManager.origPosition = newPos;
+                }
             }
         }
 
-        public void SaveCharacterPositionFromPanel()
+        public void SetOrigPositionInPanel(BaseMovementManager movementManager)
         {
             float spriteSize = movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
-            if (movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize/2.2f)))
-            {
-                currentOccupier.transform.position = movementManager.origPosition = new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize/2.2f));
-            }
+            var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f));
+            movementManager.origPosition = newPos;
         }
 
         public void VoidZoneMark(){

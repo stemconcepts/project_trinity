@@ -13,11 +13,6 @@ namespace AssemblyCSharp
         public GameObject hitFX;
         public BattleDetailsManager battleDetailsManager;
 
-        /*void Start(){
-            baseManager = this.gameObject.GetComponent<Base_Character_Manager_Group>();
-            battleDetailsManager = Battle_Manager.battleDetailsManager;
-        }*/
-
         public void TakeDmg<T>(T damageModel, string eventName) where T : BaseDamageModel
         {
             GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : hitFX;
@@ -224,11 +219,21 @@ namespace AssemblyCSharp
             }
         }
 
-       /* public void SetHitIdleAnimation(string hitAnimation, string hitIdleAnimation)
+        public void DoDamage(int damage, BaseCharacterManager target, GenericSkillModel skill = null)
         {
-            this.hitAnimation = !string.IsNullOrEmpty(hitAnimation) ? hitAnimation : "hit";
-            this.hitIdleAnimation = !string.IsNullOrEmpty(hitIdleAnimation) ? hitIdleAnimation : "idle";
-        }*/
+            var dmgModel = new BaseDamageModel()
+            {
+                baseManager = baseManager,
+                incomingDmg = damage,
+                enemySkillModel = typeof(enemySkill) == skill.GetType() ? (enemySkill)skill : null,
+                skillModel = typeof(SkillModel) == skill.GetType() ? (SkillModel)skill : null,
+                dmgSource = baseManager.characterManager,
+                dueDmgTargets = new List<BaseCharacterManager>() { target },
+                hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
+                modifiedDamage = skill.useModifier
+            };
+            calculatedamage(dmgModel);
+        }
     }
 }
 

@@ -97,7 +97,6 @@ namespace AssemblyCSharp
         public Text healthBarText;
         public Slider sliderScript;
         public GameObject targetActionBar;
-        public bool isMoving;
         [HideInInspector]
         public Quaternion currentRotation;
         [HideInInspector]

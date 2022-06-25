@@ -24,11 +24,6 @@ namespace AssemblyCSharp
             singleStatusList = BattleManager.assetFinder.GetAllStatuses();
             baseManager = this.gameObject.GetComponent<BaseCharacterManagerGroup>();
             battleDetailsManager = BattleManager.battleDetailsManager;
-            /*if (baseManager.characterManager.characterModel.role == Character_Model.RoleEnum.minion)
-            {
-                statusHolderObject = GameObject.Find(gameObject.name + "_data_status");
-            } else
-            {*/
             if (statusHolderObject == null)
             {
                 statusHolderObject = GameObject.Find(baseManager.characterManager.characterModel.role.ToString() + "status");
@@ -45,16 +40,15 @@ namespace AssemblyCSharp
             var myTask = new Task(BattleManager.taskManager.CompareTurns(statusModel.turnToReset, () =>
             {                if (baseManager.characterManager.characterModel.isAlive)
                 {
-                    battleDetailsManager.RemoveLabel(GetStatusIfExist(statusModel.singleStatus.name));
-                    if (action != null)
+                    if (gameObject != null)
                     {
-                        action();
+                        battleDetailsManager.RemoveLabel(GetStatusIfExist(statusModel.singleStatus.name));
+                        if (action != null)
+                        {
+                            action();
+                        }
                     }
                 }
-                /*Battle_Manager.taskManager.RemoveLabelTask(0.5f, GetStatusIfExist(statusModel.singleStatus.statusName), () =>
-                {
-                    action();
-                });*/
             }));
 
             return myTask;
@@ -305,17 +299,25 @@ namespace AssemblyCSharp
             for( int i = 0; i < singleStatusList.Count; i++ ){            
                 if( singleStatusList[i].statusName == statusName  ){
                     status = singleStatusList[i];
-                    if( status.buff ){
-                        statusPanel = statusHolderObject.transform.Find( "Panel buffs" );
-                    } else {
-                        statusPanel = statusHolderObject.transform.Find( "Panel debuffs" ); 
+                    if (status.buff)
+                    {
+                        statusPanel = statusHolderObject ? statusHolderObject.transform.Find("Panel buffs") : null; 
                     }
-                    int statusCount = statusPanel.childCount;
-                    for( int x = 0; x < statusCount; x++ ){
-                        var statusLabelScript = statusPanel.GetChild(x).GetComponent<StatusLabelModel>();
-                        if( statusLabelScript.statusname == statusName ){
-                            return statusLabelScript;
-                        } 
+                    else
+                    {
+                        statusPanel = statusHolderObject ? statusHolderObject.transform.Find("Panel debuffs") : null;
+                    }
+                    if (statusPanel)
+                    {
+                        int statusCount = statusPanel.childCount;
+                        for (int x = 0; x < statusCount; x++)
+                        {
+                            var statusLabelScript = statusPanel.GetChild(x).GetComponent<StatusLabelModel>();
+                            if (statusLabelScript.statusname == statusName)
+                            {
+                                return statusLabelScript;
+                            }
+                        }
                     }
                 }
             }
@@ -484,8 +486,10 @@ namespace AssemblyCSharp
         }
 
         //set Immunity
-        public void SetImmunity( StatusModel statusModel ){
-            if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName) ){
+        public void SetImmunity(StatusModel statusModel)
+        {
+            if (!statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName))
+            {
                 battleDetailsManager.ShowLabel(statusModel, statusHolderObject);
                 immunityList.AddRange(statusModel.singleStatus.immunityList);
                 statusModel.SaveTurnToReset();
@@ -514,15 +518,30 @@ namespace AssemblyCSharp
                     immunityList.Remove( GetStatus( statusModel.singleStatus.statusName ) );
                 });*/
 
-            } else 
-            if( statusModel.turnOff ){
-                ForceStatusOff( statusModel.singleStatus );
-                immunityList.Remove( GetStatus( statusModel.singleStatus.attributeName ) );
-                if(statusModel.singleStatus.hitAnim != animationOptionsEnum.none)
-                { 
-                    baseManager.animationManager.AddStatusAnimation( false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
+            }
+            else
+            if (statusModel.turnOff)
+            {
+                ForceStatusOff(statusModel.singleStatus);
+                immunityList.Remove(GetStatus(statusModel.singleStatus.attributeName));
+                if (statusModel.singleStatus.hitAnim != animationOptionsEnum.none)
+                {
+                    baseManager.animationManager.AddStatusAnimation(false, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
                 }
             }
+        }
+
+        public void MakeStunned(int turnDuration)
+        {
+            var stunStatus = singleStatusList.Find(s => s.statusName.ToLower() == "stun");
+            var sm = new StatusModel
+            {
+                singleStatus = stunStatus,
+                power = 2,
+                turnDuration = turnDuration,
+                baseManager = baseManager
+            };
+            RunStatusFunction(sm);
         }
 
         public void RunStatusFunction( StatusModel statusModel ){

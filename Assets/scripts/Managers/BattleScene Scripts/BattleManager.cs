@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace AssemblyCSharp
 {
@@ -32,14 +33,22 @@ namespace AssemblyCSharp
         public static bool waitingForSkillTarget;
         public static bool offensiveSkill;
         public static bool battleStarted = false;
-        //public static bool battleOver = false;
         public static GameObject pauseScreenHolder;
         public static bool disableActions = true;
+
+        //Player ActionPoints
         public static float vigor = 6;
-        public static float originalvigor = 1;
+        public static float originalvigor = 6;
         public static float actionPoints = 6;
         public static float maxActionPoints = 6;
         public static float originalActionPoints;
+        //Enemy ActionPoints
+        public static float enemyVigor = 6;
+        public static float originalEnemyVigor = 6;
+        public static float enemyActionPoints = 6;
+        public static float maxEnemyActionPoints = 6;
+        public static float originalEnemyActionPoints;
+
         static Text actionPointsText;
         private static int totalEXP;
         private static List<ItemBase> loot = new List<ItemBase>();
@@ -56,10 +65,9 @@ namespace AssemblyCSharp
             EnemyTurn,
             PlayerTurn
         }
-
         public static int turnCount = 0;
 
-        void Awake(){
+        void Awake() {
             gameManager = gameObject.GetComponent<GameManager>();
             battleDetailsManager = gameManager.battleDetailsManager;
             taskManager = gameManager.TaskManager;
@@ -72,10 +80,11 @@ namespace AssemblyCSharp
             tooltipCanvas = tooltipCanvasTarget;
             //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
-            if(pauseScreenHolder != null)
+            if (pauseScreenHolder != null)
             {
                 pauseScreenHolder.SetActive(false);
             }
+            turn = TurnEnum.PlayerTurn;
             LoadEnemies();
         }
 
@@ -83,26 +92,31 @@ namespace AssemblyCSharp
         {
             if (MainGameManager.instance.ShowTutorialText())
             {
-                MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Battle"), headerText: "A Battle has begun", waitTime : 2f, pauseGame: true);
+                MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Battle"), headerText: "A Battle has begun", waitTime: 2f, pauseGame: true);
             }
             allPanelManagers = GameObject.FindGameObjectsWithTag("movementPanels").Select(o => o.GetComponent<PanelsManager>()).ToList();
             taskManager.battleDetailsManager = battleDetailsManager;
             var bi = GameObject.FindGameObjectsWithTag("skillDisplayControl").ToList();
-            battleInterfaceManager = bi.Select( x => x.GetComponent<BattleInterfaceManager>() ).ToList();
+            battleInterfaceManager = bi.Select(x => x.GetComponent<BattleInterfaceManager>()).ToList();
             battleInterfaceManager.Capacity = battleInterfaceManager.Count;
-            originalActionPoints = actionPoints;
-            actionPointsText = GameObject.Find("SkillPointsText").GetComponent<Text>();
-            playerTurnText = GameObject.Find("PlayerTurnText").GetComponent<Text>();
-            actionPoints = 6;
+            SetActionPoints();
             LoadEquipment();
             UpdateAPAmount();
             SetStartingHealthAndStats();
-            //battleOver = false;
+            taskManager.taskList.Add("actionQueue", new Task(MainGameManager.instance.StartActionQueue()));
+        }
+
+        void SetActionPoints()
+        {
+            originalEnemyActionPoints = enemyActionPoints;
+            originalActionPoints = actionPoints;
+            actionPointsText = GameObject.Find("SkillPointsText").GetComponent<Text>();
+            playerTurnText = GameObject.Find("PlayerTurnText").GetComponent<Text>();
         }
 
         void Update()
         {
-            if (turn == activeTurn && battleStarted && CheckIfActionsComplete())
+            if (turn == activeTurn && battleStarted && CheckIfActionsComplete() && turnCount > 0)
             {
                 battleStarted = false;
                 taskManager.CallTask(1f, () =>
@@ -162,14 +176,12 @@ namespace AssemblyCSharp
 
         void CheckBattleOver()
         {
-            if (characterSelectManager.enemyCharacters.Count == 0 && /*!battleOver &&*/ battleStarted)
+            if (characterSelectManager.enemyCharacters.Count == 0 && battleStarted)
             {
                 foreach (KeyValuePair<string, Task> t in taskManager.taskList)
                 {
                     t.Value.Stop();
-                    //Debug.Log(t.Key);
                 }
-                //battleOver = true;
                 loot.Clear();
                 battleStarted = false;
                 MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
@@ -180,6 +192,7 @@ namespace AssemblyCSharp
         {
             battleStarted = false;
             turn = TurnEnum.PlayerTurn;
+            turnCount = 0;
             loot.ForEach(l =>
             {
                 if (l.GetType() == typeof(GenericItem))
@@ -223,6 +236,14 @@ namespace AssemblyCSharp
 
         static void RegenerateAp()
         {
+            if (enemyActionPoints < maxEnemyActionPoints)
+            {
+                enemyActionPoints += enemyVigor;
+                if (enemyActionPoints > maxEnemyActionPoints)
+                {
+                    enemyActionPoints = maxEnemyActionPoints;
+                }
+            }
             if (actionPoints < maxActionPoints)
             {
                 actionPoints += vigor;
@@ -308,20 +329,22 @@ namespace AssemblyCSharp
             if (turn == TurnEnum.EnemyTurn)
             {
                 var enemiesCanCast = characterSelectManager.enemyCharacters
-                    .Where(o => (o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Count() > 0 && o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(s => s.turnToReset == 0) && !o.gameObject.GetComponent<EnemySkillManager>().hasCasted))
+                    .Where(o => (o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Count() > 0 && o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList
+                    .Any(s => s.turnToReset == 0) && !o.gameObject.GetComponent<EnemySkillManager>().hasCasted &&
+                        o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(s => s.skillCost <= BattleManager.enemyActionPoints)))
                     .Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
-                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack).Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) 
-                    && characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting && !o.gameObject.GetComponent<EnemySkillManager>().hasCasted
-                    && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun")); 
+                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && BattleManager.enemyActionPoints >= 1).Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) &&
+                    characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting /*&& !o.gameObject.GetComponent<EnemySkillManager>().hasCasted*/ &&
+                    !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
                 return !enemiesCanAttack && !enemiesCanCast;
             } else
             {
                 var hasTurnsLeft = characterSelectManager.friendlyCharacters
-                    .Where(o => o.gameObject.GetComponent<CharacterManager>().characterModel.Haste > o.gameObject.GetComponent<PlayerSkillManager>().turnsTaken
-                    && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun") && 
-                    (o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost < BattleManager.actionPoints) || 
-                    o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost < BattleManager.actionPoints) ||
-                    o.gameObject.GetComponent<PlayerSkillManager>().skillModel.skillCost < BattleManager.actionPoints)).Any();
+                    .Where(o => o.gameObject.GetComponent<CharacterManager>().characterModel.Haste > o.gameObject.GetComponent<PlayerSkillManager>().turnsTaken &&
+                        !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun") &&
+                    (o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints) ||
+                    o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints) ||
+                    o.gameObject.GetComponent<PlayerSkillManager>().skillModel.skillCost <= BattleManager.actionPoints)).Any();
                 return BattleManager.actionPoints == 0 || !hasTurnsLeft;
             }
         }
@@ -333,8 +356,8 @@ namespace AssemblyCSharp
 
         public static void ResetTurnTimer()
         {
-            characterSelectManager.enemyCharacters.ForEach(o => { 
-                o.gameObject.GetComponent<EnemySkillManager>().hasCasted = false; 
+            characterSelectManager.enemyCharacters.ForEach(o => {
+                o.gameObject.GetComponent<EnemySkillManager>().hasCasted = false;
                 o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked = false;
             });
             characterSelectManager.friendlyCharacters.ForEach(o => {
@@ -358,13 +381,16 @@ namespace AssemblyCSharp
         public static void CheckAndSetTurn()
         {
             disableActions = true;
-            turn = (turn == TurnEnum.EnemyTurn) ? TurnEnum.PlayerTurn : TurnEnum.EnemyTurn;
+            if (turnCount > 0)
+            {
+                turn = (turn == TurnEnum.EnemyTurn) ? TurnEnum.PlayerTurn : TurnEnum.EnemyTurn;
+            }
             playerTurnText.text = (turn == TurnEnum.EnemyTurn) ? "Enemy Turn" : "Player Turn";
             taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
             BattleManager.battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
             BattleManager.gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
-            var validChar = BattleManager.characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
-            BattleManager.characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
+            //var validChar = BattleManager.characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
+            //BattleManager.characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
             battleInterfaceManager.ForEach(o =>
             {
                 o.KeyPressCancelSkill();
@@ -373,13 +399,20 @@ namespace AssemblyCSharp
             {
                 activeTurn = turn;
                 disableActions = false;
+                if (turn == TurnEnum.EnemyTurn)
+                {
+                    StartEnemyAutoAttacks();
+                    StartEnemyAbilities();
+                }
+
             });
-            taskManager.CallTask(turnTime, () => {
+            taskManager.CallTask(turnTime, () =>
+            {
                 ResetTurnTimer();
             }, "turnTimerTask");
         }
 
-        public static List<BattleInterfaceManager> GetBattleInterfaces(){
+        public static List<BattleInterfaceManager> GetBattleInterfaces() {
             return battleInterfaceManager;
         }
 
@@ -389,34 +422,56 @@ namespace AssemblyCSharp
             gamePaused = !gamePaused;
         }
 
-        public class classState{
+        public class classState {
             public string Name;
             public bool Alive;
             public bool Selected;
             public bool LastSelected;
-            public classState( string name, bool alive, bool selected, bool lastSelected ){
+            public classState(string name, bool alive, bool selected, bool lastSelected) {
                 Name = name;
                 Alive = alive;
                 Selected = selected;
                 LastSelected = lastSelected;
-            } 
+            }
         }
 
-        public void LoadArea(){
+        public void LoadArea() {
 
         }
-        
-        public void LoadStatBonuses(){
-            
+
+        public void LoadStatBonuses() {
+
         }
 
-        public static List<CharacterManager> GetFriendlyCharacterManagers(){
+        public static List<CharacterManager> GetFriendlyCharacterManagers() {
             return characterSelectManager.friendlyCharacters;
         }
 
         public static List<EnemyCharacterManager> GetEnemyCharacterManagers()
         {
             return characterSelectManager.enemyCharacters;
+        }
+
+        /// <summary>
+        /// Starts 1 round of enemy auto attacks
+        /// </summary>
+        static void StartEnemyAutoAttacks()
+        {
+            GetEnemyCharacterManagers().ForEach(o =>
+            {
+                ((EnemyAutoAttackManager)o.baseManager.autoAttackManager).StartAutoAttack();
+            });
+        }
+
+        /// <summary>
+        /// Starts 1 round of enemy abilities
+        /// </summary>
+        static void StartEnemyAbilities()
+        {
+            GetEnemyCharacterManagers().ForEach(o =>
+            {
+                ((EnemySkillManager)o.baseManager.skillManager).StartSkill();
+            });
         }
 
         public void LoadEquipment(){
@@ -487,7 +542,6 @@ namespace AssemblyCSharp
         public void AttachClassSkill(SkillModel equipedSkill, GameObject charData)
         {
             charData.GetComponent<EquipmentManager>().classSkill = equipedSkill;
-           //charData.GetComponent<EquipmentManager>().PopulateSkills();
         }
 
         public void AttachWeapon(weaponModel equipedWeapon, weaponModel secondEquipedWeapon, bauble equipedBauble, GameObject charData)
@@ -513,31 +567,20 @@ namespace AssemblyCSharp
             Transform postion = friendly ? GameObject.Find("playerHolder").transform : GameObject.Find("enemyHolder").transform;
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
-                //var singleMinionDataItem = BattleManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
-                //var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
-                //creatureData.name = $"{creaturTag}_{enemyIndex}_data";
-
-                var newCreature = Instantiate(summonedObjects[i], postion);
-                newCreature.name = $"{creaturTag}_{enemyIndex}";
-                /*var minionBaseManager = newCreature.GetComponent<BaseCharacterManagerGroup>();
-                minionBaseManager.autoAttackManager.hasAttacked = true;
-                minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
-                minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;*/
-
-               // GenerateLifeBars(newCreature);
-
-                if (panel)
-                {
-                    var panelManager = panel.GetComponent<PanelsManager>();
-                    panelManager.currentOccupier = newCreature;
-                    panelManager.SetStartingPanel(newCreature, true);
-                    panelManager.SaveCharacterPositionFromPanel();
-                }
-                else
-                {
-                    Debug.Log("No Panel");
-                }
+                    var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
+                    var newCreature = Instantiate(summonedObjects[i], postion);
+                    newCreature.name = $"{creaturTag}_{enemyIndex}";
+                    if (panel)
+                    {
+                        var panelManager = panel.GetComponent<PanelsManager>();
+                        panelManager.currentOccupier = newCreature;
+                        panelManager.SetStartingPanel(newCreature);
+                        panelManager.SaveCharacterPositionFromPanel();
+                    }
+                    else
+                    {
+                        Debug.Log("No Panel");
+                    }
             }
         }
 
@@ -554,9 +597,9 @@ namespace AssemblyCSharp
             }
         }
 
-        public void StartBattle( float waitTime){
+        public void StartBattle(float waitTime){
 
-            taskManager.CallTask( waitTime, () => {
+            taskManager.CallTask(waitTime, () => {
                 BattleManager.battleStarted = true;
                 CheckAndSetTurn();
             });

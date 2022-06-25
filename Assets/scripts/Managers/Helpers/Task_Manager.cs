@@ -12,6 +12,24 @@ namespace AssemblyCSharp
     {
         public BattleDetailsManager battleDetailsManager;
 
+        /// <summary>
+        /// Used for queue automated actions
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="delay"></param>
+        public void ScheduleAction(Action task, float delay)
+        {
+            Debug.Log("Task Scheduled " + task.Method);
+            MainGameManager.instance.actionQueue.Enqueue(DoTask(task, delay));
+        }
+
+        IEnumerator DoTask(Action task, float delay)
+        {
+            Debug.Log("Inside DoTask Coroutine");
+            yield return new WaitForSeconds(delay);
+            task();
+        }
+
         public bool RemoveLabelTask(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
             var myTask = new Task(RemoveLabel(waitTime, statusLabel, action));

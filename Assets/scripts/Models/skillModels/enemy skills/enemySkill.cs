@@ -10,12 +10,7 @@ namespace AssemblyCSharp
     public class enemySkill : GenericSkillModel
     {
         [Header("Requirements:")]
-        //public PreRequisiteModel preRequisite;
         public List<PreRequisiteModel> preRequisites;
-
-        //public preRequisiteTypeEnum preRequisiteType;
-        /*[Header("Summon Creature:")]
-    	public List<GameObject> summonedObjects = new List<GameObject>();*/
         public voidZoneType voidZoneTypes;
         public enum voidZoneType
         {
@@ -27,12 +22,6 @@ namespace AssemblyCSharp
         public bool monsterPanel = false;
         public bool hasVoidzone;
         public float eventDuration;
-        
-        /*public enum preRequisiteTypeEnum
-        {
-            none,
-            summon
-        }*/
         GameObject GetRandomPanelFromPanels(GameObject[] panels = null)
         {
             if (panels == null)
@@ -157,7 +146,7 @@ namespace AssemblyCSharp
                             panelManager.currentOccupier = newCreature;
                             minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
                             minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
-                            panelManager.SetStartingPanel(newCreature, true);
+                            panelManager.SetStartingPanel(newCreature);
                         panelManager.SaveCharacterPositionFromPanel();
                     }
                     else

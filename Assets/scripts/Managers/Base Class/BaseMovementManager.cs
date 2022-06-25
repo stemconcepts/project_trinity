@@ -16,8 +16,6 @@ namespace AssemblyCSharp
         public float movementCost = 1;
         public Vector2 origPosition;
         public Vector2 currentPosition;
-        //public GameObject posMarkerMin;
-        //public GameObject posMarker;
         public GameObject dashEffect;
         public GameObject currentPanel;
         public GameObject positionArrow;
@@ -29,7 +27,6 @@ namespace AssemblyCSharp
         {
             movementCost = 1f;
             movementSpeed = 50f;
-            //moveToHomeSpeed = 80f;
         }
 
         void Update(){
@@ -101,10 +98,10 @@ namespace AssemblyCSharp
             }
         }
 
-        public void ForceMoveOrReposition(/*GenericSkillModel.moveType forcedMoveType, int moveAmount = 1, bool reposition = false,*/ GenericSkillModel skill)
+        public void ForceMoveOrReposition(GenericSkillModel skill)
         {
-            var currentPanel = baseManager.movementManager.currentPanel;
-            var currentPanelNum = currentPanel.GetComponent<PanelsManager>().panelNumber;
+            var currentPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
+            var currentPanelNum = currentPanel.panelNumber;
             int targetPanelNum = currentPanelNum;
             
             if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Back)
@@ -124,29 +121,22 @@ namespace AssemblyCSharp
             {
                 targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.RepositionAmount;
             }
-
             targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
             targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
+
             var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
-            currentPanel.GetComponent<PanelsManager>().currentOccupier = null;
-            currentPanel.GetComponent<PanelsManager>().animationManager = null;
-            currentPanel.GetComponent<PanelsManager>().characterManager = null;
-            currentPanel.GetComponent<PanelsManager>().movementManager = null;
-
-            Vector2 panelPos = targetPanel.transform.position;
-            panelPos.y = panelPos.y + 6f;
-            origPosition = panelPos;
-
-            if (skill.RepositionAmount > 0 && !skill.movesToTarget)
+            var panelManager = targetPanel.GetComponent<PanelsManager>();
+            if (!panelManager.currentOccupier)
             {
-                MoveToPanel(targetPanel, animationOptionsEnum.hop);
-                targetPanel.GetComponent<PanelsManager>().SetStartingPanel(this.gameObject, true);
-            } else if(skill.forcedMoveAmount > 0)
-            {
-                MoveToPanel(targetPanel, animationOptionsEnum.hit);
-                targetPanel.GetComponent<PanelsManager>().SetStartingPanel(this.gameObject, true);
+                if (skill.RepositionAmount > 0 && !skill.movesToTarget)
+                {
+                    MoveToPanel(panelManager, animationOptionsEnum.hop);
+                }
+                else if (skill.forcedMoveAmount > 0)
+                {
+                    MoveToPanel(panelManager, animationOptionsEnum.hit);
+                }
             }
-            targetPanel.GetComponent<PanelsManager>().SetStartingPanel(this.gameObject, false);
         }
 
         public void SetSortingLayer(int sortingLayer ){
@@ -161,11 +151,6 @@ namespace AssemblyCSharp
                 float ypos = (size.y + offsetYPosition);
                 attackedPos.x = xpos;
                 attackedPos.y = target.GetComponent<BaseMovementManager>().currentPanel.transform.position.y + (ypos / 2.2f);
-
-                //attackedPos.x = baseManager.characterManager.characterModel.role == CharacterModel.RoleEnum.minion ? target.GetComponent<BaseMovementManager>().posMarkerMin.transform.position.x : target.GetComponent<BaseMovementManager>().posMarker.transform.position.x;
-                //attackedPos.y = baseManager.characterManager.characterModel.role == CharacterModel.RoleEnum.minion ? target.GetComponent<BaseMovementManager>().posMarkerMin.transform.position.y : target.GetComponent<BaseMovementManager>().posMarker.transform.position.y;
-                //attackedPos.x = target.GetComponent<BaseMovementManager>().posMarker.transform.position.x;
-                //attackedPos.y = target.GetComponent<BaseMovementManager>().posMarker.transform.position.y;
             }
             return attackedPos;
         }
@@ -190,31 +175,24 @@ namespace AssemblyCSharp
                 {
                     currentPanel.GetComponent<PanelsManager>().SaveCharacterPositionFromPanel();
                 });
-            //BattleManager.taskManager.moveBackTask( baseManager, moveToHomeSpeed, origPosition, currentPosition );
             baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.hopAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, 0);
-            //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hopAnimation.ToString(), false);
-            //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation.ToString(), true, 0);
         }
 
-        public void MoveToPanel(GameObject targetPanel, animationOptionsEnum hopAnimation = animationOptionsEnum.none)
+        public void MoveToPanel(PanelsManager panelManager, animationOptionsEnum hopAnimation = animationOptionsEnum.none)
         {
+            var currentPanelManager = currentPanel.GetComponent<PanelsManager>();
+            currentPanelManager.ClearCurrentPanel();
+            panelManager.SetStartingPanel(this.gameObject);
             hopAnimation = hopAnimation == animationOptionsEnum.none ? baseManager.animationManager.hopAnimation : hopAnimation;
-            Vector2 panelPos = targetPanel.transform.position;
-            panelPos.y = panelPos.y + 6f;
-            origPosition = panelPos;
-            //Battle_Manager.taskManager.MoveForwardTask(baseManager, movementSpeed, panelPos, baseManager.effectsManager.stompEffect);
             float speed = (Math.Abs(origPosition.x - currentPosition.x) + Math.Abs(origPosition.y - currentPosition.y)) / 50;
             baseManager.gameObject.transform.DOMove(origPosition, speed).SetEase(Ease.OutSine)
                 .OnComplete(() =>
                 {
-                    currentPanel.GetComponent<PanelsManager>().SaveCharacterPositionFromPanel();
+                    panelManager.SaveCharacterPositionFromPanel(false);
                 });
-            //BattleManager.taskManager.moveBackTask(baseManager, moveToHomeSpeed, origPosition, currentPosition);
             baseManager.animationManager.PlaySetAnimation(hopAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, 0);
-            //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, hopAnimation.ToString(), false);
-            //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation.ToString(), true, 0);
             var eventModel = new EventModel
             {
                 eventName = "OnMove",

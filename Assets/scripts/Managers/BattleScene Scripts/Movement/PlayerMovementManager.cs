@@ -42,7 +42,7 @@ namespace AssemblyCSharp
                         BattleManager.HitBoxControl(false);
                         positionArrow = (GameObject)Instantiate(BattleManager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
                         var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
-                        movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
+                        //movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
                         movementArrowManager.distance = distance;
                         movementArrowManager.occupier = baseManager;
                     }
@@ -65,8 +65,10 @@ namespace AssemblyCSharp
                     BattleManager.actionPoints -= movementCost;
                     ++((PlayerSkillManager)baseManager.skillManager).turnsTaken;
                     BattleManager.UpdateAPAmount();
-                    positionArrowManager.SetPanelandDestroy();
-                    MoveToPanel(positionArrowManager.hoveredPanel.gameObject);
+
+                    positionArrowManager.hoveredPanel.SetOrigPositionInPanel(this);
+
+                    MoveToPanel(positionArrowManager.hoveredPanel);
                     positionArrowManager.occupier.animationManager.meshRenderer.sortingOrder = origSortingOrder = positionArrowManager.hoveredPanel.sortingLayerNumber;
                     positionArrowManager.occupier.characterManager.characterModel.rowNumber = positionArrowManager.hoveredPanel.sortingLayerNumber;
                 }

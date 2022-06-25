@@ -7,8 +7,6 @@ namespace AssemblyCSharp
 {
     public class SkillData
     {
-        //public float modifier = 1f;
-        //public List<Character_Manager> targets;
         public BaseCharacterManager target;
         public BaseCharacterManager caster;
         public SkillModel skillModel;
@@ -21,6 +19,7 @@ namespace AssemblyCSharp
         [Header("Skill Details:")]
         public string skillName;
         public bool skillActive;
+        public int skillCost;
         public float skillPower;
         public float newSP;
         public float magicPower;

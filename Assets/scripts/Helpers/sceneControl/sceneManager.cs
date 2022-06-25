@@ -26,7 +26,6 @@ namespace AssemblyCSharp
                 ExploreManager.explorerCamera.gameObject.SetActive(true);
 				MainGameManager.instance.SaveScene("exploration");
 			}
-            Debug.Log("OnSceneUnloaded: " + current);
 		}
 
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -37,7 +36,6 @@ namespace AssemblyCSharp
                 ExploreManager.explorerCamera.gameObject.SetActive(false);
 				MainGameManager.instance.SaveScene(scene.name);
 			}
-			Debug.Log("OnSceneLoaded: " + scene.name);
 			Debug.Log(mode);
 		}
 
