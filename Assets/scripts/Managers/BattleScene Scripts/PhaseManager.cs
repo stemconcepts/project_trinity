@@ -18,12 +18,21 @@ namespace AssemblyCSharp
         }
         public List<PhaseModel> phases;
 
+        public void CheckAndChangePhase()
+        {
+            if (!BattleManager.disableActions && (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn) && !baseManager.autoAttackManager.isAttacking
+                && !baseManager.skillManager.isSkillactive && baseManager.characterManager.characterModel.isAlive)
+            {
+                ChangeBossPhase();
+            }
+        }
+
         private void ChangeBossPhase()
         {
             var healthPercentage = (baseManager.characterManager.characterModel.Health/baseManager.characterManager.characterModel.maxHealth) * 100;
             phases.ForEach(o =>
             {
-                if((!runInitialPhase || currentEnemyPhase != o.enemyPhase) && healthPercentage > o.healthThreshhold.minHealthPercentage && healthPercentage <= o.healthThreshhold.maxHealthPercentage && !baseManager.skillManager.isSkillactive && !baseManager.animationManager.inAnimation )
+                if((!runInitialPhase || currentEnemyPhase != o.enemyPhase) && healthPercentage > o.healthThreshhold.minHealthPercentage && healthPercentage <= o.healthThreshhold.maxHealthPercentage && !baseManager.skillManager.isSkillactive && !baseManager.animationManager.inAnimation)
                 {
                     if (!string.IsNullOrEmpty(o.phaseChangeAnimation))
                     {
@@ -92,14 +101,10 @@ namespace AssemblyCSharp
         {
             baseManager = this.gameObject.GetComponent<EnemyCharacterManagerGroup>();
         }
+
         private void Update()
         {
-            if (!BattleManager.disableActions && (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn) && !baseManager.autoAttackManager.isAttacking 
-                && !baseManager.skillManager.isSkillactive && baseManager.characterManager.characterModel.isAlive)
-            {
-                ChangeBossPhase();
-            }
-            
+
         }
     }
 }

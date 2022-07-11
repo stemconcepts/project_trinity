@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using DG.Tweening;
 
 namespace AssemblyCSharp
 {
@@ -23,6 +24,7 @@ namespace AssemblyCSharp
         public bool isVoidCounter;
         public bool isThreatPanel;
         public bool isEnemyPanel;
+        public float fadeAmount = 0f;
         public Color threatPanelColor;
         public Color panelColor;
         public Color enemyPanelColor;
@@ -51,13 +53,17 @@ namespace AssemblyCSharp
         {
             imageScript = GetComponent<Image>();
             voidZoneColor = new Color(0.9f, 0.1f, 0.1f, 1f);
-            panelColor = new Color(1f, 1f, 1f, 1f);
-            enemyPanelColor = new Color(0.6f, 0.4f, 0.4f, 1f);
+            panelColor = new Color(1f, 1f, 1f, fadeAmount);
+            enemyPanelColor = new Color(0.6f, 0.4f, 0.4f, fadeAmount);
             counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
-            threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 1f);
+            threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 0.8f);
             imageScript.color = isVoidZone ? voidZoneColor : isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
             panelTransform = GetComponent<RectTransform>();
             Invoke("SetPosition", 0.5f);
+            if (!isThreatPanel)
+            {
+                SetFade(0f, 2f);
+            }
         }
 
         void SetPosition()
@@ -67,6 +73,11 @@ namespace AssemblyCSharp
                 SetStartingPanel(currentOccupier);
                 SaveCharacterPositionFromPanel();
             }
+        }
+
+        public void SetFade(float amount, float duration)
+        {
+            imageScript.DOFade(amount, duration);
         }
 
         public void ClearCurrentPanel()
@@ -104,7 +115,7 @@ namespace AssemblyCSharp
             float spriteSize = movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
             if (movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f)))
             {
-                var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f));
+                var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y /*+ (spriteSize / 2.2f)*/);
                 currentOccupier.transform.position = newPos;
                 if (changeOrigPosition)
                 {
@@ -116,7 +127,7 @@ namespace AssemblyCSharp
         public void SetOrigPositionInPanel(BaseMovementManager movementManager)
         {
             float spriteSize = movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
-            var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f));
+            var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y /*+ (spriteSize / 2.2f)*/);
             movementManager.origPosition = newPos;
         }
 
@@ -127,7 +138,7 @@ namespace AssemblyCSharp
                     currentOccupier.GetComponent<CharacterManager>().characterModel.inVoidZone = true;
                 }
         }
-    
+
         public void ClearVoidZone(){
             imageScript.color = isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
             isVoidZone = false;
@@ -137,7 +148,7 @@ namespace AssemblyCSharp
                 (currentOccupier.GetComponent<CharacterManager>().characterModel as CharacterModel).inVoidCounter = false;
             }
         }
-    
+
         public void SafePanel(){
             imageScript.color = counterZoneColor;
             isVoidZone = false;
@@ -145,7 +156,19 @@ namespace AssemblyCSharp
             if(currentOccupier != null && currentOccupier.GetComponent<CharacterManager>().characterModel.role.ToString() == "tank" ){
                 (currentOccupier.GetComponent<CharacterManager>().characterModel as CharacterModel).inVoidCounter = true;
             }
-        }  
+        }
+
+        public void OnMouseEnter()
+        {
+            SetFade(0.8f, 0.5f);
+        }
+
+        public void OnMouseExit()
+        {
+            if (!isThreatPanel) {
+                SetFade(fadeAmount, 0.5f);
+            }
+        }
     }
 }
 

@@ -47,12 +47,12 @@ namespace AssemblyCSharp
             {
                 o.sortingLayerName = "SFX";
             });
-            GameObject fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXcenter").gameObject;
-            if( position == "bottom" ){
+            GameObject fxposition = target.gameObject;//.transform.Find("FXpositions").transform.Find("FXcenter").gameObject;
+            /*if( position == "bottom" ){
                 fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfloor").gameObject;
             } else if ( position == "front" ){
                 fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfront").gameObject;
-            }
+            }*/
             if( target.tag != "Player" ){
                 var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
                 var particles = fx.GetComponents<ParticleSystem>();

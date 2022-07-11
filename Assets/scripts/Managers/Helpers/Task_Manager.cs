@@ -19,13 +19,13 @@ namespace AssemblyCSharp
         /// <param name="delay"></param>
         public void ScheduleAction(Action task, float delay)
         {
-            Debug.Log("Task Scheduled " + task.Method);
+            //Debug.Log("Task Scheduled " + task.Method);
             MainGameManager.instance.actionQueue.Enqueue(DoTask(task, delay));
         }
 
         IEnumerator DoTask(Action task, float delay)
         {
-            Debug.Log("Inside DoTask Coroutine");
+            //Debug.Log("Inside DoTask Coroutine");
             yield return new WaitForSeconds(delay);
             task();
         }
@@ -272,13 +272,14 @@ namespace AssemblyCSharp
             var bm = player.GetComponent<CharacterManagerGroup>();
             var target = bm.skillManager.currenttarget;
             while( target == null ) {
-                if( bm.statusManager.DoesStatusExist("stun") ){
+                //Cant be stunned mid cast anymore
+                /*if( bm.statusManager.DoesStatusExist("stun") ){
                     ((PlayerSkillManager)bm.skillManager).SkillActiveSet(classSkill, false);
                     BattleManager.waitingForSkillTarget = false;
                     //bm.skillManager.finalTargets.Clear();
                     Time.timeScale = 1f;
                     yield break;
-                }
+                }*/
                 target = player.GetComponent<PlayerSkillManager>().currenttarget;
                 yield return 0;
             }
@@ -308,14 +309,36 @@ namespace AssemblyCSharp
                 image.fillAmount -= timeSpent;
             }
         }
-        public IEnumerator CompareTurns(int turnToCheck, Action action)
+
+        public IEnumerator CompareTurnsAndAction(int runAtTurn, BattleManager.TurnEnum turn, Action actionAtTheEnd)
         {
-            yield return new WaitForSeconds(0.5f);
-            while (BattleManager.turnCount < turnToCheck)
+            while (BattleManager.turnCount <= runAtTurn)
             {
+                if (BattleManager.turn == turn && BattleManager.turnCount >= runAtTurn)
+                {
+                    actionAtTheEnd();
+                    yield break;
+                }
                 yield return null;
             }
-            action();
+        }
+
+        public IEnumerator CompareTurnsAndActionDuring(int runTillTurn, BattleManager.TurnEnum turn, Action actionDuring)
+        {
+            var actioned = true;
+            while (BattleManager.turnCount <= runTillTurn)
+            {
+                if (BattleManager.turn == turn && !actioned)
+                {
+                    actionDuring();
+                    actioned = true;
+                }
+                else if(BattleManager.turn != turn)
+                {
+                    actioned = false;
+                }
+                yield return null;
+            }
         }
     }
 }

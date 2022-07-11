@@ -47,7 +47,7 @@ namespace AssemblyCSharp
             baseManager.animationManager.inAnimation = true;
 
             baseManager.animationManager.PlaySetAnimation(skillModel.BeginCastingAnimation.ToString(), false);
-            baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), false);
+            baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), true);
             if (skillModel.chargeSound != null)
             {
                 BattleManager.soundManager.playSoundUsingAudioSource(skillModel.chargeSound, baseManager.gameObject.GetComponent<AudioSource>());
@@ -133,10 +133,6 @@ namespace AssemblyCSharp
 
             DealHealDmg(enemySkillModel, targets, power);
 
-            if (enemySkillModel.forcedMoveAmount > 0)
-            {
-                ForcedMove(targets, enemySkillModel);
-            }
             hasCasted = true;
             
             enemySkillModel.SaveTurnToReset();
@@ -151,8 +147,12 @@ namespace AssemblyCSharp
             finalTargets.Clear();
             var enemyPlayers = BattleManager.GetFriendlyCharacterManagers();
             var friendlyPlayers = BattleManager.GetEnemyCharacterManagers();
-            if (skillModel.self) { finalTargets.Add(baseManager.characterManager); }
-            if (skillModel.allFriendly) { finalTargets.AddRange(friendlyPlayers); }
+            if (skillModel.self) { 
+                finalTargets.Add(baseManager.characterManager); 
+            }
+            if (skillModel.allFriendly) { 
+                finalTargets.AddRange(friendlyPlayers); 
+            }
             if (skillModel.allEnemy) { 
                 finalTargets.AddRange(enemyPlayers);
                 currenttarget = finalTargets[Random.Range(0, finalTargets.Count())];
@@ -168,8 +168,12 @@ namespace AssemblyCSharp
             }
             if (skillModel.hasVoidzone)
             {
-                finalTargets.AddRange(enemyPlayers.Where(o => o.characterModel.inVoidZone || ((CharacterModel)o.characterModel).inVoidCounter).ToList());
-                currenttarget = finalTargets[Random.Range(0, finalTargets.Count())];
+                var p = enemyPlayers.Where(o => o.characterModel.inVoidZone || ((CharacterModel)o.characterModel).inVoidCounter).ToList();
+                if(p.Count() > 0)
+                {
+                    finalTargets.AddRange(enemyPlayers.Where(o => o.characterModel.inVoidZone || ((CharacterModel)o.characterModel).inVoidCounter).ToList());
+                    currenttarget = finalTargets[Random.Range(0, finalTargets.Count())];
+                }
             }
             finalTargets.Capacity = finalTargets.Count;
             if (!baseManager.statusManager.DoesStatusExist("stun"))
@@ -181,6 +185,15 @@ namespace AssemblyCSharp
                 finalTargets.Clear();
                 isSkillactive = false;
             }
+
+            copiedSkillList.ForEach(s =>
+            {
+                if (s.skillName == skillModel.skillName)
+                {
+                    s = skillModel;
+                }
+            });
+
             BattleManager.enemyActionPoints -= skillModel.skillCost;
         }
 
@@ -206,7 +219,7 @@ namespace AssemblyCSharp
                     caster = baseManager.characterManager,
                     enemySkillModel = enemySkillModel,
                 };
-                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.accuracy, baseManager.characterManager.characterModel.evasion);
+                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy, baseManager.characterManager.characterModel.evasion);
                 enemySkillModel.RunExtraEffect(data);
                 if (enemySkillModel.doesDamage)
                 {
@@ -223,8 +236,8 @@ namespace AssemblyCSharp
                     };
                     if (enemySkillModel.hasVoidzone)
                     {
-                        var tankData = targets.Where(o => o.characterModel.role == CharacterModel.RoleEnum.tank).First();
-                        if (!(tankData.characterModel as CharacterModel).inVoidCounter)
+                        var tankData = targets.Where(o => o.characterModel.role == CharacterModel.RoleEnum.tank).FirstOrDefault();
+                        if (!tankData || !(tankData.characterModel as CharacterModel).inVoidCounter)
                         {
                             if (enemySkillModel.fxObject != null)
                             {
@@ -294,6 +307,10 @@ namespace AssemblyCSharp
                 {
                     AddStatuses(target, power, enemySkillModel);
                 }
+                if (enemySkillModel.forcedMoveAmount > 0 && enemySkillModel.isSpell || didHit)
+                {
+                    ForcedMove(new List<BaseCharacterManager> { target }, enemySkillModel);
+                }
             }
         }
 
@@ -333,13 +350,12 @@ namespace AssemblyCSharp
             return null;
         }
 
-        public void BeginSkillRotation()
+        public void BeginSkillRotation(enemySkill randomSkill)
         {
             if (!isSkillactive && BattleManager.turn == BattleManager.TurnEnum.EnemyTurn)
             {
-                var randomSkill = SkillToRun(copiedSkillList);
                 if (!hasCasted && !BattleManager.disableActions && baseManager.characterManager.characterModel.isAlive
-                     && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && randomSkill != null)
+                     && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking)
                 {
                         PrepSkill(randomSkill);
                 }
@@ -443,7 +459,12 @@ namespace AssemblyCSharp
 
         public void StartSkill()
         {
-            BattleManager.taskManager.ScheduleAction(BeginSkillRotation, 3f);
+            var randomSkill = SkillToRun(copiedSkillList);
+            if (randomSkill)
+            {
+                var endAnim = baseManager.animationManager.GetAnimationDuration(randomSkill.EndAnimation.ToString());
+                BattleManager.taskManager.ScheduleAction(() => BeginSkillRotation(randomSkill), endAnim + 0.5f);
+            }
         }
 
         void Start()

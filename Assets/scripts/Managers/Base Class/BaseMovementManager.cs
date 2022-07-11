@@ -128,6 +128,7 @@ namespace AssemblyCSharp
             var panelManager = targetPanel.GetComponent<PanelsManager>();
             if (!panelManager.currentOccupier)
             {
+                panelManager.SetOrigPositionInPanel(this);
                 if (skill.RepositionAmount > 0 && !skill.movesToTarget)
                 {
                     MoveToPanel(panelManager, animationOptionsEnum.hop);
@@ -150,7 +151,7 @@ namespace AssemblyCSharp
                 float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 1.5f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 1.5f);
                 float ypos = (size.y + offsetYPosition);
                 attackedPos.x = xpos;
-                attackedPos.y = target.GetComponent<BaseMovementManager>().currentPanel.transform.position.y + (ypos / 2.2f);
+                attackedPos.y = target.transform.position.y;//target.GetComponent<BaseMovementManager>().currentPanel.transform.position.y /*+ (ypos / 2.2f)*/;
             }
             return attackedPos;
         }

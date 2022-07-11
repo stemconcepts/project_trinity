@@ -128,7 +128,7 @@ namespace AssemblyCSharp
                 var defences = damageModel.isMagicDmg ? baseManager.characterManager.characterModel.MDef : baseManager.characterManager.characterModel.PDef;
                 var resistance = damageModel.element != elementType.none ? baseManager.characterManager.GetResistanceValue(damageModel.element.ToString()) : 0;
                 var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : damageModel.incomingDmg - defences;
-                damageTaken = BattleManager.gameManager.GetChance((int)baseManager.characterManager.characterModel.accuracy) ? damageTaken + baseManager.characterManager.characterModel.piercing : damageTaken;
+                damageTaken = BattleManager.gameManager.GetChance((int)baseManager.characterManager.characterModel.Accuracy) ? damageTaken + baseManager.characterManager.characterModel.piercing : damageTaken;
                 var elementDamageTaken = GetValueAfterResist(damageModel.incomingDmg, resistance) < 0 ? 0 : GetValueAfterResist(damageModel.incomingDmg, resistance);
                 damageModel.damageTaken = damageModel.element != elementType.none ? elementDamageTaken : damageTaken;
                 if (baseManager.statusManager.DoesStatusExist("damageImmune"))
@@ -219,7 +219,7 @@ namespace AssemblyCSharp
             }
         }
 
-        public void DoDamage(int damage, BaseCharacterManager target, GenericSkillModel skill = null)
+        public void DoDamage(int damage, BaseCharacterManager target, GenericSkillModel skill = null, bool isMagic = false)
         {
             var dmgModel = new BaseDamageModel()
             {
@@ -230,7 +230,9 @@ namespace AssemblyCSharp
                 dmgSource = baseManager.characterManager,
                 dueDmgTargets = new List<BaseCharacterManager>() { target },
                 hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                modifiedDamage = skill.useModifier
+                modifiedDamage = skill.useModifier,
+                damageImmidiately = true,
+                isMagicDmg = isMagic
             };
             calculatedamage(dmgModel);
         }

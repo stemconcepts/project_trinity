@@ -21,7 +21,7 @@ namespace AssemblyCSharp
             originalMAtk = MAtk;
             originalMDef = MDef;
             originalHaste = Haste;
-            originalAccuracy = accuracy;
+            originalAccuracy = Accuracy;
             originalCritChance = critChance;
             originalEvasion = evasion;
         }

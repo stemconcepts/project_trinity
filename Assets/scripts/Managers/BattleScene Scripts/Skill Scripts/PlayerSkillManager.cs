@@ -174,7 +174,7 @@ namespace AssemblyCSharp
                     caster = baseManager.characterManager,
                     skillModel = skillModel
                 };
-                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.accuracy, baseManager.characterManager.characterModel.evasion);
+                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy, baseManager.characterManager.characterModel.evasion);
                 skillModel.RunExtraEffect(data);
                 if (skillModel.doesDamage)
                 {
@@ -358,7 +358,7 @@ namespace AssemblyCSharp
         {
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
             {
-                if (activeSkill.Reposition != GenericSkillModel.moveType.None)
+                if (activeSkill && activeSkill.Reposition != GenericSkillModel.moveType.None)
                 {
                     var charList = new List<BaseCharacterManager>() { baseManager.characterManager };
                     activeSkill.RepositionCharacters(charList, activeSkill);

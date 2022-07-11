@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Linq;
 using TMPro;
+using UnityEngine.UI;
+using DG.Tweening;
 
 namespace AssemblyCSharp
 {
@@ -11,21 +13,25 @@ namespace AssemblyCSharp
         public int position;
         public int total;
         public TextMeshPro text;
-        public SpriteRenderer spriteRenderer;
+        public Image image;
+        //public SpriteRenderer spriteRenderer;
         ToolTipTriggerController tooltipController;
 
         public void SetUpItem()
         {
             tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
             tooltipController.AddtoolTip(itemBase.itemName, itemBase.itemName, itemBase.itemDesc);
-            spriteRenderer.sprite = itemBase.itemIcon;
-            text.text = total > 1 ? $"x{total.ToString()}" : "";
+            image.sprite = itemBase.itemIcon;
+            text.text = total > 1 ? $"x{total}" : "";
         }
 
         // Use this for initialization
         void Start()
         {
-
+            if (image)
+            {
+                image.DOFade(1f, 0.8f).SetDelay(1f);
+            }
         }
 
         void Awake()

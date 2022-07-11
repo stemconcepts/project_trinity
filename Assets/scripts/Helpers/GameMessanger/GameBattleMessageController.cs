@@ -47,11 +47,14 @@ namespace AssemblyCSharp
                 if (iInfo && l.canStack && iInfo.amount > 0)
                 {
                     ++iInfo.amount;
-                } else
+                }
+                else
                 {
                     var i = Instantiate(itemTemplate, itemsHolder);
-                    i.transform.DOLocalMoveX(-50f, 1f).SetEase(Ease.OutSine);
+                    //i.transform.DOLocalMoveX(-50f, 1f).SetEase(Ease.OutSine);
                     var itemInfoController = i.GetComponent<ItemInfoController>();
+                    itemInfoController.itemImage.DOFade(1f, 0.8f).SetDelay(1f);
+                    itemInfoController.ItemName.DOFade(1f, 0.8f).SetDelay(1f);
                     itemInfoController.itemBase = l;
                     itemInfoController.amount = 1;
                     itemsInfo.Add(itemInfoController);

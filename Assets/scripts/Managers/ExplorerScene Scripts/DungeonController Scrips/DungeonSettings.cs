@@ -12,7 +12,7 @@ namespace AssemblyCSharp
 
     public class DungeonSettings : ScriptableObject
     {
-        [Header("environment Status Settings")]
+        [Header("Environment Status Settings")]
         public List<environmentStatuses> environmentStatuses = new List<environmentStatuses>();
         public List<environmentStatuses> enemyEnvironmentStatuses = new List<environmentStatuses>();
         [Header("Custom Route Settings")]

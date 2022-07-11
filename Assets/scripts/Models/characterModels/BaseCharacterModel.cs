@@ -35,7 +35,7 @@ namespace AssemblyCSharp
         [HideInInspector]
         public float originalAccuracy;
         [Range(0, 1)]
-        public float accuracy = 1;
+        public float Accuracy = 1;
         [HideInInspector]
         public float originalEvasion;
         [Range(0, 1)]

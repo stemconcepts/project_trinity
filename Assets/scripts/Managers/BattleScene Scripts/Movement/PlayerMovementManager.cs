@@ -45,6 +45,7 @@ namespace AssemblyCSharp
                         //movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
                         movementArrowManager.distance = distance;
                         movementArrowManager.occupier = baseManager;
+                        BattleManager.SetFadeOnAllPanels(0.5f, 0.5f);
                     }
                 }, "draggingTask_" + baseManager.name);
             }
@@ -65,12 +66,11 @@ namespace AssemblyCSharp
                     BattleManager.actionPoints -= movementCost;
                     ++((PlayerSkillManager)baseManager.skillManager).turnsTaken;
                     BattleManager.UpdateAPAmount();
-
                     positionArrowManager.hoveredPanel.SetOrigPositionInPanel(this);
-
                     MoveToPanel(positionArrowManager.hoveredPanel);
                     positionArrowManager.occupier.animationManager.meshRenderer.sortingOrder = origSortingOrder = positionArrowManager.hoveredPanel.sortingLayerNumber;
                     positionArrowManager.occupier.characterManager.characterModel.rowNumber = positionArrowManager.hoveredPanel.sortingLayerNumber;
+                    BattleManager.SetFadeOnAllPanels(0f, 0.5f);
                 }
                 Destroy(positionArrow);
                 BattleManager.HitBoxControl(true);

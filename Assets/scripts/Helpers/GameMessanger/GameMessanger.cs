@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using DG.Tweening;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -59,8 +61,15 @@ namespace AssemblyCSharp
             MainGameManager.instance.taskManager.CallTask(3f, action: () =>
             {
                 var displayBox = GenerateBattleDisplayPrefab(MainGameManager.instance.GlobalCanvas.transform);
+                displayBox.GetComponent<CanvasGroup>().DOFade(1f, 0.5f);
+
+                /*var views = displayBox.GetComponentsInChildren<Transform>();
+                views.ToList().ForEach(o =>
+                {
+                    o.DOLocalMoveX(-20f, 1f).SetEase(Ease.OutSine);
+                });*/
+
                 var gameMessageController = displayBox.GetComponentInChildren<GameBattleMessageController>();
-                //gameMessageController.EXPText.text = $"EXP gained : {BattleManager.GetEXPValue().ToString()}";
                 gameMessageController.closeAction = closeAction;
             });
         }

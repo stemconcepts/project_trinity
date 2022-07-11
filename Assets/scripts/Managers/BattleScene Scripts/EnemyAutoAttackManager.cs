@@ -65,7 +65,7 @@ namespace AssemblyCSharp
                     };
                     targetDmgManager.autoAttackDmgModels.Add(gameObject.name, dmgModel);
                     hasAttacked = true;
-                    if (autoAttackTarget.characterManager.GetChanceToBeHit(baseManager.characterManager.characterModel.accuracy, baseManager.characterManager.characterModel.evasion))
+                    if (autoAttackTarget.characterManager.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy, baseManager.characterManager.characterModel.evasion))
                     {
                         targetDmgManager.calculatedamage(dmgModel);
                     }
@@ -121,17 +121,13 @@ namespace AssemblyCSharp
                     BattleManager.eventManager.BuildEvent(eventModel);
                     targetDamageManager.autoAttackDmgModels.Remove(gameObject.name);
                 }
-                else
-                {
-                    GameManager.logger.Log("damageModel missing from" + autoAttackTarget.name + " dictionary");
-                }
             }
         }
 
         public void RunAttackLoopOnNextTurn()
         {
-            var myTask = new Task(BattleManager.taskManager.CompareTurns(turnToReset, () =>
-            {
+            //var myTask = new Task(BattleManager.taskManager.CompareTurns(turnToReset, BattleManager.TurnEnum.EnemyTurn, () =>
+            //{
                 if (baseManager.characterManager.characterModel.isAlive)
                 {
                     baseManager.animationManager.inAnimation = false;
@@ -144,7 +140,7 @@ namespace AssemblyCSharp
                     }
                     RunAttackLoop();
                 }
-            }));
+            //}));
         }
     }
 }

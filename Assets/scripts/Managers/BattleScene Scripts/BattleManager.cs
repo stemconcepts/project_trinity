@@ -59,7 +59,6 @@ namespace AssemblyCSharp
         public static bool gamePaused;
         public static float turnTime = 30f;
         public static TurnEnum turn;
-        static TurnEnum activeTurn;
         public enum TurnEnum
         {
             EnemyTurn,
@@ -116,14 +115,14 @@ namespace AssemblyCSharp
 
         void Update()
         {
-            if (turn == activeTurn && battleStarted && CheckIfActionsComplete() && turnCount > 0)
+            if (battleStarted && CheckIfActionsComplete())
             {
-                battleStarted = false;
-                taskManager.CallTask(1f, () =>
-                {
-                    battleStarted = true;
-                    ResetTurnTimer();
-                });
+                    battleStarted = false;
+                    taskManager.CallTask(1f, () =>
+                    {
+                        battleStarted = true;
+                        ResetTurnTimer();
+                    });
             }
             CheckBattleOver();
         }
@@ -182,7 +181,6 @@ namespace AssemblyCSharp
                 {
                     t.Value.Stop();
                 }
-                loot.Clear();
                 battleStarted = false;
                 MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
             }
@@ -222,6 +220,7 @@ namespace AssemblyCSharp
                         break;
                 }
             });
+            loot.Clear();
             MainGameManager.instance.SceneManager.UnLoadScene("battle");
         }
 
@@ -336,16 +335,18 @@ namespace AssemblyCSharp
                 var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && BattleManager.enemyActionPoints >= 1).Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) &&
                     characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting /*&& !o.gameObject.GetComponent<EnemySkillManager>().hasCasted*/ &&
                     !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
-                return !enemiesCanAttack && !enemiesCanCast;
-            } else
+                return BattleManager.enemyActionPoints == 0 || !enemiesCanAttack && !enemiesCanCast;
+            }
+            else
             {
-                var hasTurnsLeft = characterSelectManager.friendlyCharacters
+                var charsWithTurnsLeft = characterSelectManager.friendlyCharacters
                     .Where(o => o.gameObject.GetComponent<CharacterManager>().characterModel.Haste > o.gameObject.GetComponent<PlayerSkillManager>().turnsTaken &&
-                        !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun") &&
-                    (o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints) ||
-                    o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints) ||
-                    o.gameObject.GetComponent<PlayerSkillManager>().skillModel.skillCost <= BattleManager.actionPoints)).Any();
-                return BattleManager.actionPoints == 0 || !hasTurnsLeft;
+                        !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun")).ToList();
+                var hasTurnsLeft = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().skillModel.skillCost <= BattleManager.actionPoints).Any() : false;
+                var canAffordPrimarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints)).Any() : false;
+                var canAffordSecondarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints)).Any() : false;
+                var canUseEquippedSkill = charsWithTurnsLeft.Count() > 0 ? (charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<EquipmentManager>().currentWeaponEnum == EquipmentManager.currentWeapon.Primary) ? canAffordPrimarySkills : canAffordSecondarySkills) : false;
+                return BattleManager.actionPoints == 0 || (!hasTurnsLeft && !canUseEquippedSkill);
             }
         }
 
@@ -378,6 +379,10 @@ namespace AssemblyCSharp
             CheckAndSetTurn();
         }
 
+        /// <summary>
+        /// Checks the turn and changes UI to reflect which side is going next. Also makes sure that a stunned character isn't selected on switch, 
+        /// cancels all live actions starts enemy action queues
+        /// </summary>
         public static void CheckAndSetTurn()
         {
             disableActions = true;
@@ -389,18 +394,21 @@ namespace AssemblyCSharp
             taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
             BattleManager.battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
             BattleManager.gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
-            //var validChar = BattleManager.characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
-            //BattleManager.characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
+            if (BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<StatusManager>().DoesStatusExist("stun"))
+            {
+                var validChar = BattleManager.characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
+                BattleManager.characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
+            }
             battleInterfaceManager.ForEach(o =>
             {
                 o.KeyPressCancelSkill();
             });
             taskManager.CallTask(2f, () =>
             {
-                activeTurn = turn;
                 disableActions = false;
                 if (turn == TurnEnum.EnemyTurn)
                 {
+                    CheckAndChangePhase();
                     StartEnemyAutoAttacks();
                     StartEnemyAbilities();
                 }
@@ -452,6 +460,14 @@ namespace AssemblyCSharp
             return characterSelectManager.enemyCharacters;
         }
 
+        static void CheckAndChangePhase()
+        {
+            GetEnemyCharacterManagers().ForEach(o =>
+            {
+                o.baseManager.GetComponent<PhaseManager>().CheckAndChangePhase();
+            });
+        }
+
         /// <summary>
         /// Starts 1 round of enemy auto attacks
         /// </summary>
@@ -501,6 +517,15 @@ namespace AssemblyCSharp
             {
                 panel.ClearVoidZone();
             }
+        }
+
+        public static void SetFadeOnAllPanels(float amount, float duration)
+        {
+            BattleManager.allPanelManagers.ForEach(o =>
+            {
+                o.fadeAmount = amount;
+                o.SetFade(amount, duration);
+            });
         }
 
         public static GameObject GetRandomPanel(bool playerPanels)
@@ -579,7 +604,7 @@ namespace AssemblyCSharp
                     }
                     else
                     {
-                        Debug.Log("No Panel");
+                        //Debug.Log("No Panel");
                     }
             }
         }

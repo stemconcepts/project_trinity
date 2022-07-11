@@ -65,12 +65,6 @@ namespace AssemblyCSharp
         void KeyPressSkill(){
             BattleManager.soundManager.playSound(skillSelectSound);
             RunClassSkill();
-            /*var charSelected = Battle_Manager.characterSelectManager.GetSelectedClassObject();
-            var charStatus = charSelected.GetComponent<Status_Manager>();
-            if (!charStatus.DoesStatusExist("stun"))
-            {
-                charSelected.GetComponent<Player_Skill_Manager>().PrepSkill(skill);
-            }*/
         }
 
         public void KeyPressCancelSkill()
@@ -98,7 +92,7 @@ namespace AssemblyCSharp
                 if(skill != null && (skill.skillCost > BattleManager.actionPoints))
                 {
                     iconImageScript.color = new Color(0.9f, 0.2f, 0.2f);
-                } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("Stun"))
+                } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("stun"))
                 {
                     iconImageScript.color = new Color(0.4f, 0.4f, 0.4f);
                 } else {

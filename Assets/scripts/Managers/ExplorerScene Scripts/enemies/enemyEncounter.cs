@@ -9,7 +9,6 @@ namespace AssemblyCSharp
         public string id;
         public bool spawnOnce;
         public List<ItemBase> loot;
-        //public bool lootAdded;
         public List<GameObject> enemies;
         public GameObject instanciatedObject;
     }

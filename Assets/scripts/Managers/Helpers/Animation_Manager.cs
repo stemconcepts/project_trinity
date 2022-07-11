@@ -79,6 +79,24 @@ namespace AssemblyCSharp
             
         }
 
+        public float GetAnimationDuration(string animationName)
+        {
+            if (skeletonAnimationMulti != null)
+            {
+                var anim = skeletonAnimationMulti.FindAnimation(animationName);
+                return anim != null ? anim.Duration : 2.5f;
+            }
+            else
+            {
+                var animS = skeletonAnimation.state.Data.SkeletonData.Animations.Items.ToList().Where(o => o.Name == animationName).FirstOrDefault();
+                if (animS != null)
+                {
+                    return animS.Duration;
+                }
+            }
+            return 2.5f;
+        }
+
         public Bounds GetSpriteBounds()
         {
             List<MeshRenderer> mr = skeletonAnimationMulti != null ? skeletonAnimationMulti.GetMeshRenderers() : new List<MeshRenderer>();
@@ -95,8 +113,6 @@ namespace AssemblyCSharp
             {
                 var duration = PlaySetAnimation("idle2", false);
                 PlayAddAnimation("idle", true, duration);
-                //skeletonAnimation.state.SetAnimation(0, "intro", false);
-                //skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
             }
             BattleManager.taskManager.CallTask(5f, () =>
             {
@@ -106,16 +122,13 @@ namespace AssemblyCSharp
 
         void Start()
         {
-            if( skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
+            if(skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
             {
                 PlaySetAnimation("intro", false);
                 PlayAddAnimation("idle", true);
-                //skeletonAnimation.state.SetAnimation(0, "intro", false);
-                //skeletonAnimation.state.AddAnimation(0, "idle", true, 0);
             } else
             {
                 PlaySetAnimation("idle", true);
-                //skeletonAnimation.state.SetAnimation(0, "idle", true);
             }
             IdleToggle();
         }
@@ -186,8 +199,7 @@ namespace AssemblyCSharp
                 } else {
                     if ( !inAnimation )
                     {
-                        PlaySetAnimation(animationName.ToString(), false);
-                        //skeletonAnimation.state.SetAnimation(0, animationName.ToString(), false);
+                        PlaySetAnimation(animationName.ToString(), true);
                     }
                     if (holdAnimation == animationOptionsEnum.none)
                     {
@@ -195,7 +207,6 @@ namespace AssemblyCSharp
                         idleAnimation = holdAnimation;
 
                         PlayAddAnimation(holdAnimation.ToString(), true);
-                        //skeletonAnimation.state.AddAnimation(0, holdAnimation.ToString(), true, 0);
                     }
                 }
             } else {
@@ -203,8 +214,6 @@ namespace AssemblyCSharp
                 idleAnimation = animationOptionsEnum.idle;
                 var animationDuration = PlaySetAnimation(stunToIdle.ToString(), false);
                 PlayAddAnimation(idleAnimation.ToString(), false, animationDuration);
-                //var animationDuration = skeletonAnimation.state.SetAnimation(0, stunToIdle.ToString(), false).Animation.Duration;
-                //skeletonAnimation.state.AddAnimation(0, idleAnimation.ToString(), true, animationDuration);
                 SetBusyAnimation(animationDuration);
             }
         }

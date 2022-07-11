@@ -60,7 +60,7 @@ namespace AssemblyCSharp
                     };
                     targetDmgManager.autoAttackDmgModels.Add(gameObject.name, dmgModel);
                     hasAttacked = true;
-                    if ((autoAttackTarget as EnemyCharacterManagerGroup).characterManager.GetChanceToBeHit((baseManager as CharacterManagerGroup).characterManager.characterModel.accuracy, (baseManager as CharacterManagerGroup).characterManager.characterModel.evasion))
+                    if ((autoAttackTarget as EnemyCharacterManagerGroup).characterManager.GetChanceToBeHit((baseManager as CharacterManagerGroup).characterManager.characterModel.Accuracy, (baseManager as CharacterManagerGroup).characterManager.characterModel.evasion))
                     {
                         targetDmgManager.calculatedamage(dmgModel);
                     } else
@@ -121,8 +121,8 @@ namespace AssemblyCSharp
 
         public void RunAttackLoopOnNextTurn()
         {
-            var myTask = new Task(BattleManager.taskManager.CompareTurns(turnToReset, () =>
-            {
+            //var myTask = new Task(BattleManager.taskManager.CompareTurns(turnToReset, () =>
+            //{
                 if ((baseManager as CharacterManagerGroup).characterManager.characterModel.isAlive)
                 {
                     baseManager.animationManager.inAnimation = false;
@@ -136,7 +136,7 @@ namespace AssemblyCSharp
                     }
                     RunAttackLoop();
                 }
-            }));
+            //}));
             //BattleManager.taskManager.taskList.Add("PlayerAutoAttackLoop", myTask);
         }
     }

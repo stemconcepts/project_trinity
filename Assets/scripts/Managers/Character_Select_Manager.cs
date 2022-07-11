@@ -29,10 +29,6 @@ namespace AssemblyCSharp
             guardianObject = GameObject.Find("Guardian");
             walkerObject = GameObject.Find("Walker");
             stalkerObject = GameObject.Find("Stalker");
-            /*enemyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Enemy").ToList());
-            enemyCharacters.Capacity = enemyCharacters.Count;
-            friendlyCharacters = GetCharacterManagers(GameObject.FindGameObjectsWithTag("Player").ToList());
-            friendlyCharacters.Capacity = friendlyCharacters.Count;*/
         }
 
         void Start(){
@@ -134,10 +130,6 @@ namespace AssemblyCSharp
 
         public void UpdateCharacters(string deadCharacterName = null)
         {
-            /*var x = GameObject.FindGameObjectsWithTag("Enemy").ToList();
-            var y = GameObject.FindGameObjectsWithTag("Player").ToList();
-            enemyCharacters = x.Select(o => o.GetComponent<EnemyCharacterManager>()).ToList();
-            friendlyCharacters = y.Select(o => o.GetComponent<CharacterManager>()).ToList();*/
             enemyCharacters = GetCharacterManagers<EnemyCharacterManager>(GameObject.FindGameObjectsWithTag("Enemy").ToList()).Where(o => o.characterModel.isAlive).ToList();
             enemyCharacters.Capacity = enemyCharacters.Count;
             friendlyCharacters = GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList()).Where(o => o.characterModel.isAlive).ToList();

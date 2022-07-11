@@ -126,17 +126,6 @@ namespace AssemblyCSharp
             for (int i = 0; i < singleStatusGroup.Count; i++)
             {
                 GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
-                /*var sm = new StatusModel
-                {
-                    singleStatus = singleStatusGroup[i],
-                    power = power,
-                    turnDuration = skillModel.turnDuration,
-                    baseManager = baseManager,
-                    isFlat = skillModel.isFlat,
-                    dmgTextColor = skillModel.dmgTextColor
-                };
-                sm.singleStatus.dispellable = skillModel.statusDispellable;
-                baseManager.statusManager.RunStatusFunction(sm);*/
             }
         }
 
@@ -145,17 +134,6 @@ namespace AssemblyCSharp
             for (int i = 0; i < singleStatusGroup.Count; i++)
             {
                 GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
-                /*var sm = new StatusModel
-                {
-                    singleStatus = singleStatusGroup[i],
-                    power = power,
-                    turnDuration = skillModel.turnDuration,
-                    baseManager = baseManager,
-                    isFlat = skillModel.isFlat,
-                    dmgTextColor = skillModel.dmgTextColor
-                };
-                sm.singleStatus.dispellable = skillModel.statusDispellable;
-                baseManager.statusManager.RunStatusFunction(sm);*/
             }
         }
 
@@ -272,7 +250,6 @@ namespace AssemblyCSharp
         public void SaveTurnToComplete()
         {
             turnToComplete = BattleManager.turnCount + castTurnTime;
-            //Debug.Log($"{skillName} will complete on turn {turnToComplete}");
         }
 
         public void ResetSkillOnCurrentTurn(bool player, Action action = null)
@@ -290,7 +267,8 @@ namespace AssemblyCSharp
                 });
             }
 
-            var myTask = new Task(BattleManager.taskManager.CompareTurns(turnToReset, () =>
+            var turn = typeof(enemySkill) == this.GetType() ? BattleManager.TurnEnum.EnemyTurn : BattleManager.TurnEnum.PlayerTurn;
+            var myTask = new Task(BattleManager.taskManager.CompareTurnsAndAction(turnToReset, turn, () =>
             {
                 if (relevantBIM != null)
                 {
