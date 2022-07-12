@@ -17,12 +17,12 @@ namespace AssemblyCSharp
         {
             GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : hitFX;
             BattleManager.gameEffectManager.ScreenShake(0.6f, 2);
-            if (damageModel.hitEffectPositionScript != null && gameObject.tag == "Player" && eventName == "hit")
+            if (damageModel.hitEffectPositionScript != null && gameObject.tag == "Player" && eventName == "hit" && skillHitEffect)
             {
                 damageModel.effectObject = Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
                     damageModel.hitEffectPositionScript.transform.position.y), new Quaternion(0, 180, 0, 0));
             }
-            else if (damageModel.hitEffectPositionScript != null && eventName == "hit")
+            else if (damageModel.hitEffectPositionScript != null && eventName == "hit" && skillHitEffect)
             {
                 damageModel.effectObject = Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
                     damageModel.hitEffectPositionScript.transform.position.y), damageModel.hitEffectPositionScript.transform.rotation);

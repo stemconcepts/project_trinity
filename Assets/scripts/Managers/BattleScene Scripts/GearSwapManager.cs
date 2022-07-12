@@ -9,7 +9,7 @@ namespace AssemblyCSharp
     {
         public bool swapReady = true;
         public float gearSwapTime = 10f;
-        private Button iconButton;
+        public Button iconButton;
         public void SwapGear()
         {
             var skillactive = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
@@ -61,16 +61,13 @@ namespace AssemblyCSharp
             //Battle_Manager.soundManager.playSound("gearSwapReady");
         }
 
-        private void CheckGearType()
+        public void CheckGearType()
         {
             foreach (var playerRole in BattleManager.characterSelectManager.friendlyCharacters)
             {
                 var bm = playerRole.GetComponent<BaseCharacterManagerGroup>();
                 var currentWeaponData = bm.equipmentManager;
                 var playerSkeletonAnim = bm.animationManager;
-                var AAutoAttack = bm.autoAttackManager;
-                var charMovementScript = bm.movementManager;
-                var calculateDmgScript = bm.damageManager;
                 var currentWSlot = (PlayerSkillManager)bm.skillManager;
                 var weaponType = currentWSlot.weaponSlot == PlayerSkillManager.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
                 if (weaponType.type != weaponModel.weaponType.heavyHanded && weaponType.type != weaponModel.weaponType.cursedGlove && weaponType.type != weaponModel.weaponType.clawAndCannon)
@@ -95,16 +92,14 @@ namespace AssemblyCSharp
                     bm.animationManager.hopAnimation = (animationOptionsEnum)Enum.Parse(typeof(animationOptionsEnum), $"{bm.animationManager.hopAnimation}Heavy");
                     bm.animationManager.hitAnimation = bm.animationManager.hitAnimation == animationOptionsEnum.toStunned ? animationOptionsEnum.toStunned : (animationOptionsEnum)Enum.Parse(typeof(animationOptionsEnum), $"{bm.animationManager.hitAnimation}Heavy");
                 }
-                bm.animationManager.PlaySetAnimation(bm.animationManager.toHeavy.ToString(), false);
-                bm.animationManager.PlayAddAnimation(bm.animationManager.idleAnimation.ToString(), true);
-                //bm.animationManager.skeletonAnimation.state.SetAnimation(0, bm.animationManager.toHeavy.ToString(), false);
-                //bm.animationManager.skeletonAnimation.state.AddAnimation(0, bm.animationManager.idleAnimation.ToString(), true, 0);
+                var delay = bm.animationManager.PlaySetAnimation(bm.animationManager.toHeavy.ToString(), false);
+                bm.animationManager.PlayAddAnimation(bm.animationManager.idleAnimation.ToString(), true, delay);
             }
         }
 
         void Awake()
         {
-            iconButton = gameObject.GetComponent<Button>();
+            //iconButton = gameObject.GetComponent<Button>();
         }
 
         void Update()

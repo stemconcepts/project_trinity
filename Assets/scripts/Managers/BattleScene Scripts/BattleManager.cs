@@ -59,6 +59,7 @@ namespace AssemblyCSharp
         public static bool gamePaused;
         public static float turnTime = 30f;
         public static TurnEnum turn;
+        public GearSwapManager gearSwapManager;
         public enum TurnEnum
         {
             EnemyTurn,
@@ -77,6 +78,7 @@ namespace AssemblyCSharp
             assetFinder = gameManager.AssetFinder;
             UICanvas = GameObject.Find("Canvas - UI");
             tooltipCanvas = tooltipCanvasTarget;
+            gearSwapManager = gameObject.GetComponent<GearSwapManager>();
             //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
             if (pauseScreenHolder != null)
@@ -103,6 +105,7 @@ namespace AssemblyCSharp
             UpdateAPAmount();
             SetStartingHealthAndStats();
             taskManager.taskList.Add("actionQueue", new Task(MainGameManager.instance.StartActionQueue()));
+            //characterSelectManager.UpdateCharacters();
         }
 
         void SetActionPoints()
@@ -602,10 +605,6 @@ namespace AssemblyCSharp
                         panelManager.SetStartingPanel(newCreature);
                         panelManager.SaveCharacterPositionFromPanel();
                     }
-                    else
-                    {
-                        //Debug.Log("No Panel");
-                    }
             }
         }
 
@@ -622,9 +621,11 @@ namespace AssemblyCSharp
             }
         }
 
-        public void StartBattle(float waitTime){
-
-            taskManager.CallTask(waitTime, () => {
+        public void StartBattle(float waitTime)
+        {
+            taskManager.CallTask(waitTime, () =>
+            {
+                gearSwapManager.CheckGearType();
                 BattleManager.battleStarted = true;
                 CheckAndSetTurn();
             });

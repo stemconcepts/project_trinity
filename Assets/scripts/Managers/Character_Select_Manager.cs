@@ -7,9 +7,6 @@ namespace AssemblyCSharp
 {
     public class Character_Select_Manager: MonoBehaviour
     {
-        /*public bool guardianSelected = true;
-        public bool walkerSelected = false;
-        public bool stalkerSelected = false; */
         public GameObject guardianObject;
         public GameObject stalkerObject;
         public GameObject walkerObject;
@@ -29,11 +26,11 @@ namespace AssemblyCSharp
             guardianObject = GameObject.Find("Guardian");
             walkerObject = GameObject.Find("Walker");
             stalkerObject = GameObject.Find("Stalker");
+            
         }
 
         void Start(){
             UpdateCharacters();
-            
             classStates.Add( new BattleManager.classState( "Guardian", guardianObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.guardianSelected, false ) );
             classStates.Add( new BattleManager.classState( "Stalker", stalkerObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.stalkerSelected, false ) );
             classStates.Add( new BattleManager.classState( "Walker", walkerObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.walkerSelected, true ) );

@@ -121,7 +121,7 @@ namespace AssemblyCSharp
         {
             Task myTask = new Task(BattleManager.taskManager.CompareTurnsAndActionDuring(BattleManager.turnCount + statusModel.turnDuration * 2, relevantTurn, () =>
             {
-                if (baseManager.characterManager.characterModel.isAlive)
+                if (baseManager.characterManager.characterModel.isAlive && statusModel != null)
                 {
                     StatusLabelModel currentStatusLabel = GetStatusIfExist(statusModel.singleStatus.name);
                     statusModel.stacks = currentStatusLabel.stacks;
