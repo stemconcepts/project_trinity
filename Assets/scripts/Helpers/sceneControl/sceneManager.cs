@@ -37,21 +37,36 @@ namespace AssemblyCSharp
 				MainGameManager.instance.SaveScene(scene.name);
 			}
 			Debug.Log(mode);
-		}
+        }
 
-		public void LoadInventory(bool additive)
+        public void LoadInventory(bool additive)
         {
-			SceneManager.LoadScene("Inventory", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
-			MainGameManager.instance.SaveScene("Inventory");
+            SceneManager.LoadScene("Inventory", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+            MainGameManager.instance.SaveScene("Inventory");
+        }
+
+		public void LoadCrafting()
+        {
+			MainGameManager.instance.GetActiveBoxColliders().ForEach(o =>
+			{
+				o.enabled = false;
+			});
+			SceneManager.LoadScene("craftingOverlay", LoadSceneMode.Additive);
 		}
 
-		public void LoadExploration(bool additive)
-		{
-			SceneManager.LoadScene("Exploration", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
-			MainGameManager.instance.SaveScene("Exploration");
+        public void LoadExploration(bool additive)
+        {
+            SceneManager.LoadScene("Exploration", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+            MainGameManager.instance.SaveScene("Exploration");
+        }
+
+		public void LoadScene(string sceneName, bool additive)
+        {
+			SceneManager.LoadScene(sceneName, additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+			MainGameManager.instance.SaveScene(sceneName);
 		}
 
-		public void UnLoadScene(string sceneName)
+        public void UnLoadScene(string sceneName)
 		{
 			int n = SceneManager.sceneCount;
 			if (n > 1)

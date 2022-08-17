@@ -36,10 +36,6 @@ namespace AssemblyCSharp
             "Assets/prefabs/explorer/items/genericItems/"
         };
 
-        public AssetFinder()
-        {
-        }
-
         public GameObject GetGameObjectFromPath(string path)
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);

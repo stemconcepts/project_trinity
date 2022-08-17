@@ -74,6 +74,7 @@
     <Compile Include="Assets\scripts\Models\elementTypeEnum.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\GearSwapManager.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\equipmentManager.cs" />
+    <Compile Include="Assets\scripts\Helpers\Utility\DragAndDropMasterController.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\skillMenu\skillItemData.cs" />
     <Compile Include="Assets\scripts\Managers\Base Class\BaseDamageManager.cs" />
     <Compile Include="Assets\Second.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapIconBase.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\Route.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\CharacterInteractionManager.cs" />
+    <Compile Include="Assets\scripts\Managers\Crafting\Recipes\RecipeController.cs" />
     <Compile Include="Assets\scripts\Managers\Inventory\InventoryManager.cs" />
     <Compile Include="Assets\scripts\Models\characterModels\BaseCharacterModel.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\SkillModel.cs" />
@@ -115,6 +117,7 @@
     <Compile Include="Assets\images\ui\effects\particleSort.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\hoverManager.cs" />
     <Compile Include="Assets\scripts\Managers\Helpers\Game_Effects_Manager.cs" />
+    <Compile Include="Assets\scripts\Helpers\Utility\DragAndDropController.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Movement\EnemyMovementManager.cs" />
     <Compile Include="Assets\scripts\Managers\Helpers\SerializationSurrogate\Vector3SerializationSurrogate.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapIconController.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Assets\scripts\Helpers\ToolTipManager.cs" />
     <Compile Include="Assets\scripts\Models\sceneModels\sceneItemBase.cs" />
     <Compile Include="Assets\scripts\MainGameControllers\MainGameManager.cs" />
+    <Compile Include="Assets\scripts\Helpers\Utility\BoxColliderGenerator.cs" />
     <Compile Include="Assets\scripts\Managers\Base Class\BasicManager.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\ExplorerItemsController.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\skillMenu\skillSlotManager.cs" />
@@ -167,6 +171,7 @@
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\SectionObject.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\PlayerAutoAttackManager.cs" />
     <Compile Include="Assets\scripts\Models\equipmentModels\equipedWeapons.cs" />
+    <Compile Include="Assets\scripts\Managers\Crafting\Recipes\Recipe.cs" />
     <Compile Include="Assets\scripts\Models\statusModels\StatusModel.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\DungeonRoom.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\CharacterManagerGroup.cs" />
@@ -174,9 +179,11 @@
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\skillBuilder.cs" />
     <Compile Include="Assets\scripts\Models\characterModels\EnemyCharacterModel.cs" />
     <Compile Include="Assets\scripts\Helpers\ToolTipTriggerController.cs" />
+    <Compile Include="Assets\scripts\Helpers\Utility\Testing\Tests.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\miniMapController.cs" />
     <Compile Include="Assets\scripts\Managers\Character_Select_Manager.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\DungeonController Scrips\DungeonSettings.cs" />
+    <Compile Include="Assets\scripts\Managers\Crafting\CraftingController.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Movement\PlayerMovementManager.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\skillMenu\skillItems.cs" />
     <Compile Include="Assets\scripts\Helpers\ConditionalHidePropertyDrawer.cs" />

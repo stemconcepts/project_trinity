@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
     public class MainGameManager : MonoBehaviour
     {
-        [HideInInspector]
-        bool showTutorial = false;
+        //[HideInInspector]
+        bool showTutorial = true;
         [HideInInspector]
         public AssetFinder assetFinder;
         public sceneManager SceneManager;
@@ -42,7 +43,7 @@ namespace AssemblyCSharp
             StringBuilder battleText = new StringBuilder("Use the abilities from your equipped weapons to survive and defeat the enemies.\n");
             battleText.Append("Each ability has an <b>Action Point</b> cost and cooldown.\n");
             battleText.Append("You can swap to your secondary weapon by selecting the large button in the middle.\n");
-            battleText.Append("Drag and drop your characters in the desired panels to move them, this costs <b>1 Action Point</b>");
+            battleText.Append("Drag and drop your characters in the desired panels to move them, this costs <b>1 Action Point</b> and expends the turn for that character");
             TutorialText.Add("Battle", battleText.ToString());
         }
 
@@ -110,6 +111,11 @@ namespace AssemblyCSharp
 
                 yield return null;
             }
+        }
+
+        public List<BoxCollider2D> GetActiveBoxColliders()
+        {
+            return FindObjectsOfType<BoxCollider2D>().ToList();
         }
 
         // Use this for initialization

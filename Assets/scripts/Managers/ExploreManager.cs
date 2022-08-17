@@ -195,10 +195,8 @@ namespace AssemblyCSharp
         public static void RemoveObtainedItem(ItemBase item)
         {
             obtainedItems.Remove(item);
-            //var x = inventoryHolder.transform.
             GameObject itemObj = inventoryHolder.transform.Find($"{item.name}").gameObject;
             Destroy(itemObj);
-            //SavedDataManager.SavedDataManagerInstance.RemoveObtainedItem(item.id);
         }
 
         public static void AddPreviousRoom(DungeonRoom room)

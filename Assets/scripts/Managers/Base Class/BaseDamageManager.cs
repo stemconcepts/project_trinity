@@ -225,8 +225,8 @@ namespace AssemblyCSharp
             {
                 baseManager = baseManager,
                 incomingDmg = damage,
-                enemySkillModel = typeof(enemySkill) == skill.GetType() ? (enemySkill)skill : null,
-                skillModel = typeof(SkillModel) == skill.GetType() ? (SkillModel)skill : null,
+                enemySkillModel = skill ? (typeof(enemySkill) == skill.GetType() ? (enemySkill)skill : null) : null,
+                skillModel = skill ? (typeof(SkillModel) == skill.GetType() ? (SkillModel)skill : null) : null,
                 dmgSource = baseManager.characterManager,
                 dueDmgTargets = new List<BaseCharacterManager>() { target },
                 hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,

@@ -11,6 +11,27 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         public GameObject fieldItemTemplate;
         public List<GameObject> fieldItems = new List<GameObject>();
 
+        public List<ItemBase> testingLoot = new List<ItemBase>();
+        /// <summary>
+        /// Add field Items from testingLoot for testing
+        /// </summary>
+        public void AddFieldItem()
+        {
+            testingLoot.ForEach(o =>
+            {
+                AddToObtainedItems(o);
+            });
+        }
+
+        /// <summary>
+        /// Returns current field items
+        /// </summary>
+        /// <returns></returns>
+        public List<GameObject> GetFieldItems()
+        {
+            return fieldItems;
+        }
+
         /// <summary>
         /// Add or increate obtained field items to inventory display as well as set up the tooltip needed
         /// </summary>
@@ -29,18 +50,25 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
                         itemController.SetUpItem();
                     }
                 });
-            } else
+            }
+            else
             {
                 ExploreManager.obtainedItems.Add(item);
                 if (!gameObject)
                 {
-                    gameObject = Instantiate(fieldItemTemplate, ExploreManager.inventoryHolder.transform);
+                    gameObject = item.InstantiateAsGameObject(ExploreManager.inventoryHolder.transform);
+                    /*gameObject = Instantiate(fieldItemTemplate, ExploreManager.inventoryHolder.transform);
                     var explorererItemController = gameObject.GetComponent<ExplorerItemsController>();
                     explorererItemController.itemBase = item;
-                    explorererItemController.SetUpItem();
+                    explorererItemController.SetUpItem();*/
                 }
                 fieldItems.Add(gameObject);
             }
+        }
+
+        void OnMouseUp()
+        {
+            MainGameManager.instance.SceneManager.LoadCrafting();
         }
     }
 }
