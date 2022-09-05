@@ -72,7 +72,7 @@ namespace Assets.scripts.Managers.Crafting
             fi.ForEach(o =>
             {
                 o.transform.SetParent(fieldInventoryController.gameObject.transform);
-                if (!o.GetComponent<DragAndDropController>())
+                if (o.GetComponent<DragAndDropController>())
                 {
                     o.GetComponent<DragAndDropController>().enabled = false;
                 }

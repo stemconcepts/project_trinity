@@ -440,11 +440,11 @@ namespace AssemblyCSharp
             {
                 if (statusModel.singleStatus.buff)
                 {
-                    BattleManager.soundManager.playSoundUsingAudioSource("buff", baseManager.gameObject.GetComponent<AudioSource>());
+                    MainGameManager.instance.soundManager.playSoundUsingAudioSource("buff", baseManager.gameObject.GetComponent<AudioSource>());
                 }
                 else
                 {
-                    BattleManager.soundManager.playSoundUsingAudioSource("debuff", baseManager.gameObject.GetComponent<AudioSource>());
+                    MainGameManager.instance.soundManager.playSoundUsingAudioSource("debuff", baseManager.gameObject.GetComponent<AudioSource>());
                 }
 
             }

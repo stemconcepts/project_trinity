@@ -35,6 +35,7 @@ namespace AssemblyCSharp
         public static bool battleStarted = false;
         public static GameObject pauseScreenHolder;
         public static bool disableActions = true;
+        public static bool turnTimerOn = false;
 
         //Player ActionPoints
         public static float vigor = 6;
@@ -72,7 +73,6 @@ namespace AssemblyCSharp
             battleDetailsManager = gameManager.battleDetailsManager;
             taskManager = gameManager.TaskManager;
             characterSelectManager = gameManager.characterSelectManager;
-            soundManager = gameManager.SoundManager;
             gameEffectManager = gameManager.GameEffectsManager;
             eventManager = gameManager.EventManager;
             assetFinder = gameManager.AssetFinder;
@@ -86,6 +86,12 @@ namespace AssemblyCSharp
                 pauseScreenHolder.SetActive(false);
             }
             turn = TurnEnum.PlayerTurn;
+
+            PlayerData playerData = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
+            startingTankHealth = playerData.tankHealth;
+            startingDpsHealth = playerData.dpsHealth;
+            startingHealerHealth = playerData.healerHealth;
+
             LoadEnemies();
         }
 
@@ -212,18 +218,22 @@ namespace AssemblyCSharp
                 {
                     case BaseCharacterModel.RoleEnum.tank:
                         startingTankHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                        ExploreManager.UpdateSliderHealth(startingTankHealth, BaseCharacterModel.RoleEnum.tank);
                         break;
                     case BaseCharacterModel.RoleEnum.healer:
                         startingHealerHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                        ExploreManager.UpdateSliderHealth(startingHealerHealth, BaseCharacterModel.RoleEnum.tank);
                         break;
                     case BaseCharacterModel.RoleEnum.dps:
                         startingDpsHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                        ExploreManager.UpdateSliderHealth(startingDpsHealth, BaseCharacterModel.RoleEnum.tank);
                         break;
                     default:
                         break;
                 }
             });
             loot.Clear();
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(startingTankHealth, startingDpsHealth, startingHealerHealth);
             MainGameManager.instance.SceneManager.UnLoadScene("battle");
         }
 
@@ -253,6 +263,27 @@ namespace AssemblyCSharp
             }
         }
 
+        public static void EditStartingHealth(BaseCharacterModel.RoleEnum role, int addAmount)
+        {
+            switch (role)
+            {
+                case BaseCharacterModel.RoleEnum.tank:
+                    startingTankHealth += addAmount;
+                    ExploreManager.UpdateSliderHealth(startingTankHealth, BaseCharacterModel.RoleEnum.tank);
+                    break;
+                case BaseCharacterModel.RoleEnum.dps:
+                    startingDpsHealth += addAmount;
+                    ExploreManager.UpdateSliderHealth(startingDpsHealth, BaseCharacterModel.RoleEnum.dps);
+                    break;
+                case BaseCharacterModel.RoleEnum.healer:
+                    startingHealerHealth += addAmount;
+                    ExploreManager.UpdateSliderHealth(startingHealerHealth, BaseCharacterModel.RoleEnum.healer);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public void SetStartingHealthAndStats()
         {
             var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
@@ -264,6 +295,7 @@ namespace AssemblyCSharp
                         if (startingTankHealth > 0)
                         {
                             c.characterModel.Health = startingTankHealth;
+                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, BaseCharacterModel.RoleEnum.tank);
                         }
                         tankStatus.ForEach(o =>
                         {
@@ -281,6 +313,7 @@ namespace AssemblyCSharp
                         if (startingHealerHealth > 0)
                         {
                             c.characterModel.Health = startingHealerHealth;
+                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, BaseCharacterModel.RoleEnum.healer);
                         }
                         healerStatus.ForEach(o =>
                         {
@@ -298,6 +331,7 @@ namespace AssemblyCSharp
                         if (startingDpsHealth > 0)
                         {
                             c.characterModel.Health = startingDpsHealth;
+                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, BaseCharacterModel.RoleEnum.dps);
                         }
                         dpsStatus.ForEach(o =>
                         {
@@ -335,9 +369,8 @@ namespace AssemblyCSharp
                     .Any(s => s.turnToReset == 0) && !o.gameObject.GetComponent<EnemySkillManager>().hasCasted &&
                         o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(s => s.skillCost <= BattleManager.enemyActionPoints)))
                     .Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
-                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && BattleManager.enemyActionPoints >= 1).Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) &&
-                    characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting /*&& !o.gameObject.GetComponent<EnemySkillManager>().hasCasted*/ &&
-                    !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
+                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && BattleManager.enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist("stun"))
+                    .Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) && characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting);
                 return BattleManager.enemyActionPoints == 0 || !enemiesCanAttack && !enemiesCanCast;
             }
             else
@@ -394,7 +427,9 @@ namespace AssemblyCSharp
                 turn = (turn == TurnEnum.EnemyTurn) ? TurnEnum.PlayerTurn : TurnEnum.EnemyTurn;
             }
             playerTurnText.text = (turn == TurnEnum.EnemyTurn) ? "Enemy Turn" : "Player Turn";
-            taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
+
+            //taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
+
             BattleManager.battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
             BattleManager.gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
             if (BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<StatusManager>().DoesStatusExist("stun"))
@@ -406,6 +441,7 @@ namespace AssemblyCSharp
             {
                 o.KeyPressCancelSkill();
             });
+
             taskManager.CallTask(2f, () =>
             {
                 disableActions = false;
@@ -415,12 +451,14 @@ namespace AssemblyCSharp
                     StartEnemyAutoAttacks();
                     StartEnemyAbilities();
                 }
-
             });
-            taskManager.CallTask(turnTime, () =>
+            if (turnTimerOn)
             {
-                ResetTurnTimer();
-            }, "turnTimerTask");
+                taskManager.CallTask(turnTime, () =>
+                {
+                    ResetTurnTimer();
+                }, "turnTimerTask");
+            }
         }
 
         public static List<BattleInterfaceManager> GetBattleInterfaces() {

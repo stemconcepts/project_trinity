@@ -53,7 +53,7 @@ namespace AssemblyCSharp
                 damageModel.damageTaken -= damageBlocked;
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
                 battleDetailsManager.getDmg(damageModel, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>");
-                BattleManager.soundManager.playSound("block");
+                MainGameManager.instance.soundManager.playSound("block");
             }
             else
             {
@@ -230,7 +230,7 @@ namespace AssemblyCSharp
                 dmgSource = baseManager.characterManager,
                 dueDmgTargets = new List<BaseCharacterManager>() { target },
                 hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                modifiedDamage = skill.useModifier,
+                modifiedDamage = skill ? skill.useModifier : false,
                 damageImmidiately = true,
                 isMagicDmg = isMagic
             };

@@ -157,6 +157,7 @@
     <Compile Include="Assets\scripts\Helpers\GameMessanger\GameBattleMessageController.cs" />
     <Compile Include="Assets\scripts\Models\BasicModel.cs" />
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\fieldInventoryController.cs" />
+    <Compile Include="Assets\scripts\Helpers\Utility\InteractWithObjectController.cs" />
     <Compile Include="Assets\scripts\Managers\BattleScene Scripts\Skill Scripts\EnemySkillManager.cs" />
     <Compile Include="Assets\scripts\Helpers\Generic_Manager.cs" />
     <Compile Include="Assets\layout.cs" />

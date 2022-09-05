@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -16,7 +17,7 @@ namespace AssemblyCSharp
     public class GenericSkillModel : ScriptableObject
     {
         public bool skillConfirm;
-        [Header("Skill Details:")]
+        [Header("Skill Details")]
         public string skillName;
         public bool skillActive;
         public int skillCost;
@@ -35,7 +36,7 @@ namespace AssemblyCSharp
         public string skillDesc;
         [ConditionalHide("movesToTarget", false, false)]
         public float attackMovementSpeed;
-        [Header("Turn Details:")]
+        [Header("Turn Details")]
         public int turnToComplete;
         public int turnToReset;
         public int castTurnTime;
@@ -48,7 +49,7 @@ namespace AssemblyCSharp
         public animationOptionsEnum BeginCastingAnimation;
         public animationOptionsEnum CastingAnimation;
         public bool loopAnimation;
-        [Header("Target choices:")]
+        [Header("Target choices")]
         public bool self;
         public bool enemy;
         public bool friendly;
@@ -59,7 +60,7 @@ namespace AssemblyCSharp
         [Header("Sounds")]
         public AudioClip chargeSound;
         public AudioClip castSound;
-        [Header("Extra Effect:")]
+        [Header("Extra Effect")]
         [ConditionalHide(true)]
         public bool useModifier;
         public ExtraEffectEnum ExtraEffect;
@@ -69,6 +70,14 @@ namespace AssemblyCSharp
             Dispel,
             BonusDamage,
             RunSkill
+        }
+        public List<CompatibleRow> compatibleRows;
+        public enum CompatibleRow
+        {
+            All,
+            Front,
+            Middle,
+            Back
         }
         [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.BonusDamage, false)]
         public BonusPrerequisite bonusPrerequisite;
@@ -135,6 +144,27 @@ namespace AssemblyCSharp
             {
                 GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
             }
+        }
+
+        public bool CanCastFromPosition(List<CompatibleRow> rows, BaseCharacterManagerGroup baseManager)
+        {
+            if (rows.Any(o => o == CompatibleRow.All) || rows.Count == 0)
+            {
+                return true;
+            }
+            if (baseManager.movementManager.isInFrontRow)
+            {
+                return rows.Any(o => o == CompatibleRow.Front);
+            }
+            else if (baseManager.movementManager.isInMiddleRow)
+            {
+                return rows.Any(o => o == CompatibleRow.Middle);
+            }
+            else if (baseManager.movementManager.isInBackRow)
+            {
+                return rows.Any(o => o == CompatibleRow.Back);
+            }
+            return false;
         }
 
         void GenerateStatusModelAndRun(SingleStatusModel singleStatus, BaseCharacterManagerGroup baseManager, float power, GenericSkillModel skillModel)

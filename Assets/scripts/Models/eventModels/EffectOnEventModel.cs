@@ -36,10 +36,60 @@ namespace AssemblyCSharp
         /*[Header("Reset Effect:")]
         public ResetEvent resetEvent;*/
 
-        public bool CheckChance( float chance ){
-            var chanceNum = Random.Range( 0.0f, 1.0f );
+        public bool CheckChance(float chance)
+        {
+            var chanceNum = Random.Range(0.0f, 1.0f);
             bool result = chance >= chanceNum ? true : false;
             return result;
+        }
+
+
+        /// <summary>
+        /// Run an effect from a used item
+        /// </summary>
+        public void RunEffectFromItem()
+        {
+            var role = target == null ? BaseCharacterModel.RoleEnum.none : target.characterModel.role;
+            if (role != BaseCharacterModel.RoleEnum.none)
+            {
+                switch (effect)
+                {
+                    case effectGrp.None:
+                        break;
+                    case effectGrp.Heal:
+                        BattleManager.EditStartingHealth(role, (int)power);
+                        break;
+                    case effectGrp.Damage:
+                        BattleManager.EditStartingHealth(role, -(int)power);
+                        break;
+                    case effectGrp.StatChange:
+                        var r = new List<BaseCharacterModel.RoleEnum>() { role };
+                        BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
+                        break;
+                }
+            }
+            else
+            {
+                var roles = new List<BaseCharacterModel.RoleEnum>() { BaseCharacterModel.RoleEnum.tank, BaseCharacterModel.RoleEnum.healer, BaseCharacterModel.RoleEnum.dps };
+                roles.ForEach(o =>
+                {
+                    switch (effect)
+                    {
+                        case effectGrp.None:
+                            break;
+                        case effectGrp.Heal:
+                            BattleManager.EditStartingHealth(o, (int)power);
+                            break;
+                        case effectGrp.Damage:
+                            BattleManager.EditStartingHealth(o, -(int)power);
+                            break;
+                        case effectGrp.StatChange:
+                            var r = new List<BaseCharacterModel.RoleEnum>() { o };
+                            BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
+                            break;
+                    }
+                });
+            }
         }
 
         public void RunEffect(){
@@ -51,31 +101,31 @@ namespace AssemblyCSharp
                 var targetStatus = baseManager.statusManager;
                 PlayerDamageModel dm = new PlayerDamageModel();
                 switch( effect ) {
-                case effectGrp.None:
+                    case effectGrp.None:
                         break;
-                case effectGrp.Reset:
+                    case effectGrp.Reset:
                         var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute, baseManager.characterManager.characterModel);
                         baseManager.characterManager.SetAttribute(focusAttribute, origAttribute, baseManager.characterManager.characterModel);
                         break;
-                case effectGrp.Heal:
+                    case effectGrp.Heal:
                         dm.incomingHeal = extraPower != 0 ? extraPower : power;
                         dm.damageImmidiately = true;
                         targetDmgCalc.calculateHdamage( dm );
                         break;
-                case effectGrp.Damage:
+                    case effectGrp.Damage:
                         dm.incomingDmg = power;
                         dm.skillSource = "event: "+effect.ToString();
                         dm.damageImmidiately = true;
                         targetDmgCalc.calculateFlatDmg( dm );
                         break;
-                case effectGrp.StatChange:
+                    case effectGrp.StatChange:
                         baseManager.characterManager.SetAttribute(focusAttribute, power, baseManager.characterManager.characterModel);
                         break;
-                case effectGrp.EquipmentStatChange:
+                    case effectGrp.EquipmentStatChange:
                         baseManager.characterManager.SetAttribute("original" + focusAttribute, power, baseManager.characterManager.characterModel);
                         baseManager.characterManager.SetAttribute(focusAttribute, power, baseManager.characterManager.characterModel);
                         break;
-                case effectGrp.Status:
+                    case effectGrp.Status:
                         if( singleStatusGroupFriendly.Count > 0 ){
                             for( int i = 0; i < singleStatusGroupFriendly.Count; i++ ){
                                 var sm = new StatusModel
@@ -138,11 +188,28 @@ namespace AssemblyCSharp
             }
         }
 
-        /*IEnumerator cooldown(float waitTime)
+        /// <summary>
+        /// Load the starting data for an effectevent
+        /// </summary>
+        /// <param name="power"></param>
+        /// <param name="turnDuration"></param>
+        /// <param name="triggerChance"></param>
+        /// <param name="ready"></param>
+        /// <param name="effectType"></param>
+        /// <param name="affectSelf"></param>
+        /// <param name="owner"></param>
+        /// <param name="cooldown"></param>
+        public void LoadEffectData(float power, int turnDuration, int triggerChance, bool ready, effectGrp effectType, bool affectSelf, GameObject owner, float cooldown)
         {
-            ready = false;
-            yield return new WaitForSeconds(waitTime);
-            ready = true;
-        }*/
+            this.power = power;
+            this.turnDuration = turnDuration;
+            this.trigger = "OnTakingDmg";
+            this.triggerChance = triggerChance; //comes from status
+            this.ready = ready;
+            effect = effectType;
+            this.affectSelf = affectSelf; //comes from status
+            this.owner = owner;
+            this.coolDown = cooldown;
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace AssemblyCSharp
         public InventoryManager InventoryManager;
         public ExploreManager ExploreManager;
         public Task_Manager TaskManager;
-        public Sound_Manager SoundManager;
+        //public Sound_Manager SoundManager;
         public BattleDetailsManager battleDetailsManager;
         public Game_Effects_Manager GameEffectsManager;
         public Event_Manager EventManager;
@@ -29,7 +29,7 @@ namespace AssemblyCSharp
         public void Setup()
         {
             //Camera = transform.Find("Main Camera").gameObject.GetComponent<Camera>();
-            SoundManager = gameObject.GetComponent<Sound_Manager>();
+            //SoundManager = gameObject.GetComponent<Sound_Manager>();
             TaskManager = gameObject.GetComponent<Task_Manager>();
             battleDetailsManager = gameObject.GetComponent<BattleDetailsManager>();
             characterSelectManager = gameObject.GetComponent<Character_Select_Manager>();

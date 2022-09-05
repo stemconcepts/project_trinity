@@ -31,21 +31,24 @@ namespace AssemblyCSharp
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
 			MainGameManager.instance.GetCanvasAndMainCamera();
-            if (mode == LoadSceneMode.Additive)
-            {
-                ExploreManager.explorerCamera.gameObject.SetActive(false);
+			if (mode == LoadSceneMode.Additive)
+			{
+				ExploreManager.explorerCamera.gameObject.SetActive(false);
 				MainGameManager.instance.SaveScene(scene.name);
-			}
-			Debug.Log(mode);
+			} else
+			{
+                var cam = (Camera)FindObjectOfType(typeof(Camera));
+                MainGameManager.instance.SetCurrentCamera(cam);
+            }
         }
 
-        public void LoadInventory(bool additive)
+		public void LoadInventory(bool additive)
         {
             SceneManager.LoadScene("Inventory", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
             MainGameManager.instance.SaveScene("Inventory");
         }
 
-		public void LoadCrafting()
+        public void LoadCrafting()
         {
 			MainGameManager.instance.GetActiveBoxColliders().ForEach(o =>
 			{

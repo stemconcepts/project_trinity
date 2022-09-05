@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static AssemblyCSharp.miniMapIconBase;
 using Assets.scripts.Managers.ExplorerScene_Scripts;
+using UnityEngine.UI;
 
 namespace AssemblyCSharp
 {
@@ -48,6 +49,13 @@ namespace AssemblyCSharp
         public GameObject objectTemplate;
         public GameObject explorerItemTemplate;
         public GameObject enemyEncounterTemplate;
+        [Header("Health Bars")]
+        public Slider tankHealthO;
+        public static Slider tankHealth;
+        public Slider dpsHealthO;
+        public static Slider dpsHealth;
+        public Slider healerHealthO;
+        public static Slider healerHealth;
         [Header("Inventory")]
         public static List<ItemBase> obtainedItems = new List<ItemBase>();
         public static Camera explorerCamera;
@@ -67,6 +75,10 @@ namespace AssemblyCSharp
             backButton = GameObject.Find("backButton");
             inventoryHolder = GameObject.Find("inventoryHolder");
             corruptionHolder = GameObject.Find("CorruptionCounter");
+            tankHealth = tankHealthO;
+            dpsHealth = dpsHealthO;
+            healerHealth = healerHealthO;
+            SetCurrentHealth();
             Invoke("LevelGenerator", 0.1f);
         }
 
@@ -729,6 +741,50 @@ namespace AssemblyCSharp
             allRooms[mainRooms.Count - 1].roomIcon.SetStartIcon();
             allRooms[0].roomIcon.SetEndIcon();
             backButton.gameObject.SetActive(false);
+        }
+
+        public void SetCurrentHealth()
+        {
+            PlayerData playerData = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
+            tankHealth.value = playerData.tankHealth;
+            dpsHealth.value = playerData.dpsHealth;
+            healerHealth.value = playerData.healerHealth;
+        }
+
+        public static void SetMaxHealth(float value, BaseCharacterModel.RoleEnum role)
+        {
+            switch (role)
+            {
+                case BaseCharacterModel.RoleEnum.tank:
+                    tankHealth.maxValue = value;
+                    break;
+                case BaseCharacterModel.RoleEnum.healer:
+                    healerHealth.maxValue = value;
+                    break;
+                case BaseCharacterModel.RoleEnum.dps:
+                    dpsHealth.maxValue = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static void UpdateSliderHealth(float value, BaseCharacterModel.RoleEnum role)
+        {
+            switch (role)
+            {
+                case BaseCharacterModel.RoleEnum.tank:
+                    tankHealth.value = value;
+                    break;
+                case BaseCharacterModel.RoleEnum.healer:
+                    healerHealth.value = value;
+                    break;
+                case BaseCharacterModel.RoleEnum.dps:
+                    dpsHealth.value = value;
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

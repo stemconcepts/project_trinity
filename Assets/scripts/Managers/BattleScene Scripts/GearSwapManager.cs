@@ -43,7 +43,7 @@ namespace AssemblyCSharp
                 CheckGearType();
                 swapReady = false;
                 GearSwapTimer(gearSwapTime);
-                BattleManager.soundManager.playSound("gearSwapSound");
+                MainGameManager.instance.soundManager.playSound("gearSwapSound");
                 //Battle_Manager.characterSelectManager.friendlyCharacters.ForEach(o => o.characterModel.actionPoints = o.characterModel.originalactionPoints);
             }
             else

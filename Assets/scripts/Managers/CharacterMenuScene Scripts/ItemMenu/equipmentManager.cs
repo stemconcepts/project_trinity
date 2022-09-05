@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening.Core.Easing;
 
 namespace AssemblyCSharp
 {
@@ -29,18 +30,15 @@ namespace AssemblyCSharp
 		public List<string> dpsSkills = new List<string>();
 		public SkillModel dpsClassSkill;
 
-		void Awake()
-		{
-			/*gameManager = GetComponent<GameManager>();
-			//Came from explorer scene -- GameManager should be instanced
-            if (gameManager == null)
-            {
-				GameObject explorerManager = GameObject.Find("ExplorerManager");
-				gameManager = explorerManager.GetComponent<GameManager>();
-            }*/
-		}
+        //public static Camera equipmentCamera;
+        //public Camera equipmentCameraTarget;
 
-		void Start()
+        void Awake()
+		{
+            //equipmentCamera = equipmentCameraTarget;
+        }
+
+        void Start()
         {
 			if (MainGameManager.instance.ShowTutorialText())
 			{

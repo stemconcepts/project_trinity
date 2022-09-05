@@ -50,10 +50,10 @@ namespace AssemblyCSharp
             baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), true);
             if (skillModel.chargeSound != null)
             {
-                BattleManager.soundManager.playSoundUsingAudioSource(skillModel.chargeSound, baseManager.gameObject.GetComponent<AudioSource>());
+                MainGameManager.instance.soundManager.playSoundUsingAudioSource(skillModel.chargeSound, baseManager.gameObject.GetComponent<AudioSource>());
             } else if (skillModel.isSpell)
             {
-                BattleManager.soundManager.playSounds(BattleManager.soundManager.magicChargeSounds);
+                MainGameManager.instance.soundManager.playSounds(MainGameManager.instance.soundManager.magicChargeSounds);
             }
             if (skillModel.hasVoidzone)
             {
@@ -277,7 +277,7 @@ namespace AssemblyCSharp
                         {
                             dmgModel.incomingDmg = 0;
                             dmgModel.showDmgNumber = false;
-                            BattleManager.soundManager.playSound("miss");
+                            MainGameManager.instance.soundManager.playSound("miss");
                             BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
                         }
                     }
@@ -390,10 +390,10 @@ namespace AssemblyCSharp
                     {
                         if (o.castSound != null)
                         {
-                            BattleManager.soundManager.playSoundUsingAudioSource(o.castSound, baseManager.gameObject.GetComponent<AudioSource>());
+                            MainGameManager.instance.soundManager.playSoundUsingAudioSource(o.castSound, baseManager.gameObject.GetComponent<AudioSource>());
                         } else if(o.isSpell)
                         {
-                            BattleManager.soundManager.playSounds(BattleManager.soundManager.magicCastSounds);
+                            MainGameManager.instance.soundManager.playSounds(MainGameManager.instance.soundManager.magicCastSounds);
                         }
                         SkillComplete(finalTargets, o);
                         foreach (var target in finalTargets)
@@ -416,7 +416,7 @@ namespace AssemblyCSharp
                     }
                 });
             }
-            BattleManager.soundManager.OnEventHit(state, e);
+            //MainGameManager.instance.soundManager.OnEventHit(state, e);
         }
 
         private bool CheckSkillAvail(enemySkill skillModel)
@@ -474,11 +474,13 @@ namespace AssemblyCSharp
             if (baseManager.animationManager.skeletonAnimation && baseManager.animationManager.skeletonAnimation.isActiveAndEnabled)
             {
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventSkillTrigger;
+                baseManager.animationManager.skeletonAnimation.state.Event += MainGameManager.instance.soundManager.OnEventHit;
             }
             else if (baseManager.animationManager.skeletonAnimationMulti)
             {
                 baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(o => {
                     o.state.Event += OnEventSkillTrigger;
+                    o.state.Event += MainGameManager.instance.soundManager.OnEventHit;
                 });
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Spine.Unity;
+using UnityEngine.UIElements;
 
 namespace AssemblyCSharp
 {
@@ -10,8 +11,10 @@ namespace AssemblyCSharp
     {
         //SkeletonAnimation skeletonAnimation;
         //Animation_Manager playerAnimationManager;
-        public AudioSource audioSourceScript;
-        public List<AudioSource> audioSourceScripts;
+        public AudioSource inputAudioSourceScript;
+        public AudioSource musicAudioSourceScript;
+        public AudioSource sfxAudioSourceScript;
+        //public List<AudioSource> audioSourceScripts;
         private AudioClip chosenSound;
         public AudioClip charSwapSound;
         public AudioClip gearSwapSound;
@@ -41,57 +44,48 @@ namespace AssemblyCSharp
         [Header("Custom Sounds:")]
         public List<AudioClip> customSounds;
 
-        void Start()
+        //[Header("Delegates/Events")]
+        delegate void PlayDefaultClickSound();
+        PlayDefaultClickSound mouseUpAction;
+
+        private void Update()
         {
-            audioSourceScript.volume = 0.3f;
-            audioSourceScript.priority = 130;
-            audioSourceScripts.ForEach(o =>
+            if (Input.GetMouseButtonDown(0))
             {
-                o.volume = 0.3f;
-                o.priority = 130;
-            });
+                TriggerSoundFromMouseEvent();
+            }
         }
 
-        public void playSounds( List<AudioClip> sounds ){
-            var audioSource = audioSourceScript;
-            if ( sounds.Count >= 0 ){
-                var randomNumber = Random.Range (0, (sounds.Count) );
-                if (audioSource.isPlaying)
-                {
-                    audioSourceScripts.ForEach(o =>
-                    {
-                        if (!o.isPlaying)
-                        {
-                            audioSource = o;
-                        }
-                    });
-                }
+        void Start()
+        {
+
+        }
+
+        public void playSounds(List<AudioClip> sounds)
+        {
+            var audioSource = inputAudioSourceScript;
+            if (sounds.Count >= 0)
+            {
+                var randomNumber = Random.Range(0, (sounds.Count));
                 audioSource.clip = sounds[randomNumber];
                 audioSource.Play();
-            } else {
+            }
+            else
+            {
                 print("no sound to play");
             }
         }
-    
-        public void OnEventHit(Spine.TrackEntry state, Spine.Event e ){
-            var audioSource = audioSourceScript;
-            if (audioSource.isPlaying)
-            {
-                audioSourceScripts.ForEach(o =>
-                {
-                    if (!o.isPlaying)
-                    {
-                        audioSource = o;
-                    }
-                });
-            }
+
+        public void OnEventHit(Spine.TrackEntry state, Spine.Event e)
+        {
+            var audioSource = sfxAudioSourceScript;
             if ((e.Data.Name == "hit") && swingSounds.Count > 0)
             {
                 var randomNumber = Random.Range(0, (swingSounds.Count));
                 chosenSound = swingSounds[randomNumber];
                 audioSource.clip = chosenSound;
                 audioSource.Play();
-            } 
+            }
             else if (e.Data.Name == "thud" || e.Data.Name.Contains("movement"))
             {
                 var randomNumber = Random.Range(0, (stepSounds.Count));
@@ -117,27 +111,22 @@ namespace AssemblyCSharp
                 audioSource.volume = 0.5f;
                 audioSource.clip = chosenSound;
                 audioSource.Play();
-            }  
-            if( e.Data.Name == "endEvent" ){
+            }
+            if (e.Data.Name == "endEvent")
+            {
                 //skeletonAnimation.state.Event -= OnEventHit;
             }
         }
-    
-        public void playSound( AudioClip audioClip = null, SkeletonAnimation skeletonAnimation = null ){
-            var audioSource = audioSourceScript;
-            if (audioSource.isPlaying)
+
+        public void playSound(AudioClip audioClip = null, SkeletonAnimation skeletonAnimation = null)
+        {
+            var audioSource = inputAudioSourceScript;
+            if (audioClip == null && skeletonAnimation != null)
             {
-                audioSourceScripts.ForEach(o =>
-                {
-                    if (!o.isPlaying)
-                    {
-                        audioSource = o;
-                    }
-                });
-            }
-            if ( audioClip == null && skeletonAnimation != null ){
                 //skeletonAnimation.state.Event += OnEventHit; 
-            } else {
+            }
+            else
+            {
                 audioSource.clip = audioClip;
                 audioSource.Play();
             }
@@ -171,8 +160,14 @@ namespace AssemblyCSharp
                     return gearSwapSound;
                 case "gearSwapReady":
                     return gearSwapReady;
+                case "crafting":
+                    return uiSounds[3];
+                case "gear":
+                    return uiSounds[4];
+                case "skill":
+                    return stepSounds[1];
                 default:
-                    return null;
+                    return uiSounds[2];
             }
         }
 
@@ -184,20 +179,40 @@ namespace AssemblyCSharp
             audioSource.Play();
         }
 
-        public void playSound( string sound ){
-            var audioSource = audioSourceScript;
-            if (audioSource.isPlaying)
-            {
-                audioSourceScripts.ForEach(o =>
-                {
-                    if (!o.isPlaying)
-                    {
-                        audioSource = o;
-                    }
-                });
-            }
+        public void playSound(string sound)
+        {
+            var audioSource = inputAudioSourceScript;
             audioSource.clip = GetAudioFromString(sound);
             audioSource.Play();
+        }
+
+        void TriggerSoundFromMouseEvent()
+        {
+            Vector3 mousePos = MainGameManager.instance.currentCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
+            RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+            if (hit.transform && hit.transform.gameObject)
+            {
+                if (hit.transform.gameObject.GetComponent<ExplorerItemsController>())
+                {
+                    playSound("crafting");
+                }
+                else if (hit.transform.gameObject.GetComponent<itemBehaviour>())
+                {
+                    playSound("gear");
+                }
+                else if (hit.transform.gameObject.GetComponent<skillItemBehaviour>())
+                {
+                    playSound("skill");
+                }
+                else
+                {
+                    playSound("defaultClick");
+                }
+            } else
+            {
+                playSound("defaultClick");
+            }
         }
     }
 }

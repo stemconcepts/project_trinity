@@ -122,7 +122,7 @@ namespace AssemblyCSharp
             var swapTo = BattleManager.characterSelectManager.GetAlive();
             BattleManager.characterSelectManager.SetSelectedCharacter(swapTo);
             GetSelectedClassObject().GetComponent<CharacterInteractionManager>().DisplaySkills();
-            BattleManager.soundManager.playSound(BattleManager.soundManager.charSwapSound);
+            MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.charSwapSound);
         }
 
         public void UpdateCharacters(string deadCharacterName = null)

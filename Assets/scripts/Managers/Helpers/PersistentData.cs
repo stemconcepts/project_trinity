@@ -77,8 +77,11 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class PlayerData
     {
+        public int tankHealth;
         public CharacterData tankEquipment;
+        public int dpsHealth;
         public CharacterData dpsEquipment;
+        public int healerHealth;
         public CharacterData healerEquipment;
 
         public PlayerData()
@@ -94,7 +97,7 @@ namespace AssemblyCSharp
             this.dpsEquipment = dpsEquipment;
             this.healerEquipment = healerEquipment;
         }
-	}
+    }
 
     [System.Serializable]
     public class DungeonData

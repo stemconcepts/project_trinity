@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using DG.Tweening;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace AssemblyCSharp
 {
@@ -33,6 +34,45 @@ namespace AssemblyCSharp
             return Instantiate(displayBoxPrefab, parentObject);
         }
 
+        /// <summary>
+        /// Show game message with okay and cancel button
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="parentObject"></param>
+        /// <param name="waitTime"></param>
+        /// <param name="headerText"></param>
+        /// <param name="pauseGame"></param>
+        /// <param name="okAction"></param>
+        /// <param name="cancelAction"></param>
+        public void DisplayChoiceMessage(string message, string okText, string cancelText, Action okAction, Transform parentObject = null, float waitTime = 0, string headerText = null, bool pauseGame = false, Action cancelAction = null, bool showOptions = false)
+        {
+            parentObject ??= MainGameManager.instance.GlobalCanvas.transform;
+            MainGameManager.instance.taskManager.CallTask(waitTime, action: () =>
+            {
+                var displayBox = GenerateDisplayPrefab(parentObject);
+                var gameMessageController = displayBox.GetComponentInChildren<GameMessageController>();
+                gameMessageController.pauseGame = pauseGame;
+                gameMessageController.okAction = okAction;
+                gameMessageController.closeAction = cancelAction;
+                var b = gameMessageController.okText.transform.parent.GetComponent<Button>();
+                b.onClick.AddListener(() => gameMessageController.PerformActionThenClose());
+                gameMessageController.WriteMessage(message, headerText, okText, cancelText, showOptions);
+                if (pauseGame)
+                {
+                    Time.timeScale = 0;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Show game message with a close button
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="parentObject"></param>
+        /// <param name="waitTime"></param>
+        /// <param name="headerText"></param>
+        /// <param name="pauseGame"></param>
+        /// <param name="closeAction"></param>
         public void DisplayMessage(string message, Transform parentObject = null, float waitTime = 0, string headerText = null, bool pauseGame = false, Action closeAction = null)
         {
             parentObject ??= MainGameManager.instance.GlobalCanvas.transform;
@@ -45,7 +85,8 @@ namespace AssemblyCSharp
                 if (headerText != null)
                 {
                     gameMessageController.WriteMessage(message, headerText);
-                } else
+                }
+                else
                 {
                     gameMessageController.WriteMessage(message);
                 }

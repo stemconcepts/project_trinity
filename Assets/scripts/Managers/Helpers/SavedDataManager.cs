@@ -59,6 +59,14 @@ namespace AssemblyCSharp
 			}
         }
 
+        public void SavePlayerHealth(int tankHealth, int dpsHealth, int healerHealth)
+        {
+            persistentData.playerData.tankHealth = tankHealth;
+            persistentData.playerData.dpsHealth = dpsHealth;
+            persistentData.playerData.healerHealth = healerHealth;
+            SaveData();
+        }
+
         public void SaveObtainedItem(string itemId)
         {
             //persistentData.dungeonData.items.Add(itemId);

@@ -50,7 +50,7 @@ namespace AssemblyCSharp
         }
 
         public void RunClassSkill(){
-            BattleManager.soundManager.playSound(skillSelectSound);
+            //MainGameManager.instance.soundManager.playSound(skillSelectSound);
             if (BattleManager.battleStarted && !IsCharBusy() && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
             {
                 var charSelected = BattleManager.characterSelectManager.GetSelectedClassObject();
@@ -63,7 +63,7 @@ namespace AssemblyCSharp
         }
 
         void KeyPressSkill(){
-            BattleManager.soundManager.playSound(skillSelectSound);
+            //MainGameManager.instance.soundManager.playSound(skillSelectSound);
             RunClassSkill();
         }
 
@@ -89,7 +89,7 @@ namespace AssemblyCSharp
         void CanAffordSkill(){
             var baseManager = BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<BaseCharacterManagerGroup>();
             if( iconImageScript ){
-                if(skill != null && (skill.skillCost > BattleManager.actionPoints))
+                if(skill != null && (skill.skillCost > BattleManager.actionPoints) && skill.CanCastFromPosition(skill.compatibleRows, baseManager))
                 {
                     iconImageScript.color = new Color(0.9f, 0.2f, 0.2f);
                 } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("stun"))

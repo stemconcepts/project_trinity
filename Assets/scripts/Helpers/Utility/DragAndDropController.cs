@@ -23,7 +23,7 @@ namespace Assets.scripts.Helpers.Utility
 
         public void OnMouseDown()
         {
-            if (draggable)
+            if (draggable && dragAndDropMaster)
             {
                 new Task(DraggingTimer(0.1f));
             }
@@ -31,7 +31,7 @@ namespace Assets.scripts.Helpers.Utility
 
         public void OnMouseUp()
         {
-            if (draggable)
+            if (draggable && dragAndDropMaster)
             {
                 gameObject.GetComponent<BoxCollider2D>().enabled = true;
                 if (newParent)

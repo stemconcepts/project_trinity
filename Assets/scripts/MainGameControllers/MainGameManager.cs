@@ -14,16 +14,28 @@ namespace AssemblyCSharp
         [HideInInspector]
         public AssetFinder assetFinder;
         public sceneManager SceneManager;
+        public Sound_Manager soundManager;
         public Canvas GlobalCanvas;
         public GameMessanger gameMessanger;
         public MainGameTaskManager taskManager;
         public static MainGameManager instance;
         Dictionary<string, string> TutorialText = new Dictionary<string, string>();
         public Queue<IEnumerator> actionQueue = new Queue<IEnumerator>();
+        [HideInInspector]
+        public Camera currentCamera;
 
         void Awake()
         {
             MakeSingleton();
+        }
+
+        List<int> GetStartingHealth() {
+            PlayerData playerData = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
+            if (playerData != null && playerData.tankHealth > 0 && playerData.dpsHealth > 0 && playerData.healerHealth > 0)
+            {
+                return new List<int> { playerData.tankHealth, playerData.dpsHealth, playerData.healerHealth };
+            }
+            return new List<int> {50, 40, 35};
         }
 
         public string GetText(string key)
@@ -95,6 +107,8 @@ namespace AssemblyCSharp
                 SceneManager.healerReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.weapon &&
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill;
             }
+            var h = GetStartingHealth();
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(h[0], h[1], h[2]);
         }
 
         public bool ShowTutorialText()
@@ -117,6 +131,41 @@ namespace AssemblyCSharp
         {
             return FindObjectsOfType<BoxCollider2D>().ToList();
         }
+
+        public void DisableEnableLiveBoxColliders(bool enable)
+        {
+            GetActiveBoxColliders().ForEach(o =>
+            {
+                o.enabled = enable;
+            });
+        }
+
+        public void SetCurrentCamera(Camera camera)
+        {
+            currentCamera = camera;
+        }
+
+        /*public Camera GetActiveCamera()
+        {
+            Camera camera = null;
+            if (instance.SceneManager.currentScene.ToLower() == "exploration")
+            {
+                camera = ExploreManager.explorerCamera;
+            }
+            else if (instance.SceneManager.currentScene.ToLower() == "inventory")
+            {
+                camera = equipmentManager.equipmentCamera;
+            }
+            else if (instance.SceneManager.currentScene.ToLower() == "inventory")
+            {
+                camera = equipmentManager.equipmentCamera;
+            }
+            else
+            {
+                camera = Camera.main;
+            }
+            return camera;
+        }*/
 
         // Use this for initialization
         void Start()
