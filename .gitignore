@@ -1,3 +1,4 @@
 .vs/
 Library/ArtifactDB
 Library/Artifacts
+*.log
