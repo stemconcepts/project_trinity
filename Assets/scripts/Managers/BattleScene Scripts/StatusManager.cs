@@ -329,7 +329,10 @@ namespace AssemblyCSharp
                 statusLabel.durationTimer = ResetOnValidTurn(statusModel);
                 statusLabel.durationTimer.Finished += (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel, () =>
                 {
-                    baseManager.damageManager.DoDamage((int)statusLabel.buffPower, baseManager.characterManager, isMagic: true);
+                    if (gameObject)
+                    {
+                        baseManager.damageManager.DoDamage((int)statusLabel.buffPower, baseManager.characterManager, isMagic: true);
+                    }
                 });
             } else 
             if( statusModel.turnOff)

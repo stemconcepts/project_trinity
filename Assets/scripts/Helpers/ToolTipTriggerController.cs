@@ -34,16 +34,6 @@ namespace AssemblyCSharp
             if (this.isActiveAndEnabled)
             {
                 GenerateToolTips();
-                /*liveHoverObj = (GameObject)Instantiate(hoverObj, ToolTipManager.canvasTooltip.transform);
-                layoutElement = liveHoverObj.GetComponent<LayoutElement>();
-                liveHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
-                var Name = liveHoverObj.transform.Find("Name").GetComponent<Text>();
-                var Desc = liveHoverObj.transform.Find("Desc").GetComponent<Text>();
-                Name.text = toolTipName;
-                Desc.text = toolTipDesc;
-                int headerLength = toolTipName.Length;
-                int contentLength = toolTipDesc.Length;
-                layoutElement.enabled = (headerLength > characterWrapLimit || contentLength > characterWrapLimit) ? true : false;*/
             }
         }
 

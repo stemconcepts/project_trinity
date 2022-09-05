@@ -126,8 +126,6 @@ namespace AssemblyCSharp
 
         public void SkillComplete(List<BaseCharacterManager> targets, SkillModel skillModel)
         {
-            if (skillModel)
-            {
                 var power = 0.0f;
                 if (skillModel.isFlat)
                 {
@@ -155,7 +153,6 @@ namespace AssemblyCSharp
                     eventCaller = baseManager.characterManager
                 };
                 BattleManager.eventManager.BuildEvent(eM);
-            }
         }
 
         private void DealHealDmg(SkillModel skillModel, List<BaseCharacterManager> targets, float power)

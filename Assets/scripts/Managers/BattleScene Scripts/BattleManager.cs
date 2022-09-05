@@ -81,6 +81,7 @@ namespace AssemblyCSharp
             gearSwapManager = gameObject.GetComponent<GearSwapManager>();
             //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
+            turnTimer.gameObject.SetActive(false);
             if (pauseScreenHolder != null)
             {
                 pauseScreenHolder.SetActive(false);
@@ -371,7 +372,7 @@ namespace AssemblyCSharp
                     .Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
                 var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && BattleManager.enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist("stun"))
                     .Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) && characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting);
-                return BattleManager.enemyActionPoints == 0 || !enemiesCanAttack && !enemiesCanCast;
+                return (BattleManager.enemyActionPoints == 0 || !enemiesCanAttack && !enemiesCanCast);
             }
             else
             {
@@ -382,7 +383,7 @@ namespace AssemblyCSharp
                 var canAffordPrimarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints)).Any() : false;
                 var canAffordSecondarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints)).Any() : false;
                 var canUseEquippedSkill = charsWithTurnsLeft.Count() > 0 ? (charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<EquipmentManager>().currentWeaponEnum == EquipmentManager.currentWeapon.Primary) ? canAffordPrimarySkills : canAffordSecondarySkills) : false;
-                return BattleManager.actionPoints == 0 || (!hasTurnsLeft && !canUseEquippedSkill);
+                return (BattleManager.actionPoints == 0 || (!hasTurnsLeft && !canUseEquippedSkill)) && !characterSelectManager.friendlyCharacters.Any(o => o.gameObject.GetComponent<PlayerSkillManager>().isSkillactive);
             }
         }
 

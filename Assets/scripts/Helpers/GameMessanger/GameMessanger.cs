@@ -9,19 +9,6 @@ namespace AssemblyCSharp
 {
     public class GameMessanger : MonoBehaviour
     {
-
-        // Use this for initialization
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
         GameObject GenerateDisplayPrefab(Transform parentObject)
         {
             var displayBoxPrefab = MainGameManager.instance.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/GameMessagePanel.prefab");
