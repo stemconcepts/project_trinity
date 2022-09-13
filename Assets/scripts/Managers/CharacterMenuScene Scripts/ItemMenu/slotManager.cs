@@ -88,7 +88,7 @@ namespace AssemblyCSharp
                 SetEquippedItemsAndSkills();
             }
 
-            slotAmount = 54;
+            slotAmount = 60;
 
             for (int i = 0; i < weapons.Count; i++)
             {

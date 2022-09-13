@@ -89,10 +89,10 @@ namespace AssemblyCSharp
         void CanAffordSkill(){
             var baseManager = BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<BaseCharacterManagerGroup>();
             if( iconImageScript ){
-                if(skill != null && (skill.skillCost > BattleManager.actionPoints) && skill.CanCastFromPosition(skill.compatibleRows, baseManager))
+                if(skill != null && (skill.skillCost > BattleManager.actionPoints))
                 {
                     iconImageScript.color = new Color(0.9f, 0.2f, 0.2f);
-                } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("stun"))
+                } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("stun") || !skill.CanCastFromPosition(skill.compatibleRows, baseManager))
                 {
                     iconImageScript.color = new Color(0.4f, 0.4f, 0.4f);
                 } else {

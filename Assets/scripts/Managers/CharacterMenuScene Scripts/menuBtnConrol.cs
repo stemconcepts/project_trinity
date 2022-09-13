@@ -8,9 +8,11 @@ namespace AssemblyCSharp
 	{
 		public GameObject itemMenu;
 		public GameObject skillMenu;
-		public GameObject menuTitle;
+		//public GameObject menuTitle;
+		public GameObject skillDesc;
+        public GameObject itemDesc;
 
-		public void ShowInventory()
+        public void ShowInventory()
 		{
 			MainGameManager.instance.SceneManager.LoadInventory(true);
 		}
@@ -23,16 +25,20 @@ namespace AssemblyCSharp
 		public void ShowItemMenu()
 		{
 			skillMenu.SetActive(false);
-			itemMenu.SetActive(true);
-			menuTitle.transform.Find("Title").GetComponent<Text>().text = "EQUIPMENT";
-		}
+            skillDesc.SetActive(false);
+            itemMenu.SetActive(true);
+            itemDesc.SetActive(true);
+            //menuTitle.transform.Find("Title").GetComponent<Text>().text = "EQUIPMENT";
+        }
 
 		public void ShowSkillMenu()
 		{
 			itemMenu.SetActive(false);
-			skillMenu.SetActive(true);
-			menuTitle.transform.Find("Title").GetComponent<Text>().text = "SKILLS";
-		}
+            itemDesc.SetActive(false);
+            skillMenu.SetActive(true);
+            skillDesc.SetActive(true);
+            //menuTitle.transform.Find("Title").GetComponent<Text>().text = "SKILLS";
+        }
 
 		public void LoadExploration()
 		{
