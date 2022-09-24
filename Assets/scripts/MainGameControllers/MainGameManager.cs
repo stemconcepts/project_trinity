@@ -73,6 +73,12 @@ namespace AssemblyCSharp
 
         public void NewGame()
         {
+            SavedDataManager.SavedDataManagerInstance.ResetPlayerData();
+            SceneManager.LoadInventory(false);
+        }
+
+        public void ContinueGame()
+        {
             if (SceneManager.TeamReady())
             {
                 SavedDataManager.SavedDataManagerInstance.ResetDungeonData();
@@ -136,8 +142,24 @@ namespace AssemblyCSharp
         {
             GetActiveBoxColliders().ForEach(o =>
             {
-                o.enabled = enable;
+                if (o.gameObject.tag != "dontDisableBoxCollider")
+                {
+                    o.enabled = enable;
+                }
             });
+        }
+
+        public void ResetAnchorPoints(GameObject gameObject, Vector2 padding)
+        {
+            var panelRectTransform = gameObject.GetComponent<RectTransform>();
+            if (panelRectTransform)
+            {
+                panelRectTransform.anchorMin = new Vector2(0, 0);
+                panelRectTransform.anchorMax = new Vector2(1, 1);
+                panelRectTransform.offsetMax = new Vector2(-padding.x, -padding.y);
+                panelRectTransform.offsetMin = new Vector2(padding.x, padding.y); ;
+                panelRectTransform.pivot = new Vector2(0.5f, 0.5f);
+            }
         }
 
         public void SetCurrentCamera(Camera camera)

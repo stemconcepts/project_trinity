@@ -310,6 +310,15 @@ namespace AssemblyCSharp
             SaveData();
         }
 
+        /// <summary>
+        /// Reset player data
+        /// </summary>
+        public void ResetPlayerData()
+        {
+            persistentData.playerData = null;
+            SaveData();
+        }
+
         public DungeonData LoadDungeonData()
         {
             using (StreamReader reader = new StreamReader(path))

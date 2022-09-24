@@ -35,7 +35,7 @@ namespace AssemblyCSharp
             slots[i].transform.SetParent(this.transform);
         }
 
-        Transform AddItemToSlot(int slotID)
+        Transform AddItemToSlot()
         {
             foreach (var slot in slots)
             {
@@ -76,11 +76,13 @@ namespace AssemblyCSharp
             //savedDataManager = menuManager.GetComponent<SavedDataManager>();
             assetFinder = MainGameManager.instance.assetFinder; //menuManager.GetComponent<AssetFinder>();
             //sceneManager = menuManager.GetComponent<sceneManager>();
-
             //var dataInstance = GameObject.Find("DataInstance");
             //sceneManager = MainGameManager.instance.SceneManager; //dataInstance != null ? dataInstance.GetComponent<sceneManager>() : null;
             savedDataManager = SavedDataManager._savedDataManagerInstance; //dataInstance != null ? dataInstance.GetComponent<SavedDataManager>() : null;
+        }
 
+        void Start()
+        {
             var weapons = assetFinder.GetAllWeapons();
             var baubles = assetFinder.GetAllBaubles();
             if (savedDataManager)
@@ -88,7 +90,7 @@ namespace AssemblyCSharp
                 SetEquippedItemsAndSkills();
             }
 
-            slotAmount = 60;
+            slotAmount = 81;
 
             for (int i = 0; i < weapons.Count; i++)
             {
@@ -107,22 +109,14 @@ namespace AssemblyCSharp
 
             foreach (var item in ownedItems.weapons)
             {
-                var newitem = (GameObject)Instantiate(itemPrefab);
+                var newitem = (GameObject)Instantiate(itemPrefab, AddItemToSlot());
                 var newItemBehaviour = newitem.GetComponent<itemBehaviour>();
                 newItemBehaviour.weaponItemScript = item;
                 newItemBehaviour.type = (itemBehaviour.weaponType)item.type;
                 newItemBehaviour.itemIcon = item.itemIcon;
                 items.Add(newitem);
-                var slotTran = AddItemToSlot(item.GetInstanceID());
-
-                if (!newItemBehaviour.weaponItemScript.isEquipped && slotTran != null)
+                if (newItemBehaviour.weaponItemScript.isEquipped)
                 {
-                    newitem.transform.SetParent(slotTran);
-                } 
-                else if(newItemBehaviour.weaponItemScript.isEquipped)
-                {
-                    var t = newitem.GetComponent<RectTransform>();
-                    t.sizeDelta = new Vector2(45, 45);
                     switch (newItemBehaviour.weaponItemScript.type)
                     {
                         case weaponModel.weaponType.bladeAndBoard:
@@ -130,12 +124,10 @@ namespace AssemblyCSharp
                             if (equipmentManager.tankWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-tankweapon").transform);
-                                t.localScale = new Vector3(1, 1, 1);
                             }
                             else if (equipmentManager.tankSecondWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondTankWeapon").transform);
-                                t.localScale = new Vector3(1, 1, 1);
                             }
                             MainGameManager.instance.SceneManager.tankReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject && equipmentManager.tankClassSkill;
                             break;
@@ -144,12 +136,10 @@ namespace AssemblyCSharp
                             if (equipmentManager.dpsWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-dpsweapon").transform);
-                                t.localScale = new Vector3(1, 1, 1);
                             }
                             else if (equipmentManager.dpsSecondWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondDpsweapon").transform);
-                                t.localScale = new Vector3(1, 1, 1);
                             }
                             MainGameManager.instance.SceneManager.dpsReady = equipmentManager.dpsWeaponObject && equipmentManager.dpsSecondWeaponObject && equipmentManager.dpsClassSkill;
                             break;
@@ -158,12 +148,10 @@ namespace AssemblyCSharp
                             if (equipmentManager.healerWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-healerweapon").transform);
-                                t.localScale = new Vector3(1, 1, 1);
                             }
                             else if (equipmentManager.healerSecondWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondHealerweapon").transform);
-                                t.localScale = new Vector3(1, 1, 1);
                             }
                             MainGameManager.instance.SceneManager.healerReady = equipmentManager.healerWeaponObject && equipmentManager.healerSecondWeaponObject && equipmentManager.healerClassSkill;
                             break;
@@ -175,33 +163,28 @@ namespace AssemblyCSharp
 
             foreach (var item in ownedItems.baubles)
             {
-                var newitem = (GameObject)Instantiate(itemPrefab);
+                var newitem = (GameObject)Instantiate(itemPrefab, AddItemToSlot());
                 var newItemBehaviour = newitem.GetComponent<itemBehaviour>();
                 newItemBehaviour.baubleItemScript = item;
                 newItemBehaviour.type = itemBehaviour.weaponType.bauble;
                 newItemBehaviour.itemIcon = item.itemIcon;
                 items.Add(newitem);
-                var slotTran = AddItemToSlot(item.GetInstanceID());
-                if (!newItemBehaviour.baubleItemScript.isEquipped && slotTran != null)
+                if (newItemBehaviour.baubleItemScript.isEquipped)
                 {
-                    newitem.transform.SetParent(slotTran);
-                }
-                else if (newItemBehaviour.baubleItemScript.isEquipped)
-                {
-                            if (equipmentManager.tankBaubleObject == item)
-                            {
-                                newitem.transform.SetParent(GameObject.Find("Panel-tankAccessorySlot").transform);
-                            }
+                    if (equipmentManager.tankBaubleObject == item)
+                    {
+                        newitem.transform.SetParent(GameObject.Find("Panel-tankAccessorySlot").transform);
+                    }
 
-                            if (equipmentManager.dpsBaubleObject == item)
-                            {
-                                newitem.transform.SetParent(GameObject.Find("Panel-dpsAccessorySlot").transform);
-                            }
+                    if (equipmentManager.dpsBaubleObject == item)
+                    {
+                        newitem.transform.SetParent(GameObject.Find("Panel-dpsAccessorySlot").transform);
+                    }
 
-                            if (equipmentManager.healerBaubleObject == item)
-                            {
-                                newitem.transform.SetParent(GameObject.Find("Panel-healerAccessorySlot").transform);
-                            }
+                    if (equipmentManager.healerBaubleObject == item)
+                    {
+                        newitem.transform.SetParent(GameObject.Find("Panel-healerAccessorySlot").transform);
+                    }
                 }
             }
         }

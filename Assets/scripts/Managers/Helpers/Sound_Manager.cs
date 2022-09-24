@@ -191,6 +191,7 @@ namespace AssemblyCSharp
             Vector3 mousePos = MainGameManager.instance.currentCamera.ScreenToWorldPoint(Input.mousePosition);
             Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos2D, Vector2.zero);
             if (hit.transform && hit.transform.gameObject)
             {
                 if (hit.transform.gameObject.GetComponent<ExplorerItemsController>())
@@ -198,6 +199,10 @@ namespace AssemblyCSharp
                     playSound("crafting");
                 }
                 else if (hit.transform.gameObject.GetComponent<itemBehaviour>())
+                {
+                    playSound("gear");
+                }
+                else if (hit.transform.gameObject.GetComponent<equipControl>())
                 {
                     playSound("gear");
                 }

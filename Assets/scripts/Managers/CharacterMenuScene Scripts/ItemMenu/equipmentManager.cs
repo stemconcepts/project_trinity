@@ -7,36 +7,49 @@ namespace AssemblyCSharp
 {
 	public class equipmentManager : MonoBehaviour
 	{
-		//public GameObject sceneControllerObject;
-		//sceneManager sceneControlScript;
-		//public GameManager gameManager;
-		//public static equipmentManager _Instance;
-
 		public weaponModel tankWeaponObject;
 		public weaponModel tankSecondWeaponObject;
 		public bauble tankBaubleObject;
-		public List<string> tankSkills = new List<string>();
 		public SkillModel tankClassSkill;
 
 		public weaponModel healerWeaponObject;
 		public weaponModel healerSecondWeaponObject;
 		public bauble healerBaubleObject;
-		public List<string> healerSkills = new List<string>();
 		public SkillModel healerClassSkill;
 
 		public weaponModel dpsWeaponObject;
 		public weaponModel dpsSecondWeaponObject;
 		public bauble dpsBaubleObject;
-		public List<string> dpsSkills = new List<string>();
 		public SkillModel dpsClassSkill;
 
-        //public static Camera equipmentCamera;
-        //public Camera equipmentCameraTarget;
+		[Header("Equip Slots")]
+		public GameObject tankSkillSlot;
+        public GameObject dpsSkillSlot;
+        public GameObject healerSkillSlot;
 
-        void Awake()
+        [Header("Equipment Managers")]
+        public slotManager slotManager;
+        public skillSlotManager skillSlotManager;
+
+		void Awake()
 		{
-            //equipmentCamera = equipmentCameraTarget;
-        }
+			//equipmentCamera = equipmentCameraTarget;
+		}
+
+		public GameObject GetSkillSlot(classType classType)
+		{
+			switch (classType)
+			{
+				case classType.guardian:
+					return tankSkillSlot;
+				case classType.stalker:
+                    return dpsSkillSlot;
+                case classType.walker:
+                    return healerSkillSlot;
+                default:
+					return null;
+			}
+		}
 
         void Start()
         {

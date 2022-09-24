@@ -16,7 +16,7 @@ namespace AssemblyCSharp
         //public GameObject menuManager;
         AssetFinder assetFinder;
 
-        Transform AddItemToSlot(int slotID)
+        Transform AddItemToSlot()
         {
             foreach (var slot in slots)
             {
@@ -40,13 +40,8 @@ namespace AssemblyCSharp
         void Awake()
         {
             assetFinder = MainGameManager.instance.assetFinder;
-            //skillDataScript = menuManager.GetComponent<skillItems>();
             var allSkills = assetFinder.GetAllSkills();
-            //}
-
-            // Use this for initialization
-            //void Start () {
-            slotAmount = 60;
+            slotAmount = 81;
 
             for (int i = 0; i < allSkills.Count; i++)
             {
@@ -63,27 +58,22 @@ namespace AssemblyCSharp
 
             foreach (var item in ownedSkills)
             {
-                var newitem = (GameObject)Instantiate(skillPrefab);
+                var newitem = (GameObject)Instantiate(skillPrefab, AddItemToSlot());
                 var newItemBehaviour = newitem.GetComponent<skillItemBehaviour>();
                 newItemBehaviour.classSkill = item;
                 if (item.Class == SkillModel.ClassEnum.Guardian)
                 {
-                    newItemBehaviour.type = skillItemBehaviour.classType.guardian;
+                    newItemBehaviour.type = classType.guardian;
                 }
                 else if (item.Class == SkillModel.ClassEnum.Stalker)
                 {
-                    newItemBehaviour.type = skillItemBehaviour.classType.stalker;
+                    newItemBehaviour.type = classType.stalker;
                 }
                 else if (item.Class == SkillModel.ClassEnum.Walker)
                 {
-                    newItemBehaviour.type = skillItemBehaviour.classType.walker;
+                    newItemBehaviour.type = classType.walker;
                 }
                 skills.Add(newitem);
-                var slotTran = AddItemToSlot(item.GetInstanceID());
-                if (slotTran != null)
-                {
-                    newitem.transform.SetParent(slotTran);
-                }
             }
         }
 
