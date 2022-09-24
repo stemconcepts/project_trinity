@@ -509,6 +509,18 @@
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Assets\ModularMotion\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularEditor">
+      <HintPath>Assets\ModularMotion\ModularEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularMotion">
+      <HintPath>Assets\ModularMotion\ModularMotion.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularExtension">
+      <HintPath>Assets\ModularMotion\ModularExtension.dll</HintPath>
+    </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.1.4f1\2021.1.13f1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
     </Reference>

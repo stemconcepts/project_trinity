@@ -9,17 +9,10 @@ namespace AssemblyCSharp
 		public GameObject menuManager;
 		public GameObject panelItemDetail;
 		public GameObject selectedItemObject;
-		//item details
 		public GameObject itemNameHolder;
 		public GameObject itemPreviewHolder;
 		public GameObject itemSkillHolder;
 		public Sprite tempItemIcon;
-		//weaponItems weaponItemsScript;
-
-		//skill details
-		public GameObject skillNameHolder;
-		public GameObject skillPreviewHolder;
-		//skillItems skillItemsScript;
 
 		public void DisplayWeaponData(weaponModel weapon)
 		{
@@ -67,7 +60,8 @@ namespace AssemblyCSharp
 
 		public void DisplayBaubleData(bauble bauble)
 		{
-			panelItemDetail.SetActive(false);
+            panelItemDetail.SetActive(true);
+            panelItemDetail.SetActive(false);
 			var itemName = bauble.baubleName;
 			var itemDetails = bauble.baubleDesc;
 			var attachedEffect = bauble;
@@ -114,7 +108,8 @@ namespace AssemblyCSharp
 
 		public void DisplaySkillData(SkillModel classSkill)
 		{
-			var nameText = itemNameHolder.transform.Find("Text-skill name").GetComponent<Text>();
+            panelItemDetail.SetActive(true);
+            var nameText = itemNameHolder.transform.Find("Text-skill name").GetComponent<Text>();
 			var previewText = itemPreviewHolder.transform.Find("Panel-skill preview").Find("Text-skill detail").GetComponent<Text>();
 			var skillsCost = itemSkillHolder.transform.Find("Panel-skill preview").Find("Text-skill cost").GetComponent<Text>();
 			nameText.text = classSkill.skillName;

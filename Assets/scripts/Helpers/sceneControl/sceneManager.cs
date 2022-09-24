@@ -45,6 +45,10 @@ namespace AssemblyCSharp
 		public void LoadInventory(bool additive)
         {
             SceneManager.LoadScene("Inventory", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+			if (!additive)
+			{
+				MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialInventoryTrack);
+			}
             MainGameManager.instance.SaveScene("Inventory");
         }
 

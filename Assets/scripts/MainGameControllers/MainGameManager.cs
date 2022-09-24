@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace AssemblyCSharp
 {
     public class MainGameManager : MonoBehaviour
     {
-        //[HideInInspector]
         bool showTutorial = true;
         [HideInInspector]
         public AssetFinder assetFinder;
@@ -23,10 +23,19 @@ namespace AssemblyCSharp
         public Queue<IEnumerator> actionQueue = new Queue<IEnumerator>();
         [HideInInspector]
         public Camera currentCamera;
+        public Texture2D cursorImage;
+
+        [Header("Music Tracks")]
+        public AudioClip TutorialInventoryTrack;
 
         void Awake()
         {
             MakeSingleton();
+        }
+
+        void CursorControl()
+        {
+            Cursor.SetCursor(cursorImage, Vector2.zero, CursorMode.ForceSoftware);
         }
 
         List<int> GetStartingHealth() {
@@ -192,6 +201,7 @@ namespace AssemblyCSharp
         // Use this for initialization
         void Start()
         {
+            CursorControl();
             GenerateTutorialTexts();
             CheckPlayerReady();
             if (ShowTutorialText())

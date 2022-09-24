@@ -9,12 +9,11 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class Sound_Manager : MonoBehaviour
     {
-        //SkeletonAnimation skeletonAnimation;
-        //Animation_Manager playerAnimationManager;
+        public AudioSource mainMusicTrack;
         public AudioSource inputAudioSourceScript;
         public AudioSource musicAudioSourceScript;
         public AudioSource sfxAudioSourceScript;
-        //public List<AudioSource> audioSourceScripts;
+        public List<AudioSource> backUpSourceScripts;
         private AudioClip chosenSound;
         public AudioClip charSwapSound;
         public AudioClip gearSwapSound;
@@ -52,7 +51,11 @@ namespace AssemblyCSharp
         {
             if (Input.GetMouseButtonDown(0))
             {
-                TriggerSoundFromMouseEvent();
+                TriggerSoundFromMouseEvent(true);
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                TriggerSoundFromMouseEvent(false);
             }
         }
 
@@ -127,8 +130,21 @@ namespace AssemblyCSharp
             }
             else
             {
-                audioSource.clip = audioClip;
-                audioSource.Play();
+                if (audioSource.isPlaying)
+                {
+                    backUpSourceScripts.ForEach(o =>
+                    {
+                        if (!o.isPlaying)
+                        {
+                            o.clip = audioClip;
+                            o.Play();
+                        }
+                    });
+                } else
+                {
+                    audioSource.clip = audioClip;
+                    audioSource.Play();
+                }
             }
         }
 
@@ -162,8 +178,12 @@ namespace AssemblyCSharp
                     return gearSwapReady;
                 case "crafting":
                     return uiSounds[3];
-                case "gear":
+                case "gearDrop":
+                    return uiSounds[3];
+                case "gearEquip":
                     return uiSounds[4];
+                case "gearSelect":
+                    return uiSounds[5];
                 case "skill":
                     return stepSounds[1];
                 default:
@@ -186,37 +206,50 @@ namespace AssemblyCSharp
             audioSource.Play();
         }
 
-        void TriggerSoundFromMouseEvent()
+        public void ChangeMainMusicTrack(AudioClip music)
+        {
+            mainMusicTrack.clip = music;
+            mainMusicTrack.Play();
+        }
+
+        void TriggerSoundFromMouseEvent(bool mouseDown)
         {
             Vector3 mousePos = MainGameManager.instance.currentCamera.ScreenToWorldPoint(Input.mousePosition);
             Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
             RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-            RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos2D, Vector2.zero);
             if (hit.transform && hit.transform.gameObject)
             {
                 if (hit.transform.gameObject.GetComponent<ExplorerItemsController>())
                 {
                     playSound("crafting");
                 }
-                else if (hit.transform.gameObject.GetComponent<itemBehaviour>())
+                else if (hit.transform.gameObject.GetComponent<equipControl>() && hit.transform.GetComponentInChildren<itemBehaviour>())
                 {
-                    playSound("gear");
+                    if (!mouseDown)
+                    {
+                        playSound("gearEquip");
+                    }
                 }
-                else if (hit.transform.gameObject.GetComponent<equipControl>())
+                else if (hit.transform.gameObject.GetComponent<itemBehaviour>() || hit.transform.GetComponentInChildren<itemBehaviour>())
                 {
-                    playSound("gear");
-                }
-                else if (hit.transform.gameObject.GetComponent<skillItemBehaviour>())
-                {
-                    playSound("skill");
+                    if (mouseDown) 
+                    { 
+                        playSound("gearSelect");
+                    }
                 }
                 else
                 {
-                    playSound("defaultClick");
+                    if (!mouseDown && !inputAudioSourceScript.isPlaying)
+                    {
+                        playSound("defaultClick");
+                    }
                 }
             } else
             {
-                playSound("defaultClick");
+                if (!mouseDown && !inputAudioSourceScript.isPlaying)
+                {
+                    playSound("defaultClick");
+                }
             }
         }
     }

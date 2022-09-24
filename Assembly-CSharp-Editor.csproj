@@ -337,6 +337,18 @@
     <Reference Include="unityplastic">
       <HintPath>Library\PackageCache\com.unity.collab-proxy@1.5.7\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Assets\ModularMotion\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularEditor">
+      <HintPath>Assets\ModularMotion\ModularEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularMotion">
+      <HintPath>Assets\ModularMotion\ModularMotion.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularExtension">
+      <HintPath>Assets\ModularMotion\ModularExtension.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
     </Reference>
