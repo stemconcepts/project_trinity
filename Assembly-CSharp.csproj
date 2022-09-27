@@ -210,6 +210,8 @@
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\generic\GenericItem.cs" />
     <Compile Include="Assets\scripts\Managers\Helpers\battleText\canvasFader.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\itemDetailsControl.cs" />
+    <Compile Include="Assets\CharacterInfoDisplayController.cs" />
+    <Compile Include="Assets\ToggleImageController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
@@ -481,8 +483,17 @@
     <Reference Include="UnityEditor.UnityConnectModule">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.1.4f1\2021.1.13f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Assets\ModularMotion\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
       <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularMotion">
+      <HintPath>Assets\ModularMotion\ModularMotion.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularExtension">
+      <HintPath>Assets\ModularMotion\ModularExtension.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
       <HintPath>Assets\Plugins\Demigiant\DOTween\DOTween.dll</HintPath>
@@ -496,20 +507,11 @@
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>Assets\ModularMotion\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="ModularEditor">
       <HintPath>Assets\ModularMotion\ModularEditor.dll</HintPath>
     </Reference>
-    <Reference Include="ModularMotion">
-      <HintPath>Assets\ModularMotion\ModularMotion.dll</HintPath>
-    </Reference>
-    <Reference Include="ModularExtension">
-      <HintPath>Assets\ModularMotion\ModularExtension.dll</HintPath>
+    <Reference Include="Unity.Analytics.Tracker">
+      <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.1.4f1\2021.1.13f1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>

@@ -23,10 +23,13 @@ namespace AssemblyCSharp
         public Queue<IEnumerator> actionQueue = new Queue<IEnumerator>();
         [HideInInspector]
         public Camera currentCamera;
+
+        [Header("Cursors")]
         public Texture2D cursorImage;
 
         [Header("Music Tracks")]
         public AudioClip TutorialInventoryTrack;
+        public AudioClip TutorialExploreTrack;
 
         void Awake()
         {
@@ -82,7 +85,9 @@ namespace AssemblyCSharp
 
         public void NewGame()
         {
+            var h = GetStartingHealth();
             SavedDataManager.SavedDataManagerInstance.ResetPlayerData();
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(h[0], h[1], h[2]);
             SceneManager.LoadInventory(false);
         }
 
@@ -122,8 +127,6 @@ namespace AssemblyCSharp
                 SceneManager.healerReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.weapon &&
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill;
             }
-            var h = GetStartingHealth();
-            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(h[0], h[1], h[2]);
         }
 
         public bool ShowTutorialText()

@@ -5,6 +5,7 @@ using System.Linq;
 using static AssemblyCSharp.miniMapIconBase;
 using Assets.scripts.Managers.ExplorerScene_Scripts;
 using UnityEngine.UI;
+using TMPro;
 
 namespace AssemblyCSharp
 {
@@ -18,6 +19,7 @@ namespace AssemblyCSharp
 
     public class ExploreManager : MonoBehaviour
     {
+        public CharacterInfoDisplayController characterInfoDisplayController;
         private static bool useBackwardRoute;
         public bool lootAdded;
         public static GameManager gameManager;
@@ -36,9 +38,11 @@ namespace AssemblyCSharp
         public static List<miniMapIconBase> iconControllers = new List<miniMapIconBase>();
         public static List<DungeonRoom> previousRooms = new List<DungeonRoom>();
         public static int rand;
+
         [Header("Encounters")]
         public int largeEncounters;
         public int smallEncounters;
+
         [Header("Explorer Objects")]
         public GameObject explorerCanvas;
         public GameObject miniMap;
@@ -49,6 +53,7 @@ namespace AssemblyCSharp
         public GameObject objectTemplate;
         public GameObject explorerItemTemplate;
         public GameObject enemyEncounterTemplate;
+
         [Header("Health Bars")]
         public Slider tankHealthO;
         public static Slider tankHealth;
@@ -56,6 +61,7 @@ namespace AssemblyCSharp
         public static Slider dpsHealth;
         public Slider healerHealthO;
         public static Slider healerHealth;
+
         [Header("Inventory")]
         public static List<ItemBase> obtainedItems = new List<ItemBase>();
         public static Camera explorerCamera;
@@ -72,8 +78,8 @@ namespace AssemblyCSharp
         {
             dungeonSettingsCopy = UnityEngine.Object.Instantiate(dungeonSettings);
             dungeonSettingsStatic = dungeonSettingsCopy;
-            backButton = GameObject.Find("backButton");
-            inventoryHolder = GameObject.Find("inventoryHolder");
+            backButton = GameObject.Find("EyeButton");
+            inventoryHolder = GameObject.Find("inventoryGrid");
             corruptionHolder = GameObject.Find("CorruptionCounter");
             tankHealth = tankHealthO;
             dpsHealth = dpsHealthO;
@@ -592,7 +598,7 @@ namespace AssemblyCSharp
             amount = amount > 3 ? 3 : amount;
             for (int i = 1; i <= amount; i++)
             {
-                if (/*GetChance(3)*/ GameManager.GetChanceByPercentage(0.2f))
+                if (GameManager.GetChanceByPercentage(0.2f))
                 {
                     int randIntFromForeGround = ExploreManager.gameManager.ReturnRandom(room.foregroundHolder.transform.childCount);
                     PlaceRoomObject(room, randIntFromForeGround);
@@ -740,7 +746,6 @@ namespace AssemblyCSharp
             mainRooms[mainRooms.Count - 1].gameObject.SetActive(true);
             allRooms[mainRooms.Count - 1].roomIcon.SetStartIcon();
             allRooms[0].roomIcon.SetEndIcon();
-            backButton.gameObject.SetActive(false);
         }
 
         public void SetCurrentHealth()
@@ -749,6 +754,10 @@ namespace AssemblyCSharp
             tankHealth.value = playerData.tankHealth;
             dpsHealth.value = playerData.dpsHealth;
             healerHealth.value = playerData.healerHealth;
+            characterInfoDisplayController.UpdateHealthInfo();
+            SetMaxHealth(tankHealth.value, BaseCharacterModel.RoleEnum.tank);
+            SetMaxHealth(dpsHealth.value, BaseCharacterModel.RoleEnum.dps);
+            SetMaxHealth(healerHealth.value, BaseCharacterModel.RoleEnum.healer);
         }
 
         public static void SetMaxHealth(float value, BaseCharacterModel.RoleEnum role)

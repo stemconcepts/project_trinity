@@ -78,10 +78,13 @@ namespace AssemblyCSharp
     public class PlayerData
     {
         public int tankHealth;
+        public int tankMaxHealth;
         public CharacterData tankEquipment;
         public int dpsHealth;
+        public int dpsMaxHealth;
         public CharacterData dpsEquipment;
         public int healerHealth;
+        public int healerMaxHealth;
         public CharacterData healerEquipment;
 
         public PlayerData()

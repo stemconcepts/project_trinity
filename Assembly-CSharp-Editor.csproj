@@ -304,6 +304,9 @@
     <Reference Include="UnityEditor.WindowsStandalone.Extensions">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2020.1.4f1\2021.1.13f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Assets\ModularMotion\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
       <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
@@ -312,6 +315,12 @@
     </Reference>
     <Reference Include="log4netPlastic">
       <HintPath>Library\PackageCache\com.unity.collab-proxy@1.5.7\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularMotion">
+      <HintPath>Assets\ModularMotion\ModularMotion.dll</HintPath>
+    </Reference>
+    <Reference Include="ModularExtension">
+      <HintPath>Assets\ModularMotion\ModularExtension.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
       <HintPath>Assets\Plugins\Demigiant\DOTween\DOTween.dll</HintPath>
@@ -331,23 +340,14 @@
     <Reference Include="DOTweenEditor">
       <HintPath>Assets\Plugins\Demigiant\DOTween\Editor\DOTweenEditor.dll</HintPath>
     </Reference>
+    <Reference Include="ModularEditor">
+      <HintPath>Assets\ModularMotion\ModularEditor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>Library\PackageCache\com.unity.analytics@3.5.3\Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
     <Reference Include="unityplastic">
       <HintPath>Library\PackageCache\com.unity.collab-proxy@1.5.7\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>Assets\ModularMotion\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
-    <Reference Include="ModularEditor">
-      <HintPath>Assets\ModularMotion\ModularEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="ModularMotion">
-      <HintPath>Assets\ModularMotion\ModularMotion.dll</HintPath>
-    </Reference>
-    <Reference Include="ModularExtension">
-      <HintPath>Assets\ModularMotion\ModularExtension.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>

@@ -61,9 +61,9 @@ namespace AssemblyCSharp
 
         public void SavePlayerHealth(int tankHealth, int dpsHealth, int healerHealth)
         {
-            persistentData.playerData.tankHealth = tankHealth;
-            persistentData.playerData.dpsHealth = dpsHealth;
-            persistentData.playerData.healerHealth = healerHealth;
+            persistentData.playerData.tankHealth = persistentData.playerData.tankMaxHealth = tankHealth;
+            persistentData.playerData.dpsHealth = persistentData.playerData.dpsMaxHealth = dpsHealth;
+            persistentData.playerData.healerHealth = persistentData.playerData.healerMaxHealth = healerHealth;
             SaveData();
         }
 
@@ -298,7 +298,7 @@ namespace AssemblyCSharp
             {
                 string json = reader.ReadToEnd();
                 PersistentData data = JsonUtility.FromJson<PersistentData>(json);
-                return data != null && data.playerData != null ? data.playerData : null;
+                return data != null ? data.playerData : null;
             }
         }
 
@@ -315,7 +315,7 @@ namespace AssemblyCSharp
         /// </summary>
         public void ResetPlayerData()
         {
-            persistentData.playerData = null;
+            persistentData.playerData = new PlayerData();
             SaveData();
         }
 

@@ -64,6 +64,7 @@ namespace AssemblyCSharp
         public void LoadExploration(bool additive)
         {
             SceneManager.LoadScene("Exploration", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+            MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialExploreTrack);
             MainGameManager.instance.SaveScene("Exploration");
         }
 
@@ -100,21 +101,8 @@ namespace AssemblyCSharp
 		{
 			if (MainGameManager.instance.SceneManager.TeamReady())
 			{
-				//this.enemies = enemies;
 				MainGameManager.instance.SceneManager.enemies = enemies;
 				SceneManager.LoadScene("battle", LoadSceneMode.Additive);
-			}
-			else if (tankReady == false)
-			{
-				//print("Please equip a weapon and/or skill to the Guardian");
-			}
-			else if (healerReady == false)
-			{
-				//print("Please equip a weapon and/or skill to the Walker");
-			}
-			else if (dpsReady == false)
-			{
-				//print("Please equip a weapon and/or skill to the Stalker");
 			}
 		}
 	}

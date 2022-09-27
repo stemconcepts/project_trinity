@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening.Core.Easing;
+using TMPro;
 
 namespace AssemblyCSharp
 {
 	public class equipmentManager : MonoBehaviour
 	{
-		public weaponModel tankWeaponObject;
+		public CharacterInfoDisplayController characterInfoDisplayController;
+        public weaponModel tankWeaponObject;
 		public weaponModel tankSecondWeaponObject;
 		public bauble tankBaubleObject;
 		public SkillModel tankClassSkill;
@@ -31,7 +33,7 @@ namespace AssemblyCSharp
         public slotManager slotManager;
         public skillSlotManager skillSlotManager;
 
-		void Awake()
+        void Awake()
 		{
 			//equipmentCamera = equipmentCameraTarget;
 		}
@@ -43,17 +45,18 @@ namespace AssemblyCSharp
 				case classType.guardian:
 					return tankSkillSlot;
 				case classType.stalker:
-                    return dpsSkillSlot;
-                case classType.walker:
-                    return healerSkillSlot;
-                default:
+					return dpsSkillSlot;
+				case classType.walker:
+					return healerSkillSlot;
+				default:
 					return null;
 			}
 		}
 
-        void Start()
+		void Start()
         {
-			if (MainGameManager.instance.ShowTutorialText())
+            characterInfoDisplayController.UpdateHealthInfo();
+            if (MainGameManager.instance.ShowTutorialText())
 			{
 				MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Inventory"), MainGameManager.instance.GlobalCanvas.transform, 0, "Inventory Tutorial");
 			}

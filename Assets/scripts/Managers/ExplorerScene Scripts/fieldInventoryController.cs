@@ -66,7 +66,7 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
             }
         }
 
-        void OnMouseUp()
+        public void ShowCraftingView()
         {
             MainGameManager.instance.SceneManager.LoadCrafting();
         }
