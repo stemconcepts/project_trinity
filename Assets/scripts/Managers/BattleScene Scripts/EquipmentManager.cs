@@ -176,10 +176,6 @@ namespace AssemblyCSharp
             effect.dispellable = weaponEffect.dispellable;
             effect.coolDown = weaponEffect.coolDown;
             BattleManager.eventManager.EventAction += effect.RunEffect;
-            /*if (effect.resetEvent != null)
-            {
-                Battle_Manager.eventManager.EventAction += effect.resetEvent.resetOnEvent[0].RunEffect;
-            }*/
             if (weaponEffect.trigger == triggerGrp.Passive)
             {
                 SetEventAndRunEffect(effect, weaponEffect.trigger);

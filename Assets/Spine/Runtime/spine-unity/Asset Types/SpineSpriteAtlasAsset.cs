@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -31,10 +31,8 @@
 #define EXPOSES_SPRITE_ATLAS_UTILITIES
 #endif
 
-using Spine;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.U2D;
 
@@ -300,8 +298,7 @@ namespace Spine.Unity {
 			if (sprites.Length == 0) {
 				Debug.LogWarning(string.Format("SpriteAtlas '{0}' contains no sprites. Please make sure all assigned images are set to import type 'Sprite'.", spriteAtlasFile.name), spriteAtlasFile);
 				return;
-			}
-			else if (sprites[0].packingMode == SpritePackingMode.Tight) {
+			} else if (sprites[0].packingMode == SpritePackingMode.Tight) {
 				Debug.LogError(string.Format("SpriteAtlas '{0}': Tight packing is not supported. Please disable 'Tight Packing' in the SpriteAtlas Inspector.", spriteAtlasFile.name), spriteAtlasFile);
 				return;
 			}

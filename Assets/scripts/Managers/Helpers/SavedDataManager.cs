@@ -61,9 +61,12 @@ namespace AssemblyCSharp
 
         public void SavePlayerHealth(int tankHealth, int dpsHealth, int healerHealth)
         {
-            persistentData.playerData.tankHealth = persistentData.playerData.tankMaxHealth = tankHealth;
-            persistentData.playerData.dpsHealth = persistentData.playerData.dpsMaxHealth = dpsHealth;
-            persistentData.playerData.healerHealth = persistentData.playerData.healerMaxHealth = healerHealth;
+            persistentData.playerData.tankHealth = tankHealth;
+            persistentData.playerData.tankMaxHealth = 50;
+            persistentData.playerData.dpsHealth = dpsHealth;
+            persistentData.playerData.dpsMaxHealth = 40;
+            persistentData.playerData.healerHealth = healerHealth;
+            persistentData.playerData.healerMaxHealth = 35;
             SaveData();
         }
 

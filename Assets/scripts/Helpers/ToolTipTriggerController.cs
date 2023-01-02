@@ -68,15 +68,22 @@ namespace AssemblyCSharp
             if (toolTipList.Any(o => o.id.ToLower() == id.ToLower()))
             {
                 Destroy(toolTipList.First(o => o.id.ToLower() == id.ToLower()).liveHoverObj);
+                //toolTipList.Remove(toolTipList.Where(o => o.id.ToLower() == id.ToLower()).FirstOrDefault());
             }
         }
 
-        public void OnMouseExit()
+        void DestroyAllToolTips()
         {
             toolTipList.ForEach(t =>
             {
                 Destroy(t.liveHoverObj);
             });
+            //toolTipList.Clear();
+        }
+
+        void OnMouseExit()
+        {
+            DestroyAllToolTips();
         }
 
         // Use this for initialization

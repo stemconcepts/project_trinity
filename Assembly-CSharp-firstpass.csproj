@@ -1009,9 +1009,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="spine-unity-examples.csproj">
+      <Project>{A6D360CF-B406-180C-698F-6E8FE7B76D17}</Project>
+      <Name>spine-unity-examples</Name>
+    </ProjectReference>
     <ProjectReference Include="spine-csharp.csproj">
       <Project>{7116977C-9BB3-083B-F482-5A0D20BCB0BC}</Project>
       <Name>spine-csharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="spine-unity-examples-editor.csproj">
+      <Project>{310DB817-DB93-3C00-1A86-4E2AF7885863}</Project>
+      <Name>spine-unity-examples-editor</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity.csproj">
       <Project>{A5C63A2A-F0D5-D623-945B-58E9BB683159}</Project>

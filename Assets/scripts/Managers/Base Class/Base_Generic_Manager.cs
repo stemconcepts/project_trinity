@@ -6,7 +6,6 @@ namespace AssemblyCSharp
     public class Base_Generic_Manager : MonoBehaviour
     {
         public BattleManager BattleManager;
-        public InventoryManager InventoryManager;
         public ExploreManager ExploreManager;
         public Task_Manager TaskManager;
         //public Sound_Manager SoundManager;
@@ -28,8 +27,6 @@ namespace AssemblyCSharp
 
         public void Setup()
         {
-            //Camera = transform.Find("Main Camera").gameObject.GetComponent<Camera>();
-            //SoundManager = gameObject.GetComponent<Sound_Manager>();
             TaskManager = gameObject.GetComponent<Task_Manager>();
             battleDetailsManager = gameObject.GetComponent<BattleDetailsManager>();
             characterSelectManager = gameObject.GetComponent<Character_Select_Manager>();
@@ -38,7 +35,6 @@ namespace AssemblyCSharp
             BattleManager = gameObject.GetComponent<BattleManager>();
             AssetFinder = gameObject.GetComponent<AssetFinder>();
             SceneManager = gameObject.GetComponent<sceneManager>();
-            //SavedDataManager = gameObject.GetComponent<SavedDataManager>();
         }
     }
 }

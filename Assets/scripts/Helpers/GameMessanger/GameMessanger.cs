@@ -4,6 +4,7 @@ using System;
 using DG.Tweening;
 using System.Linq;
 using UnityEngine.UI;
+using static Assets.scripts.Helpers.Utility.InteractWithObjectController;
 
 namespace AssemblyCSharp
 {
@@ -31,7 +32,8 @@ namespace AssemblyCSharp
         /// <param name="pauseGame"></param>
         /// <param name="okAction"></param>
         /// <param name="cancelAction"></param>
-        public void DisplayChoiceMessage(string message, string okText, string cancelText, Action okAction, Transform parentObject = null, float waitTime = 0, string headerText = null, bool pauseGame = false, Action cancelAction = null, bool showOptions = false)
+        public void DisplayChoiceMessage(string message, string okText, string cancelText, OnUseItemAction useItemAction, Transform parentObject = null, float waitTime = 0, string headerText = null, 
+            bool pauseGame = false, Action cancelAction = null, bool showOptions = false)
         {
             parentObject ??= MainGameManager.instance.GlobalCanvas.transform;
             MainGameManager.instance.taskManager.CallTask(waitTime, action: () =>
@@ -39,7 +41,7 @@ namespace AssemblyCSharp
                 var displayBox = GenerateDisplayPrefab(parentObject);
                 var gameMessageController = displayBox.GetComponentInChildren<GameMessageController>();
                 gameMessageController.pauseGame = pauseGame;
-                gameMessageController.okAction = okAction;
+                gameMessageController.useItemAction = useItemAction;
                 gameMessageController.closeAction = cancelAction;
                 var b = gameMessageController.okText.transform.parent.GetComponent<Button>();
                 b.onClick.AddListener(() => gameMessageController.PerformActionThenClose());

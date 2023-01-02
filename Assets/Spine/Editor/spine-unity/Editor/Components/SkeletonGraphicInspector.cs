@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -31,6 +31,10 @@
 #define NEW_PREFAB_SYSTEM
 #endif
 
+#if UNITY_2018_2_OR_NEWER
+#define HAS_CULL_TRANSPARENT_MESH
+#endif
+
 using UnityEditor;
 using UnityEngine;
 
@@ -43,7 +47,7 @@ namespace Spine.Unity.Editor {
 
 		const string SeparatorSlotNamesFieldName = "separatorSlotNames";
 		const string ReloadButtonString = "Reload";
-		protected GUIContent SkeletonDataAssetLabel;
+		protected GUIContent SkeletonDataAssetLabel, UpdateTimingLabel;
 		static GUILayoutOption reloadButtonWidth;
 		static GUILayoutOption ReloadButtonWidth { get { return reloadButtonWidth = reloadButtonWidth ?? GUILayout.Width(GUI.skin.label.CalcSize(new GUIContent(ReloadButtonString)).x + 20); } }
 		static GUIStyle ReloadButtonStyle { get { return EditorStyles.miniButton; } }
@@ -51,11 +55,17 @@ namespace Spine.Unity.Editor {
 		SerializedProperty material, color;
 		SerializedProperty additiveMaterial, multiplyMaterial, screenMaterial;
 		SerializedProperty skeletonDataAsset, initialSkinName;
-		SerializedProperty startingAnimation, startingLoop, timeScale, freeze, updateWhenInvisible, unscaledTime, tintBlack;
+		SerializedProperty startingAnimation, startingLoop, timeScale, freeze,
+			updateTiming, updateWhenInvisible, unscaledTime, tintBlack;
 		SerializedProperty initialFlipX, initialFlipY;
 		SerializedProperty meshGeneratorSettings;
 		SerializedProperty allowMultipleCanvasRenderers, separatorSlotNames, enableSeparatorSlots, updateSeparatorPartLocation;
-		SerializedProperty raycastTarget;
+		SerializedProperty raycastTarget, maskable;
+
+		readonly GUIContent UnscaledTimeLabel = new GUIContent("Unscaled Time",
+			"If enabled, AnimationState uses unscaled game time (Time.unscaledDeltaTime), " +
+				"running animations independent of e.g. game pause (Time.timeScale). " +
+				"Instance SkeletonAnimation.timeScale will still be applied.");
 
 		SkeletonGraphic thisSkeletonGraphic;
 		protected bool isInspectingPrefab;
@@ -88,6 +98,7 @@ namespace Spine.Unity.Editor {
 
 			// Labels
 			SkeletonDataAssetLabel = new GUIContent("SkeletonData Asset", Icons.spine);
+			UpdateTimingLabel = new GUIContent("Animation Update", "Whether to update the animation in normal Update (the default), physics step FixedUpdate, or manually via a user call.");
 
 			var so = this.serializedObject;
 			thisSkeletonGraphic = target as SkeletonGraphic;
@@ -96,6 +107,7 @@ namespace Spine.Unity.Editor {
 			material = so.FindProperty("m_Material");
 			color = so.FindProperty("m_Color");
 			raycastTarget = so.FindProperty("m_RaycastTarget");
+			maskable = so.FindProperty("m_Maskable");
 
 			// SkeletonRenderer
 			additiveMaterial = so.FindProperty("additiveMaterial");
@@ -114,6 +126,7 @@ namespace Spine.Unity.Editor {
 			timeScale = so.FindProperty("timeScale");
 			unscaledTime = so.FindProperty("unscaledTime");
 			freeze = so.FindProperty("freeze");
+			updateTiming = so.FindProperty("updateTiming");
 			updateWhenInvisible = so.FindProperty("updateWhenInvisible");
 
 			meshGeneratorSettings = so.FindProperty("meshGenerator").FindPropertyRelative("settings");
@@ -156,13 +169,13 @@ namespace Spine.Unity.Editor {
 			}
 
 			if (thisSkeletonGraphic.skeletonDataAsset == null) {
-				EditorGUILayout.HelpBox("You need to assign a SkeletonDataAsset first.", MessageType.Info);
+				EditorGUILayout.HelpBox("You need to assign a SkeletonData asset first.", MessageType.Info);
 				serializedObject.ApplyModifiedProperties();
 				serializedObject.Update();
 				return;
 			}
 			if (!SpineEditorUtilities.SkeletonDataAssetIsValid(thisSkeletonGraphic.skeletonDataAsset)) {
-				EditorGUILayout.HelpBox("Skeleton Data Asset error. Please check Skeleton Data Asset.", MessageType.Error);
+				EditorGUILayout.HelpBox("SkeletonData asset error. Please check SkeletonData asset.", MessageType.Error);
 				return;
 			}
 
@@ -233,6 +246,7 @@ namespace Spine.Unity.Editor {
 							}
 						}
 
+						EditorGUILayout.PropertyField(updateTiming, UpdateTimingLabel);
 						EditorGUILayout.PropertyField(updateWhenInvisible);
 
 						// warning box
@@ -247,7 +261,7 @@ namespace Spine.Unity.Editor {
 								EditorGUILayout.LabelField(SpineInspectorUtility.TempContent("This mesh uses multiple atlas pages or blend modes.\n" +
 																							"You need to enable 'Multiple Canvas Renderers'\n" +
 																							"for correct rendering. Consider packing\n" +
-																							"attachments to a single atlas page if possible.", Icons.warning), GUILayout.Height(60), GUILayout.Width(340));
+																							"attachments to a single atlas page if possible.", Icons.warning), GUILayout.Height(60), GUILayout.Width(380));
 							}
 						}
 					}
@@ -274,7 +288,7 @@ namespace Spine.Unity.Editor {
 			EditorGUILayout.PropertyField(startingAnimation);
 			EditorGUILayout.PropertyField(startingLoop);
 			EditorGUILayout.PropertyField(timeScale);
-			EditorGUILayout.PropertyField(unscaledTime, SpineInspectorUtility.TempContent(unscaledTime.displayName, tooltip: "If checked, this will use Time.unscaledDeltaTime to make this update independent of game Time.timeScale. Instance SkeletonGraphic.timeScale will still be applied."));
+			EditorGUILayout.PropertyField(unscaledTime, UnscaledTimeLabel);
 			EditorGUILayout.Space();
 			EditorGUILayout.PropertyField(freeze);
 			EditorGUILayout.Space();
@@ -282,6 +296,7 @@ namespace Spine.Unity.Editor {
 			EditorGUILayout.Space();
 			EditorGUILayout.LabelField("UI", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(raycastTarget);
+			if (maskable != null) EditorGUILayout.PropertyField(maskable);
 
 			EditorGUILayout.BeginHorizontal(GUILayout.Height(EditorGUIUtility.singleLineHeight + 5));
 			EditorGUILayout.PrefixLabel("Match RectTransform with Mesh");
@@ -463,6 +478,11 @@ namespace Spine.Unity.Editor {
 			graphic.additiveMaterial = SkeletonGraphicInspector.DefaultSkeletonGraphicAdditiveMaterial;
 			graphic.multiplyMaterial = SkeletonGraphicInspector.DefaultSkeletonGraphicMultiplyMaterial;
 			graphic.screenMaterial = SkeletonGraphicInspector.DefaultSkeletonGraphicScreenMaterial;
+
+#if HAS_CULL_TRANSPARENT_MESH
+			var canvasRenderer = go.GetComponent<CanvasRenderer>();
+			canvasRenderer.cullTransparentMesh = false;
+#endif
 			return go;
 		}
 

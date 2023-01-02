@@ -71,8 +71,27 @@ namespace AssemblyCSharp
 			}
 		}
 
-		// Update is called once per frame
-		void Update()
+        public void ShowSkillQuality()
+        {
+            qualityDisplay.gameObject.SetActive(true);
+            var skillQuality = equippedSkill.quality;
+
+            switch (skillQuality)
+            {
+                case itemQuality.Common:
+                    qualityDisplay.color = common;
+                    break;
+                case itemQuality.Rare:
+                    qualityDisplay.color = rare;
+                    break;
+                case itemQuality.Epic:
+                    qualityDisplay.color = epic;
+                    break;
+            }
+        }
+
+        // Update is called once per frame
+        void Update()
 		{
 
 		}

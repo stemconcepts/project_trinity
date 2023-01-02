@@ -2,9 +2,21 @@
 using UnityEngine.UI;
 using UnityEditor;
 using UnityEngine.EventSystems;
+using System;
 
 namespace AssemblyCSharp
 {
+    [Serializable]
+    public enum RoleEnum
+    {
+        none,
+        tank,
+        healer,
+        dps,
+        boss,
+        minion
+    };
+
     public enum CharacterStats
     {
         None,
@@ -74,15 +86,6 @@ namespace AssemblyCSharp
             enemy
         };
         public RoleEnum role;
-        public enum RoleEnum
-        {
-            none,
-            tank,
-            healer,
-            dps,
-            boss,
-            minion
-        };
         public bool damageImmune;
         public bool canAutoAttack;
         public bool isBusy;

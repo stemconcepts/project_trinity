@@ -4,6 +4,7 @@ using Spine.Unity;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -22,6 +23,7 @@ namespace AssemblyCSharp
         public bool isInBackRow;
         public bool isInFrontRow;
         public bool isInMiddleRow;
+        public List<AudioClip> movementSounds;
 
         void Awake() 
         {
@@ -148,7 +150,7 @@ namespace AssemblyCSharp
             Vector2 attackedPos = new Vector2();
             if( target != null ){
                 Vector3 size = baseManager.animationManager.GetSpriteBounds().size;
-                float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 1.5f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 1.5f);
+                float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 2f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 2f);
                 float ypos = (size.y + offsetYPosition);
                 attackedPos.x = xpos;
                 attackedPos.y = target.transform.position.y;//target.GetComponent<BaseMovementManager>().currentPanel.transform.position.y /*+ (ypos / 2.2f)*/;

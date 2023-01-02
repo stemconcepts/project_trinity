@@ -1,17 +1,25 @@
 sceneSetups:
+- path: Assets/PlayGround.unity
+  isLoaded: 0
+  isActive: 0
+  isSubScene: 0
 - path: Assets/StartMenu.unity
   isLoaded: 1
   isActive: 1
-  isSubScene: 0
-- path: Assets/battle.unity
-  isLoaded: 0
-  isActive: 0
   isSubScene: 0
 - path: Assets/inventory.unity
   isLoaded: 0
   isActive: 0
   isSubScene: 0
 - path: Assets/exploration.unity
+  isLoaded: 0
+  isActive: 0
+  isSubScene: 0
+- path: Assets/battle.unity
+  isLoaded: 0
+  isActive: 0
+  isSubScene: 0
+- path: Assets/craftingOverlay.unity
   isLoaded: 0
   isActive: 0
   isSubScene: 0

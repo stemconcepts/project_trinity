@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using ModularMotion;
+using DG.Tweening;
 
 namespace AssemblyCSharp
 {
@@ -24,20 +26,32 @@ namespace AssemblyCSharp
 
 		public void ShowItemMenu()
 		{
-			skillMenu.SetActive(false);
-            skillDesc.SetActive(false);
-            itemMenu.SetActive(true);
-            itemDesc.SetActive(true);
-            //menuTitle.transform.Find("Title").GetComponent<Text>().text = "EQUIPMENT";
+			if (skillMenu.activeSelf)
+			{
+                skillMenu.SetActive(false);
+                skillDesc.SetActive(false);
+                skillMenu.transform.GetComponent<CanvasGroup>().DOFade(0, 0.5f);
+                skillMenu.GetComponent<UIMotion>().PlayAllBackward();
+                itemMenu.SetActive(true);
+                itemDesc.SetActive(true);
+                itemMenu.transform.GetComponent<CanvasGroup>().DOFade(1, 0.5f);
+                itemMenu.GetComponent<UIMotion>().Play();
+            }
         }
 
 		public void ShowSkillMenu()
 		{
-			itemMenu.SetActive(false);
-            itemDesc.SetActive(false);
-            skillMenu.SetActive(true);
-            skillDesc.SetActive(true);
-            //menuTitle.transform.Find("Title").GetComponent<Text>().text = "SKILLS";
+			if (itemMenu.activeSelf)
+			{
+				itemMenu.SetActive(false);
+				itemDesc.SetActive(false);
+				itemMenu.transform.GetComponent<CanvasGroup>().DOFade(0, 0.5f);
+				itemMenu.GetComponent<UIMotion>().PlayAllBackward();
+				skillMenu.SetActive(true);
+				skillDesc.SetActive(true);
+				skillMenu.transform.GetComponent<CanvasGroup>().DOFade(1, 0.5f);
+				skillMenu.GetComponent<UIMotion>().Play();
+			}
         }
 
 		public void LoadExploration()

@@ -59,8 +59,31 @@
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Night\LightTilemapRoom2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Settings\DebuggingEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Misc\EditorGameObjects.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Light\LightCollider2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Misc\GUIExtensions.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\ProfileEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Light\Light2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Day\DayLightCollider2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Night\LightRoom2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Occlusion\LightOcclusion2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Night\LightSprite2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Misc\MoveGizmos.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Settings\ProfileEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Night\LightTexture2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Day\DayLightTilemapCollider2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Manager\LightingManager2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Night\LightParticleSystem2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Settings\Light2DWindow.cs" />
     <Compile Include="Assets\Editor\ScriptableObjectWindow.cs" />
+    <Compile Include="Assets\FunkyCode\SmartUtilities2D\Editor\Mesh2DEditor.cs" />
     <Compile Include="Assets\Editor\ScriptableObjectFactory.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Light\LightTilemapCollider2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Occlusion\LightTilemapOcclusion2DEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Settings\ProjectSettingsEditor.cs" />
+    <Compile Include="Assets\FunkyCode\SmartLighting2D\Editor\Shaders\PassShader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\codeandweb.com\Editor\SettingsTexturePackerImporter.txt" />
@@ -857,9 +880,17 @@
       <Project>{6A3F83FC-68C6-5B1C-D5D2-0C8C2225115D}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
+    <ProjectReference Include="spine-unity-examples.csproj">
+      <Project>{A6D360CF-B406-180C-698F-6E8FE7B76D17}</Project>
+      <Name>spine-unity-examples</Name>
+    </ProjectReference>
     <ProjectReference Include="spine-csharp.csproj">
       <Project>{7116977C-9BB3-083B-F482-5A0D20BCB0BC}</Project>
       <Name>spine-csharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="spine-unity-examples-editor.csproj">
+      <Project>{310DB817-DB93-3C00-1A86-4E2AF7885863}</Project>
+      <Name>spine-unity-examples-editor</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity.csproj">
       <Project>{A5C63A2A-F0D5-D623-945B-58E9BB683159}</Project>

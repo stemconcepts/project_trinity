@@ -21,7 +21,7 @@ namespace AssemblyCSharp
         {
             characterModel = this.gameObject.GetComponent<EnemyCharacterModel>();
             baseManager = this.gameObject.GetComponent<EnemyCharacterManagerGroup>();
-            if (this.characterModel.role == CharacterModel.RoleEnum.boss && healthBar == null)
+            if (this.characterModel.role == RoleEnum.boss && healthBar == null)
             {
                 healthBar = GameObject.Find("Slider_enemy");
             }

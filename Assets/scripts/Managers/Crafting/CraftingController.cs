@@ -85,7 +85,7 @@ namespace Assets.scripts.Managers.Crafting
         /// <param name="item"></param>
         void SetItemForCraftingControls(GameObject item)
         {
-            item.AddComponent<BoxColliderGenerator>();
+            //item.AddComponent<BoxColliderGenerator>();
             item.transform.SetParent(itemHolder.transform);
             var dd = item.GetComponent<DragAndDropController>();
             if (!dd)
@@ -109,30 +109,31 @@ namespace Assets.scripts.Managers.Crafting
         {
             if (itemCombinationToCraft.Count > 0)
             {
-                var fi = fieldInventoryController.GetFieldItems();
+                var fieldItems = this.fieldInventoryController.GetFieldItems();
                 var result = recipeController.HasCombination(itemCombinationToCraft, activeCatalyst);
                 if (result.Count() > 0)
                 {
-                    itemCombinationToCraft.ForEach(o =>
+                    itemCombinationToCraft.ForEach(itemBase =>
                     {
-                        var i = fi.FindAll(f => f.GetComponent<ExplorerItemsController>().itemBase == o);
-                        i.ForEach(d =>
+                        var fieldItem = fieldItems.FindAll(f => f.GetComponent<ExplorerItemsController>().itemBase == itemBase);
+                        fieldItem.ForEach(itemGameObject =>
                         {
-                            var ec = d.GetComponent<ExplorerItemsController>();
-                            if (ec.total <= 1)
+                            var explorerController = itemGameObject.GetComponent<ExplorerItemsController>();
+                            if (explorerController.total <= 1)
                             {
-                                fi.Remove(d);
-                                Destroy(d);
-                            } else
+                                fieldItems.Remove(itemGameObject);
+                                Destroy(itemGameObject);
+                            }
+                            else
                             {
-                                --ec.total;
+                                --explorerController.total;
                             }
                         });
                     });
                     result.ForEach(o =>
                     {
                         var item = o.InstantiateAsGameObject(itemHolder.transform);
-                        fi.Add(item);
+                        fieldItems.Add(item);
                         SetItemForCraftingControls(item);
                         //fieldItems.Add(o.InstantiateAsGameObject(itemHolder.transform));
                     });

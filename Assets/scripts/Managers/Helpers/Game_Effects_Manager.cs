@@ -25,11 +25,13 @@ namespace AssemblyCSharp
         void Awake()
         {
             mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-            //originalCameraPosition = mainCamera.GetComponent<Transform>().position;
-            originalCamGuidePos = camGuide.transform.position;
-            originalForPos = foreGround.transform.position;
-            originalMidPos = midGround.transform.position;
-            originalBackPos = backGround.transform.position;
+            if (camGuide && foreGround && midGround && backGround)
+            {
+                originalCamGuidePos = camGuide.transform.position;
+                originalForPos = foreGround.transform.position;
+                originalMidPos = midGround.transform.position;
+                originalBackPos = backGround.transform.position;
+            }
         }
 
         public void SlowMo( float slowAmount ){
@@ -142,6 +144,17 @@ namespace AssemblyCSharp
                     }
                 );
             }
+        }
+
+        public void TransitionToScene(Animator transition, float transitionTime, Action action)
+        {
+            transition.SetTrigger("Start");
+            MainGameManager.instance.taskManager.CallTask(transitionTime, () =>
+            {
+                action.Invoke();
+                transition.SetTrigger("End");
+            });
+
         }
     }
 }

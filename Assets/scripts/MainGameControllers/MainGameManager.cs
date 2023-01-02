@@ -5,6 +5,7 @@ using System.Text;
 using UnityEditor;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 namespace AssemblyCSharp
 {
@@ -18,8 +19,10 @@ namespace AssemblyCSharp
         public Canvas GlobalCanvas;
         public GameMessanger gameMessanger;
         public MainGameTaskManager taskManager;
+        public Game_Effects_Manager gameEffectManager;
         public static MainGameManager instance;
         Dictionary<string, string> TutorialText = new Dictionary<string, string>();
+        Dictionary<string, bool> TutorialsShown = new Dictionary<string, bool>();
         public Queue<IEnumerator> actionQueue = new Queue<IEnumerator>();
         [HideInInspector]
         public Camera currentCamera;
@@ -30,6 +33,7 @@ namespace AssemblyCSharp
         [Header("Music Tracks")]
         public AudioClip TutorialInventoryTrack;
         public AudioClip TutorialExploreTrack;
+        public AudioClip TutorialCombatTrack;
 
         void Awake()
         {
@@ -41,34 +45,53 @@ namespace AssemblyCSharp
             Cursor.SetCursor(cursorImage, Vector2.zero, CursorMode.ForceSoftware);
         }
 
-        List<int> GetStartingHealth() {
+        Dictionary<string, int> GetStartingHealth() {
             PlayerData playerData = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
             if (playerData != null && playerData.tankHealth > 0 && playerData.dpsHealth > 0 && playerData.healerHealth > 0)
             {
-                return new List<int> { playerData.tankHealth, playerData.dpsHealth, playerData.healerHealth };
+                return new Dictionary<string, int>() {
+                    {"guardian", playerData.tankHealth },
+                    {"stalker", playerData.dpsHealth },
+                    {"walker", playerData.healerHealth }
+                };
             }
-            return new List<int> {50, 40, 35};
+            return new Dictionary<string, int> {
+                {"guardian", 50 },
+                {"stalker", 40 },
+                {"walker", 35 }
+            };
         }
 
+        /// <summary>
+        /// Returns tutorial text
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public string GetText(string key)
         {
             return TutorialText[key];
         }
 
+        /// <summary>
+        /// Generates tutorial text
+        /// </summary>
         void GenerateTutorialTexts()
         {
             TutorialText.Add("NewGame", "Press New Game to begin.");
+            TutorialsShown.Add("NewGame", false);
 
             StringBuilder inventoryText = new StringBuilder("You must equip <b>Weapons</b> and a <b> Skill </b> before you start your journey.\n");
             inventoryText.Append("You can swap from the equipment view to the skill view by using the top navigation\n");
             inventoryText.Append("Hover over an item to view details and drag and drop an item to equip it");
             TutorialText.Add("Inventory", inventoryText.ToString());
+            TutorialsShown.Add("Inventory", false);
 
             StringBuilder battleText = new StringBuilder("Use the abilities from your equipped weapons to survive and defeat the enemies.\n");
             battleText.Append("Each ability has an <b>Action Point</b> cost and cooldown.\n");
             battleText.Append("You can swap to your secondary weapon by selecting the large button in the middle.\n");
             battleText.Append("Drag and drop your characters in the desired panels to move them, this costs <b>1 Action Point</b> and expends the turn for that character");
             TutorialText.Add("Battle", battleText.ToString());
+            TutorialsShown.Add("Battle", false);
         }
 
         void MakeSingleton()
@@ -85,17 +108,19 @@ namespace AssemblyCSharp
 
         public void NewGame()
         {
-            var h = GetStartingHealth();
+            //var health = GetStartingHealth();
             SavedDataManager.SavedDataManagerInstance.ResetPlayerData();
-            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(h[0], h[1], h[2]);
+            //SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(health["guardian"], health["stalker"], health["walker"]);
             SceneManager.LoadInventory(false);
         }
 
         public void ContinueGame()
         {
+            //var health = GetStartingHealth();
+            //SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(health["guardian"], health["stalker"], health["walker"]);
             if (SceneManager.TeamReady())
             {
-                SavedDataManager.SavedDataManagerInstance.ResetDungeonData();
+                //SavedDataManager.SavedDataManagerInstance.ResetDungeonData();
                 SceneManager.LoadExploration(false);
             }
             else
@@ -129,9 +154,15 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool ShowTutorialText()
+        public bool ShowTutorialText(string tutorial)
         {
-            return showTutorial;
+            var selectedTutorial = TutorialsShown[tutorial];
+            var show = showTutorial && !selectedTutorial;
+            if (show)
+            {
+                TutorialsShown[tutorial] = true;
+            }
+            return show;
         }
 
         public IEnumerator StartActionQueue()
@@ -179,6 +210,23 @@ namespace AssemblyCSharp
             currentCamera = camera;
         }
 
+        public int ReturnRandom(int maxNumber)
+        {
+            int rand = UnityEngine.Random.Range(0, maxNumber);
+            return rand;
+        }
+
+        /// <summary>
+        /// Returns bool if float sent is great than or equal to random float generated, only send 1f
+        /// </summary>
+        /// <param name="chance"></param>
+        /// <returns></returns>
+        public bool GetChanceByPercentage(float chance)
+        {
+            var rand = UnityEngine.Random.Range(0.0f, 1.1f);
+            return chance >= rand;
+        }
+
         /*public Camera GetActiveCamera()
         {
             Camera camera = null;
@@ -207,7 +255,7 @@ namespace AssemblyCSharp
             CursorControl();
             GenerateTutorialTexts();
             CheckPlayerReady();
-            if (ShowTutorialText())
+            if (ShowTutorialText("NewGame"))
             {
                 instance.gameMessanger.DisplayMessage(TutorialText["NewGame"], GlobalCanvas.transform, 0, "Welcome to the <b>Hydra Horn</b> Demo");
             }

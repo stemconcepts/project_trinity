@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
+using static System.Collections.Specialized.BitVector32;
 
 namespace AssemblyCSharp
 {
@@ -15,6 +16,7 @@ namespace AssemblyCSharp
         public GameObject encounterHolder;
         public GameObject foregroundHolder;
         public List<RoomObject> roomObjects;
+        public List<GameObject> resourcePoints;
         public DungeonRoom parentRoom;
         public List<DungeonRoom> detourRooms;
         public List<Route> routes;
@@ -37,7 +39,7 @@ namespace AssemblyCSharp
 
         public void CreateRouteFromRoom(DungeonRoom room, GameObject routeTemplate, int? direction)
         {
-            var range = direction == 1 ? new List<int> { 0, 2 } : new List<int> { 2, 4 };
+            var range = direction == 1 ? new List<int> { 0, 1 } : new List<int> { 1, 2 };
             SectionObject section = GetFreeSectionFromRoom(room.gameObject, direction == null ? null : range);
             if (section != null)
             {
@@ -49,6 +51,19 @@ namespace AssemblyCSharp
                 room.routeLocations.Add(this.gameObject.name);
                 //room.routes.Add(r);
             }
+        }
+
+        GameObject GetFreeResourcePoint()
+        {
+            var points = new List<GameObject>();
+            resourcePoints.ForEach(o =>
+            {
+                if (o.transform.childCount == 0)
+                {
+                    points.Add(o);
+                }
+            });
+            return points.Count > 0 ? points[MainGameManager.instance.ReturnRandom(points.Count)] : null;
         }
 
         public void InsertRouteFromData(RouteData routeData, GameObject routeTemplate)
@@ -68,9 +83,12 @@ namespace AssemblyCSharp
         {
             if (encounter)
             {
-                ExploreManager.gameManager.TaskManager.CallTask(1f, () =>
+                MainGameManager.instance.taskManager.CallTask(1f, () =>
                 {
                     MainGameManager.instance.SceneManager.LoadBattle(encounter.enemies);
+                });
+                MainGameManager.instance.taskManager.CallTask(3f, () =>
+                {
                     Destroy(encounter.instanciatedObject);
                 });
             }
@@ -84,17 +102,39 @@ namespace AssemblyCSharp
             this.encounter = encounter;
         }
 
+        /// <summary>
+        /// Add key to free area
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="explorerItemTemplate"></param>
         public void AddKey(KeyItem key, GameObject explorerItemTemplate)
         {
             var section = GetFreeSectionFromRoom(this.gameObject, new List<int> { 0, 4 });
             GameObject keyObj = Instantiate(explorerItemTemplate, section.transform);
-            keyObj.name = key.name;
+            //keyObj.name = key.name;
             ExplorerItemsController itemController = keyObj.GetComponent<ExplorerItemsController>();
-            itemController.position = section.position;
-            key.id = $"key_{this.name}_{key.itemName}";
-            itemController.itemBase = key;
-            itemController.SetUpItem();
+            //itemController.position = section.position;
+            //key.id = $"key_{this.name}_{key.itemName}";
+            //itemController.itemBase = key;
+            itemController.SetUpItem(key, this.name);
             Debug.Log($"Key spawned at {this.name}");
+        }
+
+        /// <summary>
+        /// Add resource to free area
+        /// </summary>
+        /// <param name="resourceItem"></param>
+        /// <param name="resourceTemplate"></param>
+        public void AddResources(GenericItem resourceItem, GameObject resourceTemplate)
+        {
+            GameObject section = GetFreeResourcePoint();
+            if (section)
+            {
+                GameObject resource = Instantiate(resourceTemplate, GetFreeResourcePoint().transform);
+                ExplorerItemsController resourceController = resource.GetComponent<ExplorerItemsController>();
+                resourceController.SetUpItem(resourceItem, this.name);
+                Debug.Log($"Resource spawned at {this.name}");
+            }
         }
 
         SectionObject GetFreeRouteSection()

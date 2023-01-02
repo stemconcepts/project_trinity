@@ -98,7 +98,7 @@ namespace AssemblyCSharp
 
         void Start()
         {
-            if (MainGameManager.instance.ShowTutorialText())
+            if (MainGameManager.instance.ShowTutorialText("Battle"))
             {
                 MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Battle"), headerText: "A Battle has begun", waitTime: 2f, pauseGame: true);
             }
@@ -162,19 +162,19 @@ namespace AssemblyCSharp
         /// </summary>
         /// <param name="roles"></param>
         /// <param name="status"></param>
-        public static void AddToPlayerStatus(List<BaseCharacterModel.RoleEnum> roles, List<SingleStatusModel> status)
+        public static void AddToPlayerStatus(List<RoleEnum> roles, List<SingleStatusModel> status)
         {
             roles.ForEach(o =>
             {
                 switch (o)
                 {
-                    case BaseCharacterModel.RoleEnum.tank:
+                    case RoleEnum.tank:
                         tankStatus = status;
                         break;
-                    case BaseCharacterModel.RoleEnum.healer:
+                    case RoleEnum.healer:
                         healerStatus = status;
                         break;
-                    case BaseCharacterModel.RoleEnum.dps:
+                    case RoleEnum.dps:
                         dpsStatus = status;
                         break;
                     default:
@@ -217,17 +217,17 @@ namespace AssemblyCSharp
             {
                 switch (c.characterModel.role)
                 {
-                    case BaseCharacterModel.RoleEnum.tank:
+                    case RoleEnum.tank:
                         startingTankHealth = (int)Math.Round(c.characterModel.current_health, 0);
-                        ExploreManager.UpdateSliderHealth(startingTankHealth, BaseCharacterModel.RoleEnum.tank);
+                        ExploreManager.UpdateSliderHealth(startingTankHealth, RoleEnum.tank);
                         break;
-                    case BaseCharacterModel.RoleEnum.healer:
+                    case RoleEnum.healer:
                         startingHealerHealth = (int)Math.Round(c.characterModel.current_health, 0);
-                        ExploreManager.UpdateSliderHealth(startingHealerHealth, BaseCharacterModel.RoleEnum.tank);
+                        ExploreManager.UpdateSliderHealth(startingHealerHealth, RoleEnum.tank);
                         break;
-                    case BaseCharacterModel.RoleEnum.dps:
+                    case RoleEnum.dps:
                         startingDpsHealth = (int)Math.Round(c.characterModel.current_health, 0);
-                        ExploreManager.UpdateSliderHealth(startingDpsHealth, BaseCharacterModel.RoleEnum.tank);
+                        ExploreManager.UpdateSliderHealth(startingDpsHealth, RoleEnum.tank);
                         break;
                     default:
                         break;
@@ -264,21 +264,21 @@ namespace AssemblyCSharp
             }
         }
 
-        public static void EditStartingHealth(BaseCharacterModel.RoleEnum role, int addAmount)
+        public static void EditStartingHealth(RoleEnum role, int addAmount)
         {
             switch (role)
             {
-                case BaseCharacterModel.RoleEnum.tank:
+                case RoleEnum.tank:
                     startingTankHealth += addAmount;
-                    ExploreManager.UpdateSliderHealth(startingTankHealth, BaseCharacterModel.RoleEnum.tank);
+                    ExploreManager.UpdateSliderHealth(startingTankHealth, RoleEnum.tank);
                     break;
-                case BaseCharacterModel.RoleEnum.dps:
+                case RoleEnum.dps:
                     startingDpsHealth += addAmount;
-                    ExploreManager.UpdateSliderHealth(startingDpsHealth, BaseCharacterModel.RoleEnum.dps);
+                    ExploreManager.UpdateSliderHealth(startingDpsHealth, RoleEnum.dps);
                     break;
-                case BaseCharacterModel.RoleEnum.healer:
+                case RoleEnum.healer:
                     startingHealerHealth += addAmount;
-                    ExploreManager.UpdateSliderHealth(startingHealerHealth, BaseCharacterModel.RoleEnum.healer);
+                    ExploreManager.UpdateSliderHealth(startingHealerHealth, RoleEnum.healer);
                     break;
                 default:
                     break;
@@ -292,11 +292,11 @@ namespace AssemblyCSharp
             {
                 switch (c.characterModel.role)
                 {
-                    case BaseCharacterModel.RoleEnum.tank:
+                    case RoleEnum.tank:
                         if (startingTankHealth > 0)
                         {
                             c.characterModel.Health = startingTankHealth;
-                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, BaseCharacterModel.RoleEnum.tank);
+                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.tank);
                         }
                         tankStatus.ForEach(o =>
                         {
@@ -310,11 +310,11 @@ namespace AssemblyCSharp
                             c.baseManager.statusManager.RunStatusFunction(sm);
                         });
                         break;
-                    case BaseCharacterModel.RoleEnum.healer:
+                    case RoleEnum.healer:
                         if (startingHealerHealth > 0)
                         {
                             c.characterModel.Health = startingHealerHealth;
-                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, BaseCharacterModel.RoleEnum.healer);
+                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.healer);
                         }
                         healerStatus.ForEach(o =>
                         {
@@ -328,11 +328,11 @@ namespace AssemblyCSharp
                             c.baseManager.statusManager.RunStatusFunction(sm);
                         });
                         break;
-                    case BaseCharacterModel.RoleEnum.dps:
+                    case RoleEnum.dps:
                         if (startingDpsHealth > 0)
                         {
                             c.characterModel.Health = startingDpsHealth;
-                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, BaseCharacterModel.RoleEnum.dps);
+                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.dps);
                         }
                         dpsStatus.ForEach(o =>
                         {
@@ -585,9 +585,9 @@ namespace AssemblyCSharp
             return chosenPanels[randomPanelNumber];
         }
 
-        public static void HitBoxControl(bool hitBoxSwitch, CharacterModel.RoleEnum role = CharacterModel.RoleEnum.none)
+        public static void HitBoxControl(bool hitBoxSwitch, RoleEnum role = RoleEnum.none)
         {
-            if (role == CharacterModel.RoleEnum.none)
+            if (role == RoleEnum.none)
             {
                 foreach (CharacterManager character in characterSelectManager.friendlyCharacters)
                 {

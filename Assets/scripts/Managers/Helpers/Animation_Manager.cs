@@ -49,7 +49,7 @@ namespace AssemblyCSharp
     {
         public BaseCharacterManagerGroup baseManager;
         public SkeletonAnimation skeletonAnimation;
-        public SkeletonAnimationMulti skeletonAnimationMulti;
+        public SkeletonAnimationMultiOld skeletonAnimationMulti;
         public MeshRenderer meshRenderer;
         public bool inAnimation;
         public animationOptionsEnum idleAnimation;
@@ -71,7 +71,7 @@ namespace AssemblyCSharp
             baseManager = this.gameObject.GetComponent<BaseCharacterManagerGroup>();
             skeletonAnimation = this.transform.Find("Animations").GetComponent<SkeletonAnimation>();
             meshRenderer = transform.Find("Animations").GetComponent<MeshRenderer>();
-            skeletonAnimationMulti = this.transform.Find("Animations").GetComponent<SkeletonAnimationMulti>();
+            skeletonAnimationMulti = this.transform.Find("Animations").GetComponent<SkeletonAnimationMultiOld>();
         }
 
         void Update()

@@ -45,17 +45,17 @@ namespace AssemblyCSharp
             var fieldItem = MainGameManager.instance.assetFinder.GetGameObjectFromPath("Assets/prefabs/explorer/items/explorerItem.prefab");
             var gameObject = Instantiate(fieldItem, tranform);
             var explorererItemController = gameObject.GetComponent<ExplorerItemsController>();
-            explorererItemController.itemBase = this;
-            explorererItemController.SetUpItem();
+           // explorererItemController.itemBase = this;
+            explorererItemController.SetUpItem(this, "obtained_item");
             if (explorererItemController.itemBase.GetType() == typeof(Consumable))
             {
                 var i = gameObject.AddComponent<InteractWithObjectController>();
                 var consumable = (Consumable)explorererItemController.itemBase;
-                i.SetMessageText(explorererItemController.itemBase.itemDesc, "Use Item", "Cancel", explorererItemController.itemBase.itemName, consumable.affectAll);
-                consumable.effectsOnUse.ForEach(e =>
+                i.SetMessageText(explorererItemController.itemBase.itemDesc, "Use Item", "Cancel", explorererItemController.itemBase.itemName, !consumable.affectAll);
+                consumable.effectsOnUse.ForEach(effect =>
                 {
-                    e.LoadEffectData(consumable.power, 0, 1, true, e.effect, true, null, 0); //lots of values here are irrelevant for explorer item use
-                    i.mouseUpAction += e.RunEffectFromItem;
+                    effect.LoadEffectData(consumable.power, 0, 1, true, effect.effect, true, null, 0); //lots of values here are irrelevant for explorer item use
+                    i.useItemAction += effect.RunEffectFromItem;
                 });
             }
             return gameObject;

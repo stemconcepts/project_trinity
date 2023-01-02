@@ -21,5 +21,6 @@ namespace AssemblyCSharp
     	public bool learned;
     	public bool assigned;
         public int currentCDAmount;
+        public itemQuality quality;
     }
 }

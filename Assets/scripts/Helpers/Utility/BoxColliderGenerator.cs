@@ -17,10 +17,10 @@ namespace Assets.scripts.Helpers.Utility
         /// </summary>
         void SetCollisionBox()
         {
-            var i = gameObject.GetComponent<Image>();
-            if (i && boxCollider)
+            var rectTransform = gameObject.GetComponent<RectTransform>();
+            if (rectTransform && boxCollider)
             {
-                boxCollider.size = i.sprite.bounds.size;
+                boxCollider.size = rectTransform.sizeDelta;
             }
         }
 
@@ -31,7 +31,7 @@ namespace Assets.scripts.Helpers.Utility
             {
                 boxCollider = gameObject.AddComponent<BoxCollider2D>();
             }
-            //SetCollisionBox();
+            SetCollisionBox();
         }
     }
 }

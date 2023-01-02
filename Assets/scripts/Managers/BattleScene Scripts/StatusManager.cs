@@ -42,7 +42,7 @@ namespace AssemblyCSharp
             {                
                 if (baseManager.characterManager.characterModel.isAlive)
                 {
-                    if (gameObject != null)
+                    if (this != null)
                     {
                         if (action != null)
                         {
@@ -329,7 +329,7 @@ namespace AssemblyCSharp
                 statusLabel.durationTimer = ResetOnValidTurn(statusModel);
                 statusLabel.durationTimer.Finished += (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel, () =>
                 {
-                    if (gameObject)
+                    if (this != null)
                     {
                         baseManager.damageManager.DoDamage((int)statusLabel.buffPower, baseManager.characterManager, isMagic: true);
                     }

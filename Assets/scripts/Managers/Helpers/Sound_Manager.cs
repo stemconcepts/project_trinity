@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Spine.Unity;
 using UnityEngine.UIElements;
+using UnityEditorInternal;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -64,14 +67,68 @@ namespace AssemblyCSharp
 
         }
 
+        AudioSource GetFreeAudioSource()
+        {
+            if (inputAudioSourceScript.isPlaying)
+            {
+                AudioSource freeSource = inputAudioSourceScript;
+                foreach (AudioSource backUpSource in backUpSourceScripts)
+                {
+                    if (!backUpSource.isPlaying)
+                    {
+                        freeSource = backUpSource;
+                        break;
+                    }
+                };
+                return freeSource;
+            }
+            return inputAudioSourceScript;
+        }
+
         public void playSounds(List<AudioClip> sounds)
         {
-            var audioSource = inputAudioSourceScript;
+            var audioSource = GetFreeAudioSource();
             if (sounds.Count >= 0)
             {
                 var randomNumber = Random.Range(0, (sounds.Count));
                 audioSource.clip = sounds[randomNumber];
                 audioSource.Play();
+            }
+            else
+            {
+                print("no sound to play");
+            }
+        }
+
+        /// <summary>
+        /// Play sounds in order
+        /// </summary>
+        /// <param name="sounds"></param>
+        public void playSoundsInOrder(List<AudioClip> sounds, bool playAtRandom)
+        {
+            if (sounds.Count >= 0)
+            {
+                var audioSource = GetFreeAudioSource();
+                int clipNumber = 0;
+                float clipLength = 0.0f;
+                System.Random rnd = new System.Random();
+                sounds = playAtRandom ? sounds.OrderBy(o => rnd.Next()).ToList() : sounds;
+                foreach (var sound in sounds)
+                {
+                    if (clipNumber != 0)
+                    {
+                        MainGameManager.instance.taskManager.CallTask(clipLength, () =>
+                        {
+                            audioSource.clip = sound;
+                            audioSource.PlayOneShot(sound);
+                        });
+                    } else
+                    {
+                        audioSource.PlayOneShot(sound);
+                    }
+                    clipLength = sound.length;
+                    clipNumber++;
+                }
             }
             else
             {
@@ -123,28 +180,15 @@ namespace AssemblyCSharp
 
         public void playSound(AudioClip audioClip = null, SkeletonAnimation skeletonAnimation = null)
         {
-            var audioSource = inputAudioSourceScript;
+            var audioSource = GetFreeAudioSource();
             if (audioClip == null && skeletonAnimation != null)
             {
                 //skeletonAnimation.state.Event += OnEventHit; 
             }
             else
             {
-                if (audioSource.isPlaying)
-                {
-                    backUpSourceScripts.ForEach(o =>
-                    {
-                        if (!o.isPlaying)
-                        {
-                            o.clip = audioClip;
-                            o.Play();
-                        }
-                    });
-                } else
-                {
-                    audioSource.clip = audioClip;
-                    audioSource.Play();
-                }
+                audioSource.clip = audioClip;
+                audioSource.Play();
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AssemblyCSharp
@@ -43,51 +44,43 @@ namespace AssemblyCSharp
             return result;
         }
 
+        void RunEffect(RoleEnum role)
+        {
+            switch (effect)
+            {
+                case effectGrp.None:
+                    break;
+                case effectGrp.Heal:
+                    ExploreManager.AddToSliderHealth((int)power, role);
+                    break;
+                case effectGrp.Damage:
+                    ExploreManager.AddToSliderHealth(-(int)power, role);
+                    break;
+                case effectGrp.StatChange:
+                    var r = new List<RoleEnum>() { role };
+                    BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
+                    break;
+            }
+        }
+
 
         /// <summary>
         /// Run an effect from a used item
         /// </summary>
-        public void RunEffectFromItem()
+        public void RunEffectFromItem(List<RoleEnum> roles)
         {
-            var role = target == null ? BaseCharacterModel.RoleEnum.none : target.characterModel.role;
-            if (role != BaseCharacterModel.RoleEnum.none)
+            if (roles.Count == 0)
             {
-                switch (effect)
+                roles = new List<RoleEnum>() { RoleEnum.tank, RoleEnum.healer, RoleEnum.dps };
+                roles.ForEach(role =>
                 {
-                    case effectGrp.None:
-                        break;
-                    case effectGrp.Heal:
-                        BattleManager.EditStartingHealth(role, (int)power);
-                        break;
-                    case effectGrp.Damage:
-                        BattleManager.EditStartingHealth(role, -(int)power);
-                        break;
-                    case effectGrp.StatChange:
-                        var r = new List<BaseCharacterModel.RoleEnum>() { role };
-                        BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
-                        break;
-                }
-            }
-            else
+                    RunEffect(role);
+                });
+            } else
             {
-                var roles = new List<BaseCharacterModel.RoleEnum>() { BaseCharacterModel.RoleEnum.tank, BaseCharacterModel.RoleEnum.healer, BaseCharacterModel.RoleEnum.dps };
-                roles.ForEach(o =>
+                roles.ForEach(role =>
                 {
-                    switch (effect)
-                    {
-                        case effectGrp.None:
-                            break;
-                        case effectGrp.Heal:
-                            BattleManager.EditStartingHealth(o, (int)power);
-                            break;
-                        case effectGrp.Damage:
-                            BattleManager.EditStartingHealth(o, -(int)power);
-                            break;
-                        case effectGrp.StatChange:
-                            var r = new List<BaseCharacterModel.RoleEnum>() { o };
-                            BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
-                            break;
-                    }
+                    RunEffect(role);
                 });
             }
         }

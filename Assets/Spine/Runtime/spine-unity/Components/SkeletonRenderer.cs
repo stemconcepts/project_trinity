@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -41,6 +41,10 @@
 
 #if UNITY_2019_3_OR_NEWER
 #define CONFIGURABLE_ENTER_PLAY_MODE
+#endif
+
+#if UNITY_2020_1_OR_NEWER
+#define REVERT_HAS_OVERLOADS
 #endif
 
 #define SPINE_OPTIONAL_RENDEROVERRIDE
@@ -100,7 +104,11 @@ namespace Spine.Unity {
 						var objectOverrides = UnityEditor.PrefabUtility.GetObjectOverrides(instanceRoot);
 						foreach (UnityEditor.SceneManagement.ObjectOverride objectOverride in objectOverrides) {
 							if (objectOverride.instanceObject == meshFilter) {
+#if REVERT_HAS_OVERLOADS
+								objectOverride.Revert(UnityEditor.InteractionMode.AutomatedAction);
+#else
 								objectOverride.Revert();
+#endif
 								break;
 							}
 						}
@@ -367,7 +375,10 @@ namespace Spine.Unity {
 		public virtual void Initialize (bool overwrite, bool quiet = false) {
 			if (valid && !overwrite)
 				return;
-
+#if UNITY_EDITOR
+			if (BuildUtilities.IsInSkeletonAssetBuildPreProcessing)
+				return;
+#endif
 			// Clear
 			{
 				// Note: do not reset meshFilter.sharedMesh or meshRenderer.sharedMaterial to null,

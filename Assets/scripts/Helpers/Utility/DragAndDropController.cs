@@ -67,7 +67,7 @@ namespace Assets.scripts.Helpers.Utility
                 yield return new WaitForSeconds(waitTime);
                 dragging = true;
                 boxCollider.enabled = false;
-                transform.parent = dragAndDropMaster.gameObject.transform;
+                transform.SetParent(dragAndDropMaster.gameObject.transform, false);
                 dragAndDropMaster.SetDraggedItem(this.gameObject);
             }
         }

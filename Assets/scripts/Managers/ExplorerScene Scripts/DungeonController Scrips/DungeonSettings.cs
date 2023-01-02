@@ -38,10 +38,21 @@ namespace AssemblyCSharp
             Elite
         }
         public List<LockObject> locks;
-        public List<ItemBase> spawnableItems;
+        //public List<ItemBase> spawnableItems;
         public int roomsBeforeLockedDoor;
         [Header("Enemy Settings")]
         public List<enemyEncounter> enemyEncounters;
         public int maxSmallEncounters;
+        [Header("Templates")]
+        public List<GameObject> roomTemplates;
+        [Header("Resources")]
+        public int maxResourcePerRoom;
+        public List<GenericItem> resources;
+
+        public GameObject ReturnRandomRoom()
+        {
+            int roomIndex = MainGameManager.instance.ReturnRandom(roomTemplates.Count);
+            return roomTemplates[roomIndex];
+        }
     }
 }

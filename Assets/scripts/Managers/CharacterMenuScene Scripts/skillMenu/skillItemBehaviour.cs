@@ -17,7 +17,7 @@ namespace AssemblyCSharp
     public class skillItemBehaviour : MonoBehaviour
     {
         hoverManager hoverControlScript;
-        equipmentManager equipmentManagerScript;
+        InventoryManager equipmentManagerScript;
         public int skillID;
         public SkillModel classSkill;
         public Color equipColor;
@@ -30,18 +30,18 @@ namespace AssemblyCSharp
         public bool dragging = false;
         public bool hovered = false;
         public bool equipped = false;
-        public AudioClip audioclip;
-        public AudioClip audioclip2;
-        public AudioClip audioclipEquip;
 
         void OnMouseDown()
         {
             var allSlots = equipmentManagerScript.skillSlotManager.slots; //GameObject.FindGameObjectsWithTag("item-slot");
             foreach (GameObject slotItem in allSlots)
             {
-                slotItem.GetComponent<slotBehaviour>().currentSlot = false;
-                slotItem.GetComponent<Image>().color = slotItem.GetComponent<slotBehaviour>().inactiveColor;
-                //slotItem.GetComponent<slotBehaviour>().colliderScript.enabled = true;
+                var slotsSkill = slotItem.GetComponentInChildren<skillItemBehaviour>();
+                if (slotsSkill != null && this.classSkill.Class == slotsSkill.classSkill.Class)
+                {
+                    slotItem.GetComponent<slotBehaviour>().currentSlot = false;
+                    slotItem.GetComponent<Image>().color = slotItem.GetComponent<slotBehaviour>().inactiveColor;
+                }
             }
             if (this.transform.parent.GetComponent<slotBehaviour>().currentSlot)
             {
@@ -57,27 +57,22 @@ namespace AssemblyCSharp
             {
                 detailsControlScript.DisplaySkillData(classSkill);
             }
-            //holdTimeTask = new Task(holdtime(0.1f));
-            //colliderScript.enabled = false;
             currentSlot = this.transform.parent.gameObject;
             hoverControlScript.lastDraggedItem = this.gameObject;
             hoverControlScript.OriginalSlot = this.transform.parent.gameObject;
         }
 
-        void EquipSkill(GameObject equipSlot, classType classType)
+        public void EquipSkill(GameObject equipSlot, classType classType)
         {
-            //var allSkills = equipmentManagerScript.skillSlotManager.skills;
             if (equipSlot.GetComponent<equipControl>().equippedSkill != classSkill)
             {
-                if (equipSlot.transform.childCount > 0)
+                var equipControl = equipSlot.GetComponent<equipControl>();
+                var equippedSkill = equipSlot.GetComponentInChildren<skillItemBehaviour>();
+                if (equippedSkill)
                 {
-                    Destroy(equipSlot.transform.GetChild(0).gameObject);
+                    Destroy(equippedSkill.gameObject);
+                    equipControl.ClearItemQuality();
                 }
-                /*foreach (GameObject skillItem in allSkills)
-                {
-                    skillItem.GetComponent<skillItemBehaviour>().equipped = false;
-                    MainGameManager.instance.ResetAnchorPoints(skillItem.gameObject, new Vector2(5f, 5f));
-                }*/
                 equipped = true;
                 switch (classType)
                 {
@@ -92,8 +87,9 @@ namespace AssemblyCSharp
                         break;
                 }
                 Instantiate(this, equipSlot.transform);
-                equipSlot.GetComponent<equipControl>().equippedSkill = classSkill;
+                equipControl.equippedSkill = classSkill;
                 this.transform.parent.GetComponent<Image>().color = equipColor;
+                equipControl.ShowSkillQuality();
                 SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, classType.ToString());
                 MainGameManager.instance.ResetAnchorPoints(this.gameObject, new Vector2(0f, 0f));
                 MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.uiSounds[6]);
@@ -102,9 +98,10 @@ namespace AssemblyCSharp
 
         void UnEquipSkill(GameObject equipSlot, classType classType)
         {
-            if (equipSlot.transform.childCount > 0)
+            var equippedSkill = equipSlot.GetComponentInChildren<skillItemBehaviour>();
+            if (equippedSkill)
             {
-                Destroy(equipSlot.transform.GetChild(0).gameObject);
+                Destroy(equippedSkill.gameObject);
             }
             switch (classType)
             {
@@ -119,7 +116,9 @@ namespace AssemblyCSharp
                     break;
             }
             ClearCurrentEquip(equipSlot);
-            equipSlot.GetComponent<equipControl>().equippedSkill = null;
+            var equipControl = equipSlot.GetComponent<equipControl>();
+            equipControl.equippedSkill = null;
+            equipControl.ClearItemQuality();
             this.transform.parent.GetComponent<Image>().color = new Color(1, 1, 1, 1);
             MainGameManager.instance.ResetAnchorPoints(this.gameObject, new Vector2(5f, 5f));
             MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.uiSounds[7]);
@@ -149,119 +148,6 @@ namespace AssemblyCSharp
         {
             EquipToClass(hoverControlScript.lastDraggedItem.GetComponent<skillItemBehaviour>().type);
         }
-
-        /*void OnMouseUp()
-        {
-            hoverControlScript.draggedItem = null;
-            if (holdTimeTask != null)
-            {
-                holdTimeTask.Stop();
-            }
-            colliderScript.enabled = true;
-            var allSlots = GameObject.FindGameObjectsWithTag("item-slot");
-            foreach (GameObject slotItem in allSlots)
-            {
-                slotItem.GetComponent<slotBehaviour>().colliderScript.enabled = false;
-            }
-            if (!hoverControlScript.hoveredEquipSlot)
-            {
-                if (hoverControlScript.hoveredSlot != null)
-                {
-                    ClearCurrentEquip(hoverControlScript.OriginalSlot);
-                    this.transform.SetParent(hoverControlScript.hoveredSlot.transform.childCount > 0 ? hoverControlScript.OriginalSlot.transform : hoverControlScript.hoveredSlot.transform);
-                    if (tankEquipped || healerEquipped || dpsEquipped)
-                    {
-                        hoverControlScript.OriginalSlot.GetComponent<Image>().color = hoverControlScript.OriginalSlot.GetComponent<slotBehaviour>().origColor;
-                        this.transform.parent.GetComponent<Image>().color = equipColor;
-                    }
-                }
-                //this.transform.SetParent( hoverControlScript.hoveredSlot.transform );
-                if (dragging)
-                {
-                   // soundContScript.playSound(audioclip);
-                }
-                //equipped = false;
-            }
-            else
-            {
-                var allSkills = GameObject.FindGameObjectsWithTag("item-skill");
-                //this.equipped = true;
-                var hoveredClassType = hoverControlScript.lastDraggedItem.GetComponent<skillItemBehaviour>().type;
-                if (hoverControlScript.hoveredEquipSlot.name == "Panel-tank skill")
-                {
-                    if (hoveredClassType == classType.guardian)
-                    {
-                        equipmentManagerScript.tankClassSkill = classSkill;
-                        foreach (GameObject skillItem in allSkills)
-                        {
-                            skillItem.GetComponent<skillItemBehaviour>().tankEquipped = false;
-                        }
-                        tankEquipped = true;
-                        equipmentManagerScript.tankSkills.Clear();
-                        equipmentManagerScript.tankSkills.Add(classSkill.skillName);
-                        hoverControlScript.hoveredEquipSlot.GetComponent<Image>().enabled = true;
-                        hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
-                        hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedSkill = classSkill;
-                        this.transform.parent.GetComponent<Image>().color = equipColor;
-                        SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "guardian");
-                    }
-                    else
-                    {
-                        print("cannot equip this skill");
-                    }
-                }
-                else if (hoverControlScript.hoveredEquipSlot.name == "Panel-dps skill")
-                {
-                    if (hoveredClassType == classType.stalker)
-                    {
-                        equipmentManagerScript.dpsClassSkill = classSkill;
-                        foreach (GameObject skillItem in allSkills)
-                        {
-                            skillItem.GetComponent<skillItemBehaviour>().dpsEquipped = false;
-                        }
-                        dpsEquipped = true;
-                        equipmentManagerScript.dpsSkills.Clear();
-                        equipmentManagerScript.dpsSkills.Add(classSkill.skillName);
-                        hoverControlScript.hoveredEquipSlot.GetComponent<Image>().enabled = true;
-                        hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
-                        this.transform.parent.GetComponent<Image>().color = equipColor;
-                        SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "stalker");
-                    }
-                    else
-                    {
-                        print("cannot equip this skill");
-                    }
-                }
-                else if (hoverControlScript.hoveredEquipSlot.name == "Panel-healer skill")
-                {
-                    if (hoveredClassType == classType.walker)
-                    {
-                        equipmentManagerScript.healerClassSkill = classSkill;
-                        foreach (GameObject skillItem in allSkills)
-                        {
-                            skillItem.GetComponent<skillItemBehaviour>().healerEquipped = false;
-                        }
-                        healerEquipped = true;
-                        equipmentManagerScript.healerSkills.Clear();
-                        equipmentManagerScript.healerSkills.Add(classSkill.skillName);
-                        hoverControlScript.hoveredEquipSlot.GetComponent<Image>().enabled = true;
-                        hoverControlScript.hoveredEquipSlot.GetComponent<Image>().sprite = this.GetComponent<Image>().sprite;
-                        this.transform.parent.GetComponent<Image>().color = equipColor;
-                        SavedDataManager.SavedDataManagerInstance.AddSkill(classSkill, "walker");
-                        //MainGameManager.instance.SceneManager.healerReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject && equipmentManager.tankClassSkill;
-                    }
-                    else
-                    {
-                        print("cannot equip this skill");
-                    }
-                }
-                this.transform.SetParent(hoverControlScript.OriginalSlot.transform);
-                MainGameManager.instance.ResetAnchorPoints(this.gameObject, new Vector2(0f, 0f));
-                //particleSystem.Play();
-            }
-            dragging = false;
-        }*/
-
         public void OnMouseEnter()
         {
             Vector3 rayPoint = Camera.current != null ? Camera.current.ScreenToWorldPoint(Input.mousePosition) : new Vector3();
@@ -312,7 +198,7 @@ namespace AssemblyCSharp
         {
             detailsControlScript = GameObject.FindGameObjectWithTag("Panel-item-details").GetComponent<itemDetailsControl>();
             hoverControlScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<hoverManager>();
-            equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<equipmentManager>();
+            equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<InventoryManager>();
             if (type == classType.guardian)
             {
                 equipColor = new Vector4(0.9f, 0.4f, 0.4f, 1f);

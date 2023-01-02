@@ -14,16 +14,13 @@ namespace AssemblyCSharp
     {
         public List<GameObject> slots = new List<GameObject>();
         public List<GameObject> items = new List<GameObject>();
-        //public Sprite tempItemIcon;
         public OwnedItems ownedItems = new OwnedItems();
         public GameObject slotPrefab;
         public GameObject itemPrefab;
         public GameObject menuManager;
         AssetFinder assetFinder;
         SavedDataManager savedDataManager;
-        equipmentManager equipmentManager;
-        //weaponItems weaponDataScript;
-        //baubleItems baubleDataScript;
+        InventoryManager equipmentManager;
 
         public int slotAmount;
 
@@ -72,13 +69,9 @@ namespace AssemblyCSharp
         // Use this for initialization
         void Awake()
         {
-            equipmentManager = menuManager.GetComponent<equipmentManager>();
-            //savedDataManager = menuManager.GetComponent<SavedDataManager>();
-            assetFinder = MainGameManager.instance.assetFinder; //menuManager.GetComponent<AssetFinder>();
-            //sceneManager = menuManager.GetComponent<sceneManager>();
-            //var dataInstance = GameObject.Find("DataInstance");
-            //sceneManager = MainGameManager.instance.SceneManager; //dataInstance != null ? dataInstance.GetComponent<sceneManager>() : null;
-            savedDataManager = SavedDataManager._savedDataManagerInstance; //dataInstance != null ? dataInstance.GetComponent<SavedDataManager>() : null;
+            equipmentManager = menuManager.GetComponent<InventoryManager>();
+            assetFinder = MainGameManager.instance.assetFinder;
+            savedDataManager = SavedDataManager._savedDataManagerInstance; 
         }
 
         void Start()
@@ -89,8 +82,6 @@ namespace AssemblyCSharp
             {
                 SetEquippedItemsAndSkills();
             }
-
-            slotAmount = 81;
 
             for (int i = 0; i < weapons.Count; i++)
             {
@@ -123,11 +114,11 @@ namespace AssemblyCSharp
                         case weaponModel.weaponType.heavyHanded:
                             if (equipmentManager.tankWeaponObject == item)
                             {
-                                newitem.transform.SetParent(GameObject.Find("Panel-tankweapon").transform);
+                                newitem.transform.SetParent(GameObject.Find("Panel-tankweapon").transform, false);
                             }
                             else if (equipmentManager.tankSecondWeaponObject == item)
                             {
-                                newitem.transform.SetParent(GameObject.Find("Panel-secondTankWeapon").transform);
+                                newitem.transform.SetParent(GameObject.Find("Panel-secondTankWeapon").transform, false);
                             }
                             MainGameManager.instance.SceneManager.tankReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject && equipmentManager.tankClassSkill;
                             break;
@@ -135,11 +126,11 @@ namespace AssemblyCSharp
                         case weaponModel.weaponType.dualBlades:
                             if (equipmentManager.dpsWeaponObject == item)
                             {
-                                newitem.transform.SetParent(GameObject.Find("Panel-dpsweapon").transform);
+                                newitem.transform.SetParent(GameObject.Find("Panel-dpsweapon").transform, false);
                             }
                             else if (equipmentManager.dpsSecondWeaponObject == item)
                             {
-                                newitem.transform.SetParent(GameObject.Find("Panel-secondDpsweapon").transform);
+                                newitem.transform.SetParent(GameObject.Find("Panel-secondDpsweapon").transform, false);
                             }
                             MainGameManager.instance.SceneManager.dpsReady = equipmentManager.dpsWeaponObject && equipmentManager.dpsSecondWeaponObject && equipmentManager.dpsClassSkill;
                             break;
@@ -147,11 +138,11 @@ namespace AssemblyCSharp
                         case weaponModel.weaponType.glove:
                             if (equipmentManager.healerWeaponObject == item)
                             {
-                                newitem.transform.SetParent(GameObject.Find("Panel-healerweapon").transform);
+                                newitem.transform.SetParent(GameObject.Find("Panel-healerweapon").transform, false);
                             }
                             else if (equipmentManager.healerSecondWeaponObject == item)
                             {
-                                newitem.transform.SetParent(GameObject.Find("Panel-secondHealerweapon").transform);
+                                newitem.transform.SetParent(GameObject.Find("Panel-secondHealerweapon").transform, false);
                             }
                             MainGameManager.instance.SceneManager.healerReady = equipmentManager.healerWeaponObject && equipmentManager.healerSecondWeaponObject && equipmentManager.healerClassSkill;
                             break;

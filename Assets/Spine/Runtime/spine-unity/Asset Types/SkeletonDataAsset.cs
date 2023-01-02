@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -63,6 +63,10 @@ namespace Spine.Unity {
 		public float defaultMix;
 		public RuntimeAnimatorController controller;
 
+#if UNITY_EDITOR
+		public static bool errorIfSkeletonFileNullGlobal = true;
+#endif
+
 		public bool IsLoaded { get { return this.skeletonData != null; } }
 
 		void Reset () {
@@ -112,6 +116,9 @@ namespace Spine.Unity {
 		/// <summary>Loads, caches and returns the SkeletonData from the skeleton data file. Returns the cached SkeletonData after the first time it is called. Pass false to prevent direct errors from being logged.</summary>
 		public SkeletonData GetSkeletonData (bool quiet) {
 			if (skeletonJSON == null) {
+#if UNITY_EDITOR
+				if (!errorIfSkeletonFileNullGlobal) quiet = true;
+#endif
 				if (!quiet)
 					Debug.LogError("Skeleton JSON file not set for SkeletonData asset: " + name, this);
 				Clear();
@@ -217,14 +224,30 @@ namespace Spine.Unity {
 			FillStateData();
 		}
 
-		public void FillStateData () {
+		public void FillStateData (bool quiet = false) {
 			if (stateData != null) {
 				stateData.DefaultMix = defaultMix;
 
 				for (int i = 0, n = fromAnimation.Length; i < n; i++) {
-					if (fromAnimation[i].Length == 0 || toAnimation[i].Length == 0)
+					string fromAnimationName = fromAnimation[i];
+					string toAnimationName = toAnimation[i];
+					if (fromAnimationName.Length == 0 || toAnimationName.Length == 0)
 						continue;
-					stateData.SetMix(fromAnimation[i], toAnimation[i], duration[i]);
+#if UNITY_EDITOR
+					if (skeletonData.FindAnimation(fromAnimationName) == null) {
+						if (!quiet) Debug.LogError(
+							string.Format("Custom Mix Durations: Animation '{0}' not found, was it renamed?",
+								fromAnimationName), this);
+						continue;
+					}
+					if (skeletonData.FindAnimation(toAnimationName) == null) {
+						if (!quiet) Debug.LogError(
+							string.Format("Custom Mix Durations: Animation '{0}' not found, was it renamed?",
+								toAnimationName), this);
+						continue;
+					}
+#endif
+					stateData.SetMix(fromAnimationName, toAnimationName, duration[i]);
 				}
 			}
 		}

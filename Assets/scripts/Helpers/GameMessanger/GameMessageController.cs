@@ -4,6 +4,10 @@ using TMPro;
 using DG.Tweening;
 using System;
 using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
+using System.Data;
+using static Assets.scripts.Helpers.Utility.InteractWithObjectController;
 
 namespace AssemblyCSharp
 {
@@ -18,6 +22,8 @@ namespace AssemblyCSharp
         public bool pauseGame;
         public Action closeAction;
         public Action okAction;
+        public OnUseItemAction useItemAction;
+        List<RoleEnum> rolesSelected = new List<RoleEnum>();
 
         /// <summary>
         /// Show/Hide Options view
@@ -71,7 +77,7 @@ namespace AssemblyCSharp
 
         public void PerformActionThenClose()
         {
-            okAction.Invoke();
+            useItemAction.Invoke(rolesSelected);
             CloseMessage();
         }
 
@@ -85,17 +91,21 @@ namespace AssemblyCSharp
             MainGameManager.instance.DisableEnableLiveBoxColliders(true);
             Destroy(this.gameObject.transform.parent.gameObject);
         }
-
-        // Use this for initialization
-        void OnEnable()
+        
+        /// <summary>
+        /// Set characters for item use
+        /// </summary>
+        /// <param name="character"></param>
+        public void SelectCharacter(string character)
         {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
+            RoleEnum role = (RoleEnum)Enum.Parse(typeof(RoleEnum), character);
+            if (!rolesSelected.Any(characterItem => characterItem == role))
+            {
+                rolesSelected.Add(role);
+            } else
+            {
+                rolesSelected.Remove(role);
+            }
         }
     }
 }

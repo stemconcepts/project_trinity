@@ -7,6 +7,7 @@ namespace AssemblyCSharp
 {
     public class BaseDamageManager : MonoBehaviour
     {
+        public List<AudioClip> damagedSounds;
         public BaseCharacterManagerGroup baseManager;
         public Dictionary<string, BaseDamageModel> skillDmgModels = new Dictionary<string, BaseDamageModel>();
         public Dictionary<string, BaseDamageModel> autoAttackDmgModels = new Dictionary<string, BaseDamageModel>();
@@ -54,11 +55,13 @@ namespace AssemblyCSharp
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
                 battleDetailsManager.getDmg(damageModel, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>");
                 MainGameManager.instance.soundManager.playSound("block");
+                PlayDamagedSounds();
             }
             else
             {
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
                 battleDetailsManager.getDmg(damageModel);
+                PlayDamagedSounds();
             }
 
             if ( !baseManager.animationManager.inAnimation && !baseManager.autoAttackManager.isAttacking )
@@ -106,6 +109,14 @@ namespace AssemblyCSharp
                 eventCaller = baseManager.characterManager
             };
             BattleManager.eventManager.BuildEvent(eventModel);
+        }
+
+        void PlayDamagedSounds()
+        {
+            if (damagedSounds.Count > 0)
+            {
+                MainGameManager.instance.soundManager.playSounds(damagedSounds);
+            }
         }
 
         public float GetValueAfterResist(float incomingDmg, float resistance)

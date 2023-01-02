@@ -8,7 +8,7 @@ namespace AssemblyCSharp
 	public class itemBehaviour : MonoBehaviour
 	{
 		hoverManager hoverControlScript;
-		equipmentManager equipmentManagerScript;
+		InventoryManager equipmentManagerScript;
 		public weaponModel weaponItemScript;
 		public bauble baubleItemScript;
 		public Sprite itemIcon;
@@ -130,7 +130,7 @@ namespace AssemblyCSharp
             equipControl.equippedWeapon = this.gameObject;
 			equipControl.ShowItemQuality();
             hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
-			equipControl.qualityDisplay = hoverControlScript.hoveredEquipSlot.transform.Find("itemQuality").GetComponent<Image>();
+			//equipControl.qualityDisplay = hoverControlScript.hoveredEquipSlot.transform.Find("itemQuality").GetComponent<Image>();
             this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
             MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.uiSounds[4]);
 			return weaponItemScript;
@@ -324,7 +324,7 @@ namespace AssemblyCSharp
 			colliderScript = GetComponent<BoxCollider2D>();
 			detailsControlScript = GameObject.FindGameObjectWithTag("Panel-item-details").GetComponent<itemDetailsControl>();
 			hoverControlScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<hoverManager>();
-			equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<equipmentManager>();
+			equipmentManagerScript = GameObject.FindGameObjectWithTag("MenuManager").GetComponent<InventoryManager>();
 			//soundContScript = GetComponent<soundController>();
 			particleSystem = GetComponent<ParticleSystem>();
 			if (itemIcon != null)

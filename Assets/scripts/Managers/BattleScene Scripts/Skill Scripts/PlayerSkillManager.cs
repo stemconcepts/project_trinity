@@ -332,6 +332,11 @@ namespace AssemblyCSharp
 
         public void OnEventSkillTrigger(Spine.TrackEntry state, Spine.Event e)
         {
+            if (e.Data.Name == "swing" && activeSkill.swingEffect)
+            {
+                baseManager.effectsManager.CallEffect(activeSkill.swingEffect, "center");
+            }
+
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
             {
                 if (activeSkill && activeSkill.Reposition != GenericSkillModel.moveType.None)
@@ -339,7 +344,6 @@ namespace AssemblyCSharp
                     var charList = new List<BaseCharacterManager>() { baseManager.characterManager };
                     activeSkill.RepositionCharacters(charList, activeSkill);
                 }
-
                 try
                 {
                     SkillComplete(finalTargets, (SkillModel)activeSkill);

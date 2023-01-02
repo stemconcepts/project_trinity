@@ -14,21 +14,29 @@ namespace AssemblyCSharp
         public int total;
         public TextMeshPro text;
         public Image image;
-        //public SpriteRenderer spriteRenderer;
         ToolTipTriggerController tooltipController;
 
-        public void SetUpItem()
+        public void SetUpItem(ItemBase itemBase, string prefix)
         {
+            this.gameObject.name = itemBase.name;
+            itemBase.id = $"resource_{prefix}_{itemBase.itemName}";
+            this.itemBase = itemBase;
+
             tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
             tooltipController.AddtoolTip(itemBase.itemName, itemBase.itemName, itemBase.itemDesc);
             image.sprite = itemBase.itemIcon;
             text.text = total > 1 ? $"x{total}" : "";
         }
 
+        public void DestroyToolTips()
+        {
+            tooltipController.DestroyToolTipDisplay(itemBase.itemName);
+        }
+
         // Use this for initialization
         void Start()
         {
-            if (image)
+            if (image && MainGameManager.instance.SceneManager.currentScene.ToLower() != "exploration")
             {
                 image.DOFade(1f, 0.8f).SetDelay(1f);
             }
@@ -47,12 +55,10 @@ namespace AssemblyCSharp
 
         void OnMouseUp()
         {
-            if (!ExploreManager.obtainedItems.Any(o => o == itemBase))
-            {
+           if (MainGameManager.instance.SceneManager.currentScene.ToLower() == "exploration")
+           {
                 ExploreManager.AddToObtainedItems(itemBase, this.gameObject);
-                //this.gameObject.transform.localScale = new Vector3(15f, 15f, 1f);
-                //this.gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform);
-            }
+           }
         }
     }
 }

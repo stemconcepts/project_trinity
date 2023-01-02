@@ -25,7 +25,7 @@ namespace AssemblyCSharp
                 fxposition = fxFront;
             }
             if( gameObject.tag != "Player" && fxObject ){
-                var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
+                var fx = Instantiate( fxObject, fxposition.transform);
                 var particles = fx.GetComponents<ParticleSystem>();
                 if( particles != null ){
                     foreach (var particle in particles)
@@ -35,8 +35,10 @@ namespace AssemblyCSharp
                     }
                 }
             } else {
-                //var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), fxposition.transform.rotation );
-                //fx.transform.SetParent(position.transform);
+                if (fxObject)
+                {
+                    Instantiate(fxObject, fxposition.transform);
+                }
             }   
         }
     

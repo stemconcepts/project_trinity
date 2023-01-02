@@ -12,8 +12,9 @@ namespace AssemblyCSharp
 		public bool dpsReady = false;
 		public List<GameObject> enemies;
 		public string currentScene;
+		public Animator battleTransition;
 
-		void OnEnable()
+        void OnEnable()
         {
 			SceneManager.sceneLoaded += OnSceneLoaded;
 			SceneManager.sceneUnloaded += OnSceneUnloaded;
@@ -63,9 +64,11 @@ namespace AssemblyCSharp
 
         public void LoadExploration(bool additive)
         {
-            SceneManager.LoadScene("Exploration", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
-            MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialExploreTrack);
-            MainGameManager.instance.SaveScene("Exploration");
+            MainGameManager.instance.gameEffectManager.TransitionToScene(battleTransition, 1f, () => {
+                SceneManager.LoadScene("Exploration", additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+                MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialExploreTrack);
+                MainGameManager.instance.SaveScene("Exploration");
+            });
         }
 
 		public void LoadScene(string sceneName, bool additive)
@@ -101,8 +104,12 @@ namespace AssemblyCSharp
 		{
 			if (MainGameManager.instance.SceneManager.TeamReady())
 			{
-				MainGameManager.instance.SceneManager.enemies = enemies;
-				SceneManager.LoadScene("battle", LoadSceneMode.Additive);
+				MainGameManager.instance.gameEffectManager.TransitionToScene(battleTransition, 1f, () =>
+				{
+                    MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialCombatTrack);
+                    MainGameManager.instance.SceneManager.enemies = enemies;
+                    SceneManager.LoadScene("battle", LoadSceneMode.Additive);
+                });
 			}
 		}
 	}

@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
+using Spine.Unity;
+using ModularMotion;
 
 namespace AssemblyCSharp
 {
@@ -7,6 +10,7 @@ namespace AssemblyCSharp
     { 
         public bool initialSetupDone;
         public BaseCharacterManagerGroup baseManager;
+        public List<AudioClip> idleSound;
         [Header("Character Model")]
         public BaseCharacterModel characterModel;
         [Header("Character Template")]
@@ -159,6 +163,17 @@ namespace AssemblyCSharp
             var targetCount = this.tag == "Player" ? enemyCharacters.Count : friendlyCharacters.Count;
             var i = Random.Range(0, targetCount);
             return typeof(T) == typeof(EnemyCharacterManagerGroup) ? enemyCharacters[i].GetComponent<T>() : friendlyCharacters[i].GetComponent<T>();
+        }
+
+        void PlayIdleSound()
+        {
+            if (BattleManager.gameManager.GetChance(5))
+            {
+                if(idleSound.Count > 0)
+                {
+                    BattleManager.soundManager.playSounds(idleSound);
+                }
+            }
         }
     }
 }

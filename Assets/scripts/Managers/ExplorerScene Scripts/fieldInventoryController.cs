@@ -1,4 +1,6 @@
 ﻿using AssemblyCSharp;
+using Assets.scripts.Helpers.Utility;
+using ModularMotion;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
     {
         public GameObject fieldItemTemplate;
         public List<GameObject> fieldItems = new List<GameObject>();
-
+        public UIMotion inventoryHolderUIController;
         public List<ItemBase> testingLoot = new List<ItemBase>();
         /// <summary>
         /// Add field Items from testingLoot for testing
@@ -39,36 +41,61 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         /// <param name="gameObject"></param>
         public void AddToObtainedItems(ItemBase item, GameObject gameObject = null)
         {
-            if (ExploreManager.obtainedItems.Any(o => o == item))
+            if (/*ExploreManager.obtainedItems.Any(o => o == item)*/ fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase == item))
             {
                 fieldItems.ForEach(o =>
                 {
                     var itemController = o.GetComponent<ExplorerItemsController>();
-                    if (itemController.itemBase == item)
+                    if (itemController.itemBase == item && item.canStack)
                     {
                         itemController.total += 1;
-                        itemController.SetUpItem();
+                        gameObject.GetComponent<ExplorerItemsController>().DestroyToolTips();
+                        Destroy(gameObject);
                     }
                 });
             }
             else
             {
-                ExploreManager.obtainedItems.Add(item);
+                //ExploreManager.obtainedItems.Add(item);
                 if (!gameObject)
                 {
                     gameObject = item.InstantiateAsGameObject(ExploreManager.inventoryHolder.transform);
-                    /*gameObject = Instantiate(fieldItemTemplate, ExploreManager.inventoryHolder.transform);
-                    var explorererItemController = gameObject.GetComponent<ExplorerItemsController>();
-                    explorererItemController.itemBase = item;
-                    explorererItemController.SetUpItem();*/
+                    fieldItems.Add(gameObject);
+                } else
+                {
+                    var explorerItem = item.InstantiateAsGameObject(ExploreManager.inventoryHolder.transform);
+                    fieldItems.Add(explorerItem);
+                    gameObject.GetComponent<ExplorerItemsController>().DestroyToolTips();
+                    Destroy(gameObject);
+                    //gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform, false);
+                    //gameObject.GetComponent<BoxCollider2D>().size = new Vector2(50, 50);
                 }
-                fieldItems.Add(gameObject);
             }
+        }
+
+
+        /// <summary>
+        /// Remove from fieldItems
+        /// </summary>
+        /// <param name="item"></param>
+        public void RemoveFromObtainedItems(ItemBase item)
+        {
+            var itemInFieldItems = fieldItems.Where(o => o.GetComponent<ExplorerItemsController>().itemBase == item).FirstOrDefault();
+            fieldItems.Remove(itemInFieldItems);
+            Destroy(itemInFieldItems);
         }
 
         public void ShowCraftingView()
         {
             MainGameManager.instance.SceneManager.LoadCrafting();
+        }
+
+        /// <summary>
+        /// Show UI inventory slots
+        /// </summary>
+        public void ShowInventorySlots()
+        {
+            inventoryHolderUIController.Play();
         }
     }
 }

@@ -70,7 +70,7 @@ namespace AssemblyCSharp
                 switch (p.preRequisiteType)
                 {
                     case PreRequisiteModel.preRequisiteTypeEnum.buffMinions:
-                        var x = BattleManager.characterSelectManager.enemyCharacters.Where(o => o.characterModel.role == CharacterModel.RoleEnum.minion).ToList();
+                        var x = BattleManager.characterSelectManager.enemyCharacters.Where(o => o.characterModel.role == RoleEnum.minion).ToList();
                         requirementsMet = x.Count() >= p.amount;
                         break;
                     case PreRequisiteModel.preRequisiteTypeEnum.summonPanels:
@@ -236,7 +236,7 @@ namespace AssemblyCSharp
                     };
                     if (enemySkillModel.hasVoidzone)
                     {
-                        var tankData = targets.Where(o => o.characterModel.role == CharacterModel.RoleEnum.tank).FirstOrDefault();
+                        var tankData = targets.Where(o => o.characterModel.role == RoleEnum.tank).FirstOrDefault();
                         if (!tankData || !(tankData.characterModel as CharacterModel).inVoidCounter)
                         {
                             if (enemySkillModel.fxObject != null)
@@ -248,7 +248,7 @@ namespace AssemblyCSharp
                         }
                         else
                         {
-                            if (target.characterModel.role == CharacterModel.RoleEnum.tank)
+                            if (target.characterModel.role == RoleEnum.tank)
                             {
                                 finalTargets = new List<BaseCharacterManager>()
                                 {
@@ -382,6 +382,12 @@ namespace AssemblyCSharp
 
         public void OnEventSkillTrigger(Spine.TrackEntry state, Spine.Event e)
         {
+            var activeSkill = copiedSkillList.Where(o => o.skillActive).FirstOrDefault();
+            if (e.Data.Name == "swing" && activeSkill && activeSkill.swingEffect)
+            {
+                baseManager.effectsManager.CallEffect(activeSkill.swingEffect, "center");
+            }
+
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
             {
                 copiedSkillList.ForEach(o =>

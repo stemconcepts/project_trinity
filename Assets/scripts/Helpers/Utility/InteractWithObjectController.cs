@@ -12,6 +12,8 @@ namespace Assets.scripts.Helpers.Utility
     {
         public delegate void OnMouseUpAction();
         public OnMouseUpAction mouseUpAction;
+        public delegate void OnUseItemAction(List<RoleEnum> roles);
+        public OnUseItemAction useItemAction;
         bool showOptions;
         string headerText;
         string descriptionText;
@@ -44,8 +46,9 @@ namespace Assets.scripts.Helpers.Utility
         private void ShowConfirmation()
         {
             MainGameManager.instance.DisableEnableLiveBoxColliders(false);
-            MainGameManager.instance.gameMessanger.DisplayChoiceMessage(descriptionText, okayText, cancelText, headerText: headerText, 
-                waitTime: 0.5f, pauseGame: false, okAction: () => mouseUpAction.Invoke(), showOptions: showOptions);
+            MainGameManager.instance.gameMessanger.DisplayChoiceMessage(descriptionText, okayText, cancelText, headerText: headerText,
+                //waitTime: 0.5f, pauseGame: false, okAction: () => mouseUpAction.Invoke(), showOptions: showOptions);
+                waitTime: 0.5f, pauseGame: false, useItemAction: useItemAction, showOptions: showOptions);
         }
     }
 }

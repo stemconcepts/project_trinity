@@ -22,12 +22,13 @@ namespace AssemblyCSharp
         public bool skillActive;
         public int skillCost;
         public float skillPower;
+        [HideInInspector]
         public float newSP;
         public float magicPower;
+        [HideInInspector]
         public float newMP;
         public bool isSpell;
         public bool isFlat;
-        public GameObject hitEffect;
         public elementType element;
         public bool doesDamage;
         public bool movesToTarget;
@@ -40,8 +41,10 @@ namespace AssemblyCSharp
         public int turnToComplete;
         public int turnToReset;
         public int castTurnTime;
+        [HideInInspector]
         public bool castTimeReady;
         public int turnDuration = 4;
+        [HideInInspector]
         public int skillCooldown = 0;
         [Header("Animation:")]
         public string skinChange;
@@ -112,6 +115,8 @@ namespace AssemblyCSharp
         }
 
         [Header("FX Animation:")]
+        public GameObject hitEffect;
+        public GameObject swingEffect;
         public GameObject fxObject;
         public fxPosEnum fxPos;
         public enum fxPosEnum

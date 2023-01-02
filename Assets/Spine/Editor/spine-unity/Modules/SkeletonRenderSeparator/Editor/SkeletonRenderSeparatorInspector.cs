@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -105,8 +105,10 @@ namespace Spine.Unity.Examples {
 			using (new SpineInspectorUtility.LabelWidthScope()) {
 				bool componentEnabled = component.enabled;
 				bool checkBox = EditorGUILayout.Toggle("Enable Separator", componentEnabled);
-				if (checkBox != componentEnabled)
-					component.enabled = checkBox;
+				if (checkBox != componentEnabled) {
+					Undo.RecordObject(target, "Enable SkeletonRenderSeparator");
+					EditorUtility.SetObjectEnabled(target, checkBox);
+				}
 				if (component.SkeletonRenderer.disableRenderingOnOverride && !component.enabled)
 					EditorGUILayout.HelpBox("By default, SkeletonRenderer's MeshRenderer is disabled while the SkeletonRenderSeparator takes over rendering. It is re-enabled when SkeletonRenderSeparator is disabled.", MessageType.Info);
 
@@ -242,7 +244,7 @@ namespace Spine.Unity.Examples {
 
 			if (slotsReapplyRequired && UnityEngine.Event.current.type == EventType.Repaint) {
 				component.SkeletonRenderer.ReapplySeparatorSlotNames();
-				component.SkeletonRenderer.LateUpdate();
+				component.SkeletonRenderer.LateUpdateMesh();
 				SceneView.RepaintAll();
 				slotsReapplyRequired = false;
 			}

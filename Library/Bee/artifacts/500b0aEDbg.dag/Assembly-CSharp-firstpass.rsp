@@ -107,6 +107,10 @@
 -define:UNITY_POST_PROCESSING_STACK_V2
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
+-r:"Assets/ModularMotion/ICSharpCode.SharpZipLib.dll"
+-r:"Assets/ModularMotion/ModularEditor.dll"
+-r:"Assets/ModularMotion/ModularExtension.dll"
+-r:"Assets/ModularMotion/ModularMotion.dll"
 -r:"Assets/Plugins/Demigiant/DOTween/DOTween.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.CoreModule.dll"
 -r:"C:/Program Files/Unity/Hub/Editor/2020.1.4f1/2021.1.13f1/Editor/Data/Managed/UnityEngine/UnityEditor.DeviceSimulatorModule.dll"
@@ -314,6 +318,8 @@
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/Purchasing.Common.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-csharp.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity-editor.ref.dll"
+-r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity-examples-editor.ref.dll"
+-r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity-examples.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/spine-unity.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/Unity.2D.Sprite.Editor.ref.dll"
 -r:"Library/Bee/artifacts/500b0aEDbg.dag/Unity.2D.Tilemap.Editor.ref.dll"

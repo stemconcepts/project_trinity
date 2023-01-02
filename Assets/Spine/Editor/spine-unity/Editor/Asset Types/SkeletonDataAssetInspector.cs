@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -71,6 +71,7 @@ namespace Spine.Unity.Editor {
 		readonly List<string> warnings = new List<string>();
 		CompatibilityProblemInfo compatibilityProblemInfo = null;
 		readonly SkeletonInspectorPreview preview = new SkeletonInspectorPreview();
+		bool requiresReload = false;
 
 		GUIStyle activePlayButtonStyle, idlePlayButtonStyle;
 		readonly GUIContent DefaultMixLabel = new GUIContent("Default Mix Duration", "Sets 'SkeletonDataAsset.defaultMix' in the asset and 'AnimationState.data.defaultMix' at runtime load time.");
@@ -153,7 +154,7 @@ namespace Spine.Unity.Editor {
 
 		void Clear () {
 			preview.Clear();
-			targetSkeletonDataAsset.Clear();
+			SpineEditorUtilities.ClearSkeletonDataAsset(targetSkeletonDataAsset);
 			targetSkeletonData = null;
 		}
 
@@ -192,13 +193,12 @@ namespace Spine.Unity.Editor {
 				}
 
 				if (changeCheck.changed) {
-					if (serializedObject.ApplyModifiedProperties()) {
+					if (serializedObject.ApplyModifiedProperties() || requiresReload) {
 						this.Clear();
 						this.InitializeEditor();
 
-						if (SpineEditorUtilities.Preferences.autoReloadSceneSkeletons)
+						if (SpineEditorUtilities.Preferences.autoReloadSceneSkeletons && NoProblems())
 							SpineEditorUtilities.DataReloadHandler.ReloadSceneSkeletonComponents(targetSkeletonDataAsset);
-
 						return;
 					}
 				}
@@ -221,7 +221,7 @@ namespace Spine.Unity.Editor {
 				DrawAnimationList();
 				if (targetSkeletonData.Animations.Count > 0) {
 					const string AnimationReferenceButtonText = "Create Animation Reference Assets";
-					const string AnimationReferenceTooltipText = "AnimationReferenceAsset acts as Unity asset for a reference to a Spine.Animation. This can be used in inspectors.\n\nIt serializes a reference to a SkeletonDataAsset and an animationName.\n\nAt runtime, a reference to its Spine.Animation is loaded and cached into the object to be used as needed. This skips the need to find and cache animation references in individual MonoBehaviours.";
+					const string AnimationReferenceTooltipText = "AnimationReferenceAsset acts as Unity asset for a reference to a Spine.Animation. This can be used in inspectors.\n\nIt serializes a reference to a SkeletonData asset and an animationName.\n\nAt runtime, a reference to its Spine.Animation is loaded and cached into the object to be used as needed. This skips the need to find and cache animation references in individual MonoBehaviours.";
 					if (GUILayout.Button(SpineInspectorUtility.TempContent(AnimationReferenceButtonText, Icons.animationRoot, AnimationReferenceTooltipText), GUILayout.Width(250), GUILayout.Height(26))) {
 						CreateAnimationReferenceAssets();
 					}
@@ -361,18 +361,24 @@ namespace Spine.Unity.Editor {
 
 		void DrawAtlasAssetsFields () {
 			EditorGUILayout.LabelField("Atlas", EditorStyles.boldLabel);
-#if !SPINE_TK2D
-			EditorGUILayout.PropertyField(atlasAssets, true);
-#else
-			using (new EditorGUI.DisabledGroupScope(spriteCollection.objectReferenceValue != null)) {
-				EditorGUILayout.PropertyField(atlasAssets, true);
-			}
-			EditorGUILayout.LabelField("spine-tk2d", EditorStyles.boldLabel);
-			EditorGUILayout.PropertyField(spriteCollection, true);
-#endif
 
-			if (atlasAssets.arraySize == 0)
-				EditorGUILayout.HelpBox("AtlasAssets array is empty. Skeleton's attachments will load without being mapped to images.", MessageType.Info);
+			using (var changeCheck = new EditorGUI.ChangeCheckScope()) {
+#if !SPINE_TK2D
+				EditorGUILayout.PropertyField(atlasAssets, true);
+#else
+				using (new EditorGUI.DisabledGroupScope(spriteCollection.objectReferenceValue != null)) {
+					EditorGUILayout.PropertyField(atlasAssets, true);
+				}
+				EditorGUILayout.LabelField("spine-tk2d", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(spriteCollection, true);
+#endif
+				if (atlasAssets.arraySize == 0)
+					EditorGUILayout.HelpBox("AtlasAssets array is empty. Skeleton's attachments will load without being mapped to images.", MessageType.Info);
+
+				if (changeCheck.changed) {
+					requiresReload = true;
+				}
+			}
 		}
 
 		void HandleAtlasAssetsNulls () {
@@ -449,7 +455,7 @@ namespace Spine.Unity.Editor {
 				}
 
 				if (cc.changed) {
-					targetSkeletonDataAsset.FillStateData();
+					targetSkeletonDataAsset.FillStateData(quiet: true);
 					EditorUtility.SetDirty(targetSkeletonDataAsset);
 					serializedObject.ApplyModifiedProperties();
 				}
@@ -663,7 +669,7 @@ namespace Spine.Unity.Editor {
 									if (atlas == null)
 										continue;
 									for (int i = 0; i < missingPaths.Count; i++) {
-										if (atlas.FindRegion(missingPaths[i]) != null) {
+										if (atlas.FindRegionIgnoringNumberSuffix(missingPaths[i]) != null) {
 											missingPaths.RemoveAt(i);
 											i--;
 										}
@@ -672,7 +678,7 @@ namespace Spine.Unity.Editor {
 
 #if SPINE_TK2D
 								if (missingPaths.Count > 0)
-									warnings.Add("Missing regions. SkeletonDataAsset requires tk2DSpriteCollectionData or Spine AtlasAssets.");
+									warnings.Add("Missing regions. SkeletonData asset requires tk2DSpriteCollectionData or Spine AtlasAssets.");
 #endif
 							}
 

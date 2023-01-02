@@ -1,8 +1,8 @@
 /******************************************************************************
  * Spine Runtimes License Agreement
- * Last updated January 1, 2020. Replaces all prior versions.
+ * Last updated September 24, 2021. Replaces all prior versions.
  *
- * Copyright (c) 2013-2020, Esoteric Software LLC
+ * Copyright (c) 2013-2021, Esoteric Software LLC
  *
  * Integration of the Spine Runtimes into software or otherwise creating
  * derivative works of the Spine Runtimes is permitted under the terms and
@@ -31,11 +31,12 @@
 #define NEW_PREFAB_SYSTEM
 #endif
 
-using Spine;
-using System.Collections.Generic;
+#if UNITY_2021_2_OR_NEWER
+#define PUBLIC_SET_ICON_FOR_OBJECT
+#endif
+
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 namespace Spine.Unity.Editor {
@@ -93,7 +94,7 @@ namespace Spine.Unity.Editor {
 
 			if ((skeletonRenderer != null && !skeletonRenderer.valid) ||
 				(skeletonGraphic != null && !skeletonGraphic.IsValid)) {
-				GUILayout.Label(new GUIContent("Spine Component invalid. Check Skeleton Data Asset.", Icons.warning));
+				GUILayout.Label(new GUIContent("Spine Component invalid. Check SkeletonData asset.", Icons.warning));
 				return;
 			}
 
@@ -148,11 +149,14 @@ namespace Spine.Unity.Editor {
 					icon = Icons.constraintNib;
 					break;
 				}
-
+#if PUBLIC_SET_ICON_FOR_OBJECT
+			EditorGUIUtility.SetIconForObject(boneComponent.gameObject, icon);
+#else
 			typeof(EditorGUIUtility).InvokeMember("SetIconForObject", BindingFlags.InvokeMethod | BindingFlags.Static | BindingFlags.NonPublic, null, null, new object[2] {
 				boneComponent.gameObject,
 				icon
 			});
+#endif
 		}
 
 		static void AttachIconsToChildren (Transform root) {

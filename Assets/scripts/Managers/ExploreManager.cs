@@ -37,7 +37,10 @@ namespace AssemblyCSharp
         public static List<DungeonRoom> detourRooms = new List<DungeonRoom>();
         public static List<miniMapIconBase> iconControllers = new List<miniMapIconBase>();
         public static List<DungeonRoom> previousRooms = new List<DungeonRoom>();
-        public static int rand;
+
+        [Header("Transitions")]
+        public Animator roomTransition;
+        public static Animator roomTransitionStatic;
 
         [Header("Encounters")]
         public int largeEncounters;
@@ -47,11 +50,11 @@ namespace AssemblyCSharp
         public GameObject explorerCanvas;
         public GameObject miniMap;
         Transform roomIconPosition;
-        public GameObject roomTemplate;
         public GameObject routeTemplate;
         public GameObject roomIconTemplate;
         public GameObject objectTemplate;
         public GameObject explorerItemTemplate;
+        public GameObject fieldItemTemplate;
         public GameObject enemyEncounterTemplate;
 
         [Header("Health Bars")]
@@ -78,6 +81,7 @@ namespace AssemblyCSharp
         {
             dungeonSettingsCopy = UnityEngine.Object.Instantiate(dungeonSettings);
             dungeonSettingsStatic = dungeonSettingsCopy;
+            roomTransitionStatic = roomTransition;
             backButton = GameObject.Find("EyeButton");
             inventoryHolder = GameObject.Find("inventoryGrid");
             corruptionHolder = GameObject.Find("CorruptionCounter");
@@ -86,6 +90,15 @@ namespace AssemblyCSharp
             healerHealth = healerHealthO;
             SetCurrentHealth();
             Invoke("LevelGenerator", 0.1f);
+        }
+
+        /// <summary>
+        /// Returns transition for changing rooms
+        /// </summary>
+        /// <returns></returns>
+        public static Animator GetRoomTransition()
+        {
+            return roomTransitionStatic;
         }
 
         /// <summary>
@@ -212,9 +225,10 @@ namespace AssemblyCSharp
 
         public static void RemoveObtainedItem(ItemBase item)
         {
-            obtainedItems.Remove(item);
+            /*obtainedItems.Remove(item);
             GameObject itemObj = inventoryHolder.transform.Find($"{item.name}").gameObject;
-            Destroy(itemObj);
+            Destroy(itemObj);*/
+            inventoryHolder.GetComponent<fieldInventoryController>().RemoveFromObtainedItems(item);
         }
 
         public static void AddPreviousRoom(DungeonRoom room)
@@ -271,7 +285,7 @@ namespace AssemblyCSharp
             {
                 foreach (var r in data.allRooms)
                 {
-                    GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
+                    GameObject room = Instantiate(dungeonSettingsStatic.ReturnRandomRoom(), explorerCanvas.transform);
                     DungeonRoom dr = room.GetComponent<DungeonRoom>();
                     room.name = r.name;
                     dr.isStartingRoom = r.isStartingRoom;
@@ -419,7 +433,7 @@ namespace AssemblyCSharp
             {
                 for (int c = 0; c < customRoute.transform.childCount; c++)
                 {
-                    GameObject customRoom = Instantiate(roomTemplate, explorerCanvas.transform);
+                    GameObject customRoom = Instantiate(dungeonSettingsStatic.ReturnRandomRoom(), explorerCanvas.transform);
                     customRoom.name = $"CustomRoom_{customRooms.Count}";
                     DungeonRoom dr = customRoom.GetComponent<DungeonRoom>();
                     dr.isCustomRoom = true;
@@ -483,7 +497,7 @@ namespace AssemblyCSharp
             var attempt = 0;
             var rnd = new System.Random();
             List<DungeonRoom> randomRooms = allRooms.OrderBy(x => rnd.Next()).ToList();
-            while (smallEncounters < dungeonSettingsCopy.maxSmallEncounters && attempt != 3)
+            while (smallEncounters <= dungeonSettingsCopy.maxSmallEncounters && attempt != 3)
             {
                 foreach (DungeonRoom room in randomRooms)
                 {
@@ -529,13 +543,21 @@ namespace AssemblyCSharp
            // List<KeyItem> savedKeys = new List<KeyItem>();
             for (int i = 0; i < numberOfRooms; i++)
             {
-                if (CanGenerateCustomRoute(i) && GameManager.GetChanceByPercentage(dungeonSettings.chanceToGenerateCustomRoute)/*GetChance(dungeonSettings.chanceToGenerateCustomRoute)*/)
+                if (CanGenerateCustomRoute(i) && MainGameManager.instance.GetChanceByPercentage(dungeonSettings.chanceToGenerateCustomRoute)/*GetChance(dungeonSettings.chanceToGenerateCustomRoute)*/)
                 {
                     GenerateCustomRooms(mainRooms[mainRooms.Count - 1]);
                 } else
                 {
-                    GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
+                    GameObject room = Instantiate(dungeonSettingsStatic.ReturnRandomRoom(), explorerCanvas.transform);
                     DungeonRoom dr = room.GetComponent<DungeonRoom>();
+                    for (int index = 0; index <= dungeonSettingsStatic.maxResourcePerRoom; index++)
+                    {
+                        if (MainGameManager.instance.GetChanceByPercentage(0.5f))
+                        {
+                            var randomResource = MainGameManager.instance.ReturnRandom(dungeonSettingsStatic.resources.Count);
+                            dr.AddResources(dungeonSettingsStatic.resources[randomResource], fieldItemTemplate);
+                        }
+                    }
                     room.name = $"Room_{mainRooms.Count}";
                     dr.isStartingRoom = i == (numberOfRooms - 1);
                     dr.id = $"room_{i}";
@@ -586,11 +608,14 @@ namespace AssemblyCSharp
 
         void PlaceRoomObject(DungeonRoom room, int position)
         {
-            GameObject objectT = Instantiate(objectTemplate, GetFreeSection(room, position));
-            var ro = objectT.GetComponent<RoomObject>();
-            ro.position = position;
-            ro.GenerateItems(1);
-            room.roomObjects.Add(ro);
+            if (false)
+            {
+                GameObject objectT = Instantiate(objectTemplate, GetFreeSection(room, position));
+                var ro = objectT.GetComponent<RoomObject>();
+                ro.position = position;
+                ro.GenerateItems(1);
+                room.roomObjects.Add(ro);
+            }
         }
 
         void GenerateRoomObject(DungeonRoom room, int amount)
@@ -600,7 +625,7 @@ namespace AssemblyCSharp
             {
                 if (GameManager.GetChanceByPercentage(0.2f))
                 {
-                    int randIntFromForeGround = ExploreManager.gameManager.ReturnRandom(room.foregroundHolder.transform.childCount);
+                    int randIntFromForeGround = MainGameManager.instance.ReturnRandom(room.foregroundHolder.transform.childCount);
                     PlaceRoomObject(room, randIntFromForeGround);
                 }
             }
@@ -616,7 +641,7 @@ namespace AssemblyCSharp
         /// <returns></returns>
         DungeonRoom AddRoomFromParentRoom(DungeonRoom parentRoom, string prefix, int? direction = null, string suffix = "")
         {
-            GameObject room = Instantiate(roomTemplate, explorerCanvas.transform);
+            GameObject room = Instantiate(dungeonSettingsStatic.ReturnRandomRoom(), explorerCanvas.transform);
             DungeonRoom dr = room.GetComponent<DungeonRoom>();
             room.name = $"{prefix}_Room_{detourRooms.Count}{suffix}";
             dr.CreateRouteFromRoom(parentRoom, routeTemplate, direction);
@@ -647,7 +672,7 @@ namespace AssemblyCSharp
                         GenerateCustomRooms(o.detourRooms[o.detourRooms.Count - 1]);
                     }
                     else*/
-                    if (GameManager.GetChanceByPercentage(0.5f) && detourLength > 0)
+                    if (MainGameManager.instance.GetChanceByPercentage(0.5f) && detourLength > 0)
                     {
                         DungeonRoom r = AddRoomFromParentRoom(o, "Detour", i);
                         r.id = $"room_detour_{i}_{o.id}";
@@ -660,7 +685,7 @@ namespace AssemblyCSharp
                         for (int x = 1; x <= detourLength; x++)
                         {
                             var depthIndex = 1;
-                            if (GameManager.GetChanceByPercentage(0.5f))
+                            if (MainGameManager.instance.GetChanceByPercentage(0.5f))
                             {
                                 DungeonRoom parentRoom = r.detourRooms.Count == 0 ? r : r.detourRooms[r.detourRooms.Count - 1];
                                 DungeonRoom n = AddRoomFromParentRoom(parentRoom, "Detour", i, $"_{x}");
@@ -679,18 +704,6 @@ namespace AssemblyCSharp
                 }
                 masterIndex++;
             });
-        }
-
-        public static bool GetChance(int maxChance)
-        {
-            rand = UnityEngine.Random.Range(0, (maxChance + 1));
-            return rand == 0;
-        }
-
-        int ReturnRandom(int maxNumber)
-        {
-            rand = UnityEngine.Random.Range(0, maxNumber);
-            return rand;
         }
 
         /// <summary>
@@ -755,22 +768,22 @@ namespace AssemblyCSharp
             dpsHealth.value = playerData.dpsHealth;
             healerHealth.value = playerData.healerHealth;
             characterInfoDisplayController.UpdateHealthInfo();
-            SetMaxHealth(tankHealth.value, BaseCharacterModel.RoleEnum.tank);
-            SetMaxHealth(dpsHealth.value, BaseCharacterModel.RoleEnum.dps);
-            SetMaxHealth(healerHealth.value, BaseCharacterModel.RoleEnum.healer);
+            SetMaxHealth(playerData.tankMaxHealth, RoleEnum.tank);
+            SetMaxHealth(playerData.dpsMaxHealth, RoleEnum.dps);
+            SetMaxHealth(playerData.healerMaxHealth, RoleEnum.healer);
         }
 
-        public static void SetMaxHealth(float value, BaseCharacterModel.RoleEnum role)
+        public static void SetMaxHealth(float value, RoleEnum role)
         {
             switch (role)
             {
-                case BaseCharacterModel.RoleEnum.tank:
+                case RoleEnum.tank:
                     tankHealth.maxValue = value;
                     break;
-                case BaseCharacterModel.RoleEnum.healer:
+                case RoleEnum.healer:
                     healerHealth.maxValue = value;
                     break;
-                case BaseCharacterModel.RoleEnum.dps:
+                case RoleEnum.dps:
                     dpsHealth.maxValue = value;
                     break;
                 default:
@@ -778,22 +791,41 @@ namespace AssemblyCSharp
             }
         }
 
-        public static void UpdateSliderHealth(float value, BaseCharacterModel.RoleEnum role)
+        public static void UpdateSliderHealth(float value, RoleEnum role)
         {
             switch (role)
             {
-                case BaseCharacterModel.RoleEnum.tank:
+                case RoleEnum.tank:
                     tankHealth.value = value;
                     break;
-                case BaseCharacterModel.RoleEnum.healer:
+                case RoleEnum.healer:
                     healerHealth.value = value;
                     break;
-                case BaseCharacterModel.RoleEnum.dps:
+                case RoleEnum.dps:
                     dpsHealth.value = value;
                     break;
                 default:
                     break;
             }
+        }
+
+        public static void AddToSliderHealth(float value, RoleEnum role)
+        {
+            switch (role)
+            {
+                case RoleEnum.tank:
+                    tankHealth.value += value;
+                    break;
+                case RoleEnum.healer:
+                    healerHealth.value += value;
+                    break;
+                case RoleEnum.dps:
+                    dpsHealth.value += value;
+                    break;
+                default:
+                    break;
+            }
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth((int)tankHealth.value, (int)healerHealth.value, (int)dpsHealth.value);
         }
     }
 }

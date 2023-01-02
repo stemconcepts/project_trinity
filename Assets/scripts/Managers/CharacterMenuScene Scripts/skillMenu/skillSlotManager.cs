@@ -11,10 +11,11 @@ namespace AssemblyCSharp
         public List<SkillModel> ownedSkills = new List<SkillModel>();
         public GameObject slotPrefab;
         public GameObject skillPrefab;
-        //skillItems skillDataScript;
         public int slotAmount;
-        //public GameObject menuManager;
         AssetFinder assetFinder;
+        public GameObject tankEquipSlot;
+        public GameObject dpsEquipSlot;
+        public GameObject healerEquipSlot;
 
         Transform AddItemToSlot()
         {
@@ -36,12 +37,49 @@ namespace AssemblyCSharp
             slots[i].transform.SetParent(this.transform);
         }
 
+        /// <summary>
+        /// Set state of equipped skills in inventory
+        /// </summary>
+        void SetEquippedSkills()
+        {
+            foreach (var item in ownedSkills)
+            {
+                var newitem = (GameObject)Instantiate(skillPrefab, AddItemToSlot());
+                var newItemBehaviour = newitem.GetComponent<skillItemBehaviour>();
+                newItemBehaviour.classSkill = item;
+                switch (item.Class)
+                {
+                    case SkillModel.ClassEnum.Guardian:
+                        newItemBehaviour.type = classType.guardian;
+                        if (item.equipped)
+                        {
+                            newItemBehaviour.EquipSkill(tankEquipSlot, newItemBehaviour.type);
+                        }
+                        break;
+                    case SkillModel.ClassEnum.Stalker:
+                        newItemBehaviour.type = classType.stalker;
+                        if (item.equipped)
+                        {
+                            newItemBehaviour.EquipSkill(dpsEquipSlot, newItemBehaviour.type);
+                        }
+                        break;
+                    case SkillModel.ClassEnum.Walker:
+                        newItemBehaviour.type = classType.walker;
+                        if (item.equipped)
+                        {
+                            newItemBehaviour.EquipSkill(healerEquipSlot, newItemBehaviour.type);
+                        }
+                        break;
+                }
+                skills.Add(newitem);
+            }
+        }
+
         // Use this for initialization
         void Awake()
         {
             assetFinder = MainGameManager.instance.assetFinder;
             var allSkills = assetFinder.GetAllSkills();
-            slotAmount = 81;
 
             for (int i = 0; i < allSkills.Count; i++)
             {
@@ -56,25 +94,7 @@ namespace AssemblyCSharp
                 AddSlot(i);
             }
 
-            foreach (var item in ownedSkills)
-            {
-                var newitem = (GameObject)Instantiate(skillPrefab, AddItemToSlot());
-                var newItemBehaviour = newitem.GetComponent<skillItemBehaviour>();
-                newItemBehaviour.classSkill = item;
-                if (item.Class == SkillModel.ClassEnum.Guardian)
-                {
-                    newItemBehaviour.type = classType.guardian;
-                }
-                else if (item.Class == SkillModel.ClassEnum.Stalker)
-                {
-                    newItemBehaviour.type = classType.stalker;
-                }
-                else if (item.Class == SkillModel.ClassEnum.Walker)
-                {
-                    newItemBehaviour.type = classType.walker;
-                }
-                skills.Add(newitem);
-            }
+            SetEquippedSkills();
         }
 
         // Update is called once per frame

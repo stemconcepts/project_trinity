@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using Assets.scripts.Managers.ExplorerScene_Scripts;
 
 namespace AssemblyCSharp
 {
@@ -16,6 +17,7 @@ namespace AssemblyCSharp
         public Color hoverColor;
         ToolTipTriggerController toolTipController;
         bool curroptionAdded = false;
+        public List<AudioClip> transitionSounds;
 
         void Start()
         {
@@ -51,7 +53,9 @@ namespace AssemblyCSharp
 
         bool CanUnlock()
         {
-            return lockObj != null && lockObj.locked && ExploreManager.obtainedItems.Any(o => o.name == lockObj.key.name);
+            var fieldItemsController = ExploreManager.inventoryHolder.GetComponent<fieldInventoryController>();
+            return lockObj != null && lockObj.locked && fieldItemsController.fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase.name == lockObj.key.name);
+                /*ExploreManager.obtainedItems.Any(o => o.name == lockObj.key.name)*/;
         }
 
         void OnMouseEnter()
@@ -82,31 +86,36 @@ namespace AssemblyCSharp
         {
             if (lockObj == null || !lockObj.locked)
             {
-                ExploreManager.AddPreviousRoom(ExploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
-                ExploreManager.ToggleRooms(true);
-                var cRoom = ExploreManager.GetCurrentRoom();
-                GameObject targetRoom = GameObject.Find(location);
-                if (ExploreManager.previousRooms.Count > 1 && ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 2].name == location)
+                MainGameManager.instance.soundManager.playSoundsInOrder(transitionSounds, true);
+                MainGameManager.instance.gameEffectManager.TransitionToScene(ExploreManager.GetRoomTransition(), 1f, () =>
                 {
-                    string otherRouteLocation = cRoom.routeLocations.Where(o => o != location).Where(a => !cRoom.routes.Any(r => r.location == a)).FirstOrDefault();
-                    targetRoom = GameObject.Find(otherRouteLocation);
-                }
-                ExploreManager.ToggleRooms(false);
-                targetRoom.SetActive(true);
-                ExploreManager.SetCurrentRoom(targetRoom.name);
-                DungeonRoom dr = targetRoom.GetComponent<DungeonRoom>();
-                dr.SetVisited();
-                dr.CheckEncounterAndStart();
-                if (!curroptionAdded)
-                {
-                    ExploreManager.AddStep(1, curroptionAmount);
-                    curroptionAdded = true;
-                }
-                else
-                {
-                    ExploreManager.AddStep(1, 0);
-                }
-                toolTipController.DestroyToolTipDisplay("curroption");
+                    ExploreManager.AddPreviousRoom(ExploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
+                    ExploreManager.ToggleRooms(true);
+                    var cRoom = ExploreManager.GetCurrentRoom();
+                    GameObject targetRoom = GameObject.Find(location);
+                    if (ExploreManager.previousRooms.Count > 1 && ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 2].name == location)
+                    {
+                        string otherRouteLocation = cRoom.routeLocations.Where(o => o != location).Where(a => !cRoom.routes.Any(r => r.location == a)).FirstOrDefault();
+                        targetRoom = GameObject.Find(otherRouteLocation);
+                    }
+                    ExploreManager.ToggleRooms(false);
+                    targetRoom.SetActive(true);
+                    ExploreManager.SetCurrentRoom(targetRoom.name);
+                    DungeonRoom dr = targetRoom.GetComponent<DungeonRoom>();
+                    dr.SetVisited();
+                    dr.CheckEncounterAndStart();
+                    if (!curroptionAdded)
+                    {
+                        ExploreManager.AddStep(1, curroptionAmount);
+                        curroptionAdded = true;
+                    }
+                    else
+                    {
+                        ExploreManager.AddStep(1, 0);
+                    }
+                    toolTipController.DestroyToolTipDisplay("curroption");
+                });
+                
             }
             else if (CanUnlock())
             {
