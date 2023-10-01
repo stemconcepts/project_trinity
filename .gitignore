@@ -1,6 +1,4 @@
 .vs/
-/Library/
-/Library/ArtifactDB/
-/Library/Artifacts/
-/Assets/Ultimate SFX Bundle - HD Remaster
+Library/
+Assets/Ultimate SFX Bundle - HD Remaster
 *.log
