@@ -60,7 +60,7 @@ namespace AssemblyCSharp
                     };
                     targetDmgManager.autoAttackDmgModels.Add(gameObject.name, dmgModel);
                     hasAttacked = true;
-                    if ((autoAttackTarget as EnemyCharacterManagerGroup).characterManager.GetChanceToBeHit((baseManager as CharacterManagerGroup).characterManager.characterModel.Accuracy, (baseManager as CharacterManagerGroup).characterManager.characterModel.evasion))
+                    if ((autoAttackTarget as EnemyCharacterManagerGroup).characterManager.GetChanceToBeHit((baseManager as CharacterManagerGroup).characterManager.characterModel.Accuracy))
                     {
                         targetDmgManager.calculatedamage(dmgModel);
                     } else

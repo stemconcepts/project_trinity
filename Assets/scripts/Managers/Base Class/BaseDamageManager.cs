@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using static AssemblyCSharp.GenericSkillModel;
 
 namespace AssemblyCSharp
 {
@@ -16,17 +17,11 @@ namespace AssemblyCSharp
 
         public void TakeDmg<T>(T damageModel, string eventName) where T : BaseDamageModel
         {
-            GameObject skillHitEffect = damageModel.customHitFX != null ? damageModel.customHitFX : hitFX;
             BattleManager.gameEffectManager.ScreenShake(0.6f, 2);
-            if (damageModel.hitEffectPositionScript != null && gameObject.tag == "Player" && eventName == "hit" && skillHitEffect)
+            if (eventName == "hit" && hitFX)
             {
-                damageModel.effectObject = Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
-                    damageModel.hitEffectPositionScript.transform.position.y), new Quaternion(0, 180, 0, 0));
-            }
-            else if (damageModel.hitEffectPositionScript != null && eventName == "hit" && skillHitEffect)
-            {
-                damageModel.effectObject = Instantiate(skillHitEffect, new Vector2(damageModel.hitEffectPositionScript.transform.position.x, 
-                    damageModel.hitEffectPositionScript.transform.position.y), damageModel.hitEffectPositionScript.transform.rotation);
+                var skillEffect = new SkillEffect(1, hitFX, fxPosEnum.center);
+                MainGameManager.instance.gameEffectManager.CallEffectOnTarget(baseManager.effectsManager.fxCenter, skillEffect);
             }
 
             if (baseManager.characterManager.characterModel.absorbPoints > 0)
@@ -68,8 +63,6 @@ namespace AssemblyCSharp
             {
                 baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.hitAnimation.ToString(), false);
                 baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, 0);
-                //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.hitAnimation.ToString(), false);
-                //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation.ToString(), true, 0);
             }
             //if tumor on player
             if (baseManager.statusManager.DoesStatusExist("tumor") && damageModel.dmgSource != null)
@@ -115,7 +108,7 @@ namespace AssemblyCSharp
         {
             if (damagedSounds.Count > 0)
             {
-                MainGameManager.instance.soundManager.playSounds(damagedSounds);
+                MainGameManager.instance.soundManager.playSound(damagedSounds);
             }
         }
 
@@ -161,7 +154,7 @@ namespace AssemblyCSharp
 
                         battleDetailsManager.getDmg(damageModel, damageModel.showExtraInfo ? damageModel.skillSource : "");
                     }
-                    else
+                   /* else
                     {
                         if (damageModel.skillModel != null)
                         {
@@ -171,7 +164,7 @@ namespace AssemblyCSharp
                         {
                             damageModel.customHitFX = damageModel.enemySkillModel.hitEffect;
                         }
-                    }
+                    }*/
                 }
             }
         }

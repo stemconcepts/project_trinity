@@ -43,9 +43,16 @@ namespace AssemblyCSharp
             }
             if (baseManager.movementManager.currentPanel == null)
             {
-                baseManager.movementManager.currentPanel = BattleManager.GetRandomPanel(true);
+                var formation = MainGameManager.instance.GetCurrentPanelForRole(characterModel.role);
+                if (formation != null)
+                {
+                    baseManager.movementManager.currentPanel = MainGameManager.instance.GetGameObjectFromFormation(formation, BattleManager.allPanelManagers);
+                } else
+                {
+                    baseManager.movementManager.currentPanel = BattleManager.GetRandomPanel(true);
+                }
             }
-            baseManager.movementManager.currentPanel.GetComponent<PanelsManager>().currentOccupier = gameObject;
+            baseManager.movementManager.currentPanel.GetComponent<PanelsManager>().SetStartingPanel(this.gameObject);
         }
     }
 }

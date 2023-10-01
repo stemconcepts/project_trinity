@@ -2,6 +2,8 @@
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.scripts.Managers;
+using Assets.scripts.Managers.ExplorerScene_Scripts;
 
 namespace AssemblyCSharp
 {
@@ -11,7 +13,9 @@ namespace AssemblyCSharp
 		public bool healerReady = false;
 		public bool dpsReady = false;
 		public List<GameObject> enemies;
-		public string currentScene;
+		public List<ExplorerStatus> playerStatuses = new List<ExplorerStatus>();
+        public List<ExplorerStatus> enemyStatuses = new List<ExplorerStatus>();
+        public string currentScene;
 		public Animator battleTransition;
 
         void OnEnable()
@@ -24,17 +28,23 @@ namespace AssemblyCSharp
 		{
             if (SceneManager.GetActiveScene().name == "exploration")
             {
-                ExploreManager.explorerCamera.gameObject.SetActive(true);
+                MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialExploreTrack);
+                MainGameManager.instance.exploreManager.explorerCamera.gameObject.SetActive(true);
 				MainGameManager.instance.SaveScene("exploration");
 			}
 		}
 
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
-			MainGameManager.instance.GetCanvasAndMainCamera();
+			MainGameManager.instance.tooltipManager.DestroyAllToolTips();
+            MainGameManager.instance.GetCanvasAndMainCamera();
+			if (SceneManager.GetActiveScene().name == "exploration")
+			{
+                MainGameManager.instance.exploreManager = GameObject.Find("ExplorerManager").GetComponent<ExploreManagerV2>();
+            }
 			if (mode == LoadSceneMode.Additive)
 			{
-				ExploreManager.explorerCamera.gameObject.SetActive(false);
+				MainGameManager.instance.exploreManager.explorerCamera.gameObject.SetActive(false);
 				MainGameManager.instance.SaveScene(scene.name);
 			} else
 			{
@@ -55,11 +65,8 @@ namespace AssemblyCSharp
 
         public void LoadCrafting()
         {
-			MainGameManager.instance.GetActiveBoxColliders().ForEach(o =>
-			{
-				o.enabled = false;
-			});
-			SceneManager.LoadScene("craftingOverlay", LoadSceneMode.Additive);
+            MainGameManager.instance.DisableEnableLiveBoxColliders(false);
+            SceneManager.LoadScene("craftingOverlay", LoadSceneMode.Additive);
 		}
 
         public void LoadExploration(bool additive)
@@ -100,7 +107,7 @@ namespace AssemblyCSharp
 			return tankReady && healerReady && dpsReady;
 		}
 
-		public void LoadBattle(List<GameObject> enemies)
+		public void LoadBattle(List<GameObject> enemies, StatusModel[] playerStatuses = null, StatusModel[] enemyStatuses = null)
 		{
 			if (MainGameManager.instance.SceneManager.TeamReady())
 			{

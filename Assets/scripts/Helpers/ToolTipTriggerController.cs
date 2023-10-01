@@ -37,6 +37,11 @@ namespace AssemblyCSharp
             }
         }
 
+        public void ClearToolTips()
+        {
+            toolTipList = new List<ToolTipItem>();
+        }
+
         public void AddtoolTip(string id, string title, string desc)
         {
             var t = new ToolTipItem()
@@ -52,13 +57,17 @@ namespace AssemblyCSharp
         {
             toolTipList.ForEach(t =>
             {
-                t.liveHoverObj = (GameObject)Instantiate(hoverObj, ToolTipManager.canvasTooltip.transform);
+                t.liveHoverObj = (GameObject)Instantiate(hoverObj, MainGameManager.instance.tooltipManager.canvasTooltip.transform);
                 layoutElement = t.liveHoverObj.GetComponent<LayoutElement>();
                 t.liveHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
                 var Name = t.liveHoverObj.transform.Find("Name").GetComponent<Text>();
                 var Desc = t.liveHoverObj.transform.Find("Desc").GetComponent<Text>();
                 Name.text = t.toolTipName;
                 Desc.text = t.toolTipDesc;
+                if (Desc.text.Length == 0)
+                {
+                    Desc.gameObject.SetActive(false);
+                }
                 layoutElement.enabled = (t.toolTipName.Length > t.characterWrapLimit || t.toolTipDesc.Length > t.characterWrapLimit) ? true : false;
             });
         }
@@ -86,11 +95,16 @@ namespace AssemblyCSharp
             DestroyAllToolTips();
         }
 
+        void OnMouseDown()
+        {
+            DestroyAllToolTips();
+        }
+
         // Use this for initialization
         void Start()
         {
-            hoverObj = ExploreManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/tooltipHoverObject.prefab");
-            hoverObj.GetComponent<ToolTipBehaviour>().canvas = ToolTipManager.canvasTooltip.GetComponent<RectTransform>();
+            hoverObj = MainGameManager.instance.exploreManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/tooltipHoverObject.prefab");
+            hoverObj.GetComponent<ToolTipBehaviour>().canvas = MainGameManager.instance.tooltipManager.canvasTooltip.GetComponent<RectTransform>();
         }
 
         // Update is called once per frame

@@ -1,0 +1,22 @@
+skeleton.png
+size:561,701
+filter:Linear,Linear
+pma:true
+eye
+bounds:366,117,171,193
+rotate:90
+eyelidleft
+bounds:257,45,92,193
+hand that holds eye
+bounds:2,290,409,549
+rotate:90
+pupil
+bounds:351,35,80,171
+offsets:12,0,102,171
+rotate:90
+socket
+bounds:2,2,236,253
+offsets:35,0,303,253
+rotate:90
+tentacle
+bounds:2,240,362,48

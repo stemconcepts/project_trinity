@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using System.Linq;
 using static AssemblyCSharp.PhaseManager;
+using static AssemblyCSharp.GenericSkillModel;
 
 namespace AssemblyCSharp
 {
@@ -16,6 +17,7 @@ namespace AssemblyCSharp
         public BaseCharacterManager currenttarget;
         public bool isCasting;
         public List<GameObject> summonList = new List<GameObject>();
+        public GameObject defaultSwingEffect;
 
         public void OnEventSkillComplete(Spine.TrackEntry state, Spine.Event e)
         {

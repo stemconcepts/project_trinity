@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace AssemblyCSharp
 {
@@ -14,6 +16,7 @@ namespace AssemblyCSharp
         public bool ready = true;
         public int turnDuration;
         public bool dispellable;
+        public Action eventAction;
         public effectGrp effect;
         //private Task effectCDTask;
         public enum effectGrp {
@@ -23,6 +26,7 @@ namespace AssemblyCSharp
             Status,
             StatChange,
             EquipmentStatChange,
+            EditCorruption,
             Reset
         };
         public string focusAttribute;
@@ -44,48 +48,58 @@ namespace AssemblyCSharp
             return result;
         }
 
-        void RunEffect(RoleEnum role)
+        void RunEffectFromItemToRole(RoleEnum role, ItemBase item)
         {
             switch (effect)
             {
                 case effectGrp.None:
                     break;
                 case effectGrp.Heal:
-                    ExploreManager.AddToSliderHealth((int)power, role);
+                    MainGameManager.instance.exploreManager.AddToSliderHealth((int)power, role);
                     break;
                 case effectGrp.Damage:
-                    ExploreManager.AddToSliderHealth(-(int)power, role);
+                    MainGameManager.instance.exploreManager.AddToSliderHealth(-(int)power, role);
+                    break;
+                case effectGrp.EditCorruption:
+                    MainGameManager.instance.exploreManager.EditCurroption((int)power);
                     break;
                 case effectGrp.StatChange:
                     var r = new List<RoleEnum>() { role };
                     BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
                     break;
             }
+            MainGameManager.instance.exploreManager.RemoveObtainedItem(item);
         }
 
 
         /// <summary>
         /// Run an effect from a used item
         /// </summary>
-        public void RunEffectFromItem(List<RoleEnum> roles)
+        public void RunEffectFromItemToRoles(List<RoleEnum> roles, ItemBase item)
         {
             if (roles.Count == 0)
             {
                 roles = new List<RoleEnum>() { RoleEnum.tank, RoleEnum.healer, RoleEnum.dps };
                 roles.ForEach(role =>
                 {
-                    RunEffect(role);
+                    RunEffectFromItemToRole(role, item);
                 });
-            } else
+            }
+            else
             {
                 roles.ForEach(role =>
                 {
-                    RunEffect(role);
+                    RunEffectFromItemToRole(role, item);
                 });
             }
         }
 
-        public void RunEffect(){
+        public void RunEffectAction()
+        {
+            eventAction?.Invoke();
+        }
+
+        public void RunEffectFromSkill(){
             if ( BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready && CheckChance( triggerChance ) ){
                 target = affectSelf ? BattleManager.eventManager.eventModel.eventCaller : BattleManager.eventManager.eventModel.extTarget;
                 var baseManager = target.GetComponent<BaseCharacterManagerGroup>();

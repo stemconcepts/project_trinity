@@ -137,9 +137,9 @@ namespace AssemblyCSharp
             }
         }
 
-        public bool GetChanceToBeHit(float accuracy, float evasion)
+        public bool GetChanceToBeHit(float accuracy)
         {
-            var accuracyRemaining = accuracy - evasion;
+            var accuracyRemaining = accuracy - this.characterModel.evasion; //evasion;
             var chanceToHit = UnityEngine.Random.Range(0.0f, 1.0f);
             return accuracyRemaining >= chanceToHit;
         }
@@ -171,7 +171,7 @@ namespace AssemblyCSharp
             {
                 if(idleSound.Count > 0)
                 {
-                    BattleManager.soundManager.playSounds(idleSound);
+                    BattleManager.soundManager.playSound(idleSound);
                 }
             }
         }

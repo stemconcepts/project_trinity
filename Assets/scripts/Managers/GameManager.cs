@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.scripts.Managers;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace AssemblyCSharp
         public GameState State;
         public BattleManager BattleManager;
         public InventoryManager InventoryManager;
-        public ExploreManager ExploreManager;
+        public ExploreManagerV2 ExploreManager;
         public Task_Manager TaskManager;
         public Sound_Manager SoundManager;
         public BattleDetailsManager battleDetailsManager;

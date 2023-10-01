@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening.Core.Easing;
 using TMPro;
+using Assets.scripts.Models.skillModels.swapSkills;
+using Assets.scripts.Managers.CharacterMenuScene_Scripts.swapSkillMenu;
 
 namespace AssemblyCSharp
 {
@@ -14,7 +16,7 @@ namespace AssemblyCSharp
 		public bauble tankBaubleObject;
 		public SkillModel tankClassSkill;
 
-		public weaponModel healerWeaponObject;
+        public weaponModel healerWeaponObject;
 		public weaponModel healerSecondWeaponObject;
 		public bauble healerBaubleObject;
 		public SkillModel healerClassSkill;
@@ -24,14 +26,18 @@ namespace AssemblyCSharp
 		public bauble dpsBaubleObject;
 		public SkillModel dpsClassSkill;
 
-		[Header("Equip Slots")]
+        public EyeSkill eyeSkill;
+
+        [Header("Equip Slots")]
 		public GameObject tankSkillSlot;
         public GameObject dpsSkillSlot;
         public GameObject healerSkillSlot;
+        public GameObject eyeSkillSlot;
 
         [Header("Equipment Managers")]
         public slotManager slotManager;
         public skillSlotManager skillSlotManager;
+        public EyeSkillSlotManager swapSkillSlotManager;
 
         void Awake()
 		{
@@ -55,7 +61,7 @@ namespace AssemblyCSharp
 
 		void Start()
         {
-            characterInfoDisplayController.UpdateHealthInfo();
+            characterInfoDisplayController.LoadHealthInfo();
             if (MainGameManager.instance.ShowTutorialText("Inventory"))
 			{
 				MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Inventory"), MainGameManager.instance.GlobalCanvas.transform, 0, "Inventory Tutorial");

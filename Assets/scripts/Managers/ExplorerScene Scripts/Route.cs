@@ -39,7 +39,7 @@ namespace AssemblyCSharp
             if(allowedPathSprites.Count > 0)
             {
                 spriteRenderer = GetComponent<SpriteRenderer>();
-                spriteRenderer.sprite = allowedPathSprites[ExploreManager.gameManager.ReturnRandom(allowedPathSprites.Count)];
+                spriteRenderer.sprite = allowedPathSprites[MainGameManager.instance.ReturnRandom(allowedPathSprites.Count)];
             }
         }
 
@@ -53,9 +53,9 @@ namespace AssemblyCSharp
 
         bool CanUnlock()
         {
-            var fieldItemsController = ExploreManager.inventoryHolder.GetComponent<fieldInventoryController>();
+            var fieldItemsController = MainGameManager.instance.exploreManager.inventoryHolder.GetComponent<fieldInventoryController>();
             return lockObj != null && lockObj.locked && fieldItemsController.fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase.name == lockObj.key.name);
-                /*ExploreManager.obtainedItems.Any(o => o.name == lockObj.key.name)*/;
+                /*MainGameManager.instance.exploreManager.obtainedItems.Any(o => o.name == lockObj.key.name)*/;
         }
 
         void OnMouseEnter()
@@ -86,32 +86,32 @@ namespace AssemblyCSharp
         {
             if (lockObj == null || !lockObj.locked)
             {
-                MainGameManager.instance.soundManager.playSoundsInOrder(transitionSounds, true);
-                MainGameManager.instance.gameEffectManager.TransitionToScene(ExploreManager.GetRoomTransition(), 1f, () =>
+                MainGameManager.instance.soundManager.playSoundsInOrder(transitionSounds, true, 0.3f);
+                MainGameManager.instance.gameEffectManager.TransitionToScene(MainGameManager.instance.exploreManager.GetRoomTransition(), 1f, () =>
                 {
-                    ExploreManager.AddPreviousRoom(ExploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
-                    ExploreManager.ToggleRooms(true);
-                    var cRoom = ExploreManager.GetCurrentRoom();
+                    MainGameManager.instance.exploreManager.AddPreviousRoom(MainGameManager.instance.exploreManager.allRooms.Where(o => o.isActiveAndEnabled).FirstOrDefault());
+                    MainGameManager.instance.exploreManager.ToggleRooms(true);
+                    var cRoom = MainGameManager.instance.exploreManager.GetCurrentRoom();
                     GameObject targetRoom = GameObject.Find(location);
-                    if (ExploreManager.previousRooms.Count > 1 && ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 2].name == location)
+                    if (MainGameManager.instance.exploreManager.previousRooms.Count > 1 && MainGameManager.instance.exploreManager.previousRooms[MainGameManager.instance.exploreManager.previousRooms.Count - 2].name == location)
                     {
                         string otherRouteLocation = cRoom.routeLocations.Where(o => o != location).Where(a => !cRoom.routes.Any(r => r.location == a)).FirstOrDefault();
                         targetRoom = GameObject.Find(otherRouteLocation);
                     }
-                    ExploreManager.ToggleRooms(false);
+                    MainGameManager.instance.exploreManager.ToggleRooms(false);
                     targetRoom.SetActive(true);
-                    ExploreManager.SetCurrentRoom(targetRoom.name);
+                    MainGameManager.instance.exploreManager.SetCurrentRoom(targetRoom.name);
                     DungeonRoom dr = targetRoom.GetComponent<DungeonRoom>();
                     dr.SetVisited();
                     dr.CheckEncounterAndStart();
                     if (!curroptionAdded)
                     {
-                        ExploreManager.AddStep(1, curroptionAmount);
+                        MainGameManager.instance.exploreManager.AddStep(1, curroptionAmount);
                         curroptionAdded = true;
                     }
                     else
                     {
-                        ExploreManager.AddStep(1, 0);
+                        MainGameManager.instance.exploreManager.AddStep(1, 0);
                     }
                     toolTipController.DestroyToolTipDisplay("curroption");
                 });
@@ -123,7 +123,7 @@ namespace AssemblyCSharp
                 toolTipController.DestroyToolTipDisplay("lock");
                 toolTipController.DestroyToolTipDisplay("curroption");
                 toolTipController.enabled = false;
-                ExploreManager.RemoveObtainedItem(lockObj.key);
+                MainGameManager.instance.exploreManager.RemoveObtainedItem(lockObj.key);
             }
         }
     }

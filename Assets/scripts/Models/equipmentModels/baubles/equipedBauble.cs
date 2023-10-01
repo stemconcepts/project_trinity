@@ -27,7 +27,7 @@ namespace AssemblyCSharp
                     effect.focusAttribute = bauble.focusAttribute;
                     effect.owner = gameObject;
                     effect.coolDown = bauble.coolDown;
-                    BattleManager.eventManager.EventAction += effect.RunEffect;
+                    BattleManager.eventManager.EventAction += effect.RunEffectFromSkill;
                 }
             }
         }

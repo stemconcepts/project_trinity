@@ -152,7 +152,7 @@ namespace AssemblyCSharp
             effect.owner = gameObject;
             effect.dispellable = bauble.dispellable;
             effect.coolDown = bauble.coolDown;
-            BattleManager.eventManager.EventAction += effect.RunEffect;
+            BattleManager.eventManager.EventAction += effect.RunEffectFromSkill;
             if (bauble.trigger == triggerGrp.Passive)
             {
                 SetEventAndRunEffect(effect, bauble.trigger);
@@ -175,7 +175,7 @@ namespace AssemblyCSharp
             effect.statusFriendlyDispellable = weaponEffect.statusFriendlyDispellable;
             effect.dispellable = weaponEffect.dispellable;
             effect.coolDown = weaponEffect.coolDown;
-            BattleManager.eventManager.EventAction += effect.RunEffect;
+            BattleManager.eventManager.EventAction += effect.RunEffectFromSkill;
             if (weaponEffect.trigger == triggerGrp.Passive)
             {
                 SetEventAndRunEffect(effect, weaponEffect.trigger);
@@ -191,7 +191,7 @@ namespace AssemblyCSharp
                 eventCaller = baseManager.characterManager
             };
             BattleManager.eventManager.BuildEvent(eventModel);
-            effect.RunEffect();
+            effect.RunEffectFromSkill();
         }
     }
 }

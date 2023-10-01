@@ -75,9 +75,15 @@ namespace AssemblyCSharp
             this.cancelText.text = cancelText;
         }
 
+        public void UseItemThenClose(ItemBase item)
+        {
+            useItemAction.Invoke(rolesSelected, item);
+            CloseMessage();
+        }
+
         public void PerformActionThenClose()
         {
-            useItemAction.Invoke(rolesSelected);
+            okAction.Invoke();
             CloseMessage();
         }
 

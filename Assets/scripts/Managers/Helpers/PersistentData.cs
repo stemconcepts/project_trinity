@@ -86,6 +86,7 @@ namespace AssemblyCSharp
         public int healerHealth;
         public int healerMaxHealth;
         public CharacterData healerEquipment;
+        public string eyeSkillName;
 
         public PlayerData()
         {
@@ -129,16 +130,24 @@ namespace AssemblyCSharp
         }
     }
 
+    public class FormationData
+    {
+        public string Occupier;
+        public int PanelNumber;
+        public string VerticalFlag;
+    }
+
     [System.Serializable]
     public class PersistentData
     {
         public PlayerData playerData;
         public DungeonData dungeonData;
-
+        public FormationData[] formations;
         public PersistentData()
         {
             this.playerData = new PlayerData();
             this.dungeonData = new DungeonData();
+            this.formations = new FormationData[] {};
         }
     }
 }

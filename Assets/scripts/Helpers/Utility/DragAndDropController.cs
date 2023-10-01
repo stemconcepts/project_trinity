@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -10,6 +11,7 @@ using UnityEngine.UI;
 
 namespace Assets.scripts.Helpers.Utility
 {
+    //public class DragAndDropController<T> : MonoBehaviour where T : ExplorerItemsController
     public class DragAndDropController : MonoBehaviour
     {
         public DragAndDropMasterController dragAndDropMaster;
@@ -20,6 +22,7 @@ namespace Assets.scripts.Helpers.Utility
         bool dragging;
         public delegate void OnMouseUpAction(ItemBase item);
         public OnMouseUpAction mouseUpAction;
+        public OnMouseUpAction mouseUpActionRemove;
 
         public void OnMouseDown()
         {
@@ -37,8 +40,12 @@ namespace Assets.scripts.Helpers.Utility
                 if (newParent)
                 {
                     mouseUpAction?.Invoke(gameObject.GetComponent<ExplorerItemsController>().itemBase);
+                    SetOrigParent(newParent);
+                } else
+                {
+                    mouseUpActionRemove?.Invoke(gameObject.GetComponent<ExplorerItemsController>().itemBase);
+                    SetOrigParent(origParent);
                 }
-                SetOrigParent(newParent);
                 dragAndDropMaster.ResetDraggedItem();
                 dragging = false;
             }

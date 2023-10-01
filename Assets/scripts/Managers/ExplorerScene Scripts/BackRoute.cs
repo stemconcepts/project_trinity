@@ -18,16 +18,16 @@ namespace AssemblyCSharp
 
         void OnMouseUp()
         {
-            MainGameManager.instance.soundManager.playSoundsInOrder(transitionSounds, true);
-            if (ExploreManager.previousRooms.Count > 0)
+            MainGameManager.instance.soundManager.playSoundsInOrder(transitionSounds, true, 0.5f);
+            if (MainGameManager.instance.exploreManager.previousRooms.Count > 0)
             {
-                MainGameManager.instance.gameEffectManager.TransitionToScene(ExploreManager.GetRoomTransition(), 1f, () =>
+                MainGameManager.instance.gameEffectManager.TransitionToScene(MainGameManager.instance.exploreManager.GetRoomTransition(), 1f, () =>
                 {
-                    ExploreManager.ToggleRooms(false);
-                    ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 1].gameObject.SetActive(true);
-                    ExploreManager.SetCurrentRoom(ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 1].gameObject.name);
-                    SavedDataManager.SavedDataManagerInstance.EditPreviousRoom(ExploreManager.previousRooms[ExploreManager.previousRooms.Count - 1].gameObject.name, false);
-                    ExploreManager.previousRooms.RemoveAt(ExploreManager.previousRooms.Count - 1);
+                    MainGameManager.instance.exploreManager.ToggleRooms(false);
+                    MainGameManager.instance.exploreManager.previousRooms[MainGameManager.instance.exploreManager.previousRooms.Count - 1].gameObject.SetActive(true);
+                    MainGameManager.instance.exploreManager.SetCurrentRoom(MainGameManager.instance.exploreManager.previousRooms[MainGameManager.instance.exploreManager.previousRooms.Count - 1].gameObject.name);
+                    SavedDataManager.SavedDataManagerInstance.EditPreviousRoom(MainGameManager.instance.exploreManager.previousRooms[MainGameManager.instance.exploreManager.previousRooms.Count - 1].gameObject.name, false);
+                    MainGameManager.instance.exploreManager.previousRooms.RemoveAt(MainGameManager.instance.exploreManager.previousRooms.Count - 1);
                 });
             }
         }

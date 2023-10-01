@@ -1,4 +1,5 @@
-﻿using Assets.scripts.Managers.ExplorerScene_Scripts;
+﻿using AssemblyCSharp;
+using Assets.scripts.Managers.ExplorerScene_Scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

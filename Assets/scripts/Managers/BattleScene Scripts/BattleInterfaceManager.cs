@@ -15,7 +15,8 @@ namespace AssemblyCSharp
         public Text skillCost;
         public Image iconImageScript;
         public Image skillCDImage;
-        public ToolTipController toolTip;
+        //public ToolTipController toolTip;
+        public ToolTipTriggerController toolTip;
         public KeyCode KeyCode;
         public AudioClip skillSelectSound;
 
@@ -25,7 +26,8 @@ namespace AssemblyCSharp
         }
 
         public void SkillSet ( PlayerSkillManager skillManager ) {
-            if( buttonID != 3 ){
+            toolTip.ClearToolTips();
+            if ( buttonID != 3 ){
                 if( skillManager.weaponSlot.ToString() == "Main" ){
                     skill = skillManager.primaryWeaponSkills[buttonID];
                 } else {
@@ -44,8 +46,9 @@ namespace AssemblyCSharp
             iconImageScript.type = Image.Type.Filled;
             //skillName.text = skill.skillName;
             skillCost.text = skill.skillCost.ToString();
-            toolTip.toolTipName = skill.skillName;
-            toolTip.toolTipDesc = skill.skillDesc;
+            toolTip.AddtoolTip(skill.skillName, skill.skillName, skill.skillDesc);
+            //toolTip.toolTipName = skill.skillName;
+            //toolTip.toolTipDesc = skill.skillDesc;
 
         }
 

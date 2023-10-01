@@ -17,23 +17,26 @@ public class CharacterInfoDisplayController : MonoBehaviour
     /// <param name="classType"></param>
     /// <param name="currentHealth"></param>
     /// <param name="maxHealth"></param>
-    public void SetHealthInfo(classType classType, int currentHealth, int maxHealth)
+    public void SetHealthInfo(classType classType, int currentHealth, int? maxHealth = null)
     {
         switch (classType)
         {
             case classType.guardian:
-                guardianText.text = $"{currentHealth}/{maxHealth}";
+                var currentGuardianMaxHealth = maxHealth ?? int.Parse(guardianText.text.Split('/')[1]);
+                guardianText.text = $"{currentHealth}/{currentGuardianMaxHealth}";
                 break;
             case classType.stalker:
-                stalkerText.text = $"{currentHealth}/{maxHealth}";
+                var currentStalkerMaxHealth = maxHealth ?? int.Parse(stalkerText.text.Split('/')[1]);
+                stalkerText.text = $"{currentHealth}/{currentStalkerMaxHealth}";
                 break;
             case classType.walker:
-                walkerText.text = $"{currentHealth}/{maxHealth}";
+                var currentWalkerMaxHealth = maxHealth ?? int.Parse(walkerText.text.Split('/')[1]);
+                walkerText.text = $"{currentHealth}/{currentWalkerMaxHealth}";
                 break;
         }
     }
 
-    public void UpdateHealthInfo()
+    public void LoadHealthInfo()
     {
         PlayerData playerdata = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
         SetHealthInfo(classType.guardian, playerdata.tankHealth, playerdata.tankMaxHealth);

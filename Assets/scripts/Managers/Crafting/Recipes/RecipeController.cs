@@ -9,13 +9,20 @@ using UnityEngine;
 
 namespace Assets.scripts.Managers.Crafting.Recipes
 {
+    public class RecipeResult
+    {
+        public List<ItemBase> items = new List<ItemBase>();
+        public MixMode mixMode;
+    }
+
     public class RecipeController : MonoBehaviour
     {
         public List<Recipe> recipes = new List<Recipe>();
 
-        public List<ItemBase> HasCombination(List<ItemBase> items, CraftingCatalyst catalyst)
+        public RecipeResult HasCombination(List<ItemBase> items, CraftingCatalyst catalyst)
         {
-            List<ItemBase> res = new List<ItemBase>();
+
+            RecipeResult res = new RecipeResult();
             recipes.ForEach(o =>
             {
                 var r = new List<ItemBase>()
@@ -25,10 +32,23 @@ namespace Assets.scripts.Managers.Crafting.Recipes
                 r.RemoveAll(i => i == null);
                 if (o.requiredCatalyst == catalyst)
                 {
-                    if (r.All(items.Contains) && r.Count == items.Count)
+                    switch (o.mixMode)
                     {
-                        res.AddRange(o.results);
-                    };
+                        case MixMode.requiresAllOf:
+                            if (r.All(items.Contains) && r.Count == items.Count)
+                            {
+                                res.items.AddRange(o.results);
+                            };
+                            break;
+                        case MixMode.requiresAnyOf:
+                            if (r.Any(items.Contains))
+                            {
+                                res.items.AddRange(o.results);
+                            };
+                            break;
+                        default:
+                            break;
+                    }
                 }
             });
             return res;

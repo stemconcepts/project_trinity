@@ -73,6 +73,7 @@ namespace AssemblyCSharp
             selectedChar.DisplaySkills();
             classStates.ForEach(o => o.Selected = false);
             classStates.Where(o => o.Name == characterClass).FirstOrDefault().Selected = true;
+            MainGameManager.instance.soundManager.PlayCharacterSelectSound();
         }
 
         public string GetAlive(){
@@ -122,7 +123,7 @@ namespace AssemblyCSharp
             var swapTo = BattleManager.characterSelectManager.GetAlive();
             BattleManager.characterSelectManager.SetSelectedCharacter(swapTo);
             GetSelectedClassObject().GetComponent<CharacterInteractionManager>().DisplaySkills();
-            MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.charSwapSound);
+            MainGameManager.instance.soundManager.PlayCharacterSelectSound();
         }
 
         public void UpdateCharacters(string deadCharacterName = null)

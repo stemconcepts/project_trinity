@@ -5,6 +5,7 @@ using UnityEngine;
 using Spine;
 using Spine.Unity;
 using System.Threading.Tasks;
+using UnityEngine.Rendering;
 
 namespace Spine.Unity {
 	
@@ -16,7 +17,8 @@ namespace Spine.Unity {
 
 		public bool initialFlipX, initialFlipY;
 		public string initialAnimation;
-		public bool initialLoop;
+        public string initialSortingLayer;
+        public bool initialLoop;
 		[Space]
 		public List<SkeletonDataAsset> skeletonDataAssets = new List<SkeletonDataAsset>();
 		[Header("Settings")]
@@ -64,10 +66,14 @@ namespace Spine.Unity {
 
 			var settings = this.meshGeneratorSettings;
 			Transform thisTransform = this.transform;
-			foreach (var sda in skeletonDataAssets) {
+			foreach (var sda in skeletonDataAssets)
+			{
 				var sa = SkeletonAnimation.NewSkeletonAnimationGameObject(sda);
-				meshRenderers.Add(sa.gameObject.GetComponent<MeshRenderer>());
+				var meshRender = sa.gameObject.GetComponent<MeshRenderer>();
+				meshRender.sortingLayerName = initialSortingLayer;
+                meshRenderers.Add(sa.gameObject.GetComponent<MeshRenderer>());
 				sa.transform.SetParent(thisTransform, false);
+
 
 				sa.SetMeshSettings(settings);
 				sa.initialFlipX = this.initialFlipX;

@@ -153,7 +153,7 @@ namespace AssemblyCSharp
                 float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 2f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 2f);
                 float ypos = (size.y + offsetYPosition);
                 attackedPos.x = xpos;
-                attackedPos.y = target.transform.position.y;//target.GetComponent<BaseMovementManager>().currentPanel.transform.position.y /*+ (ypos / 2.2f)*/;
+                attackedPos.y = target.transform.position.y;
             }
             return attackedPos;
         }
@@ -165,9 +165,8 @@ namespace AssemblyCSharp
             {
                 baseManager.effectsManager.CallEffect(dashEffect, "bottom");
             }
-            //BattleManager.taskManager.MoveForwardTask( baseManager, movementSpeed, targetpos, dashEffect );
-
             baseManager.gameObject.transform.DOMove(targetpos, movementSpeed/100).SetEase(Ease.OutQuad);
+            MainGameManager.instance.soundManager.playAllSounds(movementSounds, 0.2f);
         }
     
         public void moveToHome(){
@@ -180,6 +179,7 @@ namespace AssemblyCSharp
                 });
             baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.hopAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, 0);
+            MainGameManager.instance.soundManager.playAllSounds(movementSounds, 0.2f);
         }
 
         public void MoveToPanel(PanelsManager panelManager, animationOptionsEnum hopAnimation = animationOptionsEnum.none)
@@ -203,6 +203,7 @@ namespace AssemblyCSharp
                 eventCaller = baseManager.characterManager
             };
             BattleManager.eventManager.BuildEvent(eventModel);
+            MainGameManager.instance.soundManager.playAllSounds(movementSounds, 0.2f);
         }
 
         public void OnEventMove(Spine.TrackEntry state, Spine.Event e ){

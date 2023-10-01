@@ -1,0 +1,11 @@
+skeleton.png
+size:763,504
+filter:Linear,Linear
+pma:true
+head
+bounds:2,2,470,500
+jaw
+bounds:474,156,287,346
+wizard_0000s_0001_eyes
+bounds:474,145,11,9
+offsets:7,1,18,21

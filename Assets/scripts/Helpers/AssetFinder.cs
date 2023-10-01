@@ -3,6 +3,8 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Assets.scripts.Models.skillModels.swapSkills;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
@@ -12,6 +14,12 @@ namespace AssemblyCSharp
             "Assets/scripts/Models/skillModels/tankSkills/ClassSkills",
             "Assets/scripts/Models/skillModels/dpsSkills/ClassSkills", 
             "Assets/scripts/Models/skillModels/healerSkills/ClassSkills"
+        };
+
+        private string[] eyeSkillsFolders = new string[]{
+            "Assets/scripts/Models/skillModels/eyeSkills/Offensive",
+            "Assets/scripts/Models/skillModels/eyeSkills/Defensive",
+            "Assets/scripts/Models/skillModels/eyeSkills/Mixed"
         };
 
         private string[] weaponFolders = new string[] { 
@@ -52,6 +60,39 @@ namespace AssemblyCSharp
                 statuses.Add( status );
             } 
             return statuses;
+        }
+
+        public List<EyeSkill> GetEyeSkills()
+        {
+            List<EyeSkill> skills = new List<EyeSkill>();
+            var skillsList = AssetDatabase.FindAssets("t:EyeSkill", eyeSkillsFolders);
+            foreach (var skillItem in skillsList)
+            {
+                string item = AssetDatabase.GUIDToAssetPath(skillItem);
+                var skill = AssetDatabase.LoadAssetAtPath<EyeSkill>(item);
+                if (skill.learned)
+                {
+                    skills.Add(skill);
+                }
+            }
+            return skills;
+        }
+
+        public EyeSkill GetEyeSkillbyName(string skillName)
+        {
+            List<EyeSkill> skills = new List<EyeSkill>();
+            var skillsList = AssetDatabase.FindAssets("t:EyeSkill", eyeSkillsFolders);
+
+            foreach (var skillItem in skillsList)
+            {
+                string item = AssetDatabase.GUIDToAssetPath(skillItem);
+                var skill = AssetDatabase.LoadAssetAtPath<EyeSkill>(item);
+                if (skill.learned)
+                {
+                    skills.Add(skill);
+                }
+            }
+            return skills.FirstOrDefault(skill => skill.skillName == skillName);
         }
 
         public List<SkillModel> GetAllSkills(){

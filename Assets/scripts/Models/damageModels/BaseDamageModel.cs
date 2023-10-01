@@ -23,10 +23,8 @@ namespace AssemblyCSharp
         public float healAmount;
         public float healAmountTaken;
         public string skillSource;
-        public GameObject customHitFX;
         public Transform hitEffectPositionScript;
         public GameObject hitEffectPosition;
-        public GameObject effectObject;
         public BaseCharacterManager dmgSource;
         public string hitAnimation;
         public string hitAnimNormal;
@@ -36,6 +34,7 @@ namespace AssemblyCSharp
         public List<BaseCharacterManager> dueDmgTargets;
         public SkillModel skillModel;
         public enemySkill enemySkillModel;
+        public GenericSkillModel skill;
         public BaseCharacterManagerGroup baseManager;
         public bool isMagicDmg = false;
         public bool isMiss;

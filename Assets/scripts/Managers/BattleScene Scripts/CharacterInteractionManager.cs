@@ -24,7 +24,6 @@ namespace AssemblyCSharp
             if (!BattleManager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive && !baseManager.statusManager.DoesStatusExist("stun") ){
                 if(baseManager.characterManager.characterModel.characterType != CharacterModel.CharacterTypeEnum.enemy ){
                     BattleManager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
-                    //MainGameManager.instance.soundManager.playSound(characterSelectSound);
                 }
             } else if (BattleManager.waitingForSkillTarget)
             {

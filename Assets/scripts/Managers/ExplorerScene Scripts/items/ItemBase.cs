@@ -49,13 +49,13 @@ namespace AssemblyCSharp
             explorererItemController.SetUpItem(this, "obtained_item");
             if (explorererItemController.itemBase.GetType() == typeof(Consumable))
             {
-                var i = gameObject.AddComponent<InteractWithObjectController>();
+                var interactWithObjectController = gameObject.AddComponent<InteractWithObjectController>();
                 var consumable = (Consumable)explorererItemController.itemBase;
-                i.SetMessageText(explorererItemController.itemBase.itemDesc, "Use Item", "Cancel", explorererItemController.itemBase.itemName, !consumable.affectAll);
+                interactWithObjectController.SetMessageText("Use Item", "Cancel", consumable);
                 consumable.effectsOnUse.ForEach(effect =>
                 {
                     effect.LoadEffectData(consumable.power, 0, 1, true, effect.effect, true, null, 0); //lots of values here are irrelevant for explorer item use
-                    i.useItemAction += effect.RunEffectFromItem;
+                    interactWithObjectController.useItemAction += effect.RunEffectFromItemToRoles;
                 });
             }
             return gameObject;

@@ -57,7 +57,7 @@ namespace AssemblyCSharp
         {
            if (MainGameManager.instance.SceneManager.currentScene.ToLower() == "exploration")
            {
-                ExploreManager.AddToObtainedItems(itemBase, this.gameObject);
+                MainGameManager.instance.exploreManager.AddToObtainedItems(itemBase, this.gameObject);
            }
         }
     }

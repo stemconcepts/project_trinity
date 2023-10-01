@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Assets.scripts.Managers;
 
 namespace AssemblyCSharp
 {
     public class Base_Generic_Manager : MonoBehaviour
     {
         public BattleManager BattleManager;
-        public ExploreManager ExploreManager;
+        public ExploreManagerV2 ExploreManager;
         public Task_Manager TaskManager;
         //public Sound_Manager SoundManager;
         public BattleDetailsManager battleDetailsManager;

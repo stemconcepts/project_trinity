@@ -3,15 +3,42 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Assets.scripts.Models.skillModels.swapSkills;
+using Spine;
 
 namespace AssemblyCSharp
 {
+    public enum fxPosEnum
+    {
+        center,
+        bottom,
+        front,
+        top
+    }
+
     public class SkillData
     {
         public BaseCharacterManager target;
         public BaseCharacterManager caster;
         public SkillModel skillModel;
         public enemySkill enemySkillModel;
+        public EyeSkill eyeSkillModel;
+    }
+
+    [Serializable]
+    public class SkillEffect
+    {
+        public SkillEffect(float size, GameObject fxObject, fxPosEnum fxPos)
+        {
+            this.color = new Color(1f, 1f, 1f, 1f);
+            this.size = size;
+            this.fxObject = fxObject;
+            this.fxPos = fxPos;
+        }
+        public Color color = new Color(1f, 1f, 1f, 1f);
+        public float size = 1.0f;
+        public GameObject fxObject;
+        public fxPosEnum fxPos;
     }
 
     public class GenericSkillModel : ScriptableObject
@@ -37,14 +64,16 @@ namespace AssemblyCSharp
         public string skillDesc;
         [ConditionalHide("movesToTarget", false, false)]
         public float attackMovementSpeed;
-        [Header("Turn Details")]
+        [HideInInspector]
         public int turnToComplete;
+        [HideInInspector]
         public int turnToReset;
+        [HideInInspector]
         public int castTurnTime;
         [HideInInspector]
         public bool castTimeReady;
+        [Header("Turn Details")]
         public int turnDuration = 4;
-        [HideInInspector]
         public int skillCooldown = 0;
         [Header("Animation:")]
         public string skinChange;
@@ -52,7 +81,7 @@ namespace AssemblyCSharp
         public animationOptionsEnum BeginCastingAnimation;
         public animationOptionsEnum CastingAnimation;
         public bool loopAnimation;
-        [Header("Target choices")]
+        [Header("Target Choices")]
         public bool self;
         public bool enemy;
         public bool friendly;
@@ -61,10 +90,10 @@ namespace AssemblyCSharp
         public bool targetAndSelf;
         public bool summon;
         [Header("Sounds")]
-        public AudioClip chargeSound;
-        public AudioClip castSound;
+        public List<AudioClip> castingSounds = new List<AudioClip>();
+        public List<AudioClip> hitSounds = new List<AudioClip>();
         [Header("Extra Effect")]
-        [ConditionalHide(true)]
+        [HideInInspector]
         public bool useModifier;
         public ExtraEffectEnum ExtraEffect;
         public enum ExtraEffectEnum
@@ -114,41 +143,28 @@ namespace AssemblyCSharp
             Forward
         }
 
-        [Header("FX Animation:")]
-        public GameObject hitEffect;
-        public GameObject swingEffect;
-        public GameObject fxObject;
-        public fxPosEnum fxPos;
-        public enum fxPosEnum
-        {
-            center,
-            bottom,
-            front,
-            top
-        }
+        [Header("Skill Effects:")]
+        public List<SkillEffect> skillEffects = new List<SkillEffect>();
+        [Header("Swing Effects:")]
+        public List<SkillEffect> swingEffects = new List<SkillEffect>();
+        [ConditionalHide("doesDamage")]
         public DamageColorEnum dmgTextColor;
 
         [Header("Status Effects:")]
-        public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
-        public bool statusDispellable = true;
+        public List<StatusItem> statusGroup = new List<StatusItem>();
+        //public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
+        //public bool statusDispellable = true;
         [Header("Friendly Status Effects:")]
-        public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
-        public bool statusFriendlyDispellable = true;
+        public List<StatusItem> statusGroupFriendly = new List<StatusItem>();
+        //public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
+        //public bool statusFriendlyDispellable = true;
 
-        public void AttachStatus(List<SingleStatusModel> singleStatusGroup, BaseCharacterManagerGroup baseManager, float power, SkillModel skillModel)
+        public void AttachStatus(List<StatusItem> statusItems, BaseCharacterManagerGroup baseManager, GenericSkillModel skillModel)
         {
-            for (int i = 0; i < singleStatusGroup.Count; i++)
+            statusItems.ForEach(statusItem =>
             {
-                GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
-            }
-        }
-
-        public void AttachStatus(List<SingleStatusModel> singleStatusGroup, BaseCharacterManagerGroup baseManager, float power, enemySkill skillModel)
-        {
-            for (int i = 0; i < singleStatusGroup.Count; i++)
-            {
-                GenerateStatusModelAndRun(singleStatusGroup[i], baseManager, power, skillModel);
-            }
+                GenerateStatusModelAndRun(statusItem, baseManager, skillModel);
+            });
         }
 
         public bool CanCastFromPosition(List<CompatibleRow> rows, BaseCharacterManagerGroup baseManager)
@@ -172,18 +188,18 @@ namespace AssemblyCSharp
             return false;
         }
 
-        void GenerateStatusModelAndRun(SingleStatusModel singleStatus, BaseCharacterManagerGroup baseManager, float power, GenericSkillModel skillModel)
+        void GenerateStatusModelAndRun(StatusItem statusItem, BaseCharacterManagerGroup baseManager, GenericSkillModel skillModel)
         {
             var sm = new StatusModel
             {
-                singleStatus = singleStatus,
-                power = power,
+                singleStatus = statusItem.status,
+                power = statusItem.power,
                 turnDuration = skillModel.turnDuration,
                 baseManager = baseManager,
-                isFlat = skillModel.isFlat,
+                isFlat = statusItem.status.isFlat,
                 dmgTextColor = skillModel.dmgTextColor
             };
-            sm.singleStatus.dispellable = skillModel.statusDispellable;
+            sm.singleStatus.dispellable = statusItem.dispellable;
             baseManager.statusManager.RunStatusFunction(sm);
         }
 

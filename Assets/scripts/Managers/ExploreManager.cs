@@ -552,7 +552,7 @@ namespace AssemblyCSharp
                     DungeonRoom dr = room.GetComponent<DungeonRoom>();
                     for (int index = 0; index <= dungeonSettingsStatic.maxResourcePerRoom; index++)
                     {
-                        if (MainGameManager.instance.GetChanceByPercentage(0.5f))
+                        if (MainGameManager.instance.GetChanceByPercentage(0.8f))
                         {
                             var randomResource = MainGameManager.instance.ReturnRandom(dungeonSettingsStatic.resources.Count);
                             dr.AddResources(dungeonSettingsStatic.resources[randomResource], fieldItemTemplate);
@@ -613,7 +613,7 @@ namespace AssemblyCSharp
                 GameObject objectT = Instantiate(objectTemplate, GetFreeSection(room, position));
                 var ro = objectT.GetComponent<RoomObject>();
                 ro.position = position;
-                ro.GenerateItems(1);
+                //ro.GenerateItems(1);
                 room.roomObjects.Add(ro);
             }
         }
@@ -737,14 +737,14 @@ namespace AssemblyCSharp
             }
         }
 
-        /// <summary>
+        /*// <summary>
         /// Return player status for battle
         /// </summary>
         /// <returns></returns>
         public static List<environmentStatuses> GetDungeonStatus(bool friendly)
         {
-            return friendly ? dungeonSettingsStatic.environmentStatuses : dungeonSettingsStatic.enemyEnvironmentStatuses;
-        }
+            return friendly ? dungeonSettingsStatic.playertStatuses : dungeonSettingsStatic.enemyStatuses;
+        }*/
 
         void GetTotalRoomsAndHide()
         {
@@ -767,7 +767,7 @@ namespace AssemblyCSharp
             tankHealth.value = playerData.tankHealth;
             dpsHealth.value = playerData.dpsHealth;
             healerHealth.value = playerData.healerHealth;
-            characterInfoDisplayController.UpdateHealthInfo();
+            characterInfoDisplayController.LoadHealthInfo();
             SetMaxHealth(playerData.tankMaxHealth, RoleEnum.tank);
             SetMaxHealth(playerData.dpsMaxHealth, RoleEnum.dps);
             SetMaxHealth(playerData.healerMaxHealth, RoleEnum.healer);

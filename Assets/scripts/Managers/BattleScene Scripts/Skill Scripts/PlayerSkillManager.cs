@@ -90,7 +90,8 @@ namespace AssemblyCSharp
             var player = this.gameObject;
             var enemyPlayers = BattleManager.GetEnemyCharacterManagers();
             var friendlyPlayers = BattleManager.GetFriendlyCharacterManagers();
-            if (skillModel.self) { finalTargets.Add(baseManager.characterManager as CharacterManager); }
+            if (skillModel.self) { 
+                finalTargets.Add(baseManager.characterManager as CharacterManager); }
             if (skillModel.allEnemy) {
                 finalTargets.AddRange(enemyPlayers);
                 currenttarget = enemyPlayers[Random.Range(0, enemyPlayers.Count())];
@@ -157,15 +158,6 @@ namespace AssemblyCSharp
 
         private void DealHealDmg(SkillModel skillModel, List<BaseCharacterManager> targets, float power)
         {
-            foreach (var status in skillModel.singleStatusGroup)
-            {
-                status.dispellable = skillModel.statusDispellable;
-            };
-
-            foreach (var status in skillModel.singleStatusGroupFriendly)
-            {
-                status.dispellable = skillModel.statusDispellable;
-            };
             foreach (var target in targets)
             {
                 SkillData data = new SkillData()
@@ -174,7 +166,7 @@ namespace AssemblyCSharp
                     caster = baseManager.characterManager,
                     skillModel = skillModel
                 };
-                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy, baseManager.characterManager.characterModel.evasion);
+                var didHit = skillModel.isSpell ? true : target.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy);
                 skillModel.RunExtraEffect(data);
                 if (skillModel.doesDamage)
                 {
@@ -185,10 +177,11 @@ namespace AssemblyCSharp
                         skillModel = skillModel,
                         dmgSource = baseManager.characterManager,
                         dueDmgTargets = targets,
-                        hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
-                        modifiedDamage = skillModel.useModifier
+                        //hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
+                        modifiedDamage = skillModel.useModifier,
+                        //customHitFX = skillModel.fxObject
                     };
-                    if (skillModel.isSpell || didHit)
+                    if (didHit)
                     {
                         if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
                         {
@@ -200,7 +193,7 @@ namespace AssemblyCSharp
                     {
                         dmgModel.incomingDmg = 0;
                         dmgModel.showDmgNumber = false;
-                        MainGameManager.instance.soundManager.playSound("miss");
+                        MainGameManager.instance.soundManager.PlayMissSound();
                         BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
                     }
                 };
@@ -218,45 +211,47 @@ namespace AssemblyCSharp
                     };
                     target.baseManager.damageManager.calculateHdamage(dmgModel);
                 };
-                if (skillModel.isSpell || didHit || skillModel.healsDamage)
+                if ((didHit || skillModel.healsDamage) && skillModel.skillEffects.Count() > 0)
                 {
-                    if (skillModel.fxObject != null)
+                    skillModel.skillEffects.ForEach(effect =>
                     {
-                        baseManager.effectsManager.callEffectTarget(target, skillModel.fxObject);
-                    }
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(target.baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect);
+                    });
                 }
-                if (skillModel.singleStatusGroupFriendly.Count() > 0 || (skillModel.isSpell || didHit) && skillModel.singleStatusGroup.Count() > 0)
+                if (skillModel.healsDamage || didHit)
                 {
-                    AddStatuses(target, power, skillModel);
+                    AddStatuses(target, skillModel);
                 }
             }
-            if (skillModel.castSound != null)
+            if (skillModel.hitSounds.Count > 0)
             {
-                MainGameManager.instance.soundManager.playSoundUsingAudioSource(skillModel.castSound, baseManager.gameObject.GetComponent<AudioSource>());
+                MainGameManager.instance.soundManager.playAllSounds(skillModel.hitSounds, 0.3f);
             }
             else if (skillModel.isSpell)
             {
-                MainGameManager.instance.soundManager.playSounds(MainGameManager.instance.soundManager.magicChargeSounds);
+                MainGameManager.instance.soundManager.playAllSounds(MainGameManager.instance.soundManager.hitSounds, 0.3f);
             }
         }
 
-
-        private void AddStatuses(BaseCharacterManager target, float power, SkillModel skillModel)
+        private void AddStatuses(BaseCharacterManager target, SkillModel skillModel)
         {
-            if (target.characterModel.characterType == baseManager.characterManager.characterModel.characterType)
+            if (skillModel.statusGroupFriendly.Count() > 0)
             {
-                var hitAnimation = skillModel.singleStatusGroupFriendly.Where(o => o.hitAnim != animationOptionsEnum.none).Select(o => o.hitAnim).FirstOrDefault();
-                var hitIdleAnimation = skillModel.singleStatusGroupFriendly.Where(o => o.holdAnim != animationOptionsEnum.none).Select(o => o.holdAnim).FirstOrDefault();
-                target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
-                skillModel.AttachStatus(skillModel.singleStatusGroupFriendly, target.baseManager, power, skillModel);
+                ProcessStatus(target, skillModel, skillModel.statusGroupFriendly);
             }
-            else
+            if (skillModel.statusGroup.Count() > 0)
             {
-                var hitAnimation = skillModel.singleStatusGroup.Where(o => o.hitAnim != animationOptionsEnum.none).Select(o => o.hitAnim).FirstOrDefault();
-                var hitIdleAnimation = skillModel.singleStatusGroup.Where(o => o.holdAnim != animationOptionsEnum.none).Select(o => o.holdAnim).FirstOrDefault();
-                target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
-                skillModel.AttachStatus(skillModel.singleStatusGroup, target.baseManager, power, skillModel);
+                ProcessStatus(target, skillModel, skillModel.statusGroup);
             }
+        }
+
+        private void ProcessStatus(BaseCharacterManager target, GenericSkillModel skill, List<StatusItem> statusItems)
+        {
+            var hitAnimation = statusItems.Where(statusItem => statusItem.status.hitAnim != animationOptionsEnum.none).Select(o => o.status.hitAnim).FirstOrDefault();
+            var hitIdleAnimation = statusItems.Where(statusItem => statusItem.status.holdAnim != animationOptionsEnum.none).Select(o => o.status.holdAnim).FirstOrDefault();
+            skill.AttachStatus(statusItems, target.baseManager, skill);
+            target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
+            MainGameManager.instance.soundManager.PlayNegativeEffectSound();
         }
 
         private void SetAnimations(SkillModel skillModel)
@@ -332,9 +327,23 @@ namespace AssemblyCSharp
 
         public void OnEventSkillTrigger(Spine.TrackEntry state, Spine.Event e)
         {
-            if (e.Data.Name == "swing" && activeSkill.swingEffect)
+            if (e.Data.Name == "swing" && activeSkill)
             {
-                baseManager.effectsManager.CallEffect(activeSkill.swingEffect, "center");
+                if (activeSkill.swingEffects.Count() > 0)
+                {
+                    activeSkill.swingEffects.ForEach(effect =>
+                    {
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect);
+                    });
+                }
+                else
+                {
+                    if (defaultSwingEffect && activeSkill.skillEffects.Count() == 0)
+                    {
+                        var swingEffect = new SkillEffect(1, defaultSwingEffect, fxPosEnum.center);
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(baseManager.effectsManager.GetGameObjectByFXPos(swingEffect.fxPos), swingEffect);
+                    }
+                }
             }
 
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)

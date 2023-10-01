@@ -24,7 +24,7 @@ namespace AssemblyCSharp
         public bool isVoidCounter;
         public bool isThreatPanel;
         public bool isEnemyPanel;
-        public float fadeAmount = 0f;
+        public float fadeAmount = 0.8f;
         public Color threatPanelColor;
         public Color panelColor;
         public Color enemyPanelColor;
@@ -62,7 +62,7 @@ namespace AssemblyCSharp
             Invoke("SetPosition", 0.5f);
             if (!isThreatPanel)
             {
-                SetFade(0f, 2f);
+                //SetFade(0f, 2f);
             }
         }
 
@@ -160,13 +160,13 @@ namespace AssemblyCSharp
 
         public void OnMouseEnter()
         {
-            SetFade(0.8f, 0.5f);
+            //SetFade(0.8f, 0.5f);
         }
 
         public void OnMouseExit()
         {
             if (!isThreatPanel) {
-                SetFade(fadeAmount, 0.5f);
+                //SetFade(fadeAmount, 0.5f);
             }
         }
     }

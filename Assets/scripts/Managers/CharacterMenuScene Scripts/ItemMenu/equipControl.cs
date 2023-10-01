@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Assets.scripts.Models.skillModels.swapSkills;
 
 namespace AssemblyCSharp
 {
@@ -10,7 +11,8 @@ namespace AssemblyCSharp
 		public GameObject equippedWeapon;
 		public GameObject equippedBauble;
 		public SkillModel equippedSkill;
-		public Image qualityDisplay;
+        public EyeSkill equippedEyeSkill;
+        public Image qualityDisplay;
 		public Image imageScript;
 		public bool activeSlot;
 
@@ -73,20 +75,22 @@ namespace AssemblyCSharp
 
         public void ShowSkillQuality()
         {
-            qualityDisplay.gameObject.SetActive(true);
-            var skillQuality = equippedSkill.quality;
-
-            switch (skillQuality)
-            {
-                case itemQuality.Common:
-                    qualityDisplay.color = common;
-                    break;
-                case itemQuality.Rare:
-                    qualityDisplay.color = rare;
-                    break;
-                case itemQuality.Epic:
-                    qualityDisplay.color = epic;
-                    break;
+			if (qualityDisplay)
+			{
+                qualityDisplay.gameObject.SetActive(true);
+                var skillQuality = equippedSkill.quality;
+                switch (skillQuality)
+                {
+                    case itemQuality.Common:
+                        qualityDisplay.color = common;
+                        break;
+                    case itemQuality.Rare:
+                        qualityDisplay.color = rare;
+                        break;
+                    case itemQuality.Epic:
+                        qualityDisplay.color = epic;
+                        break;
+                }
             }
         }
 

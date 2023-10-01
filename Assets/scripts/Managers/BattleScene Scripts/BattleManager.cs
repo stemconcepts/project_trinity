@@ -4,6 +4,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
+using Spine;
+using Assets.scripts.Managers.ExplorerScene_Scripts;
+using Assets.scripts.Managers;
+using System.Net.NetworkInformation;
+using System.Threading.Tasks;
+using Assets.scripts.Models.skillModels.swapSkills;
 
 namespace AssemblyCSharp
 {
@@ -16,6 +22,7 @@ namespace AssemblyCSharp
         static List<SingleStatusModel> tankStatus = new List<SingleStatusModel>();
         static List<SingleStatusModel> healerStatus = new List<SingleStatusModel>();
         static List<SingleStatusModel> dpsStatus = new List<SingleStatusModel>();
+        public static EyeSkill eyeSkill;
 
         public static Event_Manager eventManager;
         public static GameManager gameManager;
@@ -80,8 +87,8 @@ namespace AssemblyCSharp
             tooltipCanvas = tooltipCanvasTarget;
             gearSwapManager = gameObject.GetComponent<GearSwapManager>();
             //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
-            turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
-            turnTimer.gameObject.SetActive(false);
+            /*turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
+            turnTimer.gameObject.SetActive(false);*/
             if (pauseScreenHolder != null)
             {
                 pauseScreenHolder.SetActive(false);
@@ -92,7 +99,6 @@ namespace AssemblyCSharp
             startingTankHealth = playerData.tankHealth;
             startingDpsHealth = playerData.dpsHealth;
             startingHealerHealth = playerData.healerHealth;
-
             LoadEnemies();
         }
 
@@ -157,6 +163,157 @@ namespace AssemblyCSharp
             loot.Add(l);
         }
 
+        void CheckBattleOver()
+        {
+            if (characterSelectManager.enemyCharacters.Count == 0 && battleStarted)
+            {
+                foreach (KeyValuePair<string, Task> t in taskManager.taskList)
+                {
+                    t.Value.Stop();
+                }
+                enemyActionPoints = 6;
+                actionPoints = 6;
+                battleStarted = false;
+                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
+            }
+        }
+
+        void UnloadBattle()
+        {
+            battleStarted = false;
+            turn = TurnEnum.PlayerTurn;
+            turnCount = 0;
+            loot.ForEach(l =>
+            {
+                if (l.GetType() == typeof(GenericItem))
+                {
+                    MainGameManager.instance.exploreManager.AddToObtainedItems(l);
+                } else
+                {
+                    gameManager.AddGearToInventory(l);
+                }
+            });
+
+            var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
+            int tankHealth = 0;
+            int healerHealth = 0;
+            int dpsHealth = 0;
+            characters.ForEach(c =>
+            {
+                int currentHealth = (int)Math.Round(c.characterModel.current_health, 0);
+                switch (c.characterModel.role)
+                {
+                    case RoleEnum.tank:
+                        tankHealth = currentHealth;
+                        MainGameManager.instance.exploreManager.UpdateSliderHealth(currentHealth, RoleEnum.tank);
+                        MainGameManager.instance.exploreManager.characterInfoDisplayController.SetHealthInfo(classType.guardian, currentHealth);
+                        break;
+                    case RoleEnum.healer:
+                        healerHealth = currentHealth;
+                        MainGameManager.instance.exploreManager.UpdateSliderHealth(currentHealth, RoleEnum.healer);
+                        MainGameManager.instance.exploreManager.characterInfoDisplayController.SetHealthInfo(classType.walker, currentHealth);
+                        break;
+                    case RoleEnum.dps:
+                        dpsHealth = currentHealth;
+                        MainGameManager.instance.exploreManager.UpdateSliderHealth(currentHealth, RoleEnum.dps);
+                        MainGameManager.instance.exploreManager.characterInfoDisplayController.SetHealthInfo(classType.stalker, currentHealth);
+                        break;
+                    default:
+                        break;
+                }
+            });
+            loot.Clear();
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(tankHealth, dpsHealth, healerHealth);
+            StopAllCoroutines();
+            MainGameManager.instance.SceneManager.UnLoadScene("battle");
+        }
+
+        void LoadEnemies()
+        {
+            var enemies = MainGameManager.instance.SceneManager.enemies;
+            if (enemies.Count() > 0)
+            {
+                SummonCreatures(enemies, "monster", false);
+            }
+        }
+
+        void LoadExplorerStatuses(bool player, List<ExplorerStatus> explorerStatuses)
+        {
+            var targets = player ? characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList()).Select(character => character.baseManager).ToList() 
+                : characterSelectManager.GetCharacterManagers<EnemyCharacterManager>(GameObject.FindGameObjectsWithTag("Enemy").ToList()).Select(character => character.baseManager).ToList();
+
+            targets.ForEach(baseManager =>
+            {
+                explorerStatuses.ForEach(explorerStatus =>
+                {
+                    var statusModel = new StatusModel
+                    {
+                        singleStatus = explorerStatus.status,
+                        power = MainGameManager.instance.exploreManager.GetCurroption(),
+                        turnDuration = explorerStatus.duration,
+                        baseManager = baseManager
+                    };
+                    statusModel.singleStatus.dispellable = explorerStatus.dispellable;
+                    /*var statusModels = new List<StatusModel>();
+                    explorerStatus.statuses.ForEach(status =>
+                    {
+                        var sm = new StatusModel
+                        {
+                            singleStatus = status,
+                            power = MainGameManager.instance.exploreManager.GetCurroption(),
+                            turnDuration = explorerStatus.duration,
+                            baseManager = baseManager
+                        };
+                        sm.singleStatus.dispellable = explorerStatus.dispellable;
+                        statusModels.Add(sm);
+                        //baseManager.statusManager.RunStatusFunction(sm);
+                    });*/
+                    baseManager.statusManager.RunStatusFunction(statusModel);
+                });
+                //var curroptionEffect = MainGameManager.instance.assetFinder.GetGameObjectFromPath("Assets/prefabs/effects/2D_Magic_Attack/Prefabs/Darkness_2.prefab");
+                //baseManager.effectsManager.CallEffect(curroptionEffect, "center");
+                MainGameManager.instance.soundManager.playSound(baseManager.characterManager.idleSound, 0.5f);
+            });
+        }
+
+        static void RegenerateAp()
+        {
+            if (enemyActionPoints < maxEnemyActionPoints)
+            {
+                enemyActionPoints += enemyVigor;
+                if (enemyActionPoints > maxEnemyActionPoints)
+                {
+                    enemyActionPoints = maxEnemyActionPoints;
+                }
+            }
+            if (actionPoints < maxActionPoints)
+            {
+                actionPoints += vigor;
+                UpdateAPAmount();
+            }
+        }
+
+        public static void EditStartingHealth(RoleEnum role, int addAmount)
+        {
+            switch (role)
+            {
+                case RoleEnum.tank:
+                    startingTankHealth += addAmount;
+                    MainGameManager.instance.exploreManager.UpdateSliderHealth(startingTankHealth, RoleEnum.tank);
+                    break;
+                case RoleEnum.dps:
+                    startingDpsHealth += addAmount;
+                    MainGameManager.instance.exploreManager.UpdateSliderHealth(startingDpsHealth, RoleEnum.dps);
+                    break;
+                case RoleEnum.healer:
+                    startingHealerHealth += addAmount;
+                    MainGameManager.instance.exploreManager.UpdateSliderHealth(startingHealerHealth, RoleEnum.healer);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         /// <summary>
         /// Adds statuses to starting status that will be active at the start of the battle
         /// </summary>
@@ -183,108 +340,6 @@ namespace AssemblyCSharp
             });
         }
 
-        void CheckBattleOver()
-        {
-            if (characterSelectManager.enemyCharacters.Count == 0 && battleStarted)
-            {
-                foreach (KeyValuePair<string, Task> t in taskManager.taskList)
-                {
-                    t.Value.Stop();
-                }
-                battleStarted = false;
-                MainGameManager.instance.gameMessanger.DisplayBattleResults(closeAction: () => UnloadBattle());
-            }
-        }
-
-        void UnloadBattle()
-        {
-            battleStarted = false;
-            turn = TurnEnum.PlayerTurn;
-            turnCount = 0;
-            loot.ForEach(l =>
-            {
-                if (l.GetType() == typeof(GenericItem))
-                {
-                    ExploreManager.AddToObtainedItems(l);
-                } else
-                {
-                    gameManager.AddGearToInventory(l);
-                }
-            });
-
-            var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
-            characters.ForEach(c =>
-            {
-                switch (c.characterModel.role)
-                {
-                    case RoleEnum.tank:
-                        startingTankHealth = (int)Math.Round(c.characterModel.current_health, 0);
-                        ExploreManager.UpdateSliderHealth(startingTankHealth, RoleEnum.tank);
-                        break;
-                    case RoleEnum.healer:
-                        startingHealerHealth = (int)Math.Round(c.characterModel.current_health, 0);
-                        ExploreManager.UpdateSliderHealth(startingHealerHealth, RoleEnum.tank);
-                        break;
-                    case RoleEnum.dps:
-                        startingDpsHealth = (int)Math.Round(c.characterModel.current_health, 0);
-                        ExploreManager.UpdateSliderHealth(startingDpsHealth, RoleEnum.tank);
-                        break;
-                    default:
-                        break;
-                }
-            });
-            loot.Clear();
-            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(startingTankHealth, startingDpsHealth, startingHealerHealth);
-            MainGameManager.instance.SceneManager.UnLoadScene("battle");
-        }
-
-        void LoadEnemies()
-        {
-            var enemies = MainGameManager.instance.SceneManager.enemies;
-            if (enemies.Count() > 0)
-            {
-                SummonCreatures(enemies, "monster", false);
-            }
-        }
-
-        static void RegenerateAp()
-        {
-            if (enemyActionPoints < maxEnemyActionPoints)
-            {
-                enemyActionPoints += enemyVigor;
-                if (enemyActionPoints > maxEnemyActionPoints)
-                {
-                    enemyActionPoints = maxEnemyActionPoints;
-                }
-            }
-            if (actionPoints < maxActionPoints)
-            {
-                actionPoints += vigor;
-                UpdateAPAmount();
-            }
-        }
-
-        public static void EditStartingHealth(RoleEnum role, int addAmount)
-        {
-            switch (role)
-            {
-                case RoleEnum.tank:
-                    startingTankHealth += addAmount;
-                    ExploreManager.UpdateSliderHealth(startingTankHealth, RoleEnum.tank);
-                    break;
-                case RoleEnum.dps:
-                    startingDpsHealth += addAmount;
-                    ExploreManager.UpdateSliderHealth(startingDpsHealth, RoleEnum.dps);
-                    break;
-                case RoleEnum.healer:
-                    startingHealerHealth += addAmount;
-                    ExploreManager.UpdateSliderHealth(startingHealerHealth, RoleEnum.healer);
-                    break;
-                default:
-                    break;
-            }
-        }
-
         public void SetStartingHealthAndStats()
         {
             var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
@@ -296,7 +351,7 @@ namespace AssemblyCSharp
                         if (startingTankHealth > 0)
                         {
                             c.characterModel.Health = startingTankHealth;
-                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.tank);
+                            //MainGameManager.instance.exploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.tank);
                         }
                         tankStatus.ForEach(o =>
                         {
@@ -314,7 +369,7 @@ namespace AssemblyCSharp
                         if (startingHealerHealth > 0)
                         {
                             c.characterModel.Health = startingHealerHealth;
-                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.healer);
+                            //MainGameManager.instance.exploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.healer);
                         }
                         healerStatus.ForEach(o =>
                         {
@@ -332,7 +387,7 @@ namespace AssemblyCSharp
                         if (startingDpsHealth > 0)
                         {
                             c.characterModel.Health = startingDpsHealth;
-                            ExploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.dps);
+                            //MainGameManager.instance.exploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.dps);
                         }
                         dpsStatus.ForEach(o =>
                         {
@@ -366,8 +421,9 @@ namespace AssemblyCSharp
             if (turn == TurnEnum.EnemyTurn)
             {
                 var enemiesCanCast = characterSelectManager.enemyCharacters
-                    .Where(o => (o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Count() > 0 && o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList
-                    .Any(s => s.turnToReset == 0) && !o.gameObject.GetComponent<EnemySkillManager>().hasCasted &&
+                    .Where(o => (o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Count() > 0 && 
+                        o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(s => s.turnToReset == 0) && 
+                        !o.gameObject.GetComponent<EnemySkillManager>().hasCasted &&
                         o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(s => s.skillCost <= BattleManager.enemyActionPoints)))
                     .Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun"));
                 var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && BattleManager.enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist("stun"))
@@ -383,7 +439,7 @@ namespace AssemblyCSharp
                 var canAffordPrimarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints)).Any() : false;
                 var canAffordSecondarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= BattleManager.actionPoints)).Any() : false;
                 var canUseEquippedSkill = charsWithTurnsLeft.Count() > 0 ? (charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<EquipmentManager>().currentWeaponEnum == EquipmentManager.currentWeapon.Primary) ? canAffordPrimarySkills : canAffordSecondarySkills) : false;
-                return (BattleManager.actionPoints == 0 || (!hasTurnsLeft && !canUseEquippedSkill)) && !characterSelectManager.friendlyCharacters.Any(o => o.gameObject.GetComponent<PlayerSkillManager>().isSkillactive);
+                return (BattleManager.actionPoints == 0 || (!hasTurnsLeft && !canUseEquippedSkill)) && !charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<PlayerSkillManager>().isSkillactive);
             }
         }
 
@@ -428,15 +484,12 @@ namespace AssemblyCSharp
                 turn = (turn == TurnEnum.EnemyTurn) ? TurnEnum.PlayerTurn : TurnEnum.EnemyTurn;
             }
             playerTurnText.text = (turn == TurnEnum.EnemyTurn) ? "Enemy Turn" : "Player Turn";
-
-            //taskManager.TimerDisplayTask(turnTime, turnTimer, "timerDisplayTask");
-
-            BattleManager.battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
-            BattleManager.gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
-            if (BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<StatusManager>().DoesStatusExist("stun"))
+            battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
+            gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
+            if (characterSelectManager.GetSelectedClassObject().GetComponent<StatusManager>().DoesStatusExist("stun"))
             {
-                var validChar = BattleManager.characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
-                BattleManager.characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
+                var validChar = characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
+                characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
             }
             battleInterfaceManager.ForEach(o =>
             {
@@ -550,6 +603,8 @@ namespace AssemblyCSharp
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.secondWeapon,
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.bauble, characterSelectManager.stalkerObject);
                 AttachClassSkill(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.classSkill, characterSelectManager.stalkerObject);
+                //Attach Eye Skill
+                AttachEyeSkill(MainGameManager.instance.assetFinder.GetEyeSkillbyName(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.eyeSkillName));
             }
         }
 
@@ -606,6 +661,11 @@ namespace AssemblyCSharp
             }
         }
 
+        public void AttachEyeSkill(EyeSkill equipedSkill)
+        {
+            eyeSkill = equipedSkill;
+        }
+
         public void AttachClassSkill(SkillModel equipedSkill, GameObject charData)
         {
             charData.GetComponent<EquipmentManager>().classSkill = equipedSkill;
@@ -626,7 +686,12 @@ namespace AssemblyCSharp
             var minionBaseManager = creature.GetComponent<EnemyCharacterManagerGroup>();
             minionBaseManager.autoAttackManager.hasAttacked = true;
             minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
-            minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
+
+            //minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
+
+            var statusHolder = creatureData.transform.Find("Panel Minion Status").Find("minionstatus");
+            minionBaseManager.statusManager.buffHolder = statusHolder.Find("Panel buffs").gameObject;
+            minionBaseManager.statusManager.debuffHolder = statusHolder.Find("Panel debuffs").gameObject;
         }
 
         public void SummonCreatures(List<GameObject> summonedObjects, string creaturTag, bool friendly, GameObject panel = null)
@@ -634,7 +699,7 @@ namespace AssemblyCSharp
             Transform postion = friendly ? GameObject.Find("playerHolder").transform : GameObject.Find("enemyHolder").transform;
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                    var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
+                    var enemyIndex = characterSelectManager.enemyCharacters.Count() + i;
                     var newCreature = Instantiate(summonedObjects[i], postion);
                     newCreature.name = $"{creaturTag}_{enemyIndex}";
                     if (panel)
@@ -664,6 +729,8 @@ namespace AssemblyCSharp
         {
             taskManager.CallTask(waitTime, () =>
             {
+                LoadExplorerStatuses(true, MainGameManager.instance.SceneManager.playerStatuses);
+                LoadExplorerStatuses(false, MainGameManager.instance.SceneManager.enemyStatuses);
                 gearSwapManager.CheckGearType();
                 BattleManager.battleStarted = true;
                 CheckAndSetTurn();

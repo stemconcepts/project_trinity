@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 using UnityEditorInternal;
 using System.Collections.ObjectModel;
 using System.Linq;
+using UnityEngine.Rendering;
 
 namespace AssemblyCSharp
 {
@@ -18,11 +19,12 @@ namespace AssemblyCSharp
         public AudioSource sfxAudioSourceScript;
         public List<AudioSource> backUpSourceScripts;
         private AudioClip chosenSound;
-        public AudioClip charSwapSound;
         public AudioClip gearSwapSound;
         public AudioClip gearSwapReady;
         [Header("UI Sounds:")]
         public List<AudioClip> uiSounds;
+        [Header("Character Select Sound:")]
+        public AudioClip charSelectSound;
         [Header("Dodge/Miss Sounds:")]
         public List<AudioClip> dodgeMissSounds;
         [Header("Generic Magic Charge Sounds:")]
@@ -30,17 +32,19 @@ namespace AssemblyCSharp
         [Header("Generic Magic Cast Sounds:")]
         public List<AudioClip> magicCastSounds;
         [Header("Generic Buff Sounds:")]
-        public List<AudioClip> buffSounds;
+        public AudioClip positiveEffectSound;
         [Header("Generic Debuff Sounds:")]
-        public List<AudioClip> debuffSounds;
-        [Header("Swing Sounds:")]
-        public List<AudioClip> swingSounds;
+        public AudioClip negativeEffectSound;
+        [Header("Hit Sounds:")]
+        public List<AudioClip> hitSounds;
         [Header("Block Sounds:")]
         public List<AudioClip> blockSounds;
         [Header("Step Sounds:")]
         public List<AudioClip> stepSounds;
         [Header("Shout Sounds:")]
         public List<AudioClip> shoutSounds;
+        [Header("Miss Sounds:")]
+        public List<AudioClip> missSounds;
         [Header("Crash Sounds:")]
         public List<AudioClip> crashSounds;
         [Header("Custom Sounds:")]
@@ -85,13 +89,14 @@ namespace AssemblyCSharp
             return inputAudioSourceScript;
         }
 
-        public void playSounds(List<AudioClip> sounds)
+        public void playSound(List<AudioClip> sounds, float? volume = null)
         {
             var audioSource = GetFreeAudioSource();
-            if (sounds.Count >= 0)
+            if (sounds.Count > 0)
             {
-                var randomNumber = Random.Range(0, (sounds.Count));
+                var randomNumber = Random.Range(0, sounds.Count);
                 audioSource.clip = sounds[randomNumber];
+                audioSource.volume = volume == null ? 1.0f : (float)volume;
                 audioSource.Play();
             }
             else
@@ -100,11 +105,24 @@ namespace AssemblyCSharp
             }
         }
 
+        public void playAllSounds(List<AudioClip> sounds, float? volume = null)
+        {
+            if (sounds.Count >= 0)
+            {
+                foreach (AudioClip soundClip in sounds)
+                {
+                    var audioSource = GetFreeAudioSource();
+                    audioSource.volume = volume == null ? 1.0f : (float)volume;
+                    audioSource.PlayOneShot(soundClip);
+                };
+            }
+        }
+
         /// <summary>
         /// Play sounds in order
         /// </summary>
         /// <param name="sounds"></param>
-        public void playSoundsInOrder(List<AudioClip> sounds, bool playAtRandom)
+        public void playSoundsInOrder(List<AudioClip> sounds, bool playAtRandom, float? volume = null)
         {
             if (sounds.Count >= 0)
             {
@@ -113,16 +131,18 @@ namespace AssemblyCSharp
                 float clipLength = 0.0f;
                 System.Random rnd = new System.Random();
                 sounds = playAtRandom ? sounds.OrderBy(o => rnd.Next()).ToList() : sounds;
+                audioSource.volume = volume == null ? 1.0f : (float)volume;
                 foreach (var sound in sounds)
                 {
                     if (clipNumber != 0)
                     {
                         MainGameManager.instance.taskManager.CallTask(clipLength, () =>
                         {
-                            audioSource.clip = sound;
+                            //audioSource.clip = sound;
                             audioSource.PlayOneShot(sound);
                         });
-                    } else
+                    }
+                    else
                     {
                         audioSource.PlayOneShot(sound);
                     }
@@ -136,26 +156,77 @@ namespace AssemblyCSharp
             }
         }
 
-        public void OnEventHit(Spine.TrackEntry state, Spine.Event e)
+        public void PlayCharacterSelectSound()
         {
-            var audioSource = sfxAudioSourceScript;
-            if ((e.Data.Name == "hit") && swingSounds.Count > 0)
+            if (missSounds.Count > 0)
             {
-                var randomNumber = Random.Range(0, (swingSounds.Count));
-                chosenSound = swingSounds[randomNumber];
+                var audioSource = GetFreeAudioSource();
+                audioSource.volume = 0.5f;
+                audioSource.clip = charSelectSound;
+                audioSource.Play();
+            }
+        }
+
+        public void PlayMissSound()
+        {
+            if (missSounds.Count > 0)
+            {
+                var audioSource = GetFreeAudioSource();
+                var randomNumber = Random.Range(0, (missSounds.Count));
+                chosenSound = missSounds[randomNumber];
+                audioSource.volume = 0.3f;
                 audioSource.clip = chosenSound;
                 audioSource.Play();
             }
-            else if (e.Data.Name == "thud" || e.Data.Name.Contains("movement"))
+        }
+
+        public void PlayAAHitSound()
+        {
+            if (hitSounds.Count > 0)
+            {
+                var audioSource = GetFreeAudioSource();
+                var randomNumber = Random.Range(0, (hitSounds.Count));
+                chosenSound = hitSounds[randomNumber];
+                audioSource.volume = 0.3f;
+                audioSource.clip = chosenSound;
+                audioSource.Play();
+            }
+        }
+
+        public void PlayPositiveEffectSound()
+        {
+            if (positiveEffectSound != null)
+            {
+                var audioSource = GetFreeAudioSource();
+                audioSource.volume = 0.3f;
+                audioSource.clip = positiveEffectSound;
+                audioSource.Play();
+            }
+        }
+
+        public void PlayNegativeEffectSound()
+        {
+            if (negativeEffectSound != null)
+            {
+                var audioSource = GetFreeAudioSource();
+                audioSource.volume = 0.3f;
+                audioSource.clip = negativeEffectSound;
+                audioSource.Play();
+            }
+        }
+
+        public void OnEventHit(Spine.TrackEntry state, Spine.Event e)
+        {
+            var audioSource = GetFreeAudioSource();
+            if (e.Data.Name == "thud")
             {
                 var randomNumber = Random.Range(0, (stepSounds.Count));
                 chosenSound = stepSounds[randomNumber];
-                audioSource.volume = 1f;
-                audioSource.priority = 100;
+                audioSource.volume = 0.3f;
                 audioSource.clip = chosenSound;
                 audioSource.Play();
             }
-            else if (e.Data.Name == "shout" && shoutSounds.Count > 0)
+            /*else if (e.Data.Name == "shout" && shoutSounds.Count > 0)
             {
                 var randomNumber = Random.Range(0, (shoutSounds.Count));
                 chosenSound = shoutSounds[randomNumber];
@@ -171,7 +242,7 @@ namespace AssemblyCSharp
                 audioSource.volume = 0.5f;
                 audioSource.clip = chosenSound;
                 audioSource.Play();
-            }
+            }*/
             if (e.Data.Name == "endEvent")
             {
                 //skeletonAnimation.state.Event -= OnEventHit;
@@ -204,15 +275,6 @@ namespace AssemblyCSharp
         {
             switch (sound)
             {
-                case "buff":
-                    var randomNumber0 = Random.Range(0, (buffSounds.Count));
-                    return buffSounds[randomNumber0];
-                case "debuff":
-                    var randomNumber1 = Random.Range(0, (debuffSounds.Count));
-                    return debuffSounds[randomNumber1];
-                case "miss":
-                    var randomNumber2 = Random.Range(0, (crashSounds.Count));
-                    return dodgeMissSounds[randomNumber2];
                 case "block":
                     var randomNumber3 = Random.Range(0, (blockSounds.Count));
                     return blockSounds[randomNumber3];
@@ -243,16 +305,19 @@ namespace AssemblyCSharp
             audioSource.Play();
         }
 
-        public void playSound(string sound)
+        public void playSound(string sound, float? volume = null)
         {
             var audioSource = inputAudioSourceScript;
             audioSource.clip = GetAudioFromString(sound);
+            audioSource.volume = volume == null ? 1.0f : (float)volume;
             audioSource.Play();
         }
 
         public void ChangeMainMusicTrack(AudioClip music)
         {
+            mainMusicTrack.Stop();
             mainMusicTrack.clip = music;
+            mainMusicTrack.loop = true;
             mainMusicTrack.Play();
         }
 
@@ -285,14 +350,14 @@ namespace AssemblyCSharp
                 {
                     if (!mouseDown && !inputAudioSourceScript.isPlaying)
                     {
-                        playSound("defaultClick");
+                        playSound("defaultClick", 0.3f);
                     }
                 }
             } else
             {
                 if (!mouseDown && !inputAudioSourceScript.isPlaying)
                 {
-                    playSound("defaultClick");
+                    playSound("defaultClick", 0.3f);
                 }
             }
         }

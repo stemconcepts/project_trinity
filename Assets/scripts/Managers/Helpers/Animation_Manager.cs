@@ -201,7 +201,7 @@ namespace AssemblyCSharp
                     {
                         PlaySetAnimation(animationName.ToString(), true);
                     }
-                    if (holdAnimation == animationOptionsEnum.none)
+                    if (holdAnimation != animationOptionsEnum.none)
                     {
                         hitAnimation = animationName;
                         idleAnimation = holdAnimation;

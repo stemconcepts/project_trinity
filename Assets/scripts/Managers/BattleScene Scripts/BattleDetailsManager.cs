@@ -36,16 +36,17 @@ namespace AssemblyCSharp
         }
 
         public void ShowLabel(StatusModel status, GameObject statusHolder){
-            GameObject live_object = status.singleStatus.buff ? 
+            GameObject live_object = Instantiate(status_symbol, statusHolder.transform); /*status.singleStatus.buff ? 
                 (GameObject)Instantiate( status_symbol, new Vector3 ( statusHolder.transform.position.x, 0.5f + statusHolder.transform.position.y, statusHolder.transform.position.z ) , statusHolder.transform.rotation ) : 
-                (GameObject)Instantiate( status_symbol, new Vector3 ( statusHolder.transform.position.x, statusHolder.transform.position.y, statusHolder.transform.position.z  ) , statusHolder.transform.rotation );
+                (GameObject)Instantiate( status_symbol, new Vector3 ( statusHolder.transform.position.x, statusHolder.transform.position.y, statusHolder.transform.position.z  ) , statusHolder.transform.rotation );*/
             Image iconImageScript = live_object.GetComponent<Image>();
             iconImageScript.sprite = status.singleStatus.labelIcon;
-            if(!status.singleStatus.buff){
+            //live_object.transform.SetParent(statusHolder.transform, true);
+            /*if (!status.singleStatus.buff){
                 live_object.transform.SetParent(statusHolder.transform.GetChild(0).transform, true);
             } else if(status.singleStatus.buff){
                 live_object.transform.SetParent(statusHolder.transform.GetChild(1).transform, true);
-            }
+            }*/
             var getprefab = live_object.GetComponent<StatusLabelModel>();
             getprefab.buff = status.singleStatus.buff;
             getprefab.buffPower = status.power;

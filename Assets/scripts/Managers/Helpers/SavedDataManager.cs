@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Assets.scripts.Models.skillModels.swapSkills;
 
 namespace AssemblyCSharp
 {
@@ -57,6 +58,46 @@ namespace AssemblyCSharp
 				if (this != _savedDataManagerInstance)
 					Destroy(this.gameObject);
 			}
+        }
+
+        public void SaveFormationData(FormationData formationData)
+        {
+            var formations = persistentData.formations.ToList();
+
+            if (formations.Any(formation => formation.Occupier == formationData.Occupier))
+            {
+                formations.ForEach(formation => {
+                    if (formation.Occupier == formationData.Occupier)
+                    {
+                        formation = formationData;
+                    }
+                });
+            } else
+            {
+                formations.Add(formationData);
+            }
+
+            persistentData.formations = formations.ToArray();
+            SaveData();
+        }
+
+        public int GetPlayerHealth(RoleEnum role)
+        {
+            switch (role)
+            {
+                case RoleEnum.tank:
+                    return persistentData.playerData.tankHealth;
+                case RoleEnum.healer:
+                    return persistentData.playerData.healerHealth;
+                case RoleEnum.dps:
+                    return persistentData.playerData.dpsHealth;
+                case RoleEnum.boss:
+                    return 0;
+                case RoleEnum.minion:
+                    return 0;
+                default:
+                    return 0;
+            }
         }
 
         public void SavePlayerHealth(int tankHealth, int dpsHealth, int healerHealth)
@@ -218,20 +259,35 @@ namespace AssemblyCSharp
             PlayersReady();
         }
 
-        public void AddSkill(SkillModel skill, string character)
+        public void AddSkill(GenericSkillModel skill, string character = null)
         {
             switch (character)
             {
                 case "guardian":
-                    persistentData.playerData.tankEquipment.classSkill = skill;
+                    persistentData.playerData.tankEquipment.classSkill = (SkillModel)skill;
                     break;
                 case "walker":
-                    persistentData.playerData.healerEquipment.classSkill = skill;
+                    persistentData.playerData.healerEquipment.classSkill = (SkillModel)skill;
                     break;
                 case "stalker":
-                    persistentData.playerData.dpsEquipment.classSkill = skill;
+                    persistentData.playerData.dpsEquipment.classSkill = (SkillModel)skill;
                     break;
             }
+            SavedDataManagerInstance.persistentData = persistentData;
+            SaveData();
+            PlayersReady();
+        }
+
+        public void SaveEyeSkill(EyeSkill skill)
+        {
+            if (skill)
+            {
+                persistentData.playerData.eyeSkillName = skill.skillName;
+            } else
+            {
+                persistentData.playerData.eyeSkillName = null;
+            }
+            
             SavedDataManagerInstance.persistentData = persistentData;
             SaveData();
             PlayersReady();

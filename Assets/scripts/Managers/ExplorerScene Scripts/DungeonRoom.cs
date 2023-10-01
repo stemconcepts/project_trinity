@@ -3,9 +3,25 @@ using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
 using static System.Collections.Specialized.BitVector32;
+using System;
+using Random = UnityEngine.Random;
 
 namespace AssemblyCSharp
 {
+    public enum ResourceSourceType
+    {
+        any,
+        groundOnly,
+        wallOnly
+    }
+
+    [Serializable]
+    public class ResourcePoint {
+        public GameObject resourceGameObject;
+        public ResourceSourceType resourceSourceType;
+
+    }
+
     public class DungeonRoom : MonoBehaviour
     {
         public string id;
@@ -16,7 +32,7 @@ namespace AssemblyCSharp
         public GameObject encounterHolder;
         public GameObject foregroundHolder;
         public List<RoomObject> roomObjects;
-        public List<GameObject> resourcePoints;
+        public List<ResourcePoint> resourcePoints2;
         public DungeonRoom parentRoom;
         public List<DungeonRoom> detourRooms;
         public List<Route> routes;
@@ -28,18 +44,21 @@ namespace AssemblyCSharp
         public void InheritRouteFromParent(DungeonRoom parentRoom, GameObject routeTemplate)
         {
             var section = GetFreeSectionFromRoom();
-            GameObject route = Instantiate(routeTemplate, section.transform);
-            Route r = route.GetComponent<Route>();
-            r.position = section.position;
-            AddRoute(parentRoom, r, "Route_Main");
-            routeLocations.Add(parentRoom.gameObject.name);
-            parentRoom.routeLocations.Add(this.gameObject.name);
-            //parentRoom.routes.Add(r);
+            if (section != null)
+            {
+                GameObject route = Instantiate(routeTemplate, section.transform);
+                Route r = route.GetComponent<Route>();
+                r.position = section.position;
+                AddRoute(parentRoom, r, "Route_Main");
+                routeLocations.Add(parentRoom.gameObject.name);
+                parentRoom.routeLocations.Add(this.gameObject.name);
+                //parentRoom.routes.Add(r);
+            }
         }
 
         public void CreateRouteFromRoom(DungeonRoom room, GameObject routeTemplate, int? direction)
         {
-            var range = direction == 1 ? new List<int> { 0, 1 } : new List<int> { 1, 2 };
+            var range = direction == 1 ? new List<int> { 0, 1, 2 } : new List<int> { 1, 2, 3 };
             SectionObject section = GetFreeSectionFromRoom(room.gameObject, direction == null ? null : range);
             if (section != null)
             {
@@ -53,14 +72,14 @@ namespace AssemblyCSharp
             }
         }
 
-        GameObject GetFreeResourcePoint()
+        GameObject GetFreeResourcePoint(ResourceSourceType resourceSourceType)
         {
             var points = new List<GameObject>();
-            resourcePoints.ForEach(o =>
+            resourcePoints2.ForEach(resourcePoint =>
             {
-                if (o.transform.childCount == 0)
+                if ((resourceSourceType == ResourceSourceType.any || resourcePoint.resourceSourceType == resourceSourceType) && resourcePoint.resourceGameObject.transform.childCount == 0)
                 {
-                    points.Add(o);
+                    points.Add(resourcePoint.resourceGameObject);
                 }
             });
             return points.Count > 0 ? points[MainGameManager.instance.ReturnRandom(points.Count)] : null;
@@ -109,7 +128,7 @@ namespace AssemblyCSharp
         /// <param name="explorerItemTemplate"></param>
         public void AddKey(KeyItem key, GameObject explorerItemTemplate)
         {
-            var section = GetFreeSectionFromRoom(this.gameObject, new List<int> { 0, 4 });
+            var section = GetFreeSectionFromRoom(this.gameObject, new List<int> { 0, 1, 2, 3 });
             GameObject keyObj = Instantiate(explorerItemTemplate, section.transform);
             //keyObj.name = key.name;
             ExplorerItemsController itemController = keyObj.GetComponent<ExplorerItemsController>();
@@ -127,10 +146,10 @@ namespace AssemblyCSharp
         /// <param name="resourceTemplate"></param>
         public void AddResources(GenericItem resourceItem, GameObject resourceTemplate)
         {
-            GameObject section = GetFreeResourcePoint();
+            GameObject section = GetFreeResourcePoint(resourceItem.resourceSourceType);
             if (section)
             {
-                GameObject resource = Instantiate(resourceTemplate, GetFreeResourcePoint().transform);
+                GameObject resource = Instantiate(resourceTemplate, section.transform);
                 ExplorerItemsController resourceController = resource.GetComponent<ExplorerItemsController>();
                 resourceController.SetUpItem(resourceItem, this.name);
                 Debug.Log($"Resource spawned at {this.name}");
@@ -184,9 +203,17 @@ namespace AssemblyCSharp
             bool freeSpot = false;
             SectionObject result = null;
             int count = 0;
-            while (!freeSpot && count < 10)
+            allowedRange = allowedRange == null ? new List<int> { 0, 1, 2 } : allowedRange;
+            while (!freeSpot && count < 10 && allowedRange.Count > 0)
             {
-                int range = allowedRange != null && allowedRange.Count > 0 ? Random.Range(allowedRange[0], allowedRange[1]) : Random.Range(1, 3);
+                int range = allowedRange.Count == 1 ? allowedRange[0] : Random.Range(allowedRange[0], allowedRange.Count);
+                if (allowedRange.Count == 1)
+                {
+                    allowedRange.RemoveAt(0);
+                } else
+                {
+                    allowedRange.RemoveAt(range);
+                }
                 Transform section = parentRoom.GetComponent<DungeonRoom>().mainPanel.transform.Find($"routeHolder{range}");
                 if (section.childCount == 0)
                 {

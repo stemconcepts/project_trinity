@@ -6,12 +6,15 @@ using UnityEditor;
 using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.XR;
+using Assets.scripts.Managers;
+using System;
+using static AssemblyCSharp.PanelsManager;
 
 namespace AssemblyCSharp
 {
     public class MainGameManager : MonoBehaviour
     {
-        bool showTutorial = true;
+        bool showTutorial = false;
         [HideInInspector]
         public AssetFinder assetFinder;
         public sceneManager SceneManager;
@@ -19,7 +22,9 @@ namespace AssemblyCSharp
         public Canvas GlobalCanvas;
         public GameMessanger gameMessanger;
         public MainGameTaskManager taskManager;
+        public ToolTipManager tooltipManager;
         public Game_Effects_Manager gameEffectManager;
+        public ExploreManagerV2 exploreManager;
         public static MainGameManager instance;
         Dictionary<string, string> TutorialText = new Dictionary<string, string>();
         Dictionary<string, bool> TutorialsShown = new Dictionary<string, bool>();
@@ -91,6 +96,14 @@ namespace AssemblyCSharp
             battleText.Append("You can swap to your secondary weapon by selecting the large button in the middle.\n");
             battleText.Append("Drag and drop your characters in the desired panels to move them, this costs <b>1 Action Point</b> and expends the turn for that character");
             TutorialText.Add("Battle", battleText.ToString());
+
+            StringBuilder corruptionText = new StringBuilder("<b>Corruption</b> grows as you explore the dungeon.\n");
+            corruptionText.Append("The higher the <b>Corruption</b> the higher the chance for enemies to gain beneficial buffs at the start of combat,\n");
+            corruptionText.Append("but you will also gain access to a single use of your selected <b>Corruption Ability</b>.\n");
+            corruptionText.Append("<b>Corruption</b> also increases the chance that a hazard may occur while exploring.");
+            TutorialText.Add("CorruptionCounter", corruptionText.ToString());
+
+            
             TutorialsShown.Add("Battle", false);
         }
 
@@ -108,9 +121,9 @@ namespace AssemblyCSharp
 
         public void NewGame()
         {
-            //var health = GetStartingHealth();
             SavedDataManager.SavedDataManagerInstance.ResetPlayerData();
-            //SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(health["guardian"], health["stalker"], health["walker"]);
+            var health = GetStartingHealth();
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(health["guardian"], health["stalker"], health["walker"]);
             SceneManager.LoadInventory(false);
         }
 
@@ -216,6 +229,34 @@ namespace AssemblyCSharp
             return rand;
         }
 
+        public FormationData GetCurrentPanelForRole(RoleEnum role)
+        {
+            var formations = SavedDataManager.SavedDataManagerInstance.persistentData.formations;
+            if (formations != null && formations.Length > 0)
+            {
+                var formationArray = formations.ToList();
+
+                var relevantFormation = formationArray
+                    .Where(formation => (RoleEnum)Enum.Parse(typeof(RoleEnum), formation.Occupier) == role)
+                    .FirstOrDefault();
+                return relevantFormation;
+            }
+            return null;
+        }
+
+        public GameObject GetGameObjectFromFormation(FormationData formationData, List<PanelsManager> panels)
+        {
+            var relevantPanel = panels
+                        .Where(panel => panel.panelNumber == formationData.PanelNumber &&
+                            panel.voidZonesTypes == (voidZoneType)Enum.Parse(typeof(voidZoneType), formationData.VerticalFlag))
+                        .FirstOrDefault();
+            if (relevantPanel != null)
+            {
+                return relevantPanel.gameObject;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Returns bool if float sent is great than or equal to random float generated, only send 1f
         /// </summary>
@@ -223,6 +264,7 @@ namespace AssemblyCSharp
         /// <returns></returns>
         public bool GetChanceByPercentage(float chance)
         {
+            chance = chance > 1.0f ? 1.0f : chance;
             var rand = UnityEngine.Random.Range(0.0f, 1.1f);
             return chance >= rand;
         }

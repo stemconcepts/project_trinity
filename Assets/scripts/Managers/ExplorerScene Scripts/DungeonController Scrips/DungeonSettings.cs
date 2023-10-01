@@ -1,20 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Assets.scripts.Managers.ExplorerScene_Scripts;
 
 namespace AssemblyCSharp
 {
-    [System.Serializable]
+    /*[System.Serializable]
     public class environmentStatuses
     {
         public bool affectAll;
         public List<SingleStatusModel> status = new List<SingleStatusModel>();
-    }
+    }*/
 
     public class DungeonSettings : ScriptableObject
     {
         [Header("Environment Status Settings")]
-        public List<environmentStatuses> environmentStatuses = new List<environmentStatuses>();
-        public List<environmentStatuses> enemyEnvironmentStatuses = new List<environmentStatuses>();
+        public List<ExplorerStatus> playertStatuses = new List<ExplorerStatus>();
+        public List<ExplorerStatus> enemyStatuses = new List<ExplorerStatus>();
         [Header("Custom Route Settings")]
         public List<GameObject> customRouteObjects;
         [Range(0.0f, 1.0f)]
@@ -48,6 +49,11 @@ namespace AssemblyCSharp
         [Header("Resources")]
         public int maxResourcePerRoom;
         public List<GenericItem> resources;
+        public int maxChestsPerRoom;
+        public List<GenericItem> chestResources;
+        /*[Header("Exploration Ambience Sound")]
+        public AudioClip ambientSounds;
+        public AudioClip backgroundExplorerMusic;*/
 
         public GameObject ReturnRandomRoom()
         {

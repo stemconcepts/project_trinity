@@ -14,14 +14,45 @@ namespace AssemblyCSharp
 		public GameObject itemSkillHolder;
 		public Sprite tempItemIcon;
 
+		public void ClearItemDescriptions()
+		{
+            panelItemDetail.SetActive(false);
+            /*var nameText = itemNameHolder.transform.Find("Text-skill name").GetComponent<Text>();
+            var previewText = itemPreviewHolder.transform.Find("Panel-skill preview").Find("Text-skill detail").GetComponent<Text>();
+            var skillsCost = itemSkillHolder.transform.Find("Panel-skill preview").Find("Text-skill cost").GetComponent<Text>();
+            nameText.text = "";
+            previewText.text = "";
+            skillsCost.text = "";
+
+            itemNameHolder.transform.Find("Text").GetComponent<Text>().text = "";
+			itemPreviewHolder.transform.Find("Text").GetComponent<Text>().text = "";
+            var skillTextHolder = itemSkillHolder.transform.Find("Panel2").Find("skillTextHolder");
+			skillTextHolder.Find("Text-title2").GetComponent<Text>().text = "";
+            skillTextHolder.Find("CostandCD").Find("Text-cost").GetComponent<Text>().text = "";
+            skillTextHolder.Find("CostandCD").Find("Text-cd").GetComponent<Text>().text = "";
+            skillTextHolder.Find("CostandCD").Find("Text-duration").GetComponent<Text>().text = "";
+            skillTextHolder.Find("Text-detail2").GetComponent<Text>().text = "";
+            skillTextHolder.Find("Text-detail2").GetComponent<Text>().text = "";
+            skillTextHolder.Find("skillIcon").GetComponent<Image>().sprite = null;
+
+            var skillTextHolderP3 = itemSkillHolder.transform.Find("Panel3").Find("skillTextHolder");
+            skillTextHolderP3.Find("Text-title3").GetComponent<Text>().GetComponent<Text>().text = "";
+            skillTextHolderP3.Find("CostandCD").Find("Text-cost").GetComponent<Text>().GetComponent<Text>().text = "";
+            skillTextHolderP3.Find("CostandCD").Find("Text-cd").GetComponent<Text>().GetComponent<Text>().text = "";
+            skillTextHolderP3.Find("Text-detail3").GetComponent<Text>().GetComponent<Text>().text = "";
+
+            skillTextHolderP3.Find("CostandCD").Find("Text-duration").GetComponent<Text>().GetComponent<Text>().text = "";
+            skillTextHolderP3.Find("skillIcon").GetComponent<Image>().sprite = null;*/
+        }
+
 		public void DisplayWeaponData(weaponModel weapon)
 		{
 			panelItemDetail.SetActive(true);
-			if (weapon.itemIcon != null)
+			if (weapon.itemIcon != null && selectedItemObject != null)
 			{
 				selectedItemObject.GetComponent<Image>().sprite = weapon.itemIcon;
 			}
-			else
+			else if(selectedItemObject != null)
 			{
 				selectedItemObject.GetComponent<Image>().sprite = tempItemIcon;
 			}
@@ -61,7 +92,7 @@ namespace AssemblyCSharp
 		public void DisplayBaubleData(bauble bauble)
 		{
             panelItemDetail.SetActive(true);
-            panelItemDetail.SetActive(false);
+            //panelItemDetail.SetActive(false);
 			var itemName = bauble.baubleName;
 			var itemDetails = bauble.baubleDesc;
 			var attachedEffect = bauble;
@@ -89,24 +120,9 @@ namespace AssemblyCSharp
 			{
 				selectedItemObject.GetComponent<Image>().sprite = null;
 			}
-			//skillsTitle.text = attachedSkills.skillOne.displayName;
-			//skillsCost.text = attachedSkills.skillOne.skillCost.ToString();
-			//skillsDetail.text = attachedSkills.skillOne.skillDetails;
-			/*skillsTitle2.text = attachedEffect.effectsOnEvent;
-			skillsCost2.text = "Cost: <color=#ff7849>" + attachedSkills.skillTwo.skillCost.ToString() + "</color>";
-			skillsDuration2.text = "Duration: <color=#ff7849>" + attachedSkills.skillTwo.duration.ToString() + "</color>";
-			skillsCd2.text = "Cooldown: <color=#ff7849>" + attachedSkills.skillTwo.skillCooldown.ToString() + "</color>";
-			skillsDetail2.text = attachedSkills.skillTwo.skillDesc;
-			skillIcon2.sprite = attachedSkills.skillTwo.skillIcon;
-			skillsTitle3.text = attachedSkills.skillThree.displayName;
-			skillsCost3.text = "Cost: <color=#ff7849>" + attachedSkills.skillThree.skillCost.ToString() + "</color>";
-			skillsDuration3.text = "Duration: <color=#ff7849>" + attachedSkills.skillThree.duration.ToString() + "</color>";
-			skillsCd3.text = "Cooldown: <color=#ff7849>" + attachedSkills.skillThree.skillCooldown.ToString() + "</color>";
-			skillsDetail3.text = attachedSkills.skillThree.skillDesc;
-			skillIcon3.sprite = attachedSkills.skillThree.skillIcon;*/
 		}
 
-		public void DisplaySkillData(SkillModel classSkill)
+		public void DisplaySkillData(GenericSkillModel classSkill)
 		{
             panelItemDetail.SetActive(true);
             var nameText = itemNameHolder.transform.Find("Text-skill name").GetComponent<Text>();
@@ -115,18 +131,6 @@ namespace AssemblyCSharp
 			nameText.text = classSkill.skillName;
 			previewText.text = classSkill.skillDesc;
 			skillsCost.text = "Cost: <color=#ff7849>" + classSkill.skillCost + "</color>";
-		}
-
-		// Use this for initialization
-		void Awake()
-		{
-			//skillItemsScript = menuManager.GetComponent<skillItems>();
-		}
-
-		// Update is called once per frame
-		void Update()
-		{
-
 		}
 	}
 }

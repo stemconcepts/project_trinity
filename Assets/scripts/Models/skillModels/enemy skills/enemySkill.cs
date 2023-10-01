@@ -22,6 +22,8 @@ namespace AssemblyCSharp
         public bool monsterPanel = false;
         public bool hasVoidzone;
         public float eventDuration;
+        List<PanelsManager> panels = new List<PanelsManager>();
+
         GameObject GetRandomPanelFromPanels(GameObject[] panels = null)
         {
             if (panels == null)
@@ -68,16 +70,20 @@ namespace AssemblyCSharp
                     {
                         var panelScript = allPanels[i].GetComponent<PanelsManager>();
                         panelScript.VoidZoneMark();
+                        panels.Add(panelScript);
                     }
-                    GetSafePanel(allPanels).GetComponent<PanelsManager>().SafePanel();
+                    var panel = GetSafePanel(allPanels).GetComponent<PanelsManager>();
+                    panel.SafePanel();
+                    panels.Add(panel);
                     break;
                 case voidZoneType.Hline:
                     var HPanel = !monsterPanels ? GameObject.Find("FriendlyMovementPanel") : GameObject.Find("EnemyMovementPanel");
                     var HRow = HPanel.transform.GetChild(randomRowNumber);
-                    foreach (Transform panel in HRow.transform)
+                    foreach (Transform panelTransform in HRow.transform)
                     {
-                        var panelScript = panel.GetComponent<PanelsManager>();
+                        var panelScript = panelTransform.GetComponent<PanelsManager>();
                         panelScript.VoidZoneMark();
+                        panels.Add(panelScript);
                     }
                     break;
                 case voidZoneType.Vline:
@@ -88,14 +94,25 @@ namespace AssemblyCSharp
                         if (panelManager.voidZonesTypes == randomVertical)
                         {
                             panelManager.VoidZoneMark();
+                            panels.Add(panelManager);
                         }
                     }
-
                     break;
                 case voidZoneType.Random:
                     allPanels = !monsterPanels ? GameObject.FindGameObjectsWithTag("movementPanels") : GameObject.FindGameObjectsWithTag("enemyMovementPanels");
-                    GetRandomPanelFromPanels(allPanels).GetComponent<PanelsManager>().VoidZoneMark();
+                    var panelManagerItem = GetRandomPanelFromPanels(allPanels).GetComponent<PanelsManager>();
+                    panelManagerItem.VoidZoneMark();
+                    panels.Add(panelManagerItem);
                     break;
+            }
+        }
+
+        public void ClearSavedVoidPanels()
+        {
+            if (panels.Count > 0)
+            {
+                panels.ForEach(panel => panel.ClearCurrentPanel());
+                panels.Clear();
             }
         }
 
@@ -130,29 +147,34 @@ namespace AssemblyCSharp
         {
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                    var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
-                    var singleMinionDataItem = BattleManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
-                    var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
-                    creatureData.name = "minion_" + enemyIndex + "_data";
-                    var panel = GetRandomPanelFromPanels();
-                    var panelManager = panel.GetComponent<PanelsManager>();
-                    if (panel)
-                    {
-                        //creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
-                            var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
-                            newCreature.name = "minion_" + enemyIndex;
-                            var minionBaseManager = newCreature.GetComponent<BaseCharacterManagerGroup>();
-                            minionBaseManager.autoAttackManager.hasAttacked = true;
-                            panelManager.currentOccupier = newCreature;
-                            minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
-                            minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
-                            panelManager.SetStartingPanel(newCreature);
-                        panelManager.SaveCharacterPositionFromPanel();
-                    }
-                    else
-                    {
-                        Debug.Log("No Panel");
-                    }
+                var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
+                var singleMinionDataItem = BattleManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
+                var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
+                creatureData.name = "minion_" + enemyIndex + "_data";
+                var panel = GetRandomPanelFromPanels();
+                var panelManager = panel.GetComponent<PanelsManager>();
+                if (panel)
+                {
+                    //creatureData.transform.GetChild(0).GetChild(0).GetComponentInChildren<UI_Display_Text>().On = true;
+                    var newCreature = Instantiate(summonedObjects[i], GameObject.Find("enemyHolder").transform);
+                    newCreature.name = "minion_" + enemyIndex;
+                    var minionBaseManager = newCreature.GetComponent<BaseCharacterManagerGroup>();
+                    minionBaseManager.autoAttackManager.hasAttacked = true;
+                    panelManager.currentOccupier = newCreature;
+                    minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
+                    
+                    //minionBaseManager.statusManager.statusHolderObject = creatureData.transform.Find("Panel Minion Status").Find("minionstatus").gameObject;
+
+                    minionBaseManager.statusManager.buffHolder = creatureData.transform.Find("Panel Minion Status").Find("Panel buffs").gameObject;
+                    minionBaseManager.statusManager.debuffHolder = creatureData.transform.Find("Panel Minion Status").Find("Panel debuffs").gameObject;
+
+                    panelManager.SetStartingPanel(newCreature);
+                    panelManager.SaveCharacterPositionFromPanel();
+                }
+                else
+                {
+                    Debug.Log("No Panel");
+                }
             }
         }
     }

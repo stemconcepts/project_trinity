@@ -1,8 +1,11 @@
-﻿using Spine.Unity;
+﻿using DG.Tweening;
+using Spine.Unity;
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using static AssemblyCSharp.GenericSkillModel;
 
 namespace AssemblyCSharp
 {
@@ -22,9 +25,11 @@ namespace AssemblyCSharp
         public GameObject midGround;
         public GameObject foreGround;
         public GameObject lineObject;
+        public GameObject SFXCanvas;
         void Awake()
         {
             mainCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+            SFXCanvas = GameObject.Find("Canvas - SFX");
             if (camGuide && foreGround && midGround && backGround)
             {
                 originalCamGuidePos = camGuide.transform.position;
@@ -34,7 +39,8 @@ namespace AssemblyCSharp
             }
         }
 
-        public void SlowMo( float slowAmount ){
+        public void SlowMo(float slowAmount)
+        {
             Time.timeScale = slowAmount;
             BattleManager.taskManager.CallSoloMoTask(1f);
         }
@@ -43,28 +49,39 @@ namespace AssemblyCSharp
         {
             if (!friendly)
             {
-                var newBackPos = new Vector2(originalBackPos.x - 1.0f, originalBackPos.y);
+                /*var newBackPos = new Vector2(originalBackPos.x - 1.0f, originalBackPos.y);
                 var newMidPos = new Vector2(originalMidPos.x - 0.5f, originalMidPos.y);
                 var newforePos = new Vector2(originalForPos.x - 0.2f, originalForPos.y);
-                var newCamPos = new Vector2(originalCamGuidePos.x - 0.2f, originalCamGuidePos.y);
-                MoveGameObject(camGuide.gameObject, newCamPos, 0.01f, "cameranPan");
-                //MoveGameObject(backGround, newBackPos, 0.001f, "backGroundPan");
-                //MoveGameObject(midGround, newMidPos, 0.001f, "midGroundPan");
-                //MoveGameObject(foreGround, newforePos, 0.001f, "foreGroundPan");
-            } else
-            {
-                var newBackPos = new Vector2(originalBackPos.x + 1.0f, originalBackPos.y);
-                var newMidPos = new Vector2(originalMidPos.x + 0.5f, originalMidPos.y);
-                var newforePos = new Vector2(originalForPos.x + 0.2f, originalForPos.y);
-                var newCamPos = new Vector2(originalCamGuidePos.x + 0.2f, originalCamGuidePos.y);
-                MoveGameObject(camGuide.gameObject, newCamPos, 0.01f, "cameranPan");
+                var newCamPos = new Vector2(originalCamGuidePos.x - 3f, originalCamGuidePos.y);*/
+
+                camGuide.transform.DOMoveX(originalCamGuidePos.x - 1f, 1f).SetEase(Ease.OutQuad).OnComplete(() =>
+                {
+                    originalCamGuidePos = new Vector2(originalCamGuidePos.x - 1f, originalCamGuidePos.y);
+                });
+                //MoveGameObject(camGuide, newCamPos, 0.01f, "cameranPan");
                 //MoveGameObject(backGround, newBackPos, 0.001f, "backGroundPan");
                 //MoveGameObject(midGround, newMidPos, 0.001f, "midGroundPan");
                 //MoveGameObject(foreGround, newforePos, 0.001f, "foreGroundPan");
             }
+            else
+            {
+                /*var newBackPos = new Vector2(originalBackPos.x + 1.0f, originalBackPos.y);
+                var newMidPos = new Vector2(originalMidPos.x + 0.5f, originalMidPos.y);
+                var newforePos = new Vector2(originalForPos.x + 0.2f, originalForPos.y);
+                var newCamPos = new Vector2(originalCamGuidePos.x + 3f, originalCamGuidePos.y);*/
+
+                camGuide.transform.DOMoveX(originalCamGuidePos.x + 1f, 1f).SetEase(Ease.OutQuad).OnComplete(() =>
+                {
+                    originalCamGuidePos = new Vector2(originalCamGuidePos.x + 1f, originalCamGuidePos.y);
+                });
+                //MoveGameObject(camGuide, newCamPos, 0.01f, "cameranPan");
+                //MoveGameObject(backGround, newBackPos, 0.001f, "backGroundPan");
+                // MoveGameObject(midGround, newMidPos, 0.001f, "midGroundPan");
+                // MoveGameObject(foreGround, newforePos, 0.001f, "foreGroundPan");
+            }
         }
 
-        public void MoveGameObject(GameObject gameObject, Vector2 newPositon, float speed, string taskName)
+        /*public void MoveGameObject(GameObject gameObject, Vector2 newPositon, float speed, string taskName)
         {
             if (BattleManager.taskManager.taskList.ContainsKey(taskName))
             {
@@ -79,9 +96,8 @@ namespace AssemblyCSharp
             var time = 0f;
             while ((Vector2)gameObject.transform.position != newPosition)
             {
-                //time += 0;
-                var xPos = 0f;
-                var yPos = 0f;
+                float xPos;
+                float yPos;
                 if (gameObject.transform.position.x > newPosition.x)
                 {
                     xPos = gameObject.transform.position.x - (speed - time);
@@ -89,7 +105,8 @@ namespace AssemblyCSharp
                 else if (gameObject.transform.position.x < newPosition.x)
                 {
                     xPos = gameObject.transform.position.x + (speed - time);
-                } else
+                }
+                else
                 {
                     xPos = gameObject.transform.position.x;
                 }
@@ -101,7 +118,8 @@ namespace AssemblyCSharp
                 else if (gameObject.transform.position.y < newPosition.y)
                 {
                     yPos = gameObject.transform.position.y + (speed - time);
-                } else
+                }
+                else
                 {
                     yPos = gameObject.transform.position.y;
                 }
@@ -109,7 +127,7 @@ namespace AssemblyCSharp
                 gameObject.transform.position = new Vector2(xPos, yPos);
                 yield return null;
             }
-        }
+        }*/
 
         public void DrawLineFromMouseToPoint(Vector2 position)
         {
@@ -130,7 +148,8 @@ namespace AssemblyCSharp
             BattleManager.taskManager.CallFadeOutMeshRendererTask(renderer);
         }
 
-        public void ScreenShake( float shakeAmt, int frequency = 0 ){
+        public void ScreenShake(float shakeAmt, int frequency = 0)
+        {
             for (var x = 0; x <= frequency; x++)
             {
                 float quakeAmt = UnityEngine.Random.value * shakeAmt * 2 - shakeAmt;
@@ -154,8 +173,43 @@ namespace AssemblyCSharp
                 action.Invoke();
                 transition.SetTrigger("End");
             });
-
         }
+
+        public void CallEffectOnTarget(GameObject target, SkillEffect skillEffect, bool flip = false)
+        {
+            var fxObject = skillEffect.fxObject;
+            fxObject.transform.localScale = new Vector2(skillEffect.size, skillEffect.size);
+            var transformsInChildren = fxObject.GetComponentsInChildren<Transform>();
+            if (transformsInChildren != null)
+            {
+                transformsInChildren.ToList().ForEach(transform =>
+                {
+                    transform.localScale = new Vector2(skillEffect.size, skillEffect.size);
+                });
+            }
+            var particleSystems = fxObject.GetComponentsInChildren<ParticleSystemRenderer>().ToList();
+            particleSystems.ForEach(o =>
+            {
+                o.sortingLayerName = "SFX";
+                o.sortingOrder = 5;
+            });
+            if (SFXCanvas == null)
+            {
+                SFXCanvas = GameObject.Find("Canvas - SFX");
+            }
+            var fx = Instantiate(fxObject, target.transform.position, new Quaternion(0, flip ? 180 : 0, 0, 0), SFXCanvas.transform /*target.transform*/);
+            var particles = fx.GetComponents<ParticleSystem>();
+            if (particles != null)
+            {
+                foreach (var particle in particles)
+                {
+                    var main = particle.main;
+                    main.flipRotation = flip ? 1.0f : 0.0f;
+                    main.stopAction = ParticleSystemStopAction.Destroy;
+                }
+            }
+        }
+
     }
 }
 

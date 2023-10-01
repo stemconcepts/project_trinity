@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using static AssemblyCSharp.GenericSkillModel;
 
 namespace AssemblyCSharp
 {
@@ -17,59 +18,110 @@ namespace AssemblyCSharp
             baseManager = this.gameObject.GetComponent<BaseCharacterManagerGroup>();
         }
 
-        public void CallEffect( GameObject fxObject, string position = "center" ){
+        public void CallEffect(GameObject fxObject, string position = "center")
+        {
             GameObject fxposition = fxCenter;
-            if( position == "bottom" ){
+            if (position == "bottom")
+            {
                 fxposition = fxBottom;
-            } else if ( position == "front" ){
+            }
+            else if (position == "front")
+            {
                 fxposition = fxFront;
             }
-            if( gameObject.tag != "Player" && fxObject ){
-                var fx = Instantiate( fxObject, fxposition.transform);
+            if (gameObject.tag != "Player" && fxObject)
+            {
+                var fx = Instantiate(fxObject, fxposition.transform);
                 var particles = fx.GetComponents<ParticleSystem>();
-                if( particles != null ){
+                if (particles != null)
+                {
                     foreach (var particle in particles)
                     {
                         var main = particle.main;
                         main.flipRotation = 1.0f;
                     }
                 }
-            } else {
+            }
+            else
+            {
                 if (fxObject)
                 {
                     Instantiate(fxObject, fxposition.transform);
                 }
-            }   
+            }
         }
-    
-        public void callEffectTarget(BaseCharacterManager target, GameObject fxObject, string position = "center"){
-            //fxObject.GetComponent<ParticleSystemRenderer>().sortingLayerName = "SFX";
-            var x = fxObject.GetComponentsInChildren<ParticleSystemRenderer>().ToList();
-            x.ForEach(o =>
+
+        public Vector2 ConvertFxPositionToVector(fxPosEnum position)
+        {
+            switch (position)
+            {
+                case fxPosEnum.center:
+                    return fxCenter.transform.position;
+                case fxPosEnum.bottom:
+                    return fxBottom.transform.position;
+                case fxPosEnum.front:
+                    return fxFront.transform.position;
+                case fxPosEnum.top:
+                    return fxCenter.transform.position;
+                default:
+                    return fxCenter.transform.position;
+            }
+        }
+
+        public GameObject GetGameObjectByFXPos(fxPosEnum position)
+        {
+            switch (position)
+            {
+                case fxPosEnum.center:
+                    return fxCenter;
+                case fxPosEnum.bottom:
+                    return fxBottom;
+                case fxPosEnum.front:
+                    return fxFront;
+                case fxPosEnum.top:
+                    return fxCenter;
+                default:
+                    return fxCenter;
+            }
+        }
+
+        public void callEffectTarget(BaseCharacterManager target, GameObject fxObject, fxPosEnum position)
+        {
+            fxObject.transform.localScale = new Vector2(4, 4);
+            var particleSystems = fxObject.GetComponentsInChildren<ParticleSystemRenderer>().ToList();
+            particleSystems.ForEach(o =>
             {
                 o.sortingLayerName = "SFX";
+                o.sortingOrder = 5;
             });
-            GameObject fxposition = target.gameObject;//.transform.Find("FXpositions").transform.Find("FXcenter").gameObject;
-            /*if( position == "bottom" ){
-                fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfloor").gameObject;
-            } else if ( position == "front" ){
-                fxposition = target.gameObject.transform.Find("FXpositions").transform.Find("FXfront").gameObject;
-            }*/
-            if( target.tag != "Player" ){
-                var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), new Quaternion ( 0, 180, 0, 0 ) );
+            GameObject fxposition = target.gameObject;
+            if (target.tag != "Player")
+            {
+                var fx = Instantiate(fxObject, target.GetComponent<Effects_Manager>().ConvertFxPositionToVector(position), new Quaternion(0, 180, 0, 0));
                 var particles = fx.GetComponents<ParticleSystem>();
-                if( particles != null ){
+                if (particles != null)
+                {
                     foreach (var particle in particles)
                     {
                         var main = particle.main;
                         main.flipRotation = 1.0f;
+                        main.stopAction = ParticleSystemStopAction.Destroy;
                     }
                 }
-                //fx.transform.SetParent(position.transform);
-            } else {
-                var fx = Instantiate( fxObject, new Vector2 ( fxposition.transform.position.x , fxposition.transform.position.y ), fxposition.transform.rotation );
-                //fx.transform.SetParent(position.transform);
-            }   
+            }
+            else
+            {
+                var fx = Instantiate(fxObject, target.GetComponent<Effects_Manager>().ConvertFxPositionToVector(position), fxposition.transform.rotation);
+                var particles = fx.GetComponents<ParticleSystem>();
+                if (particles != null)
+                {
+                    foreach (var particle in particles)
+                    {
+                        var main = particle.main;
+                        main.stopAction = ParticleSystemStopAction.Destroy;
+                    }
+                }
+            }
         }
     }
 }

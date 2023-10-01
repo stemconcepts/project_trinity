@@ -14,6 +14,10 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         public List<GameObject> fieldItems = new List<GameObject>();
         public UIMotion inventoryHolderUIController;
         public List<ItemBase> testingLoot = new List<ItemBase>();
+        [Header("Inventory Sounds")]
+        public List<AudioClip> openCraftingSounds = new List<AudioClip>();
+        public List<AudioClip> showInventorySounds = new List<AudioClip>();
+
         /// <summary>
         /// Add field Items from testingLoot for testing
         /// </summary>
@@ -41,7 +45,7 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         /// <param name="gameObject"></param>
         public void AddToObtainedItems(ItemBase item, GameObject gameObject = null)
         {
-            if (/*ExploreManager.obtainedItems.Any(o => o == item)*/ fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase == item))
+            if (/*MainGameManager.instance.exploreManager.obtainedItems.Any(o => o == item)*/ fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase == item))
             {
                 fieldItems.ForEach(o =>
                 {
@@ -49,25 +53,28 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
                     if (itemController.itemBase == item && item.canStack)
                     {
                         itemController.total += 1;
-                        gameObject.GetComponent<ExplorerItemsController>().DestroyToolTips();
-                        Destroy(gameObject);
+                        if (gameObject)
+                        {
+                            gameObject.GetComponent<ExplorerItemsController>().DestroyToolTips();
+                            Destroy(gameObject);
+                        }
                     }
                 });
             }
             else
             {
-                //ExploreManager.obtainedItems.Add(item);
+                //MainGameManager.instance.exploreManager.obtainedItems.Add(item);
                 if (!gameObject)
                 {
-                    gameObject = item.InstantiateAsGameObject(ExploreManager.inventoryHolder.transform);
+                    gameObject = item.InstantiateAsGameObject(MainGameManager.instance.exploreManager.inventoryHolder.transform);
                     fieldItems.Add(gameObject);
                 } else
                 {
-                    var explorerItem = item.InstantiateAsGameObject(ExploreManager.inventoryHolder.transform);
+                    var explorerItem = item.InstantiateAsGameObject(MainGameManager.instance.exploreManager.inventoryHolder.transform);
                     fieldItems.Add(explorerItem);
                     gameObject.GetComponent<ExplorerItemsController>().DestroyToolTips();
                     Destroy(gameObject);
-                    //gameObject.transform.SetParent(ExploreManager.inventoryHolder.transform, false);
+                    //gameObject.transform.SetParent(MainGameManager.instance.exploreManager.inventoryHolder.transform, false);
                     //gameObject.GetComponent<BoxCollider2D>().size = new Vector2(50, 50);
                 }
             }
@@ -87,6 +94,7 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
 
         public void ShowCraftingView()
         {
+            MainGameManager.instance.soundManager.playAllSounds(openCraftingSounds);
             MainGameManager.instance.SceneManager.LoadCrafting();
         }
 
@@ -95,6 +103,7 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         /// </summary>
         public void ShowInventorySlots()
         {
+            MainGameManager.instance.soundManager.playAllSounds(showInventorySounds);
             inventoryHolderUIController.Play();
         }
     }

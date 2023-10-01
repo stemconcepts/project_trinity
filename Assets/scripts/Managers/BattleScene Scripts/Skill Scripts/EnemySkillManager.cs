@@ -48,12 +48,12 @@ namespace AssemblyCSharp
 
             baseManager.animationManager.PlaySetAnimation(skillModel.BeginCastingAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), true);
-            if (skillModel.chargeSound != null)
+            if (skillModel.castingSounds.Count > 0)
             {
-                MainGameManager.instance.soundManager.playSoundUsingAudioSource(skillModel.chargeSound, baseManager.gameObject.GetComponent<AudioSource>());
+                MainGameManager.instance.soundManager.playAllSounds(skillModel.castingSounds, 0.3f);
             } else if (skillModel.isSpell)
             {
-                MainGameManager.instance.soundManager.playSounds(MainGameManager.instance.soundManager.magicChargeSounds);
+                MainGameManager.instance.soundManager.playAllSounds(MainGameManager.instance.soundManager.magicChargeSounds, 0.3f);
             }
             if (skillModel.hasVoidzone)
             {
@@ -134,7 +134,7 @@ namespace AssemblyCSharp
             DealHealDmg(enemySkillModel, targets, power);
 
             hasCasted = true;
-            
+            enemySkillModel.ClearSavedVoidPanels();
             enemySkillModel.SaveTurnToReset();
             currenttarget = null;
             isSkillactive = false;
@@ -199,14 +199,6 @@ namespace AssemblyCSharp
 
         private void DealHealDmg(enemySkill enemySkillModel, List<BaseCharacterManager> targets, float power)
         {
-            foreach (var status in enemySkillModel.singleStatusGroup)
-            {
-                status.dispellable = enemySkillModel.statusDispellable;
-            };
-            foreach (var status in enemySkillModel.singleStatusGroupFriendly)
-            {
-                status.dispellable = enemySkillModel.statusDispellable;
-            };
             foreach (var target in targets)
             {
                 if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
@@ -219,7 +211,7 @@ namespace AssemblyCSharp
                     caster = baseManager.characterManager,
                     enemySkillModel = enemySkillModel,
                 };
-                var didHit = target.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy, baseManager.characterManager.characterModel.evasion);
+                var didHit = enemySkillModel.isSpell ? true : target.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy);
                 enemySkillModel.RunExtraEffect(data);
                 if (enemySkillModel.doesDamage)
                 {
@@ -239,10 +231,6 @@ namespace AssemblyCSharp
                         var tankData = targets.Where(o => o.characterModel.role == RoleEnum.tank).FirstOrDefault();
                         if (!tankData || !(tankData.characterModel as CharacterModel).inVoidCounter)
                         {
-                            if (enemySkillModel.fxObject != null)
-                            {
-                                baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
-                            }
                             target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                             target.baseManager.damageManager.calculatedamage(dmgModel);
                         }
@@ -254,10 +242,6 @@ namespace AssemblyCSharp
                                 {
                                     target
                                 };
-                                if (enemySkillModel.fxObject != null)
-                                {
-                                    baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
-                                }
                                 dmgModel.modifiedDamage = true;
                                 dmgModel.incomingDmg = dmgModel.incomingDmg * 1.5f;
                                 tankData.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
@@ -268,7 +252,7 @@ namespace AssemblyCSharp
                     }
                     else
                     {
-                        if (enemySkillModel.isSpell || didHit)
+                        if (didHit)
                         {
                             target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                             target.baseManager.damageManager.calculatedamage(dmgModel);
@@ -277,7 +261,7 @@ namespace AssemblyCSharp
                         {
                             dmgModel.incomingDmg = 0;
                             dmgModel.showDmgNumber = false;
-                            MainGameManager.instance.soundManager.playSound("miss");
+                            MainGameManager.instance.soundManager.PlayMissSound();
                             BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
                         }
                     }
@@ -296,40 +280,43 @@ namespace AssemblyCSharp
                     };
                     target.baseManager.damageManager.calculateHdamage(dmgModel);
                 };
-                if (enemySkillModel.isSpell || didHit || enemySkillModel.healsDamage)
+                if ((didHit || enemySkillModel.healsDamage) && enemySkillModel.skillEffects.Count() > 0)
                 {
-                    if (enemySkillModel.fxObject != null)
+                    enemySkillModel.skillEffects.ForEach(effect =>
                     {
-                        baseManager.effectsManager.callEffectTarget(target, enemySkillModel.fxObject);
-                    }
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(target.baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect);
+                    });
                 }
-                if (enemySkillModel.singleStatusGroupFriendly.Count() > 0 || (enemySkillModel.isSpell || didHit) && enemySkillModel.singleStatusGroup.Count() > 0)
+                if (didHit || enemySkillModel.healsDamage)
                 {
-                    AddStatuses(target, power, enemySkillModel);
+                    AddStatuses(target, enemySkillModel);
                 }
-                if (enemySkillModel.forcedMoveAmount > 0 && enemySkillModel.isSpell || didHit)
+                if (enemySkillModel.forcedMoveAmount > 0 && didHit)
                 {
                     ForcedMove(new List<BaseCharacterManager> { target }, enemySkillModel);
                 }
             }
         }
 
-        private void AddStatuses(BaseCharacterManager target, float power, enemySkill enemySkill)
+        private void AddStatuses(BaseCharacterManager target, enemySkill enemySkill)
         {
-            if (target.tag == gameObject.tag)
+            if (enemySkill.statusGroupFriendly.Count() > 0)
             {
-                var hitAnimation = enemySkill.singleStatusGroupFriendly.Where(o => o.hitAnim != animationOptionsEnum.none).Select(o => o.hitAnim).FirstOrDefault();
-                var hitIdleAnimation = enemySkill.singleStatusGroupFriendly.Where(o => o.holdAnim != animationOptionsEnum.none).Select(o => o.holdAnim).FirstOrDefault();
-                target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
-                enemySkill.AttachStatus(enemySkill.singleStatusGroupFriendly, target.baseManager, power, enemySkill);
+                ProcessStatus(target, enemySkill, enemySkill.statusGroupFriendly);
             }
-            else
+            if (enemySkill.statusGroup.Count() > 0)
             {
-                var hitAnimation = enemySkill.singleStatusGroup.Where(o => o.hitAnim != animationOptionsEnum.none).Select(o => o.hitAnim).FirstOrDefault();
-                var hitIdleAnimation = enemySkill.singleStatusGroup.Where(o => o.holdAnim != animationOptionsEnum.none).Select(o => o.holdAnim).FirstOrDefault();
-                target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
-                enemySkill.AttachStatus(enemySkill.singleStatusGroup, target.baseManager, power, enemySkill);
+                ProcessStatus(target, enemySkill, enemySkill.statusGroup);
             }
+        }
+
+        private void ProcessStatus(BaseCharacterManager target, GenericSkillModel skill, List<StatusItem> statusItems)
+        {
+            var hitAnimation = statusItems.Where(statusItem => statusItem.status.hitAnim != animationOptionsEnum.none).Select(o => o.status.hitAnim).FirstOrDefault();
+            var hitIdleAnimation = statusItems.Where(statusItem => statusItem.status.holdAnim != animationOptionsEnum.none).Select(o => o.status.holdAnim).FirstOrDefault();
+            skill.AttachStatus(statusItems, target.baseManager, skill);
+            target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
+            MainGameManager.instance.soundManager.PlayNegativeEffectSound();
         }
 
         enemySkill SkillToRun(List<enemySkill> bossSkillList)
@@ -383,9 +370,22 @@ namespace AssemblyCSharp
         public void OnEventSkillTrigger(Spine.TrackEntry state, Spine.Event e)
         {
             var activeSkill = copiedSkillList.Where(o => o.skillActive).FirstOrDefault();
-            if (e.Data.Name == "swing" && activeSkill && activeSkill.swingEffect)
+            if (e.Data.Name == "swing" && activeSkill)
             {
-                baseManager.effectsManager.CallEffect(activeSkill.swingEffect, "center");
+                if (activeSkill.swingEffects.Count() > 0)
+                {
+                    activeSkill.swingEffects.ForEach(effect =>
+                    {
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect, true);
+                    });
+                } else
+                {
+                    if (defaultSwingEffect && activeSkill.skillEffects.Count() == 0)
+                    {
+                        var swingEffect = new SkillEffect(1, defaultSwingEffect, fxPosEnum.center);
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(baseManager.effectsManager.GetGameObjectByFXPos(swingEffect.fxPos), swingEffect, true);
+                    }
+                }
             }
 
             if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
@@ -394,12 +394,12 @@ namespace AssemblyCSharp
                 {
                     if (o.skillActive)
                     {
-                        if (o.castSound != null)
+                        if (o.hitSounds.Count > 0)
                         {
-                            MainGameManager.instance.soundManager.playSoundUsingAudioSource(o.castSound, baseManager.gameObject.GetComponent<AudioSource>());
+                            MainGameManager.instance.soundManager.playSound(o.hitSounds, 0.3f);
                         } else if(o.isSpell)
                         {
-                            MainGameManager.instance.soundManager.playSounds(MainGameManager.instance.soundManager.magicCastSounds);
+                            MainGameManager.instance.soundManager.PlayAAHitSound();
                         }
                         SkillComplete(finalTargets, o);
                         foreach (var target in finalTargets)

@@ -39,10 +39,16 @@ namespace Assets.scripts.Managers.Crafting
         {
             MoveFieldItemsBackToExplorer();
             MainGameManager.instance.SceneManager.UnLoadScene("craftingOverlay");
-            MainGameManager.instance.GetActiveBoxColliders().ForEach(o =>
-            {
-                o.enabled = true;
-            });
+            MainGameManager.instance.DisableEnableLiveBoxColliders(true);
+        }
+
+        /// <summary>
+        /// Remove from crafting combination list
+        /// </summary>
+        /// <param name="item"></param>
+        void RemoveFromCraftingCombination(ItemBase item)
+        {
+            itemCombinationToCraft.Remove(item);
         }
 
         /// <summary>
@@ -93,11 +99,14 @@ namespace Assets.scripts.Managers.Crafting
                 var d = item.AddComponent<DragAndDropController>();
                 d.draggable = true;
                 d.mouseUpAction += AddToCraftingCombination;
+                d.mouseUpActionRemove += RemoveFromCraftingCombination;
                 d.dragAndDropMaster = craftingGroupHolder.GetComponent<DragAndDropMasterController>();
             } else
             {
                 dd.mouseUpAction += AddToCraftingCombination;
+                dd.mouseUpActionRemove += RemoveFromCraftingCombination;
                 dd.dragAndDropMaster = craftingGroupHolder.GetComponent<DragAndDropMasterController>();
+                dd.enabled = true;
             }
             item.GetComponent<BoxCollider2D>().enabled = true;
         }
@@ -111,26 +120,49 @@ namespace Assets.scripts.Managers.Crafting
             {
                 var fieldItems = this.fieldInventoryController.GetFieldItems();
                 var result = recipeController.HasCombination(itemCombinationToCraft, activeCatalyst);
-                if (result.Count() > 0)
+                if (result.items.Count() > 0)
                 {
-                    itemCombinationToCraft.ForEach(itemBase =>
+                    switch (result.mixMode)
                     {
-                        var fieldItem = fieldItems.FindAll(f => f.GetComponent<ExplorerItemsController>().itemBase == itemBase);
-                        fieldItem.ForEach(itemGameObject =>
-                        {
-                            var explorerController = itemGameObject.GetComponent<ExplorerItemsController>();
-                            if (explorerController.total <= 1)
+                        case MixMode.requiresAllOf:
+                            itemCombinationToCraft.ForEach(itemBase =>
                             {
-                                fieldItems.Remove(itemGameObject);
-                                Destroy(itemGameObject);
-                            }
-                            else
+                                var fieldItem = fieldItems.FindAll(f => f.GetComponent<ExplorerItemsController>().itemBase == itemBase);
+                                fieldItem.ForEach(itemGameObject =>
+                                {
+                                    var explorerController = itemGameObject.GetComponent<ExplorerItemsController>();
+                                    if (explorerController.total <= 1)
+                                    {
+                                        fieldItems.Remove(itemGameObject);
+                                        Destroy(itemGameObject);
+                                    }
+                                    else
+                                    {
+                                        --explorerController.total;
+                                    }
+                                });
+                            });
+                            break;
+                        case MixMode.requiresAnyOf:
+                            var fieldItem = fieldItems.FirstOrDefault(f => f.GetComponent<ExplorerItemsController>().itemBase == itemCombinationToCraft.FirstOrDefault());
+                            if (fieldItem)
                             {
-                                --explorerController.total;
+                                var explorerController = fieldItem.GetComponent<ExplorerItemsController>();
+                                if (explorerController.total <= 1)
+                                {
+                                    fieldItems.Remove(fieldItem);
+                                    Destroy(fieldItem);
+                                }
+                                else
+                                {
+                                    --explorerController.total;
+                                }
                             }
-                        });
-                    });
-                    result.ForEach(o =>
+                            break;
+                        default:
+                            break;
+                    }
+                    result.items.ForEach(o =>
                     {
                         var item = o.InstantiateAsGameObject(itemHolder.transform);
                         fieldItems.Add(item);
@@ -138,7 +170,7 @@ namespace Assets.scripts.Managers.Crafting
                         //fieldItems.Add(o.InstantiateAsGameObject(itemHolder.transform));
                     });
                     itemCombinationToCraft = new List<ItemBase>();
-                 }
+                }
             }
         }
 
@@ -166,7 +198,7 @@ namespace Assets.scripts.Managers.Crafting
 
         private void Start()
         {
-            fieldInventoryController = ExploreManager.inventoryHolder.GetComponent<fieldInventoryController>();
+            fieldInventoryController = MainGameManager.instance.exploreManager.inventoryHolder.GetComponent<fieldInventoryController>();
             AddFromFieldItems();
             SetCatalyst();
         }

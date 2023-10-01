@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 namespace AssemblyCSharp
 {
     public class ToolTipManager : MonoBehaviour
     {
-        public static GameObject mapHolder;
-        public static GameObject canvasTooltip;
+        //public GameObject mapHolder;
+        public GameObject canvasTooltip;
 
         // Use this for initialization
         void Start()
@@ -16,9 +17,9 @@ namespace AssemblyCSharp
 
         void LoadUICanvas()
         {
-            mapHolder = GameObject.Find("MapHolder");
-            canvasTooltip = GameObject.Find("Canvas - Tooltip"); //Explore_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/Canvas - Tooltip.prefab");
-            canvasTooltip.GetComponent<Canvas>().worldCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+            //mapHolder = GameObject.Find("MapHolder");
+            //canvasTooltip = GameObject.Find("Canvas - Tooltip"); //Explore_Manager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/Canvas - Tooltip.prefab");
+            //canvasTooltip.GetComponent<Canvas>().worldCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         }
 
         // Update is called once per frame
@@ -27,6 +28,13 @@ namespace AssemblyCSharp
 
         }
 
+        public void DestroyAllToolTips()
+        {
+            canvasTooltip.transform.GetComponentsInChildren<ToolTipBehaviour>().ToList().ForEach(tooltip =>
+            {
+                Destroy(tooltip.gameObject);
+            });
+        }
 
     }
 }

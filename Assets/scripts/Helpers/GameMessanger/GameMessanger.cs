@@ -23,17 +23,18 @@ namespace AssemblyCSharp
         }
 
         /// <summary>
-        /// Show game message with okay and cancel button
+        /// Show game message for item use with character option to use it on
         /// </summary>
         /// <param name="message"></param>
         /// <param name="parentObject"></param>
         /// <param name="waitTime"></param>
         /// <param name="headerText"></param>
         /// <param name="pauseGame"></param>
-        /// <param name="okAction"></param>
+        /// <param name="item"></param>
+        /// <param name="useItemAction"></param>
         /// <param name="cancelAction"></param>
-        public void DisplayChoiceMessage(string message, string okText, string cancelText, OnUseItemAction useItemAction, Transform parentObject = null, float waitTime = 0, string headerText = null, 
-            bool pauseGame = false, Action cancelAction = null, bool showOptions = false)
+        public void DisplayChoiceMessageForItem(string message, string okText, string cancelText, OnUseItemAction useItemAction, ItemBase item, Transform parentObject = null, float waitTime = 0, 
+            string headerText = null, bool pauseGame = false, Action cancelAction = null, bool showOptions = false)
         {
             parentObject ??= MainGameManager.instance.GlobalCanvas.transform;
             MainGameManager.instance.taskManager.CallTask(waitTime, action: () =>
@@ -43,8 +44,8 @@ namespace AssemblyCSharp
                 gameMessageController.pauseGame = pauseGame;
                 gameMessageController.useItemAction = useItemAction;
                 gameMessageController.closeAction = cancelAction;
-                var b = gameMessageController.okText.transform.parent.GetComponent<Button>();
-                b.onClick.AddListener(() => gameMessageController.PerformActionThenClose());
+                var button = gameMessageController.okText.transform.parent.GetComponent<Button>();
+                button.onClick.AddListener(() => gameMessageController.UseItemThenClose(item));
                 gameMessageController.WriteMessage(message, headerText, okText, cancelText, showOptions);
                 if (pauseGame)
                 {
@@ -88,7 +89,7 @@ namespace AssemblyCSharp
 
         public void DisplayBattleResults(Action closeAction = null)
         {
-            MainGameManager.instance.taskManager.CallTask(3f, action: () =>
+            MainGameManager.instance.taskManager.CallTask(2f, action: () =>
             {
                 var displayBox = GenerateBattleDisplayPrefab(MainGameManager.instance.GlobalCanvas.transform);
                 displayBox.GetComponent<CanvasGroup>().DOFade(1f, 0.5f);
