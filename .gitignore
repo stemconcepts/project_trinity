@@ -1,4 +1,7 @@
 .vs/
 Library/
+**Library/
+**Temp/
+.git - Copy/
 Assets/Ultimate SFX Bundle - HD Remaster
 *.log
