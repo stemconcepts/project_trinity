@@ -23,14 +23,25 @@ namespace AssemblyCSharp
         {
             ChoosePathSprite();
             toolTipController = GetComponent<ToolTipTriggerController>();
-            if (curroptionAmount > 0) {
+            if (curroptionAmount > 0)
+            {
                 AddCurroptionToolTip();
+            }
+            if (lockObj != null)
+            {
+                AddLockedToolTip();
             }
         }
 
         void AddCurroptionToolTip()
         {
             toolTipController.AddtoolTip("curroption", $"Curroption <b> +{curroptionAmount}</b>", $"");
+            toolTipController.enabled = true;
+        }
+
+        public void AddLockedToolTip()
+        {
+            toolTipController.AddtoolTip("lock", $"{lockObj.lockDesc}", $"You'll need {lockObj.key.itemName} to open it");
             toolTipController.enabled = true;
         }
 
@@ -58,8 +69,28 @@ namespace AssemblyCSharp
                 /*MainGameManager.instance.exploreManager.obtainedItems.Any(o => o.name == lockObj.key.name)*/;
         }
 
+        void ToggleHighlighTargetIcon(bool highlight)
+        {
+            var relevantIcon = MainGameManager.instance.exploreManager.iconControllers
+                .Where(icon => icon.label == location)
+                .FirstOrDefault();
+
+            //Depending on direction of entry change the highlighted icon to the new location
+            var cRoom = MainGameManager.instance.exploreManager.GetCurrentRoom();
+            if (MainGameManager.instance.exploreManager.previousRooms.Count > 1 && MainGameManager.instance.exploreManager.previousRooms[MainGameManager.instance.exploreManager.previousRooms.Count - 2].name == location)
+            {
+                string otherRouteLocation = cRoom.routeLocations.Where(o => o != location).Where(a => !cRoom.routes.Any(r => r.location == a)).FirstOrDefault();
+                relevantIcon = MainGameManager.instance.exploreManager.iconControllers
+                    .Where(icon => icon.label == otherRouteLocation)
+                    .FirstOrDefault();
+            }
+
+            relevantIcon.SetHighlighted(highlight);
+        }
+
         void OnMouseEnter()
         {
+            ToggleHighlighTargetIcon(true);
             this.gameObject.GetComponent<SpriteRenderer>().color = hoverColor;
             if (CanUnlock())
             {
@@ -79,6 +110,7 @@ namespace AssemblyCSharp
 
         void OnMouseExit()
         {
+            ToggleHighlighTargetIcon(false);
             this.gameObject.GetComponent<SpriteRenderer>().color = origColor;
         }
 
@@ -113,18 +145,17 @@ namespace AssemblyCSharp
                     {
                         MainGameManager.instance.exploreManager.AddStep(1, 0);
                     }
-                    toolTipController.DestroyToolTipDisplay("curroption");
                 });
-                
+
             }
             else if (CanUnlock())
             {
                 lockObj.locked = false;
-                toolTipController.DestroyToolTipDisplay("lock");
-                toolTipController.DestroyToolTipDisplay("curroption");
-                toolTipController.enabled = false;
                 MainGameManager.instance.exploreManager.RemoveObtainedItem(lockObj.key);
             }
+            toolTipController.DestroyToolTipDisplay("lock");
+            toolTipController.DestroyToolTipDisplay("curroption");
+            toolTipController.enabled = false;
         }
     }
 }

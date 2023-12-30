@@ -20,7 +20,7 @@ namespace AssemblyCSharp
         public int stacks = 1;
         public SkillModel onHitSkillPlayer;
         public enemySkill onHitSkillEnemy;
-        private GameObject liveStatusHoverObj;
+        //private GameObject liveStatusHoverObj;
         //public Text statusName;
         //public Text statusDesc;
         public LayoutElement layoutElement;
@@ -28,11 +28,11 @@ namespace AssemblyCSharp
         public bool dispellable;
         public void DestroyMe(){
             Destroy (gameObject);
-            if( liveStatusHoverObj ){
+            /*if( liveStatusHoverObj ){
                 Destroy(liveStatusHoverObj);
-            }
+            }*/
         }
-        public GameObject statusHoverObj;
+        //public GameObject statusHoverObj;
         public Task tickTimer;
         public Task durationTimer;
 
@@ -46,8 +46,8 @@ namespace AssemblyCSharp
 
         }*/
 
-        public void OnMouseEnter(){
-                liveStatusHoverObj = (GameObject)Instantiate(statusHoverObj /*rayPoint, Quaternion.identity*/ );
+        /*public void OnMouseEnter(){
+                liveStatusHoverObj = (GameObject)Instantiate(statusHoverObj, BattleManager.tooltipCanvas.transform);
                 var statusName = liveStatusHoverObj.transform.Find("statusName").GetComponent<Text>();
                 var statusDesc = liveStatusHoverObj.transform.Find("statusDesc").GetComponent<Text>();
                 layoutElement = liveStatusHoverObj.GetComponent<LayoutElement>();
@@ -63,7 +63,7 @@ namespace AssemblyCSharp
 
         public void OnMouseExit(){
             Destroy(liveStatusHoverObj);
-        }
+        }*/
     
         // Use this for initialization
         void Start () {
@@ -84,7 +84,13 @@ namespace AssemblyCSharp
             } else {
                 boxcolor.color = Color.red;
             }
-    
+
+            var tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
+            tooltipController.AddtoolTip(
+                statusModel.singleStatus.name, 
+                statusModel.singleStatus.displayName, 
+                statusModel.singleStatus.statusDesc);
+
         }
     }
 }

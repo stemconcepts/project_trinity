@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Assets.scripts.Models.skillModels.swapSkills;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AssemblyCSharp
 {
@@ -66,12 +67,15 @@ namespace AssemblyCSharp
 
             if (formations.Any(formation => formation.Occupier == formationData.Occupier))
             {
-                formations.ForEach(formation => {
+                foreach (FormationData formation in formations)
+                {
                     if (formation.Occupier == formationData.Occupier)
                     {
-                        formation = formationData;
+                        formation.Occupier = formationData.Occupier;
+                        formation.PanelNumber = formationData.PanelNumber;
+                        formation.VerticalFlag = formationData.VerticalFlag;
                     }
-                });
+                }
             } else
             {
                 formations.Add(formationData);

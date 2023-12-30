@@ -135,10 +135,12 @@ namespace Assets.scripts.Managers.Crafting
                                     {
                                         fieldItems.Remove(itemGameObject);
                                         Destroy(itemGameObject);
+                                        return;
                                     }
                                     else
                                     {
                                         --explorerController.total;
+                                        return;
                                     }
                                 });
                             });
@@ -152,10 +154,12 @@ namespace Assets.scripts.Managers.Crafting
                                 {
                                     fieldItems.Remove(fieldItem);
                                     Destroy(fieldItem);
+                                    return;
                                 }
                                 else
                                 {
                                     --explorerController.total;
+                                    return;
                                 }
                             }
                             break;

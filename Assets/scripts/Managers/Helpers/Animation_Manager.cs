@@ -122,7 +122,7 @@ namespace AssemblyCSharp
 
         void Start()
         {
-            if(skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
+            if (skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
             {
                 PlaySetAnimation("intro", false);
                 PlayAddAnimation("idle", true);

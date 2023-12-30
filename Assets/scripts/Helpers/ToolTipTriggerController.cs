@@ -87,7 +87,6 @@ namespace AssemblyCSharp
             {
                 Destroy(t.liveHoverObj);
             });
-            //toolTipList.Clear();
         }
 
         void OnMouseExit()

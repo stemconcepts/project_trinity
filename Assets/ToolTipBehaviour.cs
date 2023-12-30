@@ -1,4 +1,6 @@
 ﻿using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +16,7 @@ namespace AssemblyCSharp
         public RectTransform canvas;
         public GameObject title;
         public GameObject desc;
+        private TweenerCore<Vector2, Vector2, VectorOptions> currentTween;
 
         void Awake()
         {
@@ -29,6 +32,16 @@ namespace AssemblyCSharp
 
         }
 
+        private void TweenToolTipPivot(int pivotX, int pivotY)
+        {
+            var pivotChanged = (int)rectTransform.pivot.x != pivotX || (int)rectTransform.pivot.y != pivotY;
+            if ((pivotChanged && currentTween == null) || (pivotChanged && currentTween != null && !currentTween.IsPlaying()))
+            {
+                print("spam");
+                currentTween = rectTransform.DOPivot(new Vector2(pivotX, pivotY), 0.5f);
+            }
+        }
+
         // Update is called once per frame
         void Update()
         {
@@ -40,7 +53,7 @@ namespace AssemblyCSharp
             {
                 camera = Camera.main;
             }
-            Vector2 position = camera.ScreenToWorldPoint(Input.mousePosition);
+           //Vector2 position = camera.ScreenToWorldPoint(Input.mousePosition);
             var isaboveMiddleX = (Screen.width / 2) > Input.mousePosition.x;
             var isaboveMiddleY = (Screen.height / 2) > Input.mousePosition.y;
             var y = isaboveMiddleY ? 0 : 1;
@@ -53,20 +66,24 @@ namespace AssemblyCSharp
             //x = x > 1 ? 1 : x < 0 ? 0 : x;
             var descWidth = desc.GetComponent<Text>();
             var titleWidth = title.GetComponent<Text>();
-            if (titleWidth)
+            if (titleWidth != null)
             {
-                this.gameObject.GetComponent<LayoutElement>().preferredWidth = titleWidth.preferredWidth > 600 ? 600 : titleWidth.preferredWidth;
+                var newWidth = titleWidth.preferredWidth > 400 ? 400 : titleWidth.preferredWidth < 100 ? 100 : titleWidth.preferredWidth;
+                this.gameObject.GetComponent<LayoutElement>().preferredWidth = newWidth;
             }
             if (descWidth && descWidth.preferredWidth > titleWidth.preferredWidth)
             {
-                this.gameObject.GetComponent<LayoutElement>().preferredWidth = descWidth.preferredWidth > 600 ? 600 : descWidth.preferredWidth;
+                var newWidth = descWidth.preferredWidth > 400 ? 400 : descWidth.preferredWidth < 100 ? 100 : descWidth.preferredWidth;
+                this.gameObject.GetComponent<LayoutElement>().preferredWidth = newWidth;
             }
-            rectTransform.pivot = new Vector2(x, y);
-            /*if (rectTransform.pivot.x != x || rectTransform.pivot.y != y)
-            {
-                rectTransform.DOPivot(new Vector2(x, y), 0.5f);
-            }*/
-            rectTransform.position = Input.mousePosition;
+
+            //Move Tooltip to new pivot
+            //rectTransform.pivot = new Vector2(x, y);
+            TweenToolTipPivot(x, y);
+
+            var offsetY = isaboveMiddleY ? 10 : -40;
+            var newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y + offsetY, Input.mousePosition.z);
+            rectTransform.position = newPosition;
         }
     }
 }

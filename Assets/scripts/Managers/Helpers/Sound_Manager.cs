@@ -96,7 +96,7 @@ namespace AssemblyCSharp
             {
                 var randomNumber = Random.Range(0, sounds.Count);
                 audioSource.clip = sounds[randomNumber];
-                audioSource.volume = volume == null ? 1.0f : (float)volume;
+                audioSource.volume = volume == null ? 0.3f : (float)volume;
                 audioSource.Play();
             }
             else
@@ -112,7 +112,7 @@ namespace AssemblyCSharp
                 foreach (AudioClip soundClip in sounds)
                 {
                     var audioSource = GetFreeAudioSource();
-                    audioSource.volume = volume == null ? 1.0f : (float)volume;
+                    audioSource.volume = volume == null ? 0.3f : (float)volume;
                     audioSource.PlayOneShot(soundClip);
                 };
             }
@@ -131,7 +131,7 @@ namespace AssemblyCSharp
                 float clipLength = 0.0f;
                 System.Random rnd = new System.Random();
                 sounds = playAtRandom ? sounds.OrderBy(o => rnd.Next()).ToList() : sounds;
-                audioSource.volume = volume == null ? 1.0f : (float)volume;
+                audioSource.volume = volume == null ? 0.3f : (float)volume;
                 foreach (var sound in sounds)
                 {
                     if (clipNumber != 0)
@@ -259,6 +259,7 @@ namespace AssemblyCSharp
             else
             {
                 audioSource.clip = audioClip;
+                audioSource.volume = 0.3f;
                 audioSource.Play();
             }
         }

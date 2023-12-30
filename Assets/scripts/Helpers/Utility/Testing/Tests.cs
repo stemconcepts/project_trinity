@@ -23,4 +23,18 @@ namespace Assets.scripts.Helpers.Utility.Testing
             }
         }
     }
+
+    [CustomEditor(typeof(ExplorerItemsController))]
+    internal class InspectorGUITriggers : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+            ExplorerItemsController explorerController = (ExplorerItemsController)target;
+            if (GUILayout.Button("Trigger SetUp"))
+            {
+                explorerController.TriggerSetUp();
+            }
+        }
+    }
 }

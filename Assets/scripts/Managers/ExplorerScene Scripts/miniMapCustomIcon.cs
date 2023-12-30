@@ -13,6 +13,7 @@ namespace AssemblyCSharp
             start,
             end
         }
-
+        public GameObject customRoom;
+        public miniMapCustomIcon nextRoomIcon;
     }
 }

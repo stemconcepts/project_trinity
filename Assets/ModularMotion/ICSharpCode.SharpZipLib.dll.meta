@@ -31,3 +31,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159169
+  packageName: Modular Motion
+  packageVersion: 2.0
+  assetPath: Assets/ModularMotion/ICSharpCode.SharpZipLib.dll
+  uploadId: 565545

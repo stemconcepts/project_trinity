@@ -44,8 +44,10 @@ namespace AssemblyCSharp
     public class GenericSkillModel : ScriptableObject
     {
         public bool skillConfirm;
+
         [Header("Skill Details")]
         public string skillName;
+        [HideInInspector]
         public bool skillActive;
         public int skillCost;
         public float skillPower;
@@ -68,19 +70,21 @@ namespace AssemblyCSharp
         public int turnToComplete;
         [HideInInspector]
         public int turnToReset;
-        [HideInInspector]
+
+        [Header("Casting/Turn Settings")]
         public int castTurnTime;
         [HideInInspector]
         public bool castTimeReady;
-        [Header("Turn Details")]
         public int turnDuration = 4;
         public int skillCooldown = 0;
-        [Header("Animation:")]
+
+        [Header("Animation")]
         public string skinChange;
         public animationOptionsEnum EndAnimation;
         public animationOptionsEnum BeginCastingAnimation;
         public animationOptionsEnum CastingAnimation;
         public bool loopAnimation;
+
         [Header("Target Choices")]
         public bool self;
         public bool enemy;
@@ -89,9 +93,11 @@ namespace AssemblyCSharp
         public bool allEnemy;
         public bool targetAndSelf;
         public bool summon;
+
         [Header("Sounds")]
         public List<AudioClip> castingSounds = new List<AudioClip>();
         public List<AudioClip> hitSounds = new List<AudioClip>();
+
         [Header("Extra Effect")]
         [HideInInspector]
         public bool useModifier;

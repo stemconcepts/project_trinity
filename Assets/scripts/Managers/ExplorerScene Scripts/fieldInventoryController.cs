@@ -38,6 +38,11 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
             return fieldItems;
         }
 
+        private bool HasBagSpace()
+        {
+            return GetFieldItems().Count < MainGameManager.instance.exploreManager.MaxBagSize;
+        }
+
         /// <summary>
         /// Add or increate obtained field items to inventory display as well as set up the tooltip needed
         /// </summary>
@@ -45,7 +50,13 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         /// <param name="gameObject"></param>
         public void AddToObtainedItems(ItemBase item, GameObject gameObject = null)
         {
-            if (/*MainGameManager.instance.exploreManager.obtainedItems.Any(o => o == item)*/ fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase == item))
+            if (!HasBagSpace())
+            {
+                print("Out of bag space");
+                return;
+            }
+
+            if (fieldItems.Any(o => o.GetComponent<ExplorerItemsController>().itemBase == item) && item.canStack)
             {
                 fieldItems.ForEach(o =>
                 {

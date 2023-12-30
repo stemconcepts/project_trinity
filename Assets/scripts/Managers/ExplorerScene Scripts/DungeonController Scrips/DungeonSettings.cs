@@ -13,6 +13,9 @@ namespace AssemblyCSharp
 
     public class DungeonSettings : ScriptableObject
     {
+        [Header("Custom Start and End Room")]
+        public GameObject StartRoom;
+        public GameObject EndRoom;
         [Header("Environment Status Settings")]
         public List<ExplorerStatus> playertStatuses = new List<ExplorerStatus>();
         public List<ExplorerStatus> enemyStatuses = new List<ExplorerStatus>();

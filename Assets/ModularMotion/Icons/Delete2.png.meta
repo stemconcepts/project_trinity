@@ -89,3 +89,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159169
+  packageName: Modular Motion
+  packageVersion: 2.0
+  assetPath: Assets/ModularMotion/Icons/Delete2.png
+  uploadId: 565545

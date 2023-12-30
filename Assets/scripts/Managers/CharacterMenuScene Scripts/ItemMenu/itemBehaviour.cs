@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using static Assets.scripts.Helpers.Utility.GenericMouseInteraction;
+using Assets.scripts.Helpers.Utility;
 
 namespace AssemblyCSharp
 {
-	public class itemBehaviour : MonoBehaviour
-	{
+	public class itemBehaviour : GenericMouseInteraction
+    {
 		hoverManager hoverControlScript;
 		InventoryManager equipmentManagerScript;
 		public weaponModel weaponItemScript;
@@ -122,16 +124,31 @@ namespace AssemblyCSharp
 			}
 		}
 
-		weaponModel EquipItemAndReturnWeaponModel(bool primaryWeapon)
+		weaponModel EquipItemAndReturnWeaponModel(bool primaryWeapon, GameObject slot = null)
 		{
+            equipControl equipControl = null;
+            if (slot != null && hoverControlScript != null)
+			{
+                equipControl = slot.GetComponent<equipControl>();
+                this.transform.SetParent(slot.transform);
+            } else
+			{
+                equipControl = hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>();
+                this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
+            }
             weaponItemScript.isEquipped = true;
 			SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, primaryWeapon);
-			var equipControl = hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>();
             equipControl.equippedWeapon = this.gameObject;
 			equipControl.ShowItemQuality();
             hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
 			//equipControl.qualityDisplay = hoverControlScript.hoveredEquipSlot.transform.Find("itemQuality").GetComponent<Image>();
-            this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
+			/*if (slot != null)
+			{
+				this.transform.SetParent(slot.transform);
+            } else
+			{
+                this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
+            }*/
             MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.uiSounds[4]);
 			return weaponItemScript;
         }
@@ -146,6 +163,128 @@ namespace AssemblyCSharp
 			return baubleItemScript;
 
         }
+
+		private GameObject GetFreeSlotName()
+		{
+			switch (type)
+			{
+				case weaponType.bladeAndBoard:
+					return equipmentManagerScript.tankWeaponObject == null ? equipmentManagerScript.tankfirstSlot : equipmentManagerScript.tanksecondSlot;
+                case weaponType.heavyHanded:
+                    return equipmentManagerScript.tankWeaponObject == null ? equipmentManagerScript.tankfirstSlot : equipmentManagerScript.tanksecondSlot;
+                case weaponType.dualBlades:
+                    return equipmentManagerScript.dpsWeaponObject == null ? equipmentManagerScript.dpsfirstSlot : equipmentManagerScript.dpssecondSlot;
+                case weaponType.clawAndCannon:
+                    return equipmentManagerScript.dpsWeaponObject == null ? equipmentManagerScript.dpsfirstSlot : equipmentManagerScript.dpssecondSlot;
+                case weaponType.glove:
+                    return equipmentManagerScript.healerWeaponObject == null ? equipmentManagerScript.healerfirstSlot : equipmentManagerScript.healersecondSlot;
+                case weaponType.cursedGlove:
+                    return equipmentManagerScript.healerWeaponObject == null ? equipmentManagerScript.healerfirstSlot : equipmentManagerScript.healersecondSlot;
+            }
+			return null;
+		}
+
+		public bool TryToEquip(weaponType weaponType, GameObject slot)
+		{
+			if (slot.name == "Panel-tankweapon" || slot.name == "Panel-secondTankWeapon")
+			{
+				if (weaponType == weaponType.heavyHanded || weaponType == weaponType.bladeAndBoard)
+				{
+					if (slot.name == "Panel-tankweapon")
+					{
+						equipmentManagerScript.tankWeaponObject = EquipItemAndReturnWeaponModel(true, slot);
+                        return true;
+                    }
+					else if (slot.name == "Panel-secondTankWeapon")
+					{
+						equipmentManagerScript.tankSecondWeaponObject = EquipItemAndReturnWeaponModel(false, slot);
+                        return true;
+                    }
+				}
+				else
+				{
+					print("cannot equip this weapon");
+				}
+			}
+			else if (slot.name == "Panel-dpsweapon" || slot.name == "Panel-secondDpsweapon")
+			{
+				if (weaponType == weaponType.clawAndCannon || weaponType == weaponType.dualBlades)
+				{
+					if (slot.name == "Panel-dpsweapon")
+					{
+						equipmentManagerScript.dpsWeaponObject = EquipItemAndReturnWeaponModel(true, slot);
+                        return true;
+                    }
+					else if (slot.name == "Panel-secondDpsweapon")
+					{
+						equipmentManagerScript.dpsSecondWeaponObject = EquipItemAndReturnWeaponModel(false, slot);
+                        return true;
+                    }
+				}
+				else
+				{
+					print("cannot equip this weapon");
+				}
+			}
+			else if (slot.name == "Panel-healerweapon" || slot.name == "Panel-secondHealerweapon")
+			{
+				if (weaponType == weaponType.glove || weaponType == weaponType.cursedGlove)
+				{
+					if (slot.name == "Panel-healerweapon")
+					{
+						equipmentManagerScript.healerWeaponObject = EquipItemAndReturnWeaponModel(true, slot);
+                        return true;
+                    }
+					else if (slot.name == "Panel-secondHealerweapon")
+					{
+						equipmentManagerScript.healerSecondWeaponObject = EquipItemAndReturnWeaponModel(false, slot);
+                        return true;
+                    }
+				}
+				else
+				{
+					print("cannot equip this weapon");
+				}
+			}
+			else if (slot.name == "Panel-tankAccessorySlot")
+			{
+				if (weaponType == weaponType.bauble)
+				{
+					equipmentManagerScript.tankBaubleObject = EquipBauble(classType.guardian);
+                    return true;
+                }
+				else
+				{
+					print("cannot equip this bauble");
+				}
+			}
+			else if (slot.name == "Panel-dpsAccessorySlot")
+			{
+				if (weaponType == weaponType.bauble)
+				{
+					equipmentManagerScript.dpsBaubleObject = EquipBauble(classType.stalker);
+                    return true;
+                }
+				else
+				{
+					print("cannot equip this bauble");
+				}
+			}
+			else if (slot.name == "Panel-healerAccessorySlot")
+			{
+				if (weaponType == weaponType.bauble)
+				{
+					equipmentManagerScript.healerBaubleObject = EquipBauble(classType.walker);
+                    return true;
+                }
+				else
+				{
+					print("cannot equip this bauble");
+				}
+			}
+
+			return false;
+		}
 
 		void OnMouseUp()
 		{
@@ -183,112 +322,9 @@ namespace AssemblyCSharp
 						weaponItem.GetComponent<itemBehaviour>().equipped = false;
 					}
 				}
-				equipped = true;
 				var hoveredWeaponType = hoverControlScript.lastDraggedItem.GetComponent<itemBehaviour>().type;
-				if (hoverControlScript.hoveredEquipSlot.name == "Panel-tankweapon" || hoverControlScript.hoveredEquipSlot.name == "Panel-secondTankWeapon")
-				{
-                    if (hoveredWeaponType == weaponType.heavyHanded || hoveredWeaponType == weaponType.bladeAndBoard)
-					{
-                        if (hoverControlScript.hoveredEquipSlot.name == "Panel-tankweapon")
-						{
-                            equipmentManagerScript.tankWeaponObject = EquipItemAndReturnWeaponModel(true);
-                            /*weaponItemScript.isEquipped = true;
-							equipmentManagerScript.tankWeaponObject = weaponItemScript;
-							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, true);*/
-						}
-						else if (hoverControlScript.hoveredEquipSlot.name == "Panel-secondTankWeapon")
-						{
-                            equipmentManagerScript.tankSecondWeaponObject = EquipItemAndReturnWeaponModel(false);
-                            /*weaponItemScript.isEquipped = true;
-							equipmentManagerScript.tankSecondWeaponObject = weaponItemScript;
-							SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, false);*/
-						}
-						/*hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedWeapon = this.gameObject;
-						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
-						this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);*/
-					}
-					else
-					{
-						print("cannot equip this weapon");
-					}
-				}
-				else if (hoverControlScript.hoveredEquipSlot.name == "Panel-dpsweapon" || hoverControlScript.hoveredEquipSlot.name == "Panel-secondDpsweapon")
-				{
-					if (hoveredWeaponType == weaponType.clawAndCannon || hoveredWeaponType == weaponType.dualBlades)
-					{
-						if (hoverControlScript.hoveredEquipSlot.name == "Panel-dpsweapon")
-						{
-                            equipmentManagerScript.dpsWeaponObject = EquipItemAndReturnWeaponModel(true);
-                        }
-						else if (hoverControlScript.hoveredEquipSlot.name == "Panel-secondDpsweapon")
-						{
-                            equipmentManagerScript.dpsSecondWeaponObject = EquipItemAndReturnWeaponModel(false);
-                        }
-					}
-					else
-					{
-						print("cannot equip this weapon");
-					}
-				}
-				else if (hoverControlScript.hoveredEquipSlot.name == "Panel-healerweapon" || hoverControlScript.hoveredEquipSlot.name == "Panel-secondHealerweapon")
-				{
-					if (hoveredWeaponType == weaponType.glove || hoveredWeaponType == weaponType.cursedGlove)
-					{
-						if (hoverControlScript.hoveredEquipSlot.name == "Panel-healerweapon")
-						{
-                            equipmentManagerScript.healerWeaponObject = EquipItemAndReturnWeaponModel(true);
-                        }
-						else if (hoverControlScript.hoveredEquipSlot.name == "Panel-secondHealerweapon")
-						{
-                            equipmentManagerScript.healerSecondWeaponObject = EquipItemAndReturnWeaponModel(false);
-                        }
-					}
-					else
-					{
-						print("cannot equip this weapon");
-					}
-				}
-				else if (hoverControlScript.hoveredEquipSlot.name == "Panel-tankAccessorySlot")
-				{
-					if (hoveredWeaponType == weaponType.bauble)
-					{
-                        equipmentManagerScript.tankBaubleObject = EquipBauble(classType.guardian);
-                        /*baubleItemScript.isEquipped = true;
-						equipmentManagerScript.tankBaubleObject = baubleItemScript;
-						hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
-						hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
-						this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
-						SavedDataManager.SavedDataManagerInstance.AddBauble(baubleItemScript, "guardian");*/
-					}
-					else
-					{
-						print("cannot equip this bauble");
-					}
-				}
-				else if (hoverControlScript.hoveredEquipSlot.name == "Panel-dpsAccessorySlot")
-				{
-					if (hoveredWeaponType == weaponType.bauble)
-					{
-                        equipmentManagerScript.dpsBaubleObject = EquipBauble(classType.stalker);
-					}
-					else
-					{
-						print("cannot equip this bauble");
-					}
-				}
-				else if (hoverControlScript.hoveredEquipSlot.name == "Panel-healerAccessorySlot")
-				{
-					if (hoveredWeaponType == weaponType.bauble)
-					{
-                        equipmentManagerScript.healerBaubleObject = EquipBauble(classType.walker);
-					}
-					else
-					{
-						print("cannot equip this bauble");
-					}
-				}
+                equipped = TryToEquip(hoveredWeaponType, hoverControlScript.hoveredEquipSlot);
                 MainGameManager.instance.ResetAnchorPoints(this.gameObject, new Vector2(0f, 0f));
-                //this.transform.SetParent(hoverControlScript.OriginalSlot.transform);
                 particleSystem.Play();
 			}
             dragging = false;
@@ -316,7 +352,7 @@ namespace AssemblyCSharp
 
 		void Awake()
 		{
-			
+
 		}
 
 		void Start()
@@ -341,10 +377,26 @@ namespace AssemblyCSharp
 			}
 		}
 
+		void EquipWithRightClick()
+		{
+			if (equipped)
+			{
+				return;
+			}
+			var item = CheckRightClick();
+            if (item != null && item == this.gameObject)
+            {
+                hoverControlScript.draggedItem = this.gameObject;
+                equipped = TryToEquip(type, GetFreeSlotName());
+				MainGameManager.instance.ResetAnchorPoints(this.gameObject, new Vector2(5f, 5f));
+            }
+		}
+
 		// Update is called once per frame
 		void Update()
 		{
-			if (hovered)
+			EquipWithRightClick();
+            if (hovered)
 			{
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				Vector2 rayPoint = ray.GetPoint(distance);

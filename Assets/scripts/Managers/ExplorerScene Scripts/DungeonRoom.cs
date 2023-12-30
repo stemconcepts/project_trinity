@@ -29,6 +29,7 @@ namespace AssemblyCSharp
         public LockObject lockObj;
         public bool visited;
         public GameObject mainPanel;
+        public GameObject topPanel;
         public GameObject encounterHolder;
         public GameObject foregroundHolder;
         public List<RoomObject> roomObjects;
@@ -40,6 +41,19 @@ namespace AssemblyCSharp
         public enemyEncounter encounter;
         public miniMapIconBase roomIcon;
         public int depth;
+        [Header("Replaces Generated Routes")]
+        public CustomRouteController customRoute;
+
+        public void SetCustomRouteToLocation(string location)
+        {
+            if (customRoute != null)
+            {
+                customRoute.lockObj = lockObj != null ? UnityEngine.Object.Instantiate(lockObj) : null;
+                UpdateCustomRoute(location, customRoute, "CustomRoute_Main");
+                routeLocations.Add(location);
+                //this.parentRoom.routeLocations.Add(miniMapController.label);
+            }
+        }
 
         public void InheritRouteFromParent(DungeonRoom parentRoom, GameObject routeTemplate)
         {
@@ -52,13 +66,12 @@ namespace AssemblyCSharp
                 AddRoute(parentRoom, r, "Route_Main");
                 routeLocations.Add(parentRoom.gameObject.name);
                 parentRoom.routeLocations.Add(this.gameObject.name);
-                //parentRoom.routes.Add(r);
             }
         }
 
         public void CreateRouteFromRoom(DungeonRoom room, GameObject routeTemplate, int? direction)
         {
-            var range = direction == 1 ? new List<int> { 0, 1, 2 } : new List<int> { 1, 2, 3 };
+            var range = direction == 1 ? new List<int> { 0, 2 } : new List<int> { 2, 4 };
             SectionObject section = GetFreeSectionFromRoom(room.gameObject, direction == null ? null : range);
             if (section != null)
             {
@@ -128,13 +141,10 @@ namespace AssemblyCSharp
         /// <param name="explorerItemTemplate"></param>
         public void AddKey(KeyItem key, GameObject explorerItemTemplate)
         {
-            var section = GetFreeSectionFromRoom(this.gameObject, new List<int> { 0, 1, 2, 3 });
+            var section = GetFreeSectionFromTopRoom(this.gameObject, new List<int> { 1, 3 });
             GameObject keyObj = Instantiate(explorerItemTemplate, section.transform);
-            //keyObj.name = key.name;
+            keyObj.GetComponent<RectTransform>().sizeDelta = new Vector2(40, 40);
             ExplorerItemsController itemController = keyObj.GetComponent<ExplorerItemsController>();
-            //itemController.position = section.position;
-            //key.id = $"key_{this.name}_{key.itemName}";
-            //itemController.itemBase = key;
             itemController.SetUpItem(key, this.name);
             Debug.Log($"Key spawned at {this.name}");
         }
@@ -203,10 +213,12 @@ namespace AssemblyCSharp
             bool freeSpot = false;
             SectionObject result = null;
             int count = 0;
-            allowedRange = allowedRange == null ? new List<int> { 0, 1, 2 } : allowedRange;
+            allowedRange = allowedRange == null ? new List<int> { 0, 2, 4 } : allowedRange;
             while (!freeSpot && count < 10 && allowedRange.Count > 0)
             {
-                int range = allowedRange.Count == 1 ? allowedRange[0] : Random.Range(allowedRange[0], allowedRange.Count);
+                //int range = allowedRange.Count == 1 ? allowedRange[0] : Random.Range(0, allowedRange.Count);
+                int range = Random.Range(0, allowedRange.Count);
+                Transform section = parentRoom.GetComponent<DungeonRoom>().mainPanel.transform.Find($"routeHolder{allowedRange[range]}");
                 if (allowedRange.Count == 1)
                 {
                     allowedRange.RemoveAt(0);
@@ -214,7 +226,41 @@ namespace AssemblyCSharp
                 {
                     allowedRange.RemoveAt(range);
                 }
-                Transform section = parentRoom.GetComponent<DungeonRoom>().mainPanel.transform.Find($"routeHolder{range}");
+                
+                if (section.childCount == 0)
+                {
+                    result = new SectionObject()
+                    {
+                        transform = section,
+                        position = range
+                    };
+                    freeSpot = true;
+                };
+                count++;
+            }
+            return result;
+        }
+
+        SectionObject GetFreeSectionFromTopRoom(GameObject room = null, List<int> allowedRange = null)
+        {
+            GameObject parentRoom = room ? room : this.gameObject;
+            bool freeSpot = false;
+            SectionObject result = null;
+            int count = 0;
+            allowedRange = allowedRange == null ? new List<int> { 1, 3 } : allowedRange;
+            while (!freeSpot && count < 10 && allowedRange.Count > 0)
+            {
+                int range = Random.Range(0, allowedRange.Count);
+                Transform section = parentRoom.GetComponent<DungeonRoom>().topPanel.transform.Find($"keyareaHolder{allowedRange[range]}");
+                if (allowedRange.Count == 1)
+                {
+                    allowedRange.RemoveAt(0);
+                }
+                else
+                {
+                    allowedRange.RemoveAt(range);
+                }
+
                 if (section.childCount == 0)
                 {
                     result = new SectionObject()
@@ -247,14 +293,20 @@ namespace AssemblyCSharp
             return result;
         }
 
+        public void UpdateCustomRoute(string roomLocation, CustomRouteController route, string suffix)
+        {
+            route.routeTag = route.gameObject.name = $"{roomLocation}_{suffix}";
+            route.roomLocation = roomLocation;
+        }
+
         public void AddRoute(DungeonRoom room, Route route, string suffix)
         {
             route.routeTag = route.gameObject.name = $"{room.gameObject.name}_{suffix}";
             route.location = room.gameObject.name;
-            if (room.lockObj)
+            /*if (room.lockObj)
             {
                 AddLockToolTip(room, route);
-            }
+            }*/
             routes.Add(route);
         }
 
@@ -271,7 +323,7 @@ namespace AssemblyCSharp
         public void SetVisited()
         {
             this.visited = true;
-            roomIcon.SetVisited();
+            if(roomIcon != null) roomIcon.SetVisited();
         }
     }
 }

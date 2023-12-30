@@ -13,6 +13,7 @@ namespace AssemblyCSharp
         public Color endColor;
         public Color origColor;
         public Color hoverColor;
+        public Color highlightColor;
         public Color activeColor;
         public Color visitedColor;
         public Color detourConnectorColor;
@@ -92,6 +93,27 @@ namespace AssemblyCSharp
         public void SetVisited()
         {
             origColor = visitedColor;
+        }
+
+        public void SetHighlighted(bool highlight)
+        {
+            this.gameObject.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
+            /*switch (lineDirection)
+            {
+                case lineDirectionEnum.down:
+                    lineDown.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
+                    break;
+                case lineDirectionEnum.right:
+                    lineRight.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
+                    break;
+                case lineDirectionEnum.left:
+                    lineLeft.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
+                    break;
+                case lineDirectionEnum.none:
+                    break;
+                default:
+                    break;
+            }*/
         }
 
         public void SetDetourColour()

@@ -1,7 +1,8 @@
 .vs/
-Library/
-**Library/
-**Temp/
+obj/
+Temp/
 .git - Copy/
 Assets/Ultimate SFX Bundle - HD Remaster
 *.log
+*.apiupaterconfigs
+Library/

@@ -11,18 +11,24 @@ namespace AssemblyCSharp
 	public class InventoryManager : MonoBehaviour
 	{
 		public CharacterInfoDisplayController characterInfoDisplayController;
+		public GameObject tankfirstSlot;
         public weaponModel tankWeaponObject;
-		public weaponModel tankSecondWeaponObject;
+        public GameObject tanksecondSlot;
+        public weaponModel tankSecondWeaponObject;
 		public bauble tankBaubleObject;
 		public SkillModel tankClassSkill;
 
+        public GameObject healerfirstSlot;
         public weaponModel healerWeaponObject;
-		public weaponModel healerSecondWeaponObject;
+        public GameObject healersecondSlot;
+        public weaponModel healerSecondWeaponObject;
 		public bauble healerBaubleObject;
 		public SkillModel healerClassSkill;
 
-		public weaponModel dpsWeaponObject;
-		public weaponModel dpsSecondWeaponObject;
+        public GameObject dpsfirstSlot;
+        public weaponModel dpsWeaponObject;
+        public GameObject dpssecondSlot;
+        public weaponModel dpsSecondWeaponObject;
 		public bauble dpsBaubleObject;
 		public SkillModel dpsClassSkill;
 

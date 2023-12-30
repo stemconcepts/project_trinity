@@ -74,7 +74,6 @@ namespace Spine.Unity {
                 meshRenderers.Add(sa.gameObject.GetComponent<MeshRenderer>());
 				sa.transform.SetParent(thisTransform, false);
 
-
 				sa.SetMeshSettings(settings);
 				sa.initialFlipX = this.initialFlipX;
 				sa.initialFlipY = this.initialFlipY;

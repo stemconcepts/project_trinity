@@ -13,7 +13,7 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
 {
     public class corruptionController : MonoBehaviour
     {
-        public TextMeshPro text;
+        public TextMeshProUGUI text;
         public int corruptionAmount = 0;
 
         /// <summary>
@@ -70,6 +70,11 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         public void AddRandomStatusToNextEnemy()
         {
             var explorerStatuses = MainGameManager.instance.exploreManager.GetDungeonStatus(false);
+            if(explorerStatuses.Count == 0)
+            {
+                return;
+            }
+
             var i = Random.Range(0, explorerStatuses.Count);
 
             var explorerStatus = explorerStatuses[i];

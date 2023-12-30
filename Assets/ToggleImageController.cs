@@ -19,9 +19,10 @@ public class ToggleImageController : MonoBehaviour
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
             image = GetComponent<Image>();
+            var imageIndex = MainGameManager.instance.ReturnRandom(allowedPathSprites.Count);
             if (spriteRenderer)
             {
-                spriteRenderer.sprite = allowedPathSprites[MainGameManager.instance.ReturnRandom(allowedPathSprites.Count)];
+                spriteRenderer.sprite = allowedPathSprites[imageIndex];
                 if (spriteRenderer.sprite)
                 {
                     spriteRenderer.material.mainTexture = spriteRenderer.sprite.texture;
@@ -29,7 +30,7 @@ public class ToggleImageController : MonoBehaviour
             }
             else
             {
-                image.sprite = allowedPathSprites[MainGameManager.instance.ReturnRandom(allowedPathSprites.Count)];
+                image.sprite = allowedPathSprites[imageIndex];
                 if (image.sprite)
                 {
                     image.material.mainTexture = image.sprite.texture;

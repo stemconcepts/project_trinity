@@ -15,6 +15,15 @@ namespace AssemblyCSharp
         public TextMeshPro text;
         public Image image;
         ToolTipTriggerController tooltipController;
+        private bool loaded = false;
+
+        /// <summary>
+        /// Add set up data for item that was manually placed
+        /// </summary>
+        public void TriggerSetUp()
+        {
+            SetUpItem(itemBase, "preload");
+        }
 
         public void SetUpItem(ItemBase itemBase, string prefix)
         {
@@ -24,8 +33,16 @@ namespace AssemblyCSharp
 
             tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
             tooltipController.AddtoolTip(itemBase.itemName, itemBase.itemName, itemBase.itemDesc);
-            image.sprite = itemBase.itemIcon;
-            text.text = total > 1 ? $"x{total}" : "";
+            if (image != null)
+            {
+                image.sprite = itemBase.itemIcon;
+            }
+            if (text != null)
+            {
+                text.text = total > 1 ? $"x{total}" : "";
+            }
+            //Used to check if internal set up is required
+            loaded = true;
         }
 
         public void DestroyToolTips()
@@ -40,11 +57,15 @@ namespace AssemblyCSharp
             {
                 image.DOFade(1f, 0.8f).SetDelay(1f);
             }
+            if (!loaded)
+            {
+                SetUpItem(itemBase, "preload");
+            }
         }
 
         void Awake()
         {
-            
+
         }
 
         // Update is called once per frame
