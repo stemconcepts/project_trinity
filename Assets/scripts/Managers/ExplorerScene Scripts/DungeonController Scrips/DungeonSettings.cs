@@ -50,8 +50,12 @@ namespace AssemblyCSharp
         [Header("Templates")]
         public List<GameObject> roomTemplates;
         [Header("Resources")]
+        [Range(0.0f, 1.0f)]
+        public float chanceToGenerateResources;
         public int maxResourcePerRoom;
         public List<GenericItem> resources;
+        [Range(0.0f, 1.0f)]
+        public float chanceToGenerateChests;
         public int maxChestsPerRoom;
         public List<GenericItem> chestResources;
         /*[Header("Exploration Ambience Sound")]

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Spine.Unity;
 using ModularMotion;
+using DG.Tweening.Core.Easing;
 
 namespace AssemblyCSharp
 {
@@ -24,10 +25,13 @@ namespace AssemblyCSharp
 
         public void UpdateBarSize(BaseCharacterModel characterModel)
         {
-            characterModel.current_health = characterModel.Health;
-            characterModel.sliderScript.maxValue = characterModel.fullHealth;
-            characterModel.sliderScript.value = characterModel.current_health;
-            characterModel.healthBarText.text = characterModel.current_health.ToString();
+            if (characterModel != null)
+            {
+                characterModel.current_health = characterModel.Health;
+                characterModel.sliderScript.maxValue = characterModel.fullHealth;
+                characterModel.sliderScript.value = characterModel.current_health;
+                characterModel.healthBarText.text = characterModel.current_health.ToString();
+            }
         }
 
         public void MaintainHealthValue(BaseCharacterModel characterModel)
@@ -41,8 +45,19 @@ namespace AssemblyCSharp
                 characterModel.isAlive = false;
                 BattleManager.characterSelectManager.UpdateCharacters(this.gameObject.name);
                 characterModel.Health = 0;
-                var duration =  baseManager.animationManager.PlaySetAnimation("death");
-                BattleManager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
+                var trackEntry = baseManager.animationManager.PlaySetAnimation("death");
+
+                if(baseManager.animationManager.skeletonAnimationMulti != null)
+                {
+                    baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(skeleton =>
+                    {
+                        BattleManager.gameEffectManager.FadeOutSpine(skeleton);
+                    });
+                } else
+                {
+                    BattleManager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
+                }
+
                 foreach (var task in BattleManager.taskManager.taskList)
                 {
                     if (task.Key == baseManager.name)
@@ -50,11 +65,19 @@ namespace AssemblyCSharp
                         BattleManager.taskManager.taskList.Remove(task.Key);
                     }
                 }
-                if (characterModel.characterType == CharacterModel.CharacterTypeEnum.enemy)
+                if (this is EnemyCharacterManager)
                 {
-                    Destroy(this.gameObject, duration);
-                    var dataUI = GameObject.Find(this.gameObject.name + "_data");
-                    Destroy(dataUI, duration);
+                    var enemyCharacterManager = (EnemyCharacterManager)this;
+                    if (trackEntry != null)
+                    {
+                        Destroy(this.gameObject, trackEntry.Animation.Duration);
+                        var dataUI = GameObject.Find(this.gameObject.name + "_data");
+                        Destroy(dataUI, trackEntry.Animation.Duration);
+                    }
+
+                    //Remove enemy selector if it exists
+                    if(enemyCharacterManager.enemyCharacterSelector) Destroy(enemyCharacterManager.enemyCharacterSelector);
+
                     BattleManager.AddToEXP((baseManager.characterManager.characterModel as EnemyCharacterModel).experience);
 
                     (baseManager.characterManager.characterModel as EnemyCharacterModel).loot.ForEach(l =>

@@ -20,35 +20,48 @@ namespace AssemblyCSharp
             }
         }
 
-        void OnMouseUp(){
-            if (!BattleManager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive && !baseManager.skillManager.isSkillactive && !baseManager.statusManager.DoesStatusExist("stun") ){
-                if(baseManager.characterManager.characterModel.characterType != CharacterModel.CharacterTypeEnum.enemy ){
-                    BattleManager.characterSelectManager.SetSelectedCharacter( baseManager.gameObject.name );
+        public void SelectUnit(GameObject characterObject = null)
+        {
+            if (!BattleManager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive /*&& !baseManager.skillManager.isSkillactive*/ && !baseManager.statusManager.DoesStatusExist("stun"))
+            {
+                if (baseManager.characterManager.characterModel.characterType != CharacterModel.CharacterTypeEnum.enemy)
+                {
+                    BattleManager.characterSelectManager.SetSelectedCharacter(baseManager.gameObject.name);
                 }
-            } else if (BattleManager.waitingForSkillTarget)
+            }
+            else if (BattleManager.waitingForSkillTarget)
             {
                 Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
                 RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-                if (hit.collider != null && (hit.transform.gameObject.tag.ToLower() == "enemy" || hit.transform.gameObject.tag.ToLower() == "player"))
+                var clickedObject = characterObject == null ? hit.transform.gameObject : characterObject;
+                var tag = clickedObject.tag.ToLower();
+
+                if (tag.ToLower() == "enemy" || tag.ToLower() == "player")
                 {
                     var activeCharacter = BattleManager.characterSelectManager.GetSelectedClassObject();
-                    var isEnemy = hit.transform.gameObject.tag == "Enemy";
+                    var isEnemy = tag.ToLower() == "enemy";
                     if ((BattleManager.offensiveSkill && !isEnemy) || (!BattleManager.offensiveSkill && isEnemy))
                     {
                         print("Not a valid target, select another");
-                    } else
+                    }
+                    else
                     {
                         if (isEnemy)
                         {
-                            activeCharacter.GetComponent<PlayerSkillManager>().currenttarget = hit.transform.gameObject.GetComponent<EnemyCharacterManager>();
-                        } else
+                            activeCharacter.GetComponent<PlayerSkillManager>().currenttarget = clickedObject.GetComponent<EnemyCharacterManager>();
+                        }
+                        else
                         {
-                            activeCharacter.GetComponent<PlayerSkillManager>().currenttarget = hit.transform.gameObject.GetComponent<CharacterManager>();
+                            activeCharacter.GetComponent<PlayerSkillManager>().currenttarget = clickedObject.GetComponent<CharacterManager>();
                         }
                     }
                 }
             }
+        }
+
+        void OnMouseUp(){
+            SelectUnit();
         }
         
         void OnMouseEnter(){

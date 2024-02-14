@@ -5,10 +5,12 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
 using System.Collections.Generic;
+using DG.Tweening.Core.Easing;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace AssemblyCSharp
 {
-    public class BaseMovementManager : MonoBehaviour 
+    public abstract class BaseMovementManager : MonoBehaviour 
     {
         public BaseCharacterManagerGroup baseManager;
         public int origSortingOrder;
@@ -38,104 +40,112 @@ namespace AssemblyCSharp
             }
         }
 
-        public void CheckPanelPosition()
+        public abstract void CheckPanelPosition();
+
+        private int GetMoveAmount(int movementAmount)
         {
-            if (currentPosition != (Vector2)this.gameObject.transform.position)
+            switch (baseManager.characterManager.tag)
             {
-                currentPosition = this.gameObject.transform.position;
-            }
-            var panel = currentPanel.GetComponent<PanelsManager>();
-            switch (panel.panelNumber)
-            {
-                case 0:
-                    if (!isInFrontRow)
-                    {
-                        var eventModelFront = new EventModel
-                        {
-                            eventName = "OnFirstRow",
-                            extTarget = baseManager.characterManager,
-                            eventCaller = baseManager.characterManager
-                        };
-                        BattleManager.eventManager.BuildEvent(eventModelFront);
-                    }
-                    isInBackRow = false;
-                    isInMiddleRow = false;
-                    isInFrontRow = true;
-                    break;
-                case 1:
-                    if (!isInMiddleRow)
-                    {
-                        var eventModelMiddle = new EventModel
-                        {
-                            eventName = "OnMiddleRow",
-                            extTarget = baseManager.characterManager,
-                            eventCaller = baseManager.characterManager
-                        };
-                        BattleManager.eventManager.BuildEvent(eventModelMiddle);
-                    }
-                    isInBackRow = false;
-                    isInMiddleRow = true;
-                    isInFrontRow = false;
-                    break;
-                case 2:
-                    if (!isInBackRow)
-                    {
-                        var eventModelBack = new EventModel
-                        {
-                            eventName = "OnLastRow",
-                            extTarget = baseManager.characterManager,
-                            eventCaller = baseManager.characterManager
-                        };
-                        BattleManager.eventManager.BuildEvent(eventModelBack);
-                    }
-                    isInBackRow = true;
-                    isInMiddleRow = false;
-                    isInFrontRow = false;
-                    break;
+                case "Enemy":
+                    return movementAmount * -1;
+                case "Player":
+                    return movementAmount * 1;
                 default:
-                    isInBackRow = false;
-                    isInMiddleRow = false;
-                    isInFrontRow = false;
-                    break;
+                    return movementAmount * 1;
             }
         }
 
-        public void ForceMoveOrReposition(GenericSkillModel skill)
+        public void SetNewPosition(GenericSkillModel skill)
         {
             var currentPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
             var currentPanelNum = currentPanel.panelNumber;
             int targetPanelNum = currentPanelNum;
-            
-            if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Back)
-            {
-                targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.forcedMoveAmount;
-            }
-            else if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Forward)
-            {
-                targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.forcedMoveAmount;
-            }
 
+            //Reposition Logic
             if (skill.Reposition == GenericSkillModel.moveType.Back)
             {
-                targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.RepositionAmount;
+                targetPanelNum = currentPanelNum + GetMoveAmount(skill.RepositionAmount);
             }
             else if (skill.Reposition == GenericSkillModel.moveType.Forward)
             {
-                targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.RepositionAmount;
+                targetPanelNum = currentPanelNum - GetMoveAmount(skill.RepositionAmount);
             }
             targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
             targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
 
             var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
             var panelManager = targetPanel.GetComponent<PanelsManager>();
-            if (!panelManager.currentOccupier)
+
+            //Set new panel without moving them
+            if (panelManager.currentOccupier == null)
+            {
+                panelManager.SetOrigPositionInPanel(this);
+                var currentPanelManager = currentPanel.GetComponent<PanelsManager>();
+                currentPanelManager.ClearCurrentPanel();
+                panelManager.SetStartingPanel(this.gameObject);
+            }
+        }
+
+        public void Reposition(GenericSkillModel skill)
+        {
+            var currentPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
+            var currentPanelNum = currentPanel.panelNumber;
+            int targetPanelNum = currentPanelNum;
+
+            //Reposition Logic
+            if (skill.Reposition == GenericSkillModel.moveType.Back)
+            {
+                targetPanelNum = currentPanelNum + GetMoveAmount(skill.RepositionAmount);
+            }
+            else if (skill.Reposition == GenericSkillModel.moveType.Forward)
+            {
+                targetPanelNum = currentPanelNum - GetMoveAmount(skill.RepositionAmount);
+            }
+
+            targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
+            targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
+
+            var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
+
+            var panelManager = targetPanel.GetComponent<PanelsManager>();
+            if (panelManager.currentOccupier == null)
             {
                 panelManager.SetOrigPositionInPanel(this);
                 if (skill.RepositionAmount > 0 && !skill.movesToTarget)
                 {
                     MoveToPanel(panelManager, animationOptionsEnum.hop);
                 }
-                else if (skill.forcedMoveAmount > 0)
+            }
+        }
+
+        public void ForceMove(GenericSkillModel skill)
+        {
+            var currentPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
+            var currentPanelNum = currentPanel.panelNumber;
+            int targetPanelNum = currentPanelNum;
+            
+            //Forced Move Logic
+            if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Back)
+            {
+                targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + GetMoveAmount(skill.forcedMoveAmount);
+                //targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.forcedMoveAmount;
+            }
+            else if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Forward)
+            {
+                targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - GetMoveAmount(skill.forcedMoveAmount);
+                //targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.forcedMoveAmount;
+            }
+
+            targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;
+            targetPanelNum = targetPanelNum < 0 ? 0 : targetPanelNum;
+
+            var targetPanel = currentPanel.transform.parent.GetChild(targetPanelNum).gameObject;
+
+            var panelManager = targetPanel.GetComponent<PanelsManager>();
+            if (!panelManager.currentOccupier)
+            {
+                panelManager.SetOrigPositionInPanel(this);
+                if (skill.forcedMoveAmount > 0)
                 {
                     MoveToPanel(panelManager, animationOptionsEnum.hit);
                 }
@@ -150,7 +160,7 @@ namespace AssemblyCSharp
             Vector2 attackedPos = new Vector2();
             if( target != null ){
                 Vector3 size = baseManager.animationManager.GetSpriteBounds().size;
-                float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 2f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 2f);
+                float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 1.2f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 1.2f);
                 float ypos = (size.y + offsetYPosition);
                 attackedPos.x = xpos;
                 attackedPos.y = target.transform.position.y;
@@ -159,7 +169,9 @@ namespace AssemblyCSharp
         }
     
         public void moveToTarget( float movementSpeed, BaseCharacterManagerGroup target ){
-            baseManager.animationManager.meshRenderer.sortingOrder = target.animationManager.meshRenderer.sortingOrder;
+            var meshRenderer = target.animationManager.GetMeshRenderers()[0];
+            baseManager.animationManager.SetSortingLayer(meshRenderer.sortingOrder);
+            //baseManager.animationManager.meshRenderer.sortingOrder = meshRenderer.sortingOrder;
             var targetpos = GetAttackPos( target.gameObject );
             if (dashEffect)
             {
@@ -170,7 +182,8 @@ namespace AssemblyCSharp
         }
     
         public void moveToHome(){
-            baseManager.animationManager.meshRenderer.sortingOrder = origSortingOrder;
+            baseManager.animationManager.SetSortingLayer(origSortingOrder);
+            //baseManager.animationManager.meshRenderer.sortingOrder = origSortingOrder;
             float speed = (Math.Abs(origPosition.x - currentPosition.x) + Math.Abs(origPosition.y - currentPosition.y)) / 50;
             baseManager.gameObject.transform.DOMove(origPosition, speed).SetEase(Ease.OutSine)
                 .OnComplete(() =>

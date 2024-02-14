@@ -337,6 +337,7 @@
     <Compile Include="Assets\scripts\Managers\ExplorerScene Scripts\items\keyItems\KeyItem.cs" />
     <Compile Include="Assets\FunkyCode\SmartLighting2D\Scripts\Components\LightCollider2D\LayerManager.cs" />
     <Compile Include="Assets\FunkyCode\SmartLighting2D\Scripts\Event Handling\LightTilemap.cs" />
+    <Compile Include="Assets\EnemySelectorController.cs" />
     <Compile Include="Assets\scripts\Models\skillModels\enemy skills\enemySkill.cs" />
     <Compile Include="Assets\scripts\Managers\CharacterMenuScene Scripts\ItemMenu\hoverManager.cs" />
     <Compile Include="Assets\scripts\Helpers\Generic_Display.cs" />

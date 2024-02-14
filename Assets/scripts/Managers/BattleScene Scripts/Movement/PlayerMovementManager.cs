@@ -21,6 +21,71 @@ namespace AssemblyCSharp
             }
         }
 
+        public override void CheckPanelPosition()
+        {
+            if (currentPosition != (Vector2)this.gameObject.transform.position)
+            {
+                currentPosition = this.gameObject.transform.position;
+            }
+            var panel = currentPanel.GetComponent<PanelsManager>();
+            const int frontPanelNum = 0;
+            const int backPanelNum = 2;
+
+            switch (panel.panelNumber)
+            {
+                case frontPanelNum:
+                    if (!isInFrontRow)
+                    {
+                        var eventModelFront = new EventModel
+                        {
+                            eventName = "OnFirstRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        BattleManager.eventManager.BuildEvent(eventModelFront);
+                    }
+                    isInBackRow = false;
+                    isInMiddleRow = false;
+                    isInFrontRow = true;
+                    break;
+                case 1:
+                    if (!isInMiddleRow)
+                    {
+                        var eventModelMiddle = new EventModel
+                        {
+                            eventName = "OnMiddleRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        BattleManager.eventManager.BuildEvent(eventModelMiddle);
+                    }
+                    isInBackRow = false;
+                    isInMiddleRow = true;
+                    isInFrontRow = false;
+                    break;
+                case backPanelNum:
+                    if (!isInBackRow)
+                    {
+                        var eventModelBack = new EventModel
+                        {
+                            eventName = "OnLastRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        BattleManager.eventManager.BuildEvent(eventModelBack);
+                    }
+                    isInBackRow = true;
+                    isInMiddleRow = false;
+                    isInFrontRow = false;
+                    break;
+                default:
+                    isInBackRow = false;
+                    isInMiddleRow = false;
+                    isInFrontRow = false;
+                    break;
+            }
+        }
+
         bool PlayerCanMove()
         {
             return BattleManager.turn == BattleManager.TurnEnum.PlayerTurn &&
@@ -31,7 +96,7 @@ namespace AssemblyCSharp
         //Spawn Move Pointer
         public void OnMouseDown()
         {
-            if (!baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive)
+            if (!baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 var distance = Vector2.Distance(transform.position, Camera.main.transform.position);
@@ -58,7 +123,7 @@ namespace AssemblyCSharp
                 BattleManager.taskManager.taskList["draggingTask_" + baseManager.name].Stop();
                 BattleManager.taskManager.taskList.Remove("draggingTask_" + baseManager.name);
             }
-            if (positionArrow && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking && !baseManager.skillManager.isSkillactive)
+            if (positionArrow && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
             {
                 var positionArrowManager = positionArrow.GetComponent<MovementArrowManager>();
                 if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && BattleManager.actionPoints >= 1)

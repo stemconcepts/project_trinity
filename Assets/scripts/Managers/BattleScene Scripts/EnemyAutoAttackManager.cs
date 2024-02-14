@@ -39,7 +39,7 @@ namespace AssemblyCSharp
             var turnType = BattleManager.TurnEnum.EnemyTurn;
             return baseManager.characterManager.characterModel.isAlive &&
                 baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
-                !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive && (BattleManager.turn == turnType);
+                !baseManager.animationManager.inAnimation && /*!baseManager.skillManager.isSkillactive &&*/ (BattleManager.turn == turnType);
         }
 
         public void RunAttackLoop()
@@ -50,7 +50,7 @@ namespace AssemblyCSharp
                 isAttacking = true;
                 if (baseManager.animationManager.attackAnimation != animationOptionsEnum.none && baseManager.animationManager.inAnimation == false)
                 {
-                    var animationDuration = baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
+                    var trackEntry = baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
                     baseManager.movementManager.movementSpeed = 50f;
                     baseManager.animationManager.inAnimation = true;
                     var dmgModel = new BaseDamageModel()
@@ -76,10 +76,14 @@ namespace AssemblyCSharp
                         dmgModel.isMiss = true;
                         targetDmgManager.calculatedamage(dmgModel);
                     }
-                    BattleManager.taskManager.CallTask(animationDuration, () =>
+                    if (trackEntry != null)
                     {
-                        baseManager.animationManager.inAnimation = false;
-                    });
+                        BattleManager.taskManager.CallTask(trackEntry.Animation.Duration, () =>
+                        {
+                            baseManager.animationManager.inAnimation = false;
+                        });
+                    }
+                    
                     baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
                     SaveTurnToReset();
                     //ScheduleAction(RunAttackLoopOnNextTurn, 1f);

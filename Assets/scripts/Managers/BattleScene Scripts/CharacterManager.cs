@@ -46,13 +46,16 @@ namespace AssemblyCSharp
                 var formation = MainGameManager.instance.GetCurrentPanelForRole(characterModel.role);
                 if (formation != null)
                 {
-                    baseManager.movementManager.currentPanel = MainGameManager.instance.GetGameObjectFromFormation(formation, BattleManager.allPanelManagers);
+                    var panel = MainGameManager.instance.GetGameObjectFromFormation(formation, BattleManager.allPanelManagers);
+                    panel.GetComponent<PanelsManager>().currentOccupier = this.gameObject;
+                    baseManager.movementManager.currentPanel = panel;
                 } else
                 {
-                    baseManager.movementManager.currentPanel = BattleManager.GetRandomPanel(true);
+                    var panel = BattleManager.GetRandomPanel(true);
+                    panel.GetComponent<PanelsManager>().currentOccupier = this.gameObject;
+                    baseManager.movementManager.currentPanel = panel;
                 }
             }
-            baseManager.movementManager.currentPanel.GetComponent<PanelsManager>().SetStartingPanel(this.gameObject);
         }
     }
 }

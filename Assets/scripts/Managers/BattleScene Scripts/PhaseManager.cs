@@ -21,7 +21,7 @@ namespace AssemblyCSharp
         public void CheckAndChangePhase()
         {
             if (!BattleManager.disableActions && (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn) && !baseManager.autoAttackManager.isAttacking
-                && !baseManager.skillManager.isSkillactive && baseManager.characterManager.characterModel.isAlive)
+                /*&& !baseManager.skillManager.isSkillactive*/ && baseManager.characterManager.characterModel.isAlive)
             {
                 ChangeBossPhase();
             }
@@ -32,7 +32,8 @@ namespace AssemblyCSharp
             var healthPercentage = (baseManager.characterManager.characterModel.Health/baseManager.characterManager.characterModel.maxHealth) * 100;
             phases.ForEach(o =>
             {
-                if((!runInitialPhase || currentEnemyPhase != o.enemyPhase) && healthPercentage > o.healthThreshhold.minHealthPercentage && healthPercentage <= o.healthThreshhold.maxHealthPercentage && !baseManager.skillManager.isSkillactive && !baseManager.animationManager.inAnimation)
+                if((!runInitialPhase || currentEnemyPhase != o.enemyPhase) && healthPercentage > o.healthThreshhold.minHealthPercentage && healthPercentage <= o.healthThreshhold.maxHealthPercentage 
+                    /*&& !baseManager.skillManager.isSkillactive*/ && !baseManager.animationManager.inAnimation)
                 {
                     if (!string.IsNullOrEmpty(o.phaseChangeAnimation))
                     {
@@ -68,13 +69,13 @@ namespace AssemblyCSharp
             baseManager.animationManager.skeletonAnimation.skeleton.SetSkin(phaseModel.skinChange);
             baseManager.animationManager.inAnimation = true;
 
-            var animationDuration = baseManager.animationManager.PlaySetAnimation(phaseModel.phaseChangeAnimation, false);
+            var trackEntry = baseManager.animationManager.PlaySetAnimation(phaseModel.phaseChangeAnimation, false);
             baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true);
 
-            //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, phaseModel.phaseChangeAnimation, false);
-            //var animationDuration = baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, phaseModel.phaseChangeAnimation, false).Animation.Duration;
-            //baseManager.animationManager.skeletonAnimation.state.AddAnimation(0, baseManager.animationManager.idleAnimation.ToString(), true, 0);
-            baseManager.animationManager.SetBusyAnimation(animationDuration);
+            if(trackEntry != null)
+            {
+                baseManager.animationManager.SetBusyAnimation(trackEntry.Animation.Duration);
+            }
         }
 
         public PhaseDetail GetPhaseDetail()

@@ -20,5 +20,70 @@ namespace AssemblyCSharp
                 });
             }
         }
+
+        public override void CheckPanelPosition()
+        {
+            if (currentPosition != (Vector2)this.gameObject.transform.position)
+            {
+                currentPosition = this.gameObject.transform.position;
+            }
+            var panel = currentPanel.GetComponent<PanelsManager>();
+            const int frontPanelNum = 2;
+            const int backPanelNum = 0;
+
+            switch (panel.panelNumber)
+            {
+                case frontPanelNum:
+                    if (!isInFrontRow)
+                    {
+                        var eventModelFront = new EventModel
+                        {
+                            eventName = "OnFirstRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        BattleManager.eventManager.BuildEvent(eventModelFront);
+                    }
+                    isInBackRow = false;
+                    isInMiddleRow = false;
+                    isInFrontRow = true;
+                    break;
+                case 1:
+                    if (!isInMiddleRow)
+                    {
+                        var eventModelMiddle = new EventModel
+                        {
+                            eventName = "OnMiddleRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        BattleManager.eventManager.BuildEvent(eventModelMiddle);
+                    }
+                    isInBackRow = false;
+                    isInMiddleRow = true;
+                    isInFrontRow = false;
+                    break;
+                case backPanelNum:
+                    if (!isInBackRow)
+                    {
+                        var eventModelBack = new EventModel
+                        {
+                            eventName = "OnLastRow",
+                            extTarget = baseManager.characterManager,
+                            eventCaller = baseManager.characterManager
+                        };
+                        BattleManager.eventManager.BuildEvent(eventModelBack);
+                    }
+                    isInBackRow = true;
+                    isInMiddleRow = false;
+                    isInFrontRow = false;
+                    break;
+                default:
+                    isInBackRow = false;
+                    isInMiddleRow = false;
+                    isInFrontRow = false;
+                    break;
+            }
+        }
     }
 }

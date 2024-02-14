@@ -31,6 +31,7 @@ namespace AssemblyCSharp
         };
         public string focusAttribute;
         public string trigger;
+        [Range(0.0f,1.0f)]
         public float triggerChance = 1.0f;
         [Header("Status Effects:")]
         public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();

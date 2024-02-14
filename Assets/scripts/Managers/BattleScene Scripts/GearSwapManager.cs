@@ -172,9 +172,9 @@ namespace AssemblyCSharp
 
         public void SwapGear()
         {
-            var skillactive = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
+            //var skillactive = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
             var isAttacking = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
-            if (swapReady && !skillactive && !isAttacking && BattleManager.battleStarted && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
+            if (swapReady /*&& !skillactive*/ && !isAttacking && BattleManager.battleStarted && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
             {
                 var allRoles = BattleManager.characterSelectManager.friendlyCharacters;
                 for (int i = 0; i < allRoles.Count; i++)
@@ -256,8 +256,8 @@ namespace AssemblyCSharp
                     bm.animationManager.hopAnimation = (animationOptionsEnum)Enum.Parse(typeof(animationOptionsEnum), $"{bm.animationManager.hopAnimation}Heavy");
                     bm.animationManager.hitAnimation = bm.animationManager.hitAnimation == animationOptionsEnum.toStunned ? animationOptionsEnum.toStunned : (animationOptionsEnum)Enum.Parse(typeof(animationOptionsEnum), $"{bm.animationManager.hitAnimation}Heavy");
                 }
-                var delay = bm.animationManager.PlaySetAnimation(bm.animationManager.toHeavy.ToString(), false);
-                bm.animationManager.PlayAddAnimation(bm.animationManager.idleAnimation.ToString(), true, delay);
+                var trackEntry = bm.animationManager.PlaySetAnimation(bm.animationManager.toHeavy.ToString(), false);
+                bm.animationManager.PlayAddAnimation(bm.animationManager.idleAnimation.ToString(), true, trackEntry.Animation.Duration);
             }
         }
 

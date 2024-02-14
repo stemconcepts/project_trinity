@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using DG.Tweening;
+using DG.Tweening.Core.Easing;
+using Unity.IO.Archive;
 
 namespace AssemblyCSharp
 {
@@ -66,6 +68,21 @@ namespace AssemblyCSharp
             }
         }
 
+        bool IsBackPanel()
+        {
+            return (isEnemyPanel && panelNumber == 0) || (!isEnemyPanel && panelNumber == 2);
+        }
+
+        bool IsFrontPanel()
+        {
+            return (isEnemyPanel && panelNumber == 2) || (!isEnemyPanel && panelNumber == 0);
+        }
+
+        bool IsMiddlePanel()
+        {
+            return panelNumber == 1;
+        }
+
         void SetPosition()
         {
             if (currentOccupier)
@@ -90,19 +107,22 @@ namespace AssemblyCSharp
 
         public void SetStartingPanel(GameObject currentOccupier)
         {
-            this.currentOccupier = currentOccupier;
-            animationManager = currentOccupier.GetComponent<Animation_Manager>();
-            movementManager = currentOccupier.tag == "Enemy" ? (BaseMovementManager)currentOccupier.GetComponent<EnemyMovementManager>() : (BaseMovementManager)currentOccupier.GetComponent<PlayerMovementManager>();
-            animationManager.SetSortingLayer(sortingLayerNumber);
-            movementManager.SetSortingLayer(sortingLayerNumber);
-            movementManager.currentPanel = this.gameObject;
-            characterManager = currentOccupier.tag == "Enemy" ? (BaseCharacterManager)currentOccupier.GetComponent<EnemyCharacterManager>() : (BaseCharacterManager)currentOccupier.GetComponent<CharacterManager>();
-            if (characterManager.characterModel.characterType == BaseCharacterModel.CharacterTypeEnum.Player)
-            {
-                (characterManager.characterModel as CharacterModel).inThreatZone = isThreatPanel;
-                (characterManager.characterModel as CharacterModel).inVoidCounter = isVoidCounter;
-                characterManager.characterModel.inVoidZone = isVoidZone;
-            }
+             this.currentOccupier = currentOccupier;
+             animationManager = currentOccupier.GetComponent<Animation_Manager>();
+             movementManager = currentOccupier.tag == "Enemy" ? (BaseMovementManager)currentOccupier.GetComponent<EnemyMovementManager>() : (BaseMovementManager)currentOccupier.GetComponent<PlayerMovementManager>();
+             animationManager.SetSortingLayer(sortingLayerNumber);
+             movementManager.SetSortingLayer(sortingLayerNumber);
+             movementManager.currentPanel = this.gameObject;
+             characterManager = currentOccupier.tag == "Enemy" ? (BaseCharacterManager)currentOccupier.GetComponent<EnemyCharacterManager>() : (BaseCharacterManager)currentOccupier.GetComponent<CharacterManager>();
+             if (characterManager.characterModel.characterType == BaseCharacterModel.CharacterTypeEnum.Player)
+             {
+                 (characterManager.characterModel as CharacterModel).inThreatZone = isThreatPanel;
+                 (characterManager.characterModel as CharacterModel).inVoidCounter = isVoidCounter;
+                 characterManager.characterModel.inVoidZone = isVoidZone;
+             }
+
+             //Assign or remove positional buffs
+             AssignPanelPositionBuff();
         }
 
         /// <summary>
@@ -112,10 +132,12 @@ namespace AssemblyCSharp
         /// <param name="changeOrigPosition"></param>
         public void SaveCharacterPositionFromPanel(bool changeOrigPosition = true)
         {
-            float spriteSize = movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
-            if (movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + (spriteSize / 2.2f)))
+            float spriteSize = movementManager.offsetYPosition > 0f ? 
+                movementManager.baseManager.animationManager.GetSpriteBounds().size.y : movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
+
+            if (movementManager.origPosition != new Vector2(panelTransform.position.x, panelTransform.position.y + movementManager.offsetYPosition))
             {
-                var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y /*+ (spriteSize / 2.2f)*/);
+                var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y + movementManager.offsetYPosition);
                 currentOccupier.transform.position = newPos;
                 if (changeOrigPosition)
                 {
@@ -126,8 +148,10 @@ namespace AssemblyCSharp
 
         public void SetOrigPositionInPanel(BaseMovementManager movementManager)
         {
-            float spriteSize = movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
-            var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y /*+ (spriteSize / 2.2f)*/);
+            float spriteSize = movementManager.offsetYPosition > 0f ?
+                movementManager.baseManager.animationManager.GetSpriteBounds().size.y : movementManager.baseManager.animationManager.GetSpriteBounds().size.y + movementManager.offsetYPosition;
+
+            var newPos = new Vector2(panelTransform.position.x, panelTransform.position.y + movementManager.offsetYPosition);
             movementManager.origPosition = newPos;
         }
 
@@ -158,6 +182,81 @@ namespace AssemblyCSharp
             }
         }
 
+        private void AssignPanelPositionBuff()
+        {
+            if (currentOccupier)
+            {
+                var benefits = characterManager.characterModel.PositionalBenefits;
+                foreach (var benefit in benefits)
+                {
+                    benefit.statusModel.dispellable = false;
+                    var statusModel = new StatusModel
+                    {
+                        singleStatus = benefit.statusModel,
+                        power = benefit.statusPower,
+                        turnDuration = 0,
+                        isFlat = benefit.statusModel.isFlat,
+                        baseManager = characterManager.baseManager
+                    };
+                    switch (benefit.positionBenefit)
+                    {
+                        case PositionBenefit.Back:
+                            if (IsBackPanel())
+                            {
+                                characterManager.baseManager.statusManager.RunStatusFunction(statusModel);
+                            }
+                            else
+                            {
+                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.name))
+                                {
+                                    RemovePanelPositionBuff(statusModel);
+                                }
+                            }
+                            break;
+                        case PositionBenefit.Middle:
+                            if (IsMiddlePanel())
+                            {
+                                characterManager.baseManager.statusManager.RunStatusFunction(statusModel);
+                            }
+                            else
+                            {
+                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.name))
+                                {
+                                    RemovePanelPositionBuff(statusModel);
+                                }
+                            }
+                            break;
+                        case PositionBenefit.Front:
+                            if (IsFrontPanel())
+                            {
+                                characterManager.baseManager.statusManager.RunStatusFunction(statusModel);
+                            }
+                            else
+                            {
+                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.name))
+                                {
+                                    RemovePanelPositionBuff(statusModel);
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        public void RemovePanelPositionBuff(StatusModel statusModel)
+        {
+            if (currentOccupier != null)
+            {
+                //var status = characterManager.baseManager.statusManager.GetStatusIfExist(statusModel.singleStatus.name);
+                //status.statusModel.turnOff = true;
+                statusModel.turnOff = true;
+                characterManager.baseManager.statusManager.RunStatusFunction(statusModel);
+            }
+        }
+
         public void OnMouseEnter()
         {
             //SetFade(0.8f, 0.5f);
@@ -168,6 +267,10 @@ namespace AssemblyCSharp
             if (!isThreatPanel) {
                 //SetFade(fadeAmount, 0.5f);
             }
+        }
+
+        public void Update()
+        {
         }
     }
 }

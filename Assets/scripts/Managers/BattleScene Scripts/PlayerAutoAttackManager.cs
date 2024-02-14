@@ -39,12 +39,12 @@ namespace AssemblyCSharp
             var targetDmgManager = autoAttackTarget ? autoAttackTarget.damageManager : null;
             if (targetDmgManager != null && (baseManager as CharacterManagerGroup).characterManager.characterModel.isAlive &&
                 (baseManager as CharacterManagerGroup).characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
-                !baseManager.animationManager.inAnimation && !baseManager.skillManager.isSkillactive && (BattleManager.turn == turnType))
+                !baseManager.animationManager.inAnimation /*&& !baseManager.skillManager.isSkillactive*/ && (BattleManager.turn == turnType))
             {
                 isAttacking = true;
                 if (baseManager.animationManager.attackAnimation != animationOptionsEnum.none && baseManager.animationManager.inAnimation == false)
                 {
-                    var animationDuration = baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
+                    var trackEntry = baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
                     //var animationDuration = baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.attackAnimation.ToString(), false).Animation.Duration;
                     baseManager.movementManager.movementSpeed = 50f;
                     baseManager.animationManager.inAnimation = true;
@@ -70,11 +70,15 @@ namespace AssemblyCSharp
                         dmgModel.isMiss = true;
                         targetDmgManager.calculatedamage(dmgModel);
                     }
-                    
-                    BattleManager.taskManager.CallTask(animationDuration, () =>
+
+                    if (trackEntry != null)
                     {
-                        baseManager.animationManager.inAnimation = false;
-                    });
+                        BattleManager.taskManager.CallTask(trackEntry.Animation.Duration, () =>
+                        {
+                            baseManager.animationManager.inAnimation = false;
+                        });
+                    }
+                    
                     baseManager.animationManager.PlaySetAnimation(baseManager.animationManager.attackAnimation.ToString(), false);
                     //baseManager.animationManager.skeletonAnimation.state.SetAnimation(0, baseManager.animationManager.attackAnimation.ToString(), false);
                     SaveTurnToReset();

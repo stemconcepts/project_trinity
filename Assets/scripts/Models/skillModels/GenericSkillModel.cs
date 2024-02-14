@@ -76,7 +76,7 @@ namespace AssemblyCSharp
         [HideInInspector]
         public bool castTimeReady;
         public int turnDuration = 4;
-        public int skillCooldown = 0;
+        public int skillCooldown = 1;
 
         [Header("Animation")]
         public string skinChange;
@@ -304,9 +304,10 @@ namespace AssemblyCSharp
             turnToReset = BattleManager.turnCount + (skillCooldown * 2);
         }
 
-        public void SaveTurnToComplete()
+        //More insight reduces cast time
+        public void SaveTurnToComplete(int insight)
         {
-            turnToComplete = BattleManager.turnCount + castTurnTime;
+            turnToComplete = (BattleManager.turnCount + castTurnTime) - insight;
         }
 
         public void ResetSkillOnCurrentTurn(bool player, Action action = null)
@@ -325,7 +326,8 @@ namespace AssemblyCSharp
             }
 
             var turn = typeof(enemySkill) == this.GetType() ? BattleManager.TurnEnum.EnemyTurn : BattleManager.TurnEnum.PlayerTurn;
-            var myTask = new Task(BattleManager.taskManager.CompareTurnsAndAction(turnToReset, turn, () =>
+
+            if (turnToReset == 0)
             {
                 if (relevantBIM != null)
                 {
@@ -335,15 +337,37 @@ namespace AssemblyCSharp
                 skillActive = false;
                 turnToComplete = 0;
                 turnToReset = 0;
-            }));
+            } else
+            {
+                var myTask = new Task(BattleManager.taskManager.CompareTurnsAndAction(turnToReset, turn, () =>
+                {
+                    if (relevantBIM != null)
+                    {
+                        relevantBIM.skillCDImage.fillAmount = 0;
+                    }
+                    action?.Invoke();
+                    skillActive = false;
+                    turnToComplete = 0;
+                    turnToReset = 0;
+                }));
+            }
         }
 
-        public void RepositionCharacters(List<BaseCharacterManager> targets, GenericSkillModel skillModel)
+        public void RepositionCharacters(List<BaseCharacterManager> targets)
         {
             targets.ForEach(o =>
             {
                 var movementScript = o.baseManager.movementManager;
-                movementScript.ForceMoveOrReposition(skillModel);
+                movementScript.Reposition(this);
+            });
+        }
+
+        public void SetNewPosition(List<BaseCharacterManager> targets)
+        {
+            targets.ForEach(o =>
+            {
+                var movementScript = o.baseManager.movementManager;
+                movementScript.Reposition(this);
             });
         }
 

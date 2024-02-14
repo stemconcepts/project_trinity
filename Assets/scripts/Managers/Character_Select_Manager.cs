@@ -20,6 +20,9 @@ namespace AssemblyCSharp
         public List<CharacterManager> friendlyCharacters = new List<CharacterManager>();
         public List<EnemyCharacterManager> enemyCharacters = new List<EnemyCharacterManager>();
 
+        [Header("Enemy Select Tags")]
+        public Transform enemySelectorTransform;
+        public GameObject EnemyButtonTemplate;
 
         void Awake()
         {

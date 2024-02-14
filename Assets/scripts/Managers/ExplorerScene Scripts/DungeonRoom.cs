@@ -115,6 +115,7 @@ namespace AssemblyCSharp
         {
             if (encounter)
             {
+                MainGameManager.instance.DisableEnableLiveBoxColliders(false);
                 MainGameManager.instance.taskManager.CallTask(1f, () =>
                 {
                     MainGameManager.instance.SceneManager.LoadBattle(encounter.enemies);
@@ -122,6 +123,7 @@ namespace AssemblyCSharp
                 MainGameManager.instance.taskManager.CallTask(3f, () =>
                 {
                     Destroy(encounter.instanciatedObject);
+                    MainGameManager.instance.DisableEnableLiveBoxColliders(true);
                 });
             }
         }

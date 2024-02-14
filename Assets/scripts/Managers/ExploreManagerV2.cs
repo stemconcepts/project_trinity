@@ -564,7 +564,7 @@ namespace Assets.scripts.Managers
                     for (int index = 0; index <= dungeonSettings.maxResourcePerRoom; index++)
                     {
                         //Chance to load resource
-                        if ((!startRoom && !endRoom) && MainGameManager.instance.GetChanceByPercentage(0.2f) && dungeonSettings.resources.Count > 0)
+                        if ((!startRoom && !endRoom) && MainGameManager.instance.GetChanceByPercentage(dungeonSettings.chanceToGenerateResources) && dungeonSettings.resources.Count > 0)
                         {
                             var randomResource = MainGameManager.instance.ReturnRandom(dungeonSettings.resources.Count);
                             dr.AddResources(dungeonSettings.resources[randomResource], fieldItemTemplate);
@@ -649,7 +649,7 @@ namespace Assets.scripts.Managers
             //var possiblePositions = new List<int>() { 1, 3 };
             for (int i = 1; i <= amount; i++)
             {
-                if (GameManager.GetChanceByPercentage(0.1f))
+                if (GameManager.GetChanceByPercentage(dungeonSettings.chanceToGenerateChests))
                 {
                     int randIntFromForeGround = MainGameManager.instance.ReturnRandom(room.foregroundHolder.transform.childCount);
                     //int range = UnityEngine.Random.Range(0, possiblePositions.Count);

@@ -23,8 +23,8 @@ namespace Spine.Unity {
 		public List<SkeletonDataAsset> skeletonDataAssets = new List<SkeletonDataAsset>();
 		[Header("Settings")]
 		public MeshGenerator.Settings meshGeneratorSettings = MeshGenerator.Settings.Default;
+		public List<SkeletonAnimation> skeletonAnimations = new List<SkeletonAnimation>();
 
-		readonly List<SkeletonAnimation> skeletonAnimations = new List<SkeletonAnimation>();
 		readonly List<MeshRenderer> meshRenderers = new List<MeshRenderer>();
 		readonly Dictionary<string, Animation> animationNameTable = new Dictionary<string, Animation>();
 		readonly Dictionary<Animation, SkeletonAnimation> animationSkeletonTable = new Dictionary<Animation, SkeletonAnimation>();
@@ -71,10 +71,11 @@ namespace Spine.Unity {
 				var sa = SkeletonAnimation.NewSkeletonAnimationGameObject(sda);
 				var meshRender = sa.gameObject.GetComponent<MeshRenderer>();
 				meshRender.sortingLayerName = initialSortingLayer;
+
                 meshRenderers.Add(sa.gameObject.GetComponent<MeshRenderer>());
 				sa.transform.SetParent(thisTransform, false);
 
-				sa.SetMeshSettings(settings);
+                sa.SetMeshSettings(settings);
 				sa.initialFlipX = this.initialFlipX;
 				sa.initialFlipY = this.initialFlipY;
 				var skeleton = sa.skeleton;
@@ -82,6 +83,7 @@ namespace Spine.Unity {
 				skeleton.FlipY = this.initialFlipY;
 
 				sa.Initialize(false);
+
 				skeletonAnimations.Add(sa);
 			}
 

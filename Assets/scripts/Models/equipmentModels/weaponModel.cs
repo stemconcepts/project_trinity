@@ -29,21 +29,5 @@ namespace AssemblyCSharp
     	public SkillModel skillTwo;
         public SkillModel skillThree;
         public List<WeaponEffect> weaponEffects;
-       //public ResetEvent resetEvent;
-        /*public triggerGrp trigger;
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public List<EffectOnEventModel> effectsOnEvent = new List<EffectOnEventModel>();
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public float triggerChance;
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public string focusAttribute;
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public float flatAmount;
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public int turnDuration;
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public float coolDown;
-        [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
-        public bool dispellable;*/
     }
 }

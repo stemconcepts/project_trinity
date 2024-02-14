@@ -2,6 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening.Core.Easing;
+using UnityEngine.UI;
+using Spine;
+using Spine.Unity;
+using UnityEditor.Experimental.GraphView;
 
 namespace AssemblyCSharp
 {
@@ -12,9 +17,12 @@ namespace AssemblyCSharp
             Alt
         };
         public weaponSlotEnum weaponSlot;
+
+        private List<SkillModel> allSkills = new List<SkillModel>();
+
         public List<SkillModel> primaryWeaponSkills = new List<SkillModel>();
         public List<SkillModel> secondaryWeaponSkills = new List<SkillModel>();
-        public SkillModel skillModel;
+        public SkillModel classSkillModel;
         public bool waitingForSelection;
         public int turnsTaken = 0;
         public GenericSkillModel activeSkill;
@@ -22,47 +30,54 @@ namespace AssemblyCSharp
         void Start()
         {
             baseManager = this.gameObject.GetComponent<CharacterManagerGroup>();
-            if (gameObject.tag == "Player")
-            {
-                CalculateSkillPower();
-                CalculateMagicPower();
-            }
+
+            //Calculate ability power
+            CalculateSkillPower();
+            CalculateMagicPower();
+
+            //Add delegates to animations
             if (baseManager.animationManager.skeletonAnimation)
             {
                 baseManager.animationManager.skeletonAnimation.state.Event += OnEventSkillTrigger;
                 baseManager.animationManager.skeletonAnimation.state.Event += MainGameManager.instance.soundManager.OnEventHit;
+                baseManager.animationManager.skeletonAnimation.state.Complete += (e) => CleanUpDamageModelsEvent(e, activeSkill);
             }
             else if (baseManager.animationManager.skeletonAnimationMulti)
             {
-                baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(o => {
-                    o.state.Event += OnEventSkillTrigger;
-                    o.state.Event += MainGameManager.instance.soundManager.OnEventHit;
+                baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(skeletonAnimation => {
+                    skeletonAnimation.state.Event += OnEventSkillTrigger;
+                    skeletonAnimation.state.Event += MainGameManager.instance.soundManager.OnEventHit;
+                    skeletonAnimation.state.Complete += (e) => CleanUpDamageModelsEvent(e, activeSkill);
                 });
             }
+
+            //Show skills if character is selected
             if (BattleManager.characterSelectManager.characterSelected.ToString() == (gameObject.name.ToLower() + "Selected"))
             {
                 BattleManager.GetBattleInterfaces().ForEach(o => o.SkillSet((PlayerSkillManager)baseManager.skillManager));
             }
+
+            //Save all skills to a list
+            SaveAllSkillsToList();
+        }
+
+        private void SaveAllSkillsToList()
+        {
+            var skills = new[] { primaryWeaponSkills, secondaryWeaponSkills };
+            allSkills = skills.SelectMany(list => list).ToList();
         }
 
         public void PrepSkill(SkillModel skillModel, bool weaponSkill = true)
         {
-            if (CheckSkillAvail(skillModel) && skillModel.castTurnTime <= 0)
+            skillModel.skillActive = true;
+            SkillActiveSet(skillModel, true);
+            GetTargets(skillModel, weaponSkill: weaponSkill);
+
+            /*Set trigger for event on spine inComplete
+            if (skillModel.Reposition != GenericSkillModel.moveType.None)
             {
-                isSkillactive = true;
-                skillModel.skillActive = true;
-                BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
-                SkillActiveSet(skillModel, true);
-                GetTargets(skillModel, weaponSkill: weaponSkill);
-            }
-            else if(CheckSkillAvail(skillModel))
-            {
-                isSkillactive = true;
-                skillModel.skillActive = true;
-                BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} is casting {skillModel.skillName} in {skillModel.castTurnTime} turns", 3f);
-                SkillActiveSet(skillModel, true);
-                StartCasting(skillModel);
-            }
+                triggerEndEvent = true;
+            }*/
         }
 
         public void CalculateSkillPower()
@@ -72,7 +87,7 @@ namespace AssemblyCSharp
                 primaryWeaponSkills[i].newSP = primaryWeaponSkills[i].skillPower * baseManager.characterManager.characterModel.PAtk;
                 secondaryWeaponSkills[i].newSP = secondaryWeaponSkills[i].skillPower * baseManager.characterManager.characterModel.PAtk;
             }
-            skillModel.newSP = skillModel.skillPower * baseManager.characterManager.characterModel.PAtk;
+            classSkillModel.newSP = classSkillModel.skillPower * baseManager.characterManager.characterModel.PAtk;
         }
 
         public void CalculateMagicPower()
@@ -82,7 +97,7 @@ namespace AssemblyCSharp
                 primaryWeaponSkills[i].newMP = primaryWeaponSkills[i].magicPower * baseManager.characterManager.characterModel.MAtk;
                 secondaryWeaponSkills[i].newMP = secondaryWeaponSkills[i].magicPower * baseManager.characterManager.characterModel.MAtk;
             }
-            skillModel.newMP = skillModel.magicPower * baseManager.characterManager.characterModel.MAtk;
+            classSkillModel.newMP = classSkillModel.magicPower * baseManager.characterManager.characterModel.MAtk;
         }
         private void GetTargets(SkillModel skillModel, bool weaponSkill = true)
         {
@@ -90,11 +105,12 @@ namespace AssemblyCSharp
             var player = this.gameObject;
             var enemyPlayers = BattleManager.GetEnemyCharacterManagers();
             var friendlyPlayers = BattleManager.GetFriendlyCharacterManagers();
+
             if (skillModel.self) { 
                 finalTargets.Add(baseManager.characterManager as CharacterManager); }
             if (skillModel.allEnemy) {
                 finalTargets.AddRange(enemyPlayers);
-                currenttarget = enemyPlayers[Random.Range(0, enemyPlayers.Count())];
+                currenttarget = enemyPlayers.Count > 0 ? enemyPlayers[Random.Range(0, enemyPlayers.Count())] : null;
             }
             if (skillModel.allFriendly) { finalTargets.AddRange(friendlyPlayers); }
             if (skillModel.friendly || skillModel.enemy)
@@ -102,10 +118,21 @@ namespace AssemblyCSharp
                 BattleManager.taskManager.waitForTargetTask(player, classSkill: skillModel, weaponSkill: weaponSkill, skillAction: () =>
                 {
                     Time.timeScale = 1f;
-                    SetAnimations(skillModel);
+                    if (skillModel.castTurnTime > 0 && (skillModel.castTurnTime - baseManager.characterManager.characterModel.insight) > 0)
+                    {
+                        StartCasting(skillModel);
+                    }
+                    else
+                    {
+                        SetAnimations(skillModel);
+                    }
+
+                    //Add to turn taken
+                    ++turnsTaken;
+                    BattleManager.actionPoints -= skillModel.skillCost;
+                    BattleManager.UpdateAPAmount();
                 });
-                BattleManager.actionPoints -= skillModel.skillCost;
-                BattleManager.UpdateAPAmount();
+                
                 return;
             }
             else
@@ -118,42 +145,47 @@ namespace AssemblyCSharp
                 else
                 {
                     SkillActiveSet(skillModel, false);
-                    isSkillactive = false;
+                    //isSkillactive = false;
                 }
             }
+
+            //Add to turn taken
+            ++turnsTaken;
             BattleManager.actionPoints -= skillModel.skillCost;
             BattleManager.UpdateAPAmount();
         }
 
         public void SkillComplete(List<BaseCharacterManager> targets, SkillModel skillModel)
         {
-                var power = 0.0f;
-                if (skillModel.isFlat)
-                {
-                    power = skillModel.isSpell ? skillModel.magicPower : skillModel.skillPower;
-                }
-                else
-                {
-                    power = skillModel.isSpell ? skillModel.newMP : skillModel.newSP;
+            var power = 0.0f;
+            if (skillModel.isFlat)
+            {
+                power = skillModel.isSpell ? skillModel.magicPower : skillModel.skillPower;
+            }
+            else
+            {
+                power = skillModel.isSpell ? skillModel.newMP : skillModel.newSP;
 
-                }
+            }
 
-                DealHealDmg(skillModel, targets, power);
-                ++turnsTaken;
-                skillModel.SaveTurnToReset();
-                isSkillactive = false;
-                currenttarget = null;
-                skillModel.ResetSkillOnCurrentTurn(true, () =>
-                {
-                    SkillActiveSet(skillModel, false);
-                });
+            DealHealDmg(skillModel, targets, power);
+            skillModel.SaveTurnToReset();
+            //isSkillactive = false;
+            currenttarget = null;
 
-                var eM = new EventModel()
-                {
-                    eventName = "OnSkillCast",
-                    eventCaller = baseManager.characterManager
-                };
-                BattleManager.eventManager.BuildEvent(eM);
+            skillModel.ResetSkillOnCurrentTurn(true, () =>
+            {
+                SkillActiveSet(skillModel, false);
+            });
+
+            var eM = new EventModel()
+            {
+                eventName = "OnSkillCast",
+                eventCaller = baseManager.characterManager
+            };
+
+            BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
+            BattleManager.eventManager.BuildEvent(eM);
         }
 
         private void DealHealDmg(SkillModel skillModel, List<BaseCharacterManager> targets, float power)
@@ -177,6 +209,7 @@ namespace AssemblyCSharp
                         skillModel = skillModel,
                         dmgSource = baseManager.characterManager,
                         dueDmgTargets = targets,
+                        //damageImmidiately = true,
                         //hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
                         modifiedDamage = skillModel.useModifier,
                         //customHitFX = skillModel.fxObject
@@ -215,13 +248,12 @@ namespace AssemblyCSharp
                 {
                     skillModel.skillEffects.ForEach(effect =>
                     {
-                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(target.baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect);
+                        if(target != null) MainGameManager.instance.gameEffectManager.CallEffectOnTarget(target.baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect);
                     });
                 }
-                if (skillModel.healsDamage || didHit)
-                {
-                    AddStatuses(target, skillModel);
-                }
+
+                //Add Status to target -- might move this call as it seems out of context
+                AddStatuses(target, skillModel, didHit);
             }
             if (skillModel.hitSounds.Count > 0)
             {
@@ -233,45 +265,30 @@ namespace AssemblyCSharp
             }
         }
 
-        private void AddStatuses(BaseCharacterManager target, SkillModel skillModel)
-        {
-            if (skillModel.statusGroupFriendly.Count() > 0)
-            {
-                ProcessStatus(target, skillModel, skillModel.statusGroupFriendly);
-            }
-            if (skillModel.statusGroup.Count() > 0)
-            {
-                ProcessStatus(target, skillModel, skillModel.statusGroup);
-            }
-        }
-
-        private void ProcessStatus(BaseCharacterManager target, GenericSkillModel skill, List<StatusItem> statusItems)
-        {
-            var hitAnimation = statusItems.Where(statusItem => statusItem.status.hitAnim != animationOptionsEnum.none).Select(o => o.status.hitAnim).FirstOrDefault();
-            var hitIdleAnimation = statusItems.Where(statusItem => statusItem.status.holdAnim != animationOptionsEnum.none).Select(o => o.status.holdAnim).FirstOrDefault();
-            skill.AttachStatus(statusItems, target.baseManager, skill);
-            target.baseManager.animationManager.SetHitIdleAnimation(hitAnimation, hitIdleAnimation);
-            MainGameManager.instance.soundManager.PlayNegativeEffectSound();
-        }
-
         private void SetAnimations(SkillModel skillModel)
         {
             if (skillModel.EndAnimation != animationOptionsEnum.none)
             {
                 baseManager.animationManager.inAnimation = true;
-                var animationDuration = 0f;
-                if (skillModel.castTurnTime > 0)
-                {
-                    animationDuration = skillModel.castTurnTime;
+                var trackEntry = baseManager.animationManager.PlaySetAnimation(skillModel.EndAnimation.ToString(), skillModel.loopAnimation);
 
-                    baseManager.animationManager.PlaySetAnimation(skillModel.BeginCastingAnimation.ToString(), false);
-                    baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), true);
-                }
-                else
+                if (trackEntry != null)
                 {
-                    animationDuration = baseManager.animationManager.PlaySetAnimation(skillModel.EndAnimation.ToString(), skillModel.loopAnimation);
+                    baseManager.animationManager.SetBusyAnimation(trackEntry.Animation.Duration);
+
+                    //Set trigger for event on spine inComplete
+                    if (skillModel.Reposition != GenericSkillModel.moveType.None)
+                    {
+                        triggerEndEvent = true;
+                        if (skillModel.movesToTarget)
+                        {
+                            baseManager.movementManager.SetNewPosition(skillModel);
+                        } else
+                        {
+                            trackEntry.End += (e) => MovecharacterOnComplete(e, skillModel);
+                        }
+                    }
                 }
-                baseManager.animationManager.SetBusyAnimation(animationDuration);
 
                 if (skillModel.attackMovementSpeed > 0)
                 {
@@ -286,6 +303,7 @@ namespace AssemblyCSharp
 
         public void SkillActiveSet(SkillModel skillModel, bool setActive)
         {
+            Debug.Log($"SkillActiveSet: setActive : Value = {setActive}, skillModel : {skillModel != null}, skillName : {skillModel.skillName}");
             activeSkill = setActive ? skillModel : null;
             if (BattleManager.taskManager.taskList.Count > 0 && BattleManager.taskManager.taskList.ContainsKey("waitForTarget"))
             {
@@ -315,19 +333,26 @@ namespace AssemblyCSharp
 
         public void StartCasting(SkillModel skillModel)
         {
+            isCasting = true;
             baseManager.animationManager.inAnimation = true;
-
             baseManager.animationManager.PlaySetAnimation(skillModel.BeginCastingAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), true);
-            if (skillModel.CompleteSkillOnCurrentTurn() && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn )
+            if (skillModel.castingSounds.Count > 0)
             {
-                GetTargets(skillModel);
+                MainGameManager.instance.soundManager.playAllSounds(skillModel.castingSounds, 0.3f);
             }
+            else if (skillModel.isSpell)
+            {
+                MainGameManager.instance.soundManager.playAllSounds(MainGameManager.instance.soundManager.magicChargeSounds, 0.3f);
+            }
+            skillModel.SaveTurnToComplete((int)baseManager.characterManager.characterModel.insight);
+            
+            BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} is casting {skillModel.skillName} in {skillModel.castTurnTime} turns", 3f);
         }
 
-        public void OnEventSkillTrigger(Spine.TrackEntry state, Spine.Event e)
+        public void OnEventSkillTrigger(Spine.TrackEntry spineEntry, Spine.Event spineEvent)
         {
-            if (e.Data.Name == "swing" && activeSkill)
+            if (spineEvent.Data.Name == "swing" && activeSkill != null)
             {
                 if (activeSkill.swingEffects.Count() > 0)
                 {
@@ -346,50 +371,48 @@ namespace AssemblyCSharp
                 }
             }
 
-            if ((e.Data.Name == "hit" || e.Data.Name == "triggerEvent") && isSkillactive)
+            if ((spineEvent.Data.Name == "hit" || spineEvent.Data.Name == "triggerEvent") && activeSkill.skillActive)
             {
-                if (activeSkill && activeSkill.Reposition != GenericSkillModel.moveType.None)
-                {
-                    var charList = new List<BaseCharacterManager>() { baseManager.characterManager };
-                    activeSkill.RepositionCharacters(charList, activeSkill);
-                }
                 try
                 {
                     SkillComplete(finalTargets, (SkillModel)activeSkill);
+
+                    foreach (var target in finalTargets)
+                    {
+                        var targetDamageManager = target.baseManager.damageManager;
+                        var damageModel = targetDamageManager.skillDmgModels.ContainsKey(gameObject.name) ? targetDamageManager.skillDmgModels[gameObject.name] : null;
+                        if (damageModel != null)
+                        {
+                            targetDamageManager.TakeDmg(damageModel, spineEvent.Data.Name);
+                            var eventModel = new EventModel
+                            {
+                                eventName = "OnDealingDmg",
+                                extTarget = target,
+                                eventCaller = baseManager.characterManager,
+                                extraInfo = damageModel.damageTaken
+                            };
+                            BattleManager.eventManager.BuildEvent(eventModel);
+                        }
+                    }
                 }
                 catch (System.Exception err)
                 {
-                    Debug.Log($"Event Name : {e.Data.Name}, Error : {err.Message}" );
+                    Debug.Log($"Event Name : {spineEvent.Data.Name}, Error : {err.Message}");
                     throw;
                 }
-                foreach (var target in finalTargets)
-                {
-                    var targetDamageManager = target.baseManager.damageManager;
-                    var damageModel = targetDamageManager.skillDmgModels.ContainsKey(gameObject.name) ? targetDamageManager.skillDmgModels[gameObject.name] : null;
-                    if (damageModel != null)
-                    {
-                        targetDamageManager.TakeDmg(damageModel, e.Data.Name);
-                        var eventModel = new EventModel
-                        {
-                            eventName = "OnDealingDmg",
-                            extTarget = target,
-                            eventCaller = baseManager.characterManager,
-                            extraInfo = damageModel.damageTaken
-                        };
-                        BattleManager.eventManager.BuildEvent(eventModel);
-                    }
-                }
             }
-            if (e.Data.Name == "endEvent")
+        }
+
+        void Update()
+        {
+            //Checks if player character is casting and if so if the cast should be completed
+            if (isCasting && activeSkill != null && !baseManager.statusManager.DoesStatusExist("stun")
+                && activeSkill.CompleteSkillOnCurrentTurn() 
+                && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
             {
-                foreach (var target in finalTargets)
-                {
-                    var targetDamageManager = target.baseManager.damageManager;
-                    if (targetDamageManager.skillDmgModels.ContainsKey(gameObject.name))
-                    {
-                        targetDamageManager.skillDmgModels.Remove(gameObject.name);
-                    }
-                }
+                hasCasted = true;
+                isCasting = false;
+                SetAnimations((SkillModel)activeSkill);
             }
         }
     }

@@ -77,6 +77,7 @@ public class CustomRouteController : MonoBehaviour
 
     void OnMouseUp()
     {
+        toolTipController.DestroyAllToolTips();
         if (lockObj == null || !lockObj.locked)
         {
             MainGameManager.instance.soundManager.playSoundsInOrder(transitionSounds, true, 0.3f);
@@ -108,8 +109,8 @@ public class CustomRouteController : MonoBehaviour
             lockObj.locked = false;
             MainGameManager.instance.exploreManager.RemoveObtainedItem(lockObj.key);
         }
-        toolTipController.DestroyToolTipDisplay("lock");
-        toolTipController.DestroyToolTipDisplay("curroption");
+        //toolTipController.DestroyToolTipDisplay("lock");
+        //toolTipController.DestroyToolTipDisplay("curroption");
         toolTipController.enabled = false;
     }
 

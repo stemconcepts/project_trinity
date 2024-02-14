@@ -4,6 +4,7 @@ using UnityEngine;
 using Spine.Unity;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Animations;
 
 namespace AssemblyCSharp
 {
@@ -79,6 +80,17 @@ namespace AssemblyCSharp
             
         }
 
+        public List<MeshRenderer> GetMeshRenderers()
+        {
+            if (skeletonAnimationMulti != null)
+            {
+                return skeletonAnimationMulti.GetMeshRenderers();
+            } else
+            {
+                return new List<MeshRenderer>() { meshRenderer };
+            }
+        }
+
         public float GetAnimationDuration(string animationName)
         {
             if (skeletonAnimationMulti != null)
@@ -109,10 +121,13 @@ namespace AssemblyCSharp
 
         void IdleToggle()
         {
-            if (skeletonAnimation.state.Data.SkeletonData.FindAnimation("idle2") != null && BattleManager.gameManager.GetChance(5))
+            if (skeletonAnimation?.state.Data.SkeletonData.FindAnimation("idle2") != null && BattleManager.gameManager.GetChance(5))
             {
-                var duration = PlaySetAnimation("idle2", false);
-                PlayAddAnimation("idle", true, duration);
+                var trackEntry = PlaySetAnimation("idle2", false);
+                if (trackEntry != null)
+                {
+                    PlayAddAnimation("idle", true, trackEntry.Animation.Duration);
+                }
             }
             BattleManager.taskManager.CallTask(5f, () =>
             {
@@ -122,7 +137,7 @@ namespace AssemblyCSharp
 
         void Start()
         {
-            if (skeletonAnimation.state.Data.SkeletonData.FindAnimation("intro") != null)
+            if (skeletonAnimation?.state.Data.SkeletonData.FindAnimation("intro") != null)
             {
                 PlaySetAnimation("intro", false);
                 PlayAddAnimation("idle", true);
@@ -140,7 +155,7 @@ namespace AssemblyCSharp
                 skeletonAnimationMulti.GetMeshRenderers().ForEach(o => {
                     o.gameObject.layer = 8; 
                     o.sortingOrder = sortingLayer;
-                    o.sortingLayerName = "characters";
+                    o.sortingLayerName = "Battle - Characters";
                     });
             } else if(meshRenderer != null)
             {
@@ -154,20 +169,21 @@ namespace AssemblyCSharp
             });
         }
 
-        public float PlaySetAnimation( string animationName, bool loop = false)
+        public TrackEntry PlaySetAnimation( string animationName, bool loop = false)
         {
             if (skeletonAnimationMulti != null && skeletonAnimationMulti.FindAnimation(animationName) != null)
             {
                 var trackEntry = skeletonAnimationMulti.SetAnimation(animationName, loop);
-                return trackEntry.Animation.Duration;
+
+                return trackEntry;
             } else
             {
                 if (skeletonAnimation.state.Data.SkeletonData.Animations.Items.ToList().Any(o => o.Name == animationName))
                 {
                     var trackEntry = skeletonAnimation.state.SetAnimation(0, animationName, loop);
-                    return trackEntry.Animation.Duration;
+                    return trackEntry;
                 }
-                return 0;
+                return null;
             }
         }
 
@@ -195,7 +211,7 @@ namespace AssemblyCSharp
                 if( animationName == animationOptionsEnum.toDeath)
                 {
                     PlaySetAnimation("toDeath", false);
-                    skeletonAnimation.state.SetAnimation( 0, "toDeath", false);
+                    skeletonAnimation?.state.SetAnimation( 0, "toDeath", false);
                 } else {
                     if ( !inAnimation )
                     {
@@ -212,9 +228,12 @@ namespace AssemblyCSharp
             } else {
                 hitAnimation = animationOptionsEnum.hit;
                 idleAnimation = animationOptionsEnum.idle;
-                var animationDuration = PlaySetAnimation(stunToIdle.ToString(), false);
-                PlayAddAnimation(idleAnimation.ToString(), false, animationDuration);
-                SetBusyAnimation(animationDuration);
+                var trackEntry = PlaySetAnimation(stunToIdle.ToString(), false);
+                if(trackEntry != null)
+                {
+                    PlayAddAnimation(idleAnimation.ToString(), false, trackEntry.Animation.Duration);
+                    SetBusyAnimation(trackEntry.Animation.Duration);
+                }
             }
         }
 

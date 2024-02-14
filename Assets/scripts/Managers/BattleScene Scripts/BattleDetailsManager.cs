@@ -24,8 +24,11 @@ namespace AssemblyCSharp
             warningText.text = message;
             BattleManager.taskManager.CallTask(showTime, () =>
             {
-                //warningText.text = "";
-                warningTextHolder.SetActive(false);
+                if (warningTextHolder != null)
+                {
+                    //warningText.text = "";
+                    warningTextHolder.SetActive(false);
+                }
             }, "battleWarningTask");
         }
 
@@ -36,18 +39,12 @@ namespace AssemblyCSharp
         }
 
         public void ShowLabel(StatusModel status, GameObject statusHolder){
-            GameObject live_object = Instantiate(status_symbol, statusHolder.transform); /*status.singleStatus.buff ? 
-                (GameObject)Instantiate( status_symbol, new Vector3 ( statusHolder.transform.position.x, 0.5f + statusHolder.transform.position.y, statusHolder.transform.position.z ) , statusHolder.transform.rotation ) : 
-                (GameObject)Instantiate( status_symbol, new Vector3 ( statusHolder.transform.position.x, statusHolder.transform.position.y, statusHolder.transform.position.z  ) , statusHolder.transform.rotation );*/
+            GameObject live_object = Instantiate(status_symbol, statusHolder.transform);
             Image iconImageScript = live_object.GetComponent<Image>();
             iconImageScript.sprite = status.singleStatus.labelIcon;
-            //live_object.transform.SetParent(statusHolder.transform, true);
-            /*if (!status.singleStatus.buff){
-                live_object.transform.SetParent(statusHolder.transform.GetChild(0).transform, true);
-            } else if(status.singleStatus.buff){
-                live_object.transform.SetParent(statusHolder.transform.GetChild(1).transform, true);
-            }*/
             var getprefab = live_object.GetComponent<StatusLabelModel>();
+            var statusTransform = live_object.GetComponent<RectTransform>();
+            statusTransform.localScale = new Vector3(1, 1, 1);
             getprefab.buff = status.singleStatus.buff;
             getprefab.buffPower = status.power;
             getprefab.statusModel = status;
@@ -76,7 +73,13 @@ namespace AssemblyCSharp
     
         //controls damage/healing/absorb numbers
         public void ShowDamageNumber(BaseDamageModel damageModel, string extraInfo = ""){
-            GameObject charObject = damageModel.baseManager.gameObject;
+            Debug.Log($"ShowDamageNumber : damageModel : {damageModel != null}, baseManager : {damageModel.baseManager != null}");
+
+            GameObject charObject = damageModel?.baseManager.gameObject;
+            if(charObject == null)
+            {
+                return;
+            }
             var gameDetails = (GameObject)Instantiate(gameDetailsObject, new Vector2 (charObject.transform.position.x, charObject.transform.position.y + 6f ), charObject.transform.rotation);
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.fontSize = damageModel.fontSize;

@@ -125,9 +125,9 @@ namespace AssemblyCSharp
 		public void DisplaySkillData(GenericSkillModel classSkill)
 		{
             panelItemDetail.SetActive(true);
-            var nameText = itemNameHolder.transform.Find("Text-skill name").GetComponent<Text>();
-			var previewText = itemPreviewHolder.transform.Find("Panel-skill preview").Find("Text-skill detail").GetComponent<Text>();
-			var skillsCost = itemSkillHolder.transform.Find("Panel-skill preview").Find("Text-skill cost").GetComponent<Text>();
+            var nameText = itemNameHolder?.transform.Find("Text-skill name").GetComponent<Text>();
+			var previewText = itemPreviewHolder?.transform.Find("Panel-skill preview").Find("Text-skill detail").GetComponent<Text>();
+			var skillsCost = itemSkillHolder?.transform.Find("Panel-skill preview").Find("Text-skill cost").GetComponent<Text>();
 			nameText.text = classSkill.skillName;
 			previewText.text = classSkill.skillDesc;
 			skillsCost.text = "Cost: <color=#ff7849>" + classSkill.skillCost + "</color>";

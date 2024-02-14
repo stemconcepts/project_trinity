@@ -152,7 +152,8 @@ namespace AssemblyCSharp
                             tumor.buffPower += damageModel.damageTaken * 0.70f;
                         }
 
-                        battleDetailsManager.getDmg(damageModel, damageModel.showExtraInfo ? damageModel.skillSource : "");
+                        //Used for immediate effects
+                        if(damageModel.damageImmidiately) battleDetailsManager.getDmg(damageModel, damageModel.showExtraInfo ? damageModel.skillSource : "");
                     }
                    /* else
                     {

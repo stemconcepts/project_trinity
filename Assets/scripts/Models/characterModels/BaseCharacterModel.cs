@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEditor;
 using UnityEngine.EventSystems;
 using System;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -34,6 +35,21 @@ namespace AssemblyCSharp
         evasion,
         critChance
     };
+
+    public enum PositionBenefit
+    {
+        None,
+        Front,
+        Middle,
+        Back
+    }
+
+    [Serializable]
+    public class PositionalBenefit {
+        public float statusPower;
+        public PositionBenefit positionBenefit;
+        public SingleStatusModel statusModel;
+    }
 
     public class BaseCharacterModel : MonoBehaviour
     {
@@ -79,6 +95,9 @@ namespace AssemblyCSharp
         public float originalthornsDmg;
         [HideInInspector]
         public float originalvigor;
+        public float insight = 0;
+        [HideInInspector]
+        public float originalinsight;
         public CharacterTypeEnum characterType;
         public enum CharacterTypeEnum
         {
@@ -106,5 +125,7 @@ namespace AssemblyCSharp
         public Vector2 attackedPos;
         public int rowNumber;
         public bool inVoidZone;
+
+        public List<PositionalBenefit> PositionalBenefits;
     }
 }

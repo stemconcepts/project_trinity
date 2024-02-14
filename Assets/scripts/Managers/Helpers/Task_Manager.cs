@@ -33,8 +33,15 @@ namespace AssemblyCSharp
         public bool RemoveLabelTask(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
             var myTask = new Task(RemoveLabel(waitTime, statusLabel, action));
+
+            if (!taskList.ContainsKey("removeLabel"))
+            {
+                taskList.Add("removeLabel", myTask);
+            }
+
             return true;
         }
+
         IEnumerator RemoveLabel(float waitTime, StatusLabelModel statusLabel, System.Action action = null)
         {
             yield return new WaitForSeconds(waitTime);            
@@ -218,7 +225,7 @@ namespace AssemblyCSharp
             {
                 movingObjectScripts.effectsManager.CallEffect(effect, "bottom");
             }
-            while( (Vector2)movingObjectScripts.gameObject.transform.position != targetPosVar && (movingObjectScripts.autoAttackManager.isAttacking || movingObjectScripts.skillManager.isSkillactive) )
+            while( (Vector2)movingObjectScripts.gameObject.transform.position != targetPosVar && (movingObjectScripts.autoAttackManager.isAttacking /*|| movingObjectScripts.skillManager.isSkillactive*/) )
             {
                 float step = movementSpeedVar * Time.deltaTime;
                 movingObjectScripts.gameObject.transform.position = Vector2.MoveTowards(movingObjectScripts.gameObject.transform.position, targetPosVar, step);
@@ -268,7 +275,7 @@ namespace AssemblyCSharp
         }
         public IEnumerator waitForTarget( SkillModel classSkill, GameObject player, bool weaponSkill = true, System.Action skillAction = null)
         {
-            BattleManager.gameEffectManager.SlowMo(0.01f);
+            BattleManager.gameEffectManager.SlowMo(0.05f);
             var bm = player.GetComponent<CharacterManagerGroup>();
             var target = bm.skillManager.currenttarget;
             while( target == null ) {

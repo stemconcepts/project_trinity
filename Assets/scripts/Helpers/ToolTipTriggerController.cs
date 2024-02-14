@@ -81,15 +81,16 @@ namespace AssemblyCSharp
             }
         }
 
-        void DestroyAllToolTips()
+        public void DestroyAllToolTips()
         {
             toolTipList.ForEach(t =>
             {
+                //Debug.Log($"Destroying tooltip {t.id}");
                 Destroy(t.liveHoverObj);
             });
         }
 
-        void OnMouseExit()
+        public void OnMouseExit()
         {
             DestroyAllToolTips();
         }

@@ -8,7 +8,6 @@ namespace AssemblyCSharp
 {
     public class BattleInterfaceManager: MonoBehaviour
     {
-        
         public int buttonID;
         public SkillModel skill;
         //public Text skillName;
@@ -34,7 +33,7 @@ namespace AssemblyCSharp
                     skill = skillManager.secondaryWeaponSkills[buttonID];
                 }
             } else {
-                skill = skillManager.skillModel;
+                skill = skillManager.classSkillModel;
             }
             if( skill != null && skill.skillActive == true ){
                 skillCDImage.fillAmount = 1;
@@ -57,11 +56,13 @@ namespace AssemblyCSharp
             if (BattleManager.battleStarted && !IsCharBusy() && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
             {
                 var charSelected = BattleManager.characterSelectManager.GetSelectedClassObject();
+                charSelected.GetComponent<PlayerSkillManager>().PrepSkill(skill);
+                /*var charSelected = BattleManager.characterSelectManager.GetSelectedClassObject();
                 var charStatus = charSelected.GetComponent<StatusManager>();
                 if (!charStatus.DoesStatusExist("stun"))
                 {
                     charSelected.GetComponent<PlayerSkillManager>().PrepSkill(skill);
-                }
+                }*/
             }
         }
 
@@ -94,10 +95,10 @@ namespace AssemblyCSharp
             if( iconImageScript ){
                 if(skill != null && (skill.skillCost > BattleManager.actionPoints))
                 {
-                    iconImageScript.color = new Color(0.9f, 0.2f, 0.2f);
+                    iconImageScript.color = new Color(0.9f, 0.4f, 0.4f);
                 } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("stun") || !skill.CanCastFromPosition(skill.compatibleRows, baseManager))
                 {
-                    iconImageScript.color = new Color(0.4f, 0.4f, 0.4f);
+                    iconImageScript.color = new Color(0.3f, 0.3f, 0.3f);
                 } else {
                     iconImageScript.color = new Color(1f, 1f, 1f);
                 }
@@ -105,8 +106,11 @@ namespace AssemblyCSharp
         }
     
         bool IsCharBusy(){
+            var charSelected = BattleManager.characterSelectManager.GetSelectedClassObject();
+            var charStatus = charSelected.GetComponent<StatusManager>();
+            var stunned = charStatus.DoesStatusExist("stun");
             var bm = BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<BaseCharacterManagerGroup>();
-            return bm.animationManager.inAnimation;
+            return bm.animationManager.inAnimation || bm.skillManager.isCasting || stunned;
         }
     
         void Update () {
@@ -123,7 +127,7 @@ namespace AssemblyCSharp
                 }
                 if (Input.GetKeyDown(KeyCode.Space))
                 { 
-                        BattleManager.PauseGame();
+                    BattleManager.PauseGame();
                 }
             }
         }

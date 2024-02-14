@@ -6,6 +6,9 @@ namespace AssemblyCSharp
 {
     public class EnemyCharacterManager : BaseCharacterManager
     {
+        public GameObject enemyCharacterSelector;
+        public Sprite enemySprite;
+
         void Update()
         {
             if (initialSetupDone)
@@ -36,6 +39,7 @@ namespace AssemblyCSharp
         {
             if (healthBar == null)
             {
+                BattleManager.GenerateEnemySelector(this.gameObject);
                 BattleManager.GenerateLifeBars(this.gameObject);
             }
             if (this.characterModel != null)

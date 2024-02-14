@@ -12,6 +12,7 @@ namespace AssemblyCSharp
         [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
         public List<EffectOnEventModel> effectsOnEvent = new List<EffectOnEventModel>();
         [ConditionalHide("trigger", (int)triggerGrp.None == 0, true)]
+        [Range(0.0f, 1.0f)]
         public float triggerChance;
 
         [Header("Status Effects affected by triggers:")]
@@ -89,7 +90,7 @@ namespace AssemblyCSharp
                 print ("no Secondary weapons" + gameObject);
             }
             if( classSkill != null ){
-                ((PlayerSkillManager)baseManager.skillManager).skillModel = Object.Instantiate( classSkill ) as SkillModel;
+                ((PlayerSkillManager)baseManager.skillManager).classSkillModel = Object.Instantiate( classSkill ) as SkillModel;
             }
         }
 
@@ -116,26 +117,26 @@ namespace AssemblyCSharp
                 {
                     foreach (var effect in weaponEffect.effectsOnEvent)
                     {
-                        //effect.resetEvent = primaryWeapon.resetEvent;
                         primaryWeaponEffects.Add(Object.Instantiate(effect));
                     }
                     foreach (var effect in primaryWeaponEffects)
                     {
                         SetEffectAndRun(effect, weaponEffect);
                     }
+                    primaryWeaponEffects = new List<EffectOnEventModel>();
                 }
 
                 foreach (var weaponEffect in secondaryWeapon.weaponEffects)
                 {
                     foreach (var effect in weaponEffect.effectsOnEvent)
                     {
-                        //effect.resetEvent = secondaryWeapon.resetEvent;
                         secondaryWeaponEffects.Add(Object.Instantiate(effect));
                     }
                     foreach (var effect in secondaryWeaponEffects)
                     {
                         SetEffectAndRun(effect, weaponEffect);
                     }
+                    secondaryWeaponEffects = new List<EffectOnEventModel>();
                 }
             }
         }

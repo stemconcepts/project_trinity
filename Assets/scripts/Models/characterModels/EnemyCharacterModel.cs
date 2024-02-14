@@ -31,6 +31,8 @@ namespace AssemblyCSharp
             originalAccuracy = Accuracy;
             originalCritChance = critChance;
             originalEvasion = evasion;
+            originalinsight = insight;
+            originalvigor = vigor;
         }
         public int experience;
         public List<ItemBase> loot;

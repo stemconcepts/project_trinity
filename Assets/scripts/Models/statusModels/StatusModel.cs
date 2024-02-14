@@ -17,6 +17,7 @@ namespace AssemblyCSharp
         public int stacks;
         public int turnToReset;
         public DamageColorEnum dmgTextColor;
+        public Action effectOnEnd;
 
         public void SaveTurnToReset()
         {
