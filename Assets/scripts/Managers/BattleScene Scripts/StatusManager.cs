@@ -9,8 +9,6 @@ namespace AssemblyCSharp
     {
         public BaseCharacterManagerGroup baseManager;
         public BattleDetailsManager battleDetailsManager;
-        //public Dictionary<string,Task> taskList = new Dictionary<string, Task>();
-        //public GameObject statusHolderObject;
         public GameObject buffHolder;
         public GameObject debuffHolder;
         [Header("Immunity List:")]
@@ -112,10 +110,9 @@ namespace AssemblyCSharp
                     this.baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, this.baseManager.characterManager.characterModel);
                 });*/
             } else 
-            if( statusModel.turnOff ){
-                activeStatuses.Remove(statusModel);
-                baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, baseManager.characterManager.characterModel);
-                EndStatusAndTriggerEffectsOnEvent(true, statusModel);
+            if(statusModel.turnOff){
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel, () =>
+                 baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, baseManager.characterManager.characterModel));
             }
         }
 
@@ -135,29 +132,9 @@ namespace AssemblyCSharp
             else
             if (statusModel.turnOff)
             {
-                ForceStatusOff(statusModel.singleStatus);
-                baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, baseManager.characterManager.characterModel);
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel, () =>
+                 baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, baseManager.characterManager.characterModel));
             }
-        }
-
-        private Task RefreshDotTimer(StatusModel statusModel, BattleManager.TurnEnum relevantTurn)
-        {
-            Task myTask = new Task(BattleManager.taskManager.CompareTurnsAndActionDuring(BattleManager.turnCount + statusModel.turnDuration * 2, relevantTurn, () =>
-            {
-                StatusLabelModel currentStatusLabel = GetStatusIfExist(statusModel.singleStatus.name);
-                if (baseManager.characterManager.characterModel.isAlive && statusModel != null && currentStatusLabel)
-                {
-                    statusModel.stacks = currentStatusLabel.stacks;
-                    BattleManager.taskManager.CallChangePointsTask(statusModel);
-                }
-            }));
-
-            if (!BattleManager.taskManager.taskList.ContainsKey("refreshDot"))
-            {
-                BattleManager.taskManager.taskList.Add("refreshDot", myTask);
-            }
-
-            return myTask;
         }
 
         private void CheckAndRunDot(StatusModel statusModel, BattleManager.TurnEnum relevantTurn)
@@ -195,6 +172,7 @@ namespace AssemblyCSharp
                 //Run an effect at the end if there is one
                 statusModel.effectOnEnd?.Invoke();
             }
+            activeStatuses.Remove(statusModel);
             actionOnStop?.Invoke();
         }
 
@@ -227,9 +205,7 @@ namespace AssemblyCSharp
             }
             else
             {
-                Debug.Log($"StatChanges : Manually Stopped");
-               // StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.name);
-                activeStatuses.Remove(statusModel);
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel);
             }
         }
 
@@ -346,7 +322,6 @@ namespace AssemblyCSharp
             if( !statusModel.turnOff && !DoesStatusExist( statusModel.singleStatus.statusName) && !CheckImmunity( statusModel.singleStatus.attributeName ))
             {
                 battleDetailsManager.ShowLabel(statusModel, statusModel.singleStatus.buff ? buffHolder : debuffHolder);
-                //var statusLabel = GetStatusIfExist(statusModel.singleStatus.name);
                 if (statusModel.singleStatus.hitAnim != animationOptionsEnum.none && statusModel.singleStatus.holdAnim != animationOptionsEnum.none)
                 {
                     baseManager.animationManager.AddStatusAnimation(true, statusModel.singleStatus.hitAnim, statusModel.singleStatus.holdAnim);
@@ -355,14 +330,9 @@ namespace AssemblyCSharp
 
                 //Add status to active list
                 activeStatuses.Add(statusModel);
-
-                //statusLabel.durationTimer = ResetOnValidTurn(statusModel);
-                //statusLabel.durationTimer.Finished += (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel);
             } 
             else if( statusModel.turnOff ){
-                //StatusLabelModel statusLabel = GetStatusIfExist(statusModel.singleStatus.name);
-                //statusLabel.durationTimer.Stop();
-                activeStatuses.Remove(statusModel);
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel);
             }
         }
 
@@ -382,21 +352,10 @@ namespace AssemblyCSharp
 
                 //Add status to active list
                 activeStatuses.Add(statusModel);
-
-                /*statusLabel.durationTimer = ResetOnValidTurn(statusModel);
-                statusLabel.durationTimer.Finished += (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel, () =>
-                {
-                    if (this != null)
-                    {
-                        baseManager.damageManager.DoDamage((int)statusLabel.buffPower, baseManager.characterManager, isMagic: true);
-                    }
-                });*/
             } else 
             if(statusModel.turnOff)
             {
-                activeStatuses.Remove(statusModel);
-                //var statusLabel = GetStatusIfExist(statusModel.singleStatus.name);
-                //statusLabel.durationTimer.Stop();
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel);
             }
         }
 
@@ -424,15 +383,9 @@ namespace AssemblyCSharp
 
                 //Add status to active list
                 activeStatuses.Add(statusModel);
-
-               // statusLabel.durationTimer = ResetOnValidTurn(statusModel);
-               // statusLabel.durationTimer.Finished += (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel);
             } else 
             if( statusModel.turnOff ){
-                activeStatuses.Remove(statusModel);
-                //var statusLabel = GetStatusIfExist(statusModel.singleStatus.name);
-                //statusLabel.durationTimer.Stop();
-                //statusLabel.durationTimer.Finished -= (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel);
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel);
             }
         }
 
@@ -455,25 +408,11 @@ namespace AssemblyCSharp
                     });
 
                 activeStatuses.Add(statusModel);
-
-                //statusLabel.durationTimer = ResetOnValidTurn(statusModel);
-                /*statusLabel.durationTimer.Finished += (t) => EndStatusAndTriggerEffectsOnEvent(t, statusModel, () =>
-                {
-                    statusModel.singleStatus.immunityList.ForEach(o =>
-                    {
-                        if (immunityList.Contains(o))
-                        {
-                            immunityList.Remove(o);
-                        }
-                    });
-                });*/
             }
             else
             if (statusModel.turnOff)
             {
-                activeStatuses.Remove(statusModel);
-                //var statusLabel = GetStatusIfExist(statusModel.singleStatus.name);
-                //statusLabel.durationTimer.Stop();
+                EndStatusAndTriggerEffectsOnEvent(true, statusModel);
             }
         }
 
@@ -525,33 +464,6 @@ namespace AssemblyCSharp
             if (statusModel.singleStatus.trigger == triggerGrp.None)
             {
                 RunStatusMethodFromType(statusModel, statusModel.singleStatus.selectedStatusFunction);
-                /*switch (statusModel.singleStatus.selectedStatusFunction)
-                {
-                    case SingleStatusModel.statusFunction.AttributeChange:
-                        AttributeChange(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.AddToStat:
-                        AddToStatus(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.StatChange:
-                        StatChanges(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.StatusOn:
-                        StatusOn(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.Tumor:
-                        Tumor(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.OnHit:
-                        //OnHit( statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.OnTakingDamage:
-                        OnTakeDmg(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.Immune:
-                        SetImmunity(statusModel);
-                        break;
-                }*/
             } else
             {
                 switch (statusModel.singleStatus.trigger)
@@ -581,18 +493,6 @@ namespace AssemblyCSharp
                         break;
                 }
             }
-            
-            /*if (false)
-            {
-                if (statusModel.singleStatus.buff)
-                {
-                    MainGameManager.instance.soundManager.playSoundUsingAudioSource("buff", baseManager.gameObject.GetComponent<AudioSource>());
-                }
-                else
-                {
-                    MainGameManager.instance.soundManager.playSoundUsingAudioSource("debuff", baseManager.gameObject.GetComponent<AudioSource>());
-                }
-            }*/
         }
 
         public void RunStatusFunctions(List<StatusModel> statusModels)
@@ -600,33 +500,6 @@ namespace AssemblyCSharp
             statusModels.ForEach(statusModel =>
             {
                 RunStatusFunction(statusModel);
-                /*switch (statusModel.singleStatus.selectedStatusFunction)
-                {
-                    case SingleStatusModel.statusFunction.AttributeChange:
-                        AttributeChange(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.AddToStat:
-                        AddToStatus(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.StatChange:
-                        StatChanges(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.StatusOn:
-                        StatusOn(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.Tumor:
-                        Tumor(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.OnHit:
-                        //OnHit( statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.OnHitEnemy:
-                        OnTakeDmg(statusModel);
-                        break;
-                    case SingleStatusModel.statusFunction.Immune:
-                        SetImmunity(statusModel);
-                        break;
-                }*/
             });
             
         }

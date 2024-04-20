@@ -30,7 +30,10 @@ namespace AssemblyCSharp
                 characterModel.current_health = characterModel.Health;
                 characterModel.sliderScript.maxValue = characterModel.fullHealth;
                 characterModel.sliderScript.value = characterModel.current_health;
-                characterModel.healthBarText.text = characterModel.current_health.ToString();
+                if (characterModel.healthBarText)
+                {
+                    characterModel.healthBarText.text = characterModel.current_health.ToString();
+                }
             }
         }
 

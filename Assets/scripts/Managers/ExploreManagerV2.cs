@@ -131,23 +131,16 @@ namespace Assets.scripts.Managers
 
         public void LevelGenerator()
         {
-            /*needs to check if its loading a new level or not
-            var d = LoadDungeon();
-            if (d.allRooms.Length == 0 && string.IsNullOrEmpty(d.currentRoomId))
-            {*/
-            //lootAdded = false;
             GenerateRooms(dungeonSettings.minRooms);
             GenerateDetours(dungeonSettingsCopy.maxDetourLength);
             LinkDetours();
             AddLockedDoors();
-            //GenerateRoutes();
-            
             GetTotalRoomsAndHide();
             AddRandomEncounters();
             AddCurroptionToRoutes();
             SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
             SavedDataManager.SavedDataManagerInstance.SaveIconPos(iconControllers);
-            //}
+            MainGameManager.instance.DisableEnableLiveBoxColliders(false);
         }
 
         /// <summary>
