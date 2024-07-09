@@ -7,6 +7,7 @@ using DG.Tweening;
 using System.Collections.Generic;
 using DG.Tweening.Core.Easing;
 using static UnityEngine.Rendering.DebugUI;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -125,12 +126,12 @@ namespace AssemblyCSharp
             int targetPanelNum = currentPanelNum;
             
             //Forced Move Logic
-            if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Back)
+            if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.SteadFast) && skill.forcedMove == GenericSkillModel.moveType.Back)
             {
                 targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + GetMoveAmount(skill.forcedMoveAmount);
                 //targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.forcedMoveAmount;
             }
-            else if (!baseManager.statusManager.DoesStatusExist("steadFast") && skill.forcedMove == GenericSkillModel.moveType.Forward)
+            else if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.SteadFast) && skill.forcedMove == GenericSkillModel.moveType.Forward)
             {
                 targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - GetMoveAmount(skill.forcedMoveAmount);
                 //targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.forcedMoveAmount;
@@ -163,7 +164,7 @@ namespace AssemblyCSharp
                 float xpos = this.tag == "Enemy" ? target.GetComponent<BaseMovementManager>().origPosition.x - (size.x / 1.2f) : target.GetComponent<BaseMovementManager>().origPosition.x + (size.x / 1.2f);
                 float ypos = (size.y + offsetYPosition);
                 attackedPos.x = xpos;
-                attackedPos.y = target.transform.position.y;
+                attackedPos.y =  target.transform.position.y; //-(size.y / 1.2f);
             }
             return attackedPos;
         }
@@ -209,13 +210,14 @@ namespace AssemblyCSharp
                 });
             baseManager.animationManager.PlaySetAnimation(hopAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, 0);
-            var eventModel = new EventModel
+            /*var eventModel = new EventModel
             {
-                eventName = "OnMove",
+                eventName = EventTriggerEnum.OnMove.ToString(),
                 extTarget = baseManager.characterManager,
                 eventCaller = baseManager.characterManager
             };
-            BattleManager.eventManager.BuildEvent(eventModel);
+            BattleManager.eventManager.BuildEvent(eventModel);*/
+            baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnMove);
             MainGameManager.instance.soundManager.playAllSounds(movementSounds, 0.2f);
         }
 

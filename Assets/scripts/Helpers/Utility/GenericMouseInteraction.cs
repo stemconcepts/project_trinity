@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using static AssemblyCSharp.itemBehaviour;
-using static UnityEditor.Progress;
+//using static UnityEditor.Progress;
 
 namespace Assets.scripts.Helpers.Utility
 {

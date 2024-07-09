@@ -16,9 +16,7 @@ namespace Assets.scripts.Managers.CharacterMenuScene_Scripts
         public List<GameObject> slots = new List<GameObject>();
         public List<GameObject> items = new List<GameObject>();
         public GameObject slotPrefab;
-        //public GameObject skillPrefab;
         public GameObject eyeSkillPrefab;
-        public AssetFinder assetFinder;
         public int slotAmount;
 
         public void AddSlot(int i)

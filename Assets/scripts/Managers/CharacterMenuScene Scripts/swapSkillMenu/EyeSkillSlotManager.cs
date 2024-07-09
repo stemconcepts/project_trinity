@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Assets.scripts.Models.skillModels.swapSkills;
-using static UnityEditor.Progress;
+//using static UnityEditor.Progress;
 
 namespace Assets.scripts.Managers.CharacterMenuScene_Scripts.swapSkillMenu
 {
@@ -17,8 +17,7 @@ namespace Assets.scripts.Managers.CharacterMenuScene_Scripts.swapSkillMenu
 
         void Awake()
         {
-            assetFinder = MainGameManager.instance.assetFinder;
-            var eyeSkills = assetFinder.GetEyeSkills();
+            var eyeSkills = MainGameManager.instance.SkillFinder.GetAllEyeSkills(true);
             for (int i = 0; i < eyeSkills.Count; i++)
             {
                 if (eyeSkills[i].learned)

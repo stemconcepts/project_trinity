@@ -203,11 +203,11 @@ namespace AssemblyCSharp
             //SaveData<IconData>(iconData, "testing");
         }
 
-        public void AddWeaponModel(weaponModel weaponModel, bool mainWeapon)
+        public void AddWeaponModel(WeaponModel weaponModel, bool mainWeapon)
         {
             switch (weaponModel.type)
             {
-                case weaponModel.weaponType.bladeAndBoard: case weaponModel.weaponType.heavyHanded:
+                case WeaponModel.weaponType.bladeAndBoard: case WeaponModel.weaponType.heavyHanded:
                         if (mainWeapon)
                         {
                             persistentData.playerData.tankEquipment.weapon = weaponModel;
@@ -216,7 +216,7 @@ namespace AssemblyCSharp
                             persistentData.playerData.tankEquipment.secondWeapon = weaponModel;
                         }
                     break;
-                case weaponModel.weaponType.clawAndCannon: case weaponModel.weaponType.dualBlades:
+                case WeaponModel.weaponType.clawAndCannon: case WeaponModel.weaponType.dualBlades:
                     if (mainWeapon)
                     {
                         persistentData.playerData.dpsEquipment.weapon = weaponModel;
@@ -226,7 +226,7 @@ namespace AssemblyCSharp
                         persistentData.playerData.dpsEquipment.secondWeapon = weaponModel;
                     }
                     break;
-                case weaponModel.weaponType.cursedGlove: case weaponModel.weaponType.glove:
+                case WeaponModel.weaponType.cursedGlove: case WeaponModel.weaponType.glove:
                     if (mainWeapon)
                     {
                         persistentData.playerData.healerEquipment.weapon = weaponModel;
@@ -244,7 +244,7 @@ namespace AssemblyCSharp
             PlayersReady();
         }
 
-        public void AddBauble(bauble bauble, string character)
+        public void AddBauble(Bauble bauble, string character)
         {
             switch (character)
             {
@@ -345,9 +345,9 @@ namespace AssemblyCSharp
             {
                 persistentData.playerData = playerData;
                 SavedDataManagerInstance.persistentData.playerData = playerData;
-                MainGameManager.instance.SceneManager.healerReady = playerData.healerEquipment.weapon && playerData.healerEquipment.secondWeapon;
-                MainGameManager.instance.SceneManager.dpsReady = playerData.dpsEquipment.weapon && playerData.dpsEquipment.secondWeapon;
-                MainGameManager.instance.SceneManager.tankReady = playerData.tankEquipment.weapon && playerData.tankEquipment.secondWeapon;
+                //MainGameManager.instance.SceneManager.healerReady = playerData.healerEquipment.weapon && playerData.healerEquipment.secondWeapon;
+                //MainGameManager.instance.SceneManager.dpsReady = playerData.dpsEquipment.weapon && playerData.dpsEquipment.secondWeapon;
+                //MainGameManager.instance.SceneManager.tankReady = playerData.tankEquipment.weapon && playerData.tankEquipment.secondWeapon;
             }
         }
 

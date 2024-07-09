@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -22,7 +23,7 @@ namespace AssemblyCSharp
 
         public void SelectUnit(GameObject characterObject = null)
         {
-            if (!BattleManager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive /*&& !baseManager.skillManager.isSkillactive*/ && !baseManager.statusManager.DoesStatusExist("stun"))
+            if (!BattleManager.waitingForSkillTarget && baseManager.characterManager.characterModel.isAlive /*&& !baseManager.skillManager.isSkillactive*/ && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
             {
                 if (baseManager.characterManager.characterModel.characterType != CharacterModel.CharacterTypeEnum.enemy)
                 {
@@ -65,26 +66,31 @@ namespace AssemblyCSharp
         }
         
         void OnMouseEnter(){
+            var panelController = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
             baseManager.movementManager.currentPanel.GetComponent<Image>().color = new Color( 1f, 0.3f, 0.3f, 1f );
+            panelController.ShowSelected(true);
         }
         
         void OnMouseExit(){
             var currentPanel = baseManager.movementManager.currentPanel;
-            if ( currentPanel.GetComponent<PanelsManager>().isVoidZone )
+            var panelController = currentPanel.GetComponent<PanelsManager>();
+            var image = currentPanel.GetComponent<Image>();
+            if (panelController.isVoidZone )
             {
-                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<PanelsManager>().voidZoneColor;
+                image.color = panelController.voidZoneColor;
             } else if ( currentPanel.GetComponent<PanelsManager>().isVoidCounter )
             {
-                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<PanelsManager>().counterZoneColor;
+                image.color = panelController.counterZoneColor;
             } else if (currentPanel.GetComponent<PanelsManager>().isThreatPanel)
             {
-                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<PanelsManager>().threatPanelColor;
+                image.color = panelController.threatPanelColor;
             } else if (currentPanel.GetComponent<PanelsManager>().isEnemyPanel)
             {
-                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<PanelsManager>().enemyPanelColor;
+                image.color = panelController.enemyPanelColor;
             } else {
-                currentPanel.GetComponent<Image>().color = currentPanel.GetComponent<PanelsManager>().panelColor;
+                image.color = panelController.panelColor;
             }
+            panelController.ShowSelected(false);
         }
     }
 }

@@ -23,7 +23,6 @@ namespace AssemblyCSharp
         private static bool useBackwardRoute;
         public bool lootAdded;
         public static GameManager gameManager;
-        public static AssetFinder assetFinder;
         public static string currentRoom;
         public static GameObject backButton;
         public static GameObject inventoryHolder;
@@ -73,7 +72,6 @@ namespace AssemblyCSharp
         void Awake()
         {
             gameManager = gameObject.GetComponent<GameManager>();
-            assetFinder = gameObject.GetComponent<AssetFinder>();
             explorerCamera = explorerCameraTarget;
         }
 

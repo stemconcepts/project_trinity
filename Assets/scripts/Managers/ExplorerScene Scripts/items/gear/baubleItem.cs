@@ -5,6 +5,6 @@ namespace AssemblyCSharp
 {
     public class baubleItem : ItemBase
     {
-        public bauble bauble;
+        public Bauble bauble;
     }
 }

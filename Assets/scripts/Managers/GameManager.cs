@@ -2,13 +2,42 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+using Assets.scripts.Helpers.Assets;
 
 namespace AssemblyCSharp
 {
+#if UNITY_EDITOR // => Ignore from here to next endif if not in editor
+    [CustomEditor(typeof(GameManager))]
+    internal class GameManagerGUITriggers : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            DrawDefaultInspector();
+            GameManager gameManager = (GameManager)target;
+
+            GUILayout.Space(30);
+           //GUILayout.Label("Damage Value");
+
+            //string damage = "";
+            //damage = GUILayout.TextField(damage.ToString(), 4, "textfield");
+
+
+            if (GUILayout.Button("Damage All Friendly"))
+            {
+                gameManager.BattleManager.DamageAllFriendly(10, true);
+            }
+
+            if (GUILayout.Button("Damage All Enemy"))
+            {
+                gameManager.BattleManager.DamageAllEnemy(10, true);
+            }
+        }
+    }
+#endif
+
     public class GameManager : MonoBehaviour
     {
-        //public List<string> FriendlyCharacters = new List<string>();
-        //public List<string> EmenyCharacters = new List<string>();
         string Backgrounds;
         public enum GameState
         {
@@ -26,9 +55,6 @@ namespace AssemblyCSharp
         public BattleDetailsManager battleDetailsManager;
         public Game_Effects_Manager GameEffectsManager;
         public Event_Manager EventManager;
-        //public sceneManager SceneManager;
-        public AssetFinder AssetFinder;
-        //public SavedDataManager SavedDataManager;
         public Character_Select_Manager characterSelectManager;
         public static ILogger logger = Debug.unityLogger;
         public Camera camera;
@@ -46,13 +72,6 @@ namespace AssemblyCSharp
             GameEffectsManager = gameObject.GetComponent<Game_Effects_Manager>();
             EventManager = gameObject.GetComponent<Event_Manager>();
             BattleManager = gameObject.GetComponent<BattleManager>();
-            AssetFinder = gameObject.GetComponent<AssetFinder>();
-            /*var dataInstance = GameObject.Find("DataInstance");
-            if (dataInstance)
-            {
-                SceneManager = dataInstance.GetComponent<sceneManager>();
-                SavedDataManager = dataInstance.GetComponent<SavedDataManager>();
-            }*/
         }
 
         void Update()
@@ -64,7 +83,7 @@ namespace AssemblyCSharp
         {
             if (State == GameState.Battle)
             {
-                BattleManager.StartBattle(5f);
+                BattleManager.StartBattle(3f);
             }
         }
 

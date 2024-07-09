@@ -50,6 +50,7 @@ namespace AssemblyCSharp
             VerticalC
         };
         public bool moved = false;
+        public GameObject SelectedEffect;
 
         void Start()
         {
@@ -207,7 +208,7 @@ namespace AssemblyCSharp
                             }
                             else
                             {
-                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.name))
+                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.statusName))
                                 {
                                     RemovePanelPositionBuff(statusModel);
                                 }
@@ -220,7 +221,7 @@ namespace AssemblyCSharp
                             }
                             else
                             {
-                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.name))
+                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.statusName))
                                 {
                                     RemovePanelPositionBuff(statusModel);
                                 }
@@ -233,7 +234,7 @@ namespace AssemblyCSharp
                             }
                             else
                             {
-                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.name))
+                                if (characterManager.baseManager.statusManager.GetStatusIfExist(benefit.statusModel.statusName))
                                 {
                                     RemovePanelPositionBuff(statusModel);
                                 }
@@ -255,6 +256,11 @@ namespace AssemblyCSharp
                 statusModel.turnOff = true;
                 characterManager.baseManager.statusManager.RunStatusFunction(statusModel);
             }
+        }
+
+        public void ShowSelected(bool show)
+        {
+            SelectedEffect?.SetActive(show);
         }
 
         public void OnMouseEnter()

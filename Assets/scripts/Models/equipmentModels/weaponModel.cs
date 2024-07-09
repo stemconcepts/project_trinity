@@ -1,20 +1,29 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.scripts.Helpers.Utility;
+using System.Linq;
+using Assets.scripts.Models.statusModels;
+using System;
 
 namespace AssemblyCSharp
 {
     [System.Serializable]
-    public class weaponModel : ScriptableObject {
+    public class WeaponModel : ScriptableObject {
         public bool enablesAutoAttacks;
-    	public string WeaponName;
-    	public string DisplayName;
+    	public string DisplayName
+        {
+            get
+            {
+                return LabelConverter.ConvertCamelCaseToWord(this.name);
+            }
+        }
     	public bool owned;
         public Sprite itemIcon;
     	public bool isEquipped;
     	public int itemNumber;
-    	[Multiline]
-    	public string WeaponDescription;
+        [TextArea]
+        public string WeaponDescription;
     	public itemQuality quality;
         public enum weaponType {
     		bladeAndBoard,

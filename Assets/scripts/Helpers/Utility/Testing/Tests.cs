@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR // => Ignore from here to next endif if not in editor
+using UnityEditor;
 
 namespace Assets.scripts.Helpers.Utility.Testing
 {
@@ -38,3 +40,5 @@ namespace Assets.scripts.Helpers.Utility.Testing
         }
     }
 }
+
+#endif

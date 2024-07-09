@@ -6,7 +6,9 @@ using DG.Tweening.Core.Easing;
 using UnityEngine.UI;
 using Spine;
 using Spine.Unity;
-using UnityEditor.Experimental.GraphView;
+using Assets.scripts.Models.statusModels;
+using System;
+//using UnityEditor.Experimental.GraphView;
 
 namespace AssemblyCSharp
 {
@@ -59,6 +61,9 @@ namespace AssemblyCSharp
 
             //Save all skills to a list
             SaveAllSkillsToList();
+
+            baseManager.EventManagerV2.AddDelegateToEvent(EventTriggerEnum.OnSkillCast, () => BattleManager.AddToGearSwapPoints(6));
+            baseManager.EventManagerV2.AddDelegateToEvent(EventTriggerEnum.OnDealingDmg, () => BattleManager.AddToGearSwapPoints(4));
         }
 
         private void SaveAllSkillsToList()
@@ -87,7 +92,10 @@ namespace AssemblyCSharp
                 primaryWeaponSkills[i].newSP = primaryWeaponSkills[i].skillPower * baseManager.characterManager.characterModel.PAtk;
                 secondaryWeaponSkills[i].newSP = secondaryWeaponSkills[i].skillPower * baseManager.characterManager.characterModel.PAtk;
             }
-            classSkillModel.newSP = classSkillModel.skillPower * baseManager.characterManager.characterModel.PAtk;
+            if (classSkillModel)
+            {
+                classSkillModel.newSP = classSkillModel.skillPower * baseManager.characterManager.characterModel.PAtk;
+            }
         }
 
         public void CalculateMagicPower()
@@ -97,8 +105,24 @@ namespace AssemblyCSharp
                 primaryWeaponSkills[i].newMP = primaryWeaponSkills[i].magicPower * baseManager.characterManager.characterModel.MAtk;
                 secondaryWeaponSkills[i].newMP = secondaryWeaponSkills[i].magicPower * baseManager.characterManager.characterModel.MAtk;
             }
-            classSkillModel.newMP = classSkillModel.magicPower * baseManager.characterManager.characterModel.MAtk;
+            if (classSkillModel)
+            {
+                classSkillModel.newMP = classSkillModel.magicPower * baseManager.characterManager.characterModel.MAtk;
+            }
         }
+
+        private void CheckCastingAndUpdatePoints(SkillModel skillModel)
+        {
+            if (skillModel.castTurnTime > 0 && (skillModel.castTurnTime - baseManager.characterManager.characterModel.insight) > 0)
+            {
+                StartCasting(skillModel);
+            }
+            else
+            {
+                SetAnimations(skillModel);
+            }
+        }
+
         private void GetTargets(SkillModel skillModel, bool weaponSkill = true)
         {
             finalTargets.Clear();
@@ -106,26 +130,35 @@ namespace AssemblyCSharp
             var enemyPlayers = BattleManager.GetEnemyCharacterManagers();
             var friendlyPlayers = BattleManager.GetFriendlyCharacterManagers();
 
-            if (skillModel.self) { 
+            if (skillModel.Self && !skillModel.ExcludeSelf) { 
                 finalTargets.Add(baseManager.characterManager as CharacterManager); }
             if (skillModel.allEnemy) {
                 finalTargets.AddRange(enemyPlayers);
-                currenttarget = enemyPlayers.Count > 0 ? enemyPlayers[Random.Range(0, enemyPlayers.Count())] : null;
+                currenttarget = enemyPlayers.Count > 0 ? enemyPlayers[UnityEngine.Random.Range(0, enemyPlayers.Count())] : null;
             }
-            if (skillModel.allFriendly) { finalTargets.AddRange(friendlyPlayers); }
+            if (skillModel.allFriendly) { 
+                finalTargets.AddRange(friendlyPlayers);
+                if (skillModel.ExcludeSelf)
+                {
+                    finalTargets = finalTargets
+                        .Where(target => target.name != this.name)
+                        .ToList();
+                }
+            }
             if (skillModel.friendly || skillModel.enemy)
             {
                 BattleManager.taskManager.waitForTargetTask(player, classSkill: skillModel, weaponSkill: weaponSkill, skillAction: () =>
                 {
                     Time.timeScale = 1f;
-                    if (skillModel.castTurnTime > 0 && (skillModel.castTurnTime - baseManager.characterManager.characterModel.insight) > 0)
+                    CheckCastingAndUpdatePoints(skillModel);
+                    /*if (skillModel.castTurnTime > 0 && (skillModel.castTurnTime - baseManager.characterManager.characterModel.insight) > 0)
                     {
                         StartCasting(skillModel);
                     }
                     else
                     {
                         SetAnimations(skillModel);
-                    }
+                    }*/
 
                     //Add to turn taken
                     ++turnsTaken;
@@ -137,15 +170,22 @@ namespace AssemblyCSharp
             }
             else
             {
-                if (!baseManager.statusManager.DoesStatusExist("stun"))
+                if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
                 {
                     finalTargets.Capacity = finalTargets.Count;
-                    SetAnimations(skillModel);
+                    CheckCastingAndUpdatePoints(skillModel);
+                    /*if (skillModel.castTurnTime > 0 && (skillModel.castTurnTime - baseManager.characterManager.characterModel.insight) > 0)
+                    {
+                        StartCasting(skillModel);
+                    }
+                    else
+                    {
+                        SetAnimations(skillModel);
+                    }*/
                 }
                 else
                 {
                     SkillActiveSet(skillModel, false);
-                    //isSkillactive = false;
                 }
             }
 
@@ -178,18 +218,18 @@ namespace AssemblyCSharp
                 SkillActiveSet(skillModel, false);
             });
 
-            var eM = new EventModel()
-            {
-                eventName = "OnSkillCast",
-                eventCaller = baseManager.characterManager
-            };
-
             BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
-            BattleManager.eventManager.BuildEvent(eM);
+            
+            baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnSkillCast);
+            //baseManager.EventManagerV2.AddDelegateToEvent(EventTriggerEnum.OnSkillCast, () => BattleManager.AddToGearSwapPoints(6));
         }
 
         private void DealHealDmg(SkillModel skillModel, List<BaseCharacterManager> targets, float power)
         {
+            //Add status to self if applicable
+            AddStatusToSelf(skillModel);
+
+            //Add status to targets if applicable
             foreach (var target in targets)
             {
                 SkillData data = new SkillData()
@@ -222,6 +262,8 @@ namespace AssemblyCSharp
                         }
                         target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
                         target.baseManager.damageManager.calculatedamage(dmgModel);
+
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnDealingDmg);
                     } else
                     {
                         dmgModel.incomingDmg = 0;
@@ -255,6 +297,7 @@ namespace AssemblyCSharp
                 //Add Status to target -- might move this call as it seems out of context
                 AddStatuses(target, skillModel, didHit);
             }
+
             if (skillModel.hitSounds.Count > 0)
             {
                 MainGameManager.instance.soundManager.playAllSounds(skillModel.hitSounds, 0.3f);
@@ -384,14 +427,6 @@ namespace AssemblyCSharp
                         if (damageModel != null)
                         {
                             targetDamageManager.TakeDmg(damageModel, spineEvent.Data.Name);
-                            var eventModel = new EventModel
-                            {
-                                eventName = "OnDealingDmg",
-                                extTarget = target,
-                                eventCaller = baseManager.characterManager,
-                                extraInfo = damageModel.damageTaken
-                            };
-                            BattleManager.eventManager.BuildEvent(eventModel);
                         }
                     }
                 }
@@ -406,7 +441,7 @@ namespace AssemblyCSharp
         void Update()
         {
             //Checks if player character is casting and if so if the cast should be completed
-            if (isCasting && activeSkill != null && !baseManager.statusManager.DoesStatusExist("stun")
+            if (isCasting && activeSkill != null && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun)
                 && activeSkill.CompleteSkillOnCurrentTurn() 
                 && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
             {

@@ -35,6 +35,14 @@ namespace AssemblyCSharp
             }
         }
 
+        public void AddStatusToSelf(GenericSkillModel skillModel)
+        {
+            if (skillModel.SelfStatusGroup.Count() > 0)
+            {
+                ProcessStatus(this.baseManager.characterManager, skillModel, skillModel.SelfStatusGroup);
+            }
+        }
+
         private void ProcessStatus(BaseCharacterManager target, GenericSkillModel skill, List<StatusItem> statusItems)
         {
             var hitAnimation = statusItems.Where(statusItem => statusItem.status.hitAnim != animationOptionsEnum.none).Select(o => o.status.hitAnim).FirstOrDefault();

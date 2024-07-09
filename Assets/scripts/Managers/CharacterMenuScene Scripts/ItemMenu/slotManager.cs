@@ -6,8 +6,8 @@ namespace AssemblyCSharp
 {
     public class OwnedItems
     {
-        public List<weaponModel> weapons = new List<weaponModel>();
-        public List<bauble> baubles = new List<bauble>();
+        public List<WeaponModel> weapons = new List<WeaponModel>();
+        public List<Bauble> baubles = new List<Bauble>();
     }
 
     public class slotManager : MonoBehaviour
@@ -18,7 +18,6 @@ namespace AssemblyCSharp
         public GameObject slotPrefab;
         public GameObject itemPrefab;
         public GameObject menuManager;
-        AssetFinder assetFinder;
         SavedDataManager savedDataManager;
         InventoryManager equipmentManager;
 
@@ -26,7 +25,7 @@ namespace AssemblyCSharp
 
         void AddSlot(int i)
         {
-            var newSlot = (GameObject)Instantiate(slotPrefab);
+            var newSlot = Instantiate(slotPrefab);
             newSlot.GetComponent<slotBehaviour>().currentSlotID = i;
             slots.Add(newSlot);
             slots[i].transform.SetParent(this.transform);
@@ -70,28 +69,19 @@ namespace AssemblyCSharp
         void Awake()
         {
             equipmentManager = menuManager.GetComponent<InventoryManager>();
-            assetFinder = MainGameManager.instance.assetFinder;
             savedDataManager = SavedDataManager._savedDataManagerInstance; 
         }
 
         void Start()
         {
-            var weapons = assetFinder.GetAllWeapons();
-            var baubles = assetFinder.GetAllBaubles();
+            var weapons = MainGameManager.instance.EquipmentFinder.GetAllWeapons(true);
+            var baubles = MainGameManager.instance.EquipmentFinder.GetAllBaubles(true);
             if (savedDataManager)
             {
                 SetEquippedItemsAndSkills();
             }
-
-            for (int i = 0; i < weapons.Count; i++)
-            {
-                ownedItems.weapons.Add(weapons[i]);
-            }
-
-            for (int i = 0; i < baubles.Count; i++)
-            {
-                ownedItems.baubles.Add(baubles[i]);
-            }
+            ownedItems.weapons.AddRange(weapons);
+            ownedItems.baubles.AddRange(baubles);
 
             for (int i = 0; i < slotAmount; i++)
             {
@@ -110,8 +100,8 @@ namespace AssemblyCSharp
                 {
                     switch (newItemBehaviour.weaponItemScript.type)
                     {
-                        case weaponModel.weaponType.bladeAndBoard:
-                        case weaponModel.weaponType.heavyHanded:
+                        case WeaponModel.weaponType.bladeAndBoard:
+                        case WeaponModel.weaponType.heavyHanded:
                             if (equipmentManager.tankWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-tankweapon").transform, false);
@@ -120,10 +110,10 @@ namespace AssemblyCSharp
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondTankWeapon").transform, false);
                             }
-                            MainGameManager.instance.SceneManager.tankReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject && equipmentManager.tankClassSkill;
+                            //MainGameManager.instance.SceneManager.tankReady = equipmentManager.tankWeaponObject && equipmentManager.tankSecondWeaponObject && equipmentManager.tankClassSkill;
                             break;
-                        case weaponModel.weaponType.clawAndCannon:
-                        case weaponModel.weaponType.dualBlades:
+                        case WeaponModel.weaponType.clawAndCannon:
+                        case WeaponModel.weaponType.dualBlades:
                             if (equipmentManager.dpsWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-dpsweapon").transform, false);
@@ -132,10 +122,10 @@ namespace AssemblyCSharp
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondDpsweapon").transform, false);
                             }
-                            MainGameManager.instance.SceneManager.dpsReady = equipmentManager.dpsWeaponObject && equipmentManager.dpsSecondWeaponObject && equipmentManager.dpsClassSkill;
+                            //MainGameManager.instance.SceneManager.dpsReady = equipmentManager.dpsWeaponObject && equipmentManager.dpsSecondWeaponObject && equipmentManager.dpsClassSkill;
                             break;
-                        case weaponModel.weaponType.cursedGlove:
-                        case weaponModel.weaponType.glove:
+                        case WeaponModel.weaponType.cursedGlove:
+                        case WeaponModel.weaponType.glove:
                             if (equipmentManager.healerWeaponObject == item)
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-healerweapon").transform, false);
@@ -144,7 +134,7 @@ namespace AssemblyCSharp
                             {
                                 newitem.transform.SetParent(GameObject.Find("Panel-secondHealerweapon").transform, false);
                             }
-                            MainGameManager.instance.SceneManager.healerReady = equipmentManager.healerWeaponObject && equipmentManager.healerSecondWeaponObject && equipmentManager.healerClassSkill;
+                            //MainGameManager.instance.SceneManager.healerReady = equipmentManager.healerWeaponObject && equipmentManager.healerSecondWeaponObject && equipmentManager.healerClassSkill;
                             break;
                         default:
                             break;

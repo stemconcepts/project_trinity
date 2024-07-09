@@ -25,7 +25,6 @@ namespace Assets.scripts.Managers
         private bool useBackwardRoute;
         public bool lootAdded;
         public GameManager gameManager;
-        public AssetFinder assetFinder;
         public string currentRoom;
         public GameObject backButton;
         public GameObject inventoryHolder;
@@ -73,7 +72,6 @@ namespace Assets.scripts.Managers
         void Awake()
         {
             gameManager = gameObject.GetComponent<GameManager>();
-            assetFinder = gameObject.GetComponent<AssetFinder>();
         }
 
         void Start()
@@ -212,6 +210,25 @@ namespace Assets.scripts.Managers
                         }
                         r.id = $"room_detour_connector_{i}_{room.id}";
                         GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
+
+                        /*var direction = MainGameManager.instance.ReturnRandom(2);
+
+                        switch (direction)
+                        {
+                            case 0:
+                                GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
+                                break;
+                            case 1:
+                                GenerateRoomIcon(r, lineDirectionEnum.left, false, o.start.depth, o.start.masterDepth + 1);
+                                break;
+                            case 2:
+                                GenerateRoomIcon(r, lineDirectionEnum.right, false, o.start.depth, o.start.masterDepth + 1);
+                                break;
+                            default:
+                                GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
+                                break;
+                        }*/
+
                         r.roomIcon.SetDetourConnectorColour();
                         r.roomIcon.SetObjectName($"RoomIcon_Detour_Connector_Parent-{o.start.label}");
                         detourRooms.Add(r);
@@ -316,12 +333,31 @@ namespace Assets.scripts.Managers
                 mmc.masterDepth = masterDepth;
             }
             mmc.label = dr.gameObject.name;
-            if (direction == lineDirectionEnum.down && !isMainIcon)
+            if (!isMainIcon)
             {
                 Transform parentRoomTransform = dr.parentRoom.roomIcon.transform;
-                dr.parentRoom.roomIcon.ShowLine(lineDirectionEnum.down);
+                dr.parentRoom.roomIcon.ShowLine(direction);
                 mmc.ShowLine(direction);
                 roomIcon.transform.position = new Vector3(parentRoomTransform.position.x, parentRoomTransform.position.y - 0.4f);
+
+                /*float x = lineDirectionEnum.left == direction ? parentRoomTransform.position.x - 0.4f : parentRoomTransform.position.x + 0.4f;
+
+                switch (direction)
+                {
+                    case lineDirectionEnum.down:
+                        roomIcon.transform.position = new Vector3(parentRoomTransform.position.x, parentRoomTransform.position.y - 0.4f);
+                        break;
+                    case lineDirectionEnum.right:
+                        roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
+                        break;
+                    case lineDirectionEnum.left:
+                        roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
+                        break;
+                    case lineDirectionEnum.none:
+                        break;
+                    default:
+                        break;
+                }*/
             }
             else if (iconControllers.Count > 0)
             {

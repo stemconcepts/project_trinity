@@ -1,12 +1,5 @@
 fileFormatVersion: 2
 guid: 5c20484355ace984c9da7c4f1561e68f
-AssetOrigin:
-  serializedVersion: 1
-  productId: 159169
-  packageName: Modular Motion
-  packageVersion: 2.0
-  assetPath: Assets/ModularMotion/ModularEditor.dll
-  uploadId: 565545
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -74,3 +67,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159169
+  packageName: Modular Motion
+  packageVersion: 2.0
+  assetPath: Assets/ModularMotion/ModularEditor.dll
+  uploadId: 565545

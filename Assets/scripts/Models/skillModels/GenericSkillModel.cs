@@ -5,6 +5,10 @@ using UnityEngine;
 using System.Linq;
 using Assets.scripts.Models.skillModels.swapSkills;
 using Spine;
+using Unity.IO.Archive;
+using Assets.scripts.Helpers.Utility;
+using DG.Tweening.Core.Easing;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -43,10 +47,16 @@ namespace AssemblyCSharp
 
     public class GenericSkillModel : ScriptableObject
     {
-        public bool skillConfirm;
-
         [Header("Skill Details")]
-        public string skillName;
+        public bool skillConfirm;
+        public string skillName
+        {
+            get
+            {
+                return LabelConverter.ConvertCamelCaseToWord(this.name);
+            }
+            set{}
+        }
         [HideInInspector]
         public bool skillActive;
         public int skillCost;
@@ -62,8 +72,15 @@ namespace AssemblyCSharp
         public bool doesDamage;
         public bool movesToTarget;
         public bool healsDamage;
-        [Multiline]
+        [TextArea]
         public string skillDesc;
+        protected string descExtra
+        {
+            get
+            {
+                return GenerateDescriptionFromStatus();
+            }
+        }
         [ConditionalHide("movesToTarget", false, false)]
         public float attackMovementSpeed;
         [HideInInspector]
@@ -75,7 +92,6 @@ namespace AssemblyCSharp
         public int castTurnTime;
         [HideInInspector]
         public bool castTimeReady;
-        public int turnDuration = 4;
         public int skillCooldown = 1;
 
         [Header("Animation")]
@@ -86,12 +102,12 @@ namespace AssemblyCSharp
         public bool loopAnimation;
 
         [Header("Target Choices")]
-        public bool self;
+        public bool Self;
         public bool enemy;
         public bool friendly;
         public bool allFriendly;
         public bool allEnemy;
-        public bool targetAndSelf;
+        public bool ExcludeSelf;
         public bool summon;
 
         [Header("Sounds")]
@@ -107,7 +123,8 @@ namespace AssemblyCSharp
             None,
             Dispel,
             BonusDamage,
-            RunSkill
+            RunSkill,
+            TakeDmgFromCast
         }
         public List<CompatibleRow> compatibleRows;
         public enum CompatibleRow
@@ -128,10 +145,24 @@ namespace AssemblyCSharp
         }
         [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.RunSkill, false)]
         public GenericSkillModel ExtraSkillToRun;
+
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.Dispel, false)]
+        public StatusNameEnum targetStatusName;
+
         [ConditionalHide("bonusPrerequisite", (int)BonusPrerequisite.SubStatusExists, false)]
         public subStatus subStatus;
-        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.None, true)]
+
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.None == 0, false)]
         public float modifierAmount;
+
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.TakeDmgFromCast, false)]
+        public int DamageFromCastAmount;
+
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.TakeDmgFromCast, false)]
+        public elementType DamageFromCastElement;
+
+        [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.TakeDmgFromCast, false)] 
+        public bool DamageFromCastIsFlat;
 
         [Header("Reposition:")]
         [ConditionalHide("Reposition", (int)moveType.None == 0, true)]
@@ -156,14 +187,69 @@ namespace AssemblyCSharp
         [ConditionalHide("doesDamage")]
         public DamageColorEnum dmgTextColor;
 
-        [Header("Status Effects:")]
+        [Header("Self Status Effects:")]
+        [Tooltip("Will only affect performing character")]
+        public List<StatusItem> SelfStatusGroup = new List<StatusItem>();
+        [Header("Enemy Status Effects:")]
         public List<StatusItem> statusGroup = new List<StatusItem>();
-        //public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
-        //public bool statusDispellable = true;
         [Header("Friendly Status Effects:")]
+        [Tooltip("Will affect all friendly characters unless Exclude Self is ticked")]
         public List<StatusItem> statusGroupFriendly = new List<StatusItem>();
-        //public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
-        //public bool statusFriendlyDispellable = true;
+
+        public string GetExtraDesc()
+        {
+            return descExtra;
+        }
+
+        private string GenerateDescriptionFromStatus()
+        {
+            var finalDesc = "";
+
+            string DescFromStatuses(List<StatusItem> statuses, string prefix)
+            {
+                var desc = "";
+
+                statuses.ForEach(value =>
+                {
+                    var intensity = value.power > 0 ? $" with an intensity of <b><color=#ff7849>{value.power}</color></b>" : "";
+                    desc += $"{prefix} the <b>{LabelConverter.ConvertCamelCaseToWord(value.status.statusName.ToString())}</b> status. {value.status.statusDesc}{intensity}.";
+                    if (value.canStack)
+                    {
+                        var stackAmount = value.maxStacks > 0 ? value.maxStacks.ToString() : "infinity";
+                        desc += $" Can stack to a max stack of <b><color=#ff7849>{stackAmount}</color></b>";
+                    }
+                });
+
+                return desc;
+            }
+
+            if (SelfStatusGroup.Count > 0)
+            {
+                finalDesc += DescFromStatuses(SelfStatusGroup, "\nApply to yourself ");
+            }
+
+            if (statusGroup.Count > 0)
+            {
+                finalDesc += DescFromStatuses(statusGroup, "\nApply to enemies ");
+            }
+
+            if (statusGroupFriendly.Count > 0)
+            {
+                finalDesc += DescFromStatuses(statusGroupFriendly, "\nApply to friendly units ");
+            }
+
+            if (RepositionAmount > 0)
+            {
+                finalDesc += $"\nReposition yourself <b>{Reposition}</b> by <b>{RepositionAmount}</b> panel";
+            }
+
+            if (forcedMoveAmount > 0)
+            {
+                finalDesc += $"\nReposition an enemy <b>{forcedMove}</b> by <b>{forcedMoveAmount}</b> panel";
+            }
+
+            return finalDesc;
+        }
 
         public void AttachStatus(List<StatusItem> statusItems, BaseCharacterManagerGroup baseManager, GenericSkillModel skillModel)
         {
@@ -200,10 +286,11 @@ namespace AssemblyCSharp
             {
                 singleStatus = statusItem.status,
                 power = statusItem.power,
-                turnDuration = skillModel.turnDuration,
+                turnDuration = statusItem.duration, //skillModel.turnDuration,
                 baseManager = baseManager,
                 isFlat = statusItem.status.isFlat,
-                dmgTextColor = skillModel.dmgTextColor
+                dmgTextColor = skillModel.dmgTextColor,
+                triggerChance = statusItem.status.TriggerChance
             };
             sm.singleStatus.dispellable = statusItem.dispellable;
             baseManager.statusManager.RunStatusFunction(sm);
@@ -238,6 +325,9 @@ namespace AssemblyCSharp
                 case ExtraEffectEnum.RunSkill:
                     RunExtraSkill(data);
                     break;
+                case ExtraEffectEnum.TakeDmgFromCast:
+                    TakeDamageFromSkillCast(data);
+                    break;
             }
         }
 
@@ -256,8 +346,17 @@ namespace AssemblyCSharp
             }
         }
 
-        public void Dispel(SkillData data)
+        public void Dispel(SkillData data, StatusNameEnum? targetStatus = null)
         {
+            if (targetStatus != null && targetStatus != StatusNameEnum.None)
+            {
+                var statusToRemove = data.target.baseManager.statusManager.GetStatusIfExist((StatusNameEnum)targetStatus);
+                BattleManager.battleDetailsManager.RemoveLabel(statusToRemove);
+                statusToRemove.statusModel.turnOff = true;
+                data.target.baseManager.statusManager.RunStatusFunction(statusToRemove.statusModel);
+                return;
+            }
+
             var debuffPower = data.skillModel != null ? data.skillModel.skillPower : 0;
             var buffsRemoved = 0;
             foreach (StatusLabelModel activeStatus in data.target.baseManager.statusManager.GetAllStatusIfExist(true))
@@ -283,6 +382,31 @@ namespace AssemblyCSharp
                     useModifier = true;
                     return;
                 }
+            }
+        }
+
+        private void TakeDamageFromSkillCast(SkillData skillData)
+        {
+            if (skillData.skillModel != null)
+            {
+                skillData
+                    .caster
+                    .baseManager
+                    .damageManager
+                    .DoDamage(
+                        (int)skillData.skillModel.DamageFromCastAmount,
+                        skillData.caster.baseManager.characterManager, 
+                        isFlat: skillData.skillModel.DamageFromCastIsFlat);
+            } else if (skillData.enemySkillModel != null)
+            {
+                skillData
+                    .caster
+                    .baseManager
+                    .damageManager
+                    .DoDamage(
+                        (int)skillData.enemySkillModel.DamageFromCastAmount,
+                        skillData.caster.baseManager.characterManager,
+                        isFlat: skillData.enemySkillModel.DamageFromCastIsFlat);
             }
         }
 

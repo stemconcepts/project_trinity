@@ -7,9 +7,9 @@ namespace AssemblyCSharp
     [System.Serializable]
     public class CharacterData
     {
-        public weaponModel weapon;
-        public weaponModel secondWeapon;
-        public bauble bauble;
+        public WeaponModel weapon;
+        public WeaponModel secondWeapon;
+        public Bauble bauble;
         public SkillModel classSkill;
     }
 

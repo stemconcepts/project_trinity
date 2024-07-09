@@ -16,6 +16,7 @@ namespace AssemblyCSharp
         public GameObject formationMenu;
         public GameObject skillDesc;
         public GameObject itemDesc;
+        public GameObject GoToGame;
 
         public void ShowInventory()
 		{
@@ -157,8 +158,27 @@ namespace AssemblyCSharp
 			}
 		}
 
+        public void ShowGoToGame()
+        {
+            GoToGame.SetActive(
+                MainGameManager.instance.SceneManager.TeamReady()
+            );
+        }
+
 		public void Start()
 		{
-		}
+            MainGameManager.instance.GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.EquipmentReady);
+           //MainGameManager.instance.GenericEventManager.AddDelegateToEvent(GenericEventEnum.EquipmentReady, ShowGoToGame);
+        }
+
+        void Update()
+        {
+            if (GoToGame)
+            {
+                GoToGame.SetActive(
+                    MainGameManager.instance.SceneManager.TeamReady()
+                );
+            }
+        }
 	}
 }

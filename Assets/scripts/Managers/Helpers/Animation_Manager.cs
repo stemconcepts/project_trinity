@@ -4,7 +4,7 @@ using UnityEngine;
 using Spine.Unity;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Animations;
+//using UnityEditor.Animations;
 
 namespace AssemblyCSharp
 {

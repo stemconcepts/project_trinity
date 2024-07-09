@@ -10,16 +10,17 @@ namespace AssemblyCSharp
 {
     public class GameMessanger : MonoBehaviour
     {
+        public GameObject GameMessagePanel;
+        public GameObject GameBattleMessagePanel;
+
         GameObject GenerateDisplayPrefab(Transform parentObject)
         {
-            var displayBoxPrefab = MainGameManager.instance.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/GameMessagePanel.prefab");
-            return Instantiate(displayBoxPrefab, parentObject);
+            return Instantiate(GameMessagePanel, parentObject);
         }
 
         GameObject GenerateBattleDisplayPrefab(Transform parentObject)
         {
-            var displayBoxPrefab = MainGameManager.instance.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/GameBattleMessagePanel.prefab");
-            return Instantiate(displayBoxPrefab, parentObject);
+            return Instantiate(GameBattleMessagePanel, parentObject);
         }
 
         /// <summary>

@@ -12,24 +12,24 @@ namespace AssemblyCSharp
 	{
 		public CharacterInfoDisplayController characterInfoDisplayController;
 		public GameObject tankfirstSlot;
-        public weaponModel tankWeaponObject;
+        public WeaponModel tankWeaponObject;
         public GameObject tanksecondSlot;
-        public weaponModel tankSecondWeaponObject;
-		public bauble tankBaubleObject;
+        public WeaponModel tankSecondWeaponObject;
+		public Bauble tankBaubleObject;
 		public SkillModel tankClassSkill;
 
         public GameObject healerfirstSlot;
-        public weaponModel healerWeaponObject;
+        public WeaponModel healerWeaponObject;
         public GameObject healersecondSlot;
-        public weaponModel healerSecondWeaponObject;
-		public bauble healerBaubleObject;
+        public WeaponModel healerSecondWeaponObject;
+		public Bauble healerBaubleObject;
 		public SkillModel healerClassSkill;
 
         public GameObject dpsfirstSlot;
-        public weaponModel dpsWeaponObject;
+        public WeaponModel dpsWeaponObject;
         public GameObject dpssecondSlot;
-        public weaponModel dpsSecondWeaponObject;
-		public bauble dpsBaubleObject;
+        public WeaponModel dpsSecondWeaponObject;
+		public Bauble dpsBaubleObject;
 		public SkillModel dpsClassSkill;
 
         public EyeSkill eyeSkill;
@@ -76,18 +76,9 @@ namespace AssemblyCSharp
 
 		void Update()
 		{
-			if (tankWeaponObject && tankSecondWeaponObject && tankClassSkill != null)
-			{
-				MainGameManager.instance.SceneManager.tankReady = true;
-			}
-			if (healerWeaponObject && healerSecondWeaponObject && healerClassSkill != null)
-			{
-				MainGameManager.instance.SceneManager.healerReady = true;
-			}
-			if (dpsWeaponObject && dpsSecondWeaponObject && dpsClassSkill != null)
-			{
-				MainGameManager.instance.SceneManager.dpsReady = true;
-			}
+            MainGameManager.instance.SceneManager.tankReady = tankWeaponObject && tankSecondWeaponObject && tankClassSkill;
+            MainGameManager.instance.SceneManager.healerReady = healerWeaponObject && healerSecondWeaponObject && healerClassSkill;
+            MainGameManager.instance.SceneManager.dpsReady = dpsWeaponObject && dpsSecondWeaponObject && dpsClassSkill;
 		}
 	}
 }

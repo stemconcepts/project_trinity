@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Assets.scripts.Models.statusModels;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 { 
@@ -38,7 +39,7 @@ namespace AssemblyCSharp
             var turnType = BattleManager.TurnEnum.PlayerTurn;
             var targetDmgManager = autoAttackTarget ? autoAttackTarget.damageManager : null;
             if (targetDmgManager != null && (baseManager as CharacterManagerGroup).characterManager.characterModel.isAlive &&
-                (baseManager as CharacterManagerGroup).characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
+                (baseManager as CharacterManagerGroup).characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) &&
                 !baseManager.animationManager.inAnimation /*&& !baseManager.skillManager.isSkillactive*/ && (BattleManager.turn == turnType))
             {
                 isAttacking = true;
@@ -105,16 +106,18 @@ namespace AssemblyCSharp
                         BattleManager.battleDetailsManager.ShowDamageNumber(damageModel, extraInfo: "Miss");
                     } else
                     {
-                        targetDamageManager.TakeDmg<PlayerDamageModel>(damageModel as PlayerDamageModel, e.Data.Name);
+                        targetDamageManager.TakeDmg(damageModel as PlayerDamageModel, e.Data.Name);
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnDealingDmg);
                     }
-                    var eventModel = new EventModel
+                    /*var eventModel = new EventModel
                     {
-                        eventName = "OnDealingDmg",
+                        eventName = EventTriggerEnum.OnDealingDmg.ToString(),
                         extTarget = (autoAttackTarget as EnemyCharacterManagerGroup).characterManager,
                         eventCaller = (baseManager as CharacterManagerGroup).characterManager,
                         extraInfo = damageModel.damageTaken
                     };
-                    BattleManager.eventManager.BuildEvent(eventModel);
+                    BattleManager.eventManager.BuildEvent(eventModel);*/
+                    baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnAction);
                     targetDamageManager.autoAttackDmgModels.Remove(gameObject.name);
                 } else
                 {

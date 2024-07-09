@@ -147,6 +147,7 @@ namespace AssemblyCSharp
         void OnMouseUp()
         {
             EquipToClass(hoverControlScript.lastDraggedItem.GetComponent<skillItemBehaviour>().type);
+            MainGameManager.instance.GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.EquipmentReady);
         }
         public void OnMouseEnter()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,7 +35,7 @@ namespace AssemblyCSharp
 
         public void AddStacks(StatusLabelModel singleStatusLabel)
         {
-            var stackLabel = singleStatusLabel.gameObject.GetComponentInChildren<Text>();
+            var stackLabel = singleStatusLabel.gameObject.GetComponentInChildren<TextMeshPro>();
             stackLabel.text = singleStatusLabel.stacks < 1 ? "" : singleStatusLabel.stacks.ToString();
         }
 
@@ -45,10 +46,8 @@ namespace AssemblyCSharp
             var getprefab = live_object.GetComponent<StatusLabelModel>();
             var statusTransform = live_object.GetComponent<RectTransform>();
             statusTransform.localScale = new Vector3(1, 1, 1);
-            getprefab.buff = status.singleStatus.buff;
             getprefab.buffPower = status.power;
             getprefab.statusModel = status;
-            getprefab.statusname = status.singleStatus.name;
             getprefab.dispellable = status.singleStatus.dispellable;
         }
 
@@ -75,12 +74,12 @@ namespace AssemblyCSharp
         public void ShowDamageNumber(BaseDamageModel damageModel, string extraInfo = ""){
             Debug.Log($"ShowDamageNumber : damageModel : {damageModel != null}, baseManager : {damageModel.baseManager != null}");
 
-            GameObject charObject = damageModel?.baseManager.gameObject;
+            Transform charObject = damageModel?.baseManager.transform;
             if(charObject == null)
             {
                 return;
             }
-            var gameDetails = (GameObject)Instantiate(gameDetailsObject, new Vector2 (charObject.transform.position.x, charObject.transform.position.y + 6f ), charObject.transform.rotation);
+            var gameDetails = Instantiate(gameDetailsObject, new Vector2 (charObject.position.x, charObject.position.y + 6f ), charObject.rotation);
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.fontSize = damageModel.fontSize;
             damageData.textColor = damageModel.textColor;

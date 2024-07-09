@@ -3,92 +3,88 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.scripts.Models.statusModels;
+using TMPro;
 
 namespace AssemblyCSharp
 {
     [ExecuteInEditMode()]
-    public class StatusLabelModel : MonoBehaviour//, IPointerEnterHandler, IPointerExitHandler
+    public class StatusLabelModel : MonoBehaviour
     {
         public StatusModel statusModel;
-        public string statusname;
+        public StatusNameEnum statusName
+        {
+            get
+            {
+                return (StatusNameEnum)Enum.Parse(typeof(StatusNameEnum), this.statusModel.singleStatus.name);
+            }
+        }
         private Image boxcolor;
         public Sprite statusIcon;
         public int labelid;
         public int positionid;
-        public bool buff;
+        public bool buff
+        {
+            get
+            {
+                if (statusModel != null)
+                {
+                    return statusModel.singleStatus.buff;
+                }
+                return false;
+            }
+        }
         public float buffPower;
-        public int stacks = 1;
+        //public int stacks = 1;
+        public int _stacks = 1;
+        public int stacks
+        {
+            get => _stacks;
+            set
+            {
+                var statusSuffix = value > 1 ? $" x{value}" : "";
+                if (ToolTipController && !string.IsNullOrEmpty(ToolTipId))
+                {
+                    ToolTipController.EditToolTip(
+                        ToolTipId,
+                        $"{statusModel.singleStatus.displayName}{statusSuffix}");
+                }
+                _stacks = value;
+            }
+        }
         public SkillModel onHitSkillPlayer;
         public enemySkill onHitSkillEnemy;
-        //private GameObject liveStatusHoverObj;
-        //public Text statusName;
-        //public Text statusDesc;
         public LayoutElement layoutElement;
         public int characterWrapLimit;
         public bool dispellable;
         public void DestroyMe(){
             Destroy (gameObject);
-            /*if( liveStatusHoverObj ){
-                Destroy(liveStatusHoverObj);
-            }*/
         }
-        //public GameObject statusHoverObj;
         public Task tickTimer;
         public Task durationTimer;
+        public TextMeshPro StacksText;
+        private string ToolTipId;
+        private ToolTipTriggerController ToolTipController;
 
-        /*public void OnPointerEnter(PointerEventData eventData)
-        {
-
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-
-        }*/
-
-        /*public void OnMouseEnter(){
-                liveStatusHoverObj = (GameObject)Instantiate(statusHoverObj, BattleManager.tooltipCanvas.transform);
-                var statusName = liveStatusHoverObj.transform.Find("statusName").GetComponent<Text>();
-                var statusDesc = liveStatusHoverObj.transform.Find("statusDesc").GetComponent<Text>();
-                layoutElement = liveStatusHoverObj.GetComponent<LayoutElement>();
-                liveStatusHoverObj.transform.SetParent(BattleManager.tooltipCanvas.transform);
-                liveStatusHoverObj.transform.localScale = new Vector3(1f, 1f, 1f);
-                var substatusName = statusModel.singleStatus.subStatus != null ? "<i>(" + statusModel.singleStatus.subStatus.subStatusLabel + ")</i>" : "";
-                statusName.text = "<b>" + statusModel.singleStatus.displayName + " " + substatusName + "</b>";
-                statusDesc.text = statusModel.singleStatus.statusDesc;
-                int headerLength = statusName.text.Length;
-                int contentLength = statusDesc.text.Length;
-                layoutElement.enabled = (headerLength > characterWrapLimit || contentLength > characterWrapLimit) ? true : false;
-        }
-
-        public void OnMouseExit(){
-            Destroy(liveStatusHoverObj);
-        }*/
-    
         // Use this for initialization
-        void Start () {
+        private void Start () {
     
             this.transform.localScale = new Vector3(1.8f,1.8f,1.8f);
     
             boxcolor = GetComponent<Image>();
     
-            //buffs
-            if( statusModel != null && statusModel.singleStatus.buff ){
-                buff = true;
-            } else {
-                buff = false;
-            }
-    
             if( buff ){
                 boxcolor.color = new Color32(185, 233, 0, 255);
+                StacksText.color = new Color32(0, 63, 236, 255);
             } else {
                 boxcolor.color = Color.red;
+                StacksText.color = Color.white;
             }
 
-            var tooltipController = gameObject.GetComponent<ToolTipTriggerController>();
-            tooltipController.AddtoolTip(
-                statusModel.singleStatus.name, 
-                statusModel.singleStatus.displayName, 
+            ToolTipController = gameObject.GetComponent<ToolTipTriggerController>();
+            ToolTipId = ToolTipController.AddtoolTip(
+                $"{statusModel.singleStatus.name}", 
+                $"{statusModel.singleStatus.displayName}", 
                 statusModel.singleStatus.statusDesc);
 
         }

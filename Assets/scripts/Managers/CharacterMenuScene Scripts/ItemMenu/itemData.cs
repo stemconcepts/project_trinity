@@ -9,8 +9,8 @@ namespace AssemblyCSharp
 	{
 		public string skillName;
 		public string displayName;
-		[Multiline]
-		public string skillDetails;
+        [TextArea]
+        public string skillDetails;
 		public string skillCost;
 	}
 
@@ -19,8 +19,8 @@ namespace AssemblyCSharp
 	{
 		public string itemName;
 		public string displayName;
-		[Multiline]
-		public string itemDetails;
+        [TextArea]
+        public string itemDetails;
 		public enum itemQuality
 		{
 			Common,

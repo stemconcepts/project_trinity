@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using static AssemblyCSharp.GenericSkillModel;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -32,7 +32,7 @@ namespace AssemblyCSharp
                     remainingAbsorbed : baseManager.characterManager.characterModel.absorbPoints;
                 if (remainingAbsorbed < 0)
                 {
-                    damageModel.damageTaken = Math.Abs(remainingAbsorbed);
+                    damageModel.damageTaken = (float)Math.Abs(Math.Ceiling(remainingAbsorbed));
                     baseManager.characterManager.characterModel.Health -= damageModel.damageTaken;
                     battleDetailsManager.getDmg(damageModel);
                 } else
@@ -45,7 +45,7 @@ namespace AssemblyCSharp
             else if (baseManager.characterManager.characterModel.blockPoints > 0)
             {
                 baseManager.characterManager.characterModel.blockPoints -= 1f;
-                var damageBlocked = damageModel.damageTaken * 0.25f;
+                var damageBlocked = damageModel.damageTaken * 0.5f;
                 damageModel.damageTaken -= damageBlocked;
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
                 battleDetailsManager.getDmg(damageModel, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>");
@@ -65,13 +65,13 @@ namespace AssemblyCSharp
                 baseManager.animationManager.PlayAddAnimation(baseManager.animationManager.idleAnimation.ToString(), true, 0);
             }
             //if tumor on player
-            if (baseManager.statusManager.DoesStatusExist("tumor") && damageModel.dmgSource != null)
+            if (baseManager.statusManager.DoesStatusExist(StatusNameEnum.Tumor) && damageModel.dmgSource != null)
             {
-                var tumor = baseManager.statusManager.GetStatusIfExist("tumor");
+                var tumor = baseManager.statusManager.GetStatusIfExist(StatusNameEnum.Tumor);
                 tumor.buffPower += damageModel.damageTaken * 0.60f;
             }
             //if thorns on player
-            if (baseManager.statusManager.DoesStatusExist("thorns") && damageModel.dmgSource != null)
+            if (baseManager.statusManager.DoesStatusExist(StatusNameEnum.Thorns) && damageModel.dmgSource != null)
             {
                 var sourceCalDmg = damageModel.dmgSource.baseManager.damageManager;
                 var thornsDmgModel = new BaseDamageModel(){
@@ -83,25 +83,7 @@ namespace AssemblyCSharp
                 sourceCalDmg.calculatedamage(thornsDmgModel);
             }
 
-            //if On hit
-            if (baseManager.statusManager.DoesStatusExist("onHit"))
-            {
-                var onHitSkill = baseManager.statusManager.GetStatusIfExist("onHit");
-                if (baseManager.characterManager.characterModel.characterType == CharacterModel.CharacterTypeEnum.enemy)
-                {
-                    //enemySkillScript.PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillEnemy );
-                }
-                else
-                {
-                    //this.GetComponent<enemySkillSelection>().PrepSkill( characterScript.role, 0, onHitSkill.onHitSkillPlayer );
-                }
-            }
-            var eventModel = new EventModel{
-                eventName = "OnTakingDmg",
-                extTarget = damageModel.dmgSource,
-                eventCaller = baseManager.characterManager
-            };
-            BattleManager.eventManager.BuildEvent(eventModel);
+            baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnTakingDmg);
         }
 
         void PlayDamagedSounds()
@@ -112,13 +94,28 @@ namespace AssemblyCSharp
             }
         }
 
-        public float GetValueAfterResist(float incomingDmg, float resistance)
+        public (float damage, float resisted) GetValueAfterResist(float incomingDmg, float resistance)
         {
-            return incomingDmg - (incomingDmg * resistance);
+            var resisted = (float)Math.Abs(Math.Ceiling(resistance * incomingDmg));
+            return (damage : (float)Math.Abs(incomingDmg - resisted), resisted : resisted);
+        }
+
+        float GetDefenceValue(bool isMagicDmg)
+        {
+            var defences = isMagicDmg ? baseManager.characterManager.characterModel.MDef : baseManager.characterManager.characterModel.PDef;
+            return (defences + BattleManager.DefenceConstant) / BattleManager.DefenceConstant;
+        }
+
+        public float GetValueAfterDefence(float incomingDmg, bool isMagicDmg)
+        {
+            return (float)Math.Abs(
+                    Math.Ceiling(incomingDmg / GetDefenceValue(isMagicDmg))
+                );
         }
 
         public void calculatedamage(BaseDamageModel damageModel)
         {
+            damageModel.baseManager = damageModel.baseManager ?? this.baseManager;
             if (damageModel.skillModel != null)
             {
                 damageModel.skillSource = damageModel.skillModel != null ? damageModel.skillModel.skillName : damageModel.skillSource;
@@ -129,13 +126,27 @@ namespace AssemblyCSharp
 
             if (baseManager != null)
             {
-                var defences = damageModel.isMagicDmg ? baseManager.characterManager.characterModel.MDef : baseManager.characterManager.characterModel.PDef;
-                var resistance = damageModel.element != elementType.none ? baseManager.characterManager.GetResistanceValue(damageModel.element.ToString()) : 0;
-                var damageTaken = (damageModel.incomingDmg - defences) < 0 ? 0 : damageModel.incomingDmg - defences;
-                damageTaken = BattleManager.gameManager.GetChance((int)baseManager.characterManager.characterModel.Accuracy) ? damageTaken + baseManager.characterManager.characterModel.piercing : damageTaken;
-                var elementDamageTaken = GetValueAfterResist(damageModel.incomingDmg, resistance) < 0 ? 0 : GetValueAfterResist(damageModel.incomingDmg, resistance);
-                damageModel.damageTaken = damageModel.element != elementType.none ? elementDamageTaken : damageTaken;
-                if (baseManager.statusManager.DoesStatusExist("damageImmune"))
+                if (damageModel.element == elementType.trueDmg)
+                {
+                    damageModel.damageTaken = damageModel.incomingDmg;
+                } else
+                {
+                    var resistance = damageModel.element != elementType.none ? baseManager.characterManager.GetResistanceValue(damageModel.element.ToString()) : 0;
+                    var damageTaken = GetValueAfterDefence(damageModel.incomingDmg, damageModel.isMagicDmg);
+
+                    //Remove additional damage based off resistance
+                    if (damageModel.element != elementType.none)
+                    {
+                        var result = GetValueAfterResist(damageTaken, resistance);
+                        damageModel.showExtraInfo = true;
+                        damageModel.skillSource = $": {result.resisted} Resisted";
+                        damageTaken = result.damage;
+                    }
+
+                    damageModel.damageTaken = damageTaken;
+                }
+
+                if (baseManager.statusManager.DoesStatusExist(StatusNameEnum.DamageImmune))
                 {
                     battleDetailsManager.Immune(damageModel);
                 }
@@ -146,26 +157,18 @@ namespace AssemblyCSharp
                         baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
 
                         //if tumor on player
-                        if (baseManager.statusManager.DoesStatusExist("tumor"))
+                        if (baseManager.statusManager.DoesStatusExist(StatusNameEnum.Tumor))
                         {
-                            var tumor = baseManager.statusManager.GetStatusIfExist("tumor");
+                            var tumor = baseManager.statusManager.GetStatusIfExist(StatusNameEnum.Tumor);
                             tumor.buffPower += damageModel.damageTaken * 0.70f;
                         }
 
                         //Used for immediate effects
-                        if(damageModel.damageImmidiately) battleDetailsManager.getDmg(damageModel, damageModel.showExtraInfo ? damageModel.skillSource : "");
+                        if (damageModel.damageImmidiately)
+                        {
+                            battleDetailsManager.getDmg(damageModel, damageModel.showExtraInfo ? damageModel.skillSource : "");
+                        }
                     }
-                   /* else
-                    {
-                        if (damageModel.skillModel != null)
-                        {
-                            damageModel.customHitFX = damageModel.skillModel.hitEffect;
-                        }
-                        if (damageModel.enemySkillModel != null)
-                        {
-                            damageModel.customHitFX = damageModel.enemySkillModel.hitEffect;
-                        }
-                    }*/
                 }
             }
         }
@@ -221,15 +224,25 @@ namespace AssemblyCSharp
             {
                 baseManager.characterManager.characterModel.Health += damageModel.incomingHeal;
                 battleDetailsManager.getHeal(damageModel);
+
+                /*var eventModel = new EventModel
+                {
+                    eventName = EventTriggerEnum.OnHeal.ToString(),
+                    extTarget = baseManager.characterManager,
+                    eventCaller = baseManager.characterManager
+                };
+                BattleManager.eventManager.BuildEvent(eventModel);*/
+                baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnHeal);
             }
         }
 
-        public void DoDamage(int damage, BaseCharacterManager target, GenericSkillModel skill = null, bool isMagic = false)
+        public void DoDamage(int damage, BaseCharacterManager target, GenericSkillModel skill = null, bool isMagic = false, bool isFlat = false)
         {
             var dmgModel = new BaseDamageModel()
             {
                 baseManager = baseManager,
-                incomingDmg = damage,
+                incomingDmg = !isFlat ? damage : 0,
+                flatDmgTaken = isFlat ? damage : 0,
                 enemySkillModel = skill ? (typeof(enemySkill) == skill.GetType() ? (enemySkill)skill : null) : null,
                 skillModel = skill ? (typeof(SkillModel) == skill.GetType() ? (SkillModel)skill : null) : null,
                 dmgSource = baseManager.characterManager,
@@ -239,7 +252,13 @@ namespace AssemblyCSharp
                 damageImmidiately = true,
                 isMagicDmg = isMagic
             };
-            calculatedamage(dmgModel);
+            if (isFlat)
+            {
+                calculateFlatDmg(dmgModel);
+            } else
+            {
+                calculatedamage(dmgModel);
+            }
         }
     }
 }

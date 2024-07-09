@@ -18,10 +18,28 @@ namespace Assets.scripts.Managers.Crafting.Recipes
     public class Recipe : ScriptableObject
     {
         public MixMode mixMode;
+        public bool Discovered;
         public ItemBase requiredItem1;
         public ItemBase requiredItem2;
         public ItemBase requiredItem3;
         public CraftingCatalyst requiredCatalyst;
         public List<ItemBase> results = new List<ItemBase>();
+
+        public void SetDiscovered()
+        {
+            this.Discovered = true;
+        }
+
+        public List<ItemBase> GetRequiredItemList()
+        {
+            var items = new List<ItemBase>()
+                {
+                    requiredItem1, 
+                    requiredItem2, 
+                    requiredItem3
+                }.OrderBy(i => i == null).ToList();
+            items.RemoveAll(i => i == null);
+            return items;
+        }
     }
 }

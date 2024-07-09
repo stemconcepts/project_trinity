@@ -2,21 +2,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor;
 using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using Assets.scripts.Managers;
 using System;
 using static AssemblyCSharp.PanelsManager;
+using Assets.scripts.Helpers.Assets;
 
 namespace AssemblyCSharp
 {
     public class MainGameManager : MonoBehaviour
     {
-        bool showTutorial = false;
-        [HideInInspector]
-        public AssetFinder assetFinder;
+        bool ShowTutorial = false;
+        bool ShowDialogue = false;
+
+        public GenericEventManager<GenericEventEnum> GenericEventManager = new GenericEventManager<GenericEventEnum>();
+
+        public ItemFinder ItemFinder;
+        public SkillFinder SkillFinder;
+        public EquipmentFinder EquipmentFinder;
+        public StatusFinder StatusFinder;
+
         public sceneManager SceneManager;
         public Sound_Manager soundManager;
         public Canvas GlobalCanvas;
@@ -130,7 +137,7 @@ namespace AssemblyCSharp
         public void ContinueGame()
         {
             //var health = GetStartingHealth();
-            //SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(health["guardian"], health["stalker"], health["walker"]);
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(50, 40, 35);
             if (SceneManager.TeamReady())
             {
                 //SavedDataManager.SavedDataManagerInstance.ResetDungeonData();
@@ -158,19 +165,19 @@ namespace AssemblyCSharp
             PlayerData playerData = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
             if (playerData != null)
             {
-                SceneManager.tankReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.weapon &&
+                /*SceneManager.tankReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.weapon &&
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.classSkill;
                 SceneManager.dpsReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.weapon &&
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.classSkill;
                 SceneManager.healerReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.weapon &&
-                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill;
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill;*/
             }
         }
 
         public bool ShowTutorialText(string tutorial)
         {
             var selectedTutorial = TutorialsShown[tutorial];
-            var show = showTutorial && !selectedTutorial;
+            var show = ShowTutorial && !selectedTutorial;
             if (show)
             {
                 TutorialsShown[tutorial] = true;

@@ -1,12 +1,5 @@
 fileFormatVersion: 2
 guid: b3fba48c4f8ed2441910c336b04b248c
-AssetOrigin:
-  serializedVersion: 1
-  productId: 159169
-  packageName: Modular Motion
-  packageVersion: 2.0
-  assetPath: Assets/ModularMotion/ModularMotion.dll
-  uploadId: 565545
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -23,7 +16,7 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        Exclude Editor: 1
+        Exclude Editor: 0
         Exclude Linux64: 0
         Exclude OSXUniversal: 0
         Exclude Win: 0
@@ -36,7 +29,7 @@ PluginImporter:
   - first:
       Editor: Editor
     second:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
         DefaultValueInitialized: true
@@ -74,3 +67,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 159169
+  packageName: Modular Motion
+  packageVersion: 2.0
+  assetPath: Assets/ModularMotion/ModularMotion.dll
+  uploadId: 565545

@@ -6,20 +6,41 @@ using DG.Tweening.Core.Easing;
 using Assets.scripts.Models.skillModels.swapSkills;
 using System.Collections.Generic;
 using Spine;
-using UnityEditor.MPE;
 
 namespace AssemblyCSharp
 {
     public class GearSwapManager : MonoBehaviour
     {
-        public bool swapReady = true;
-        public float gearSwapTime = 10f;
+        private float GearSwapPoints = 100f;
+        public float GearSwapPointMin = 100f;
         public GameObject choiceHolder;
         public GameObject corruptionReadyEffect;
         public List<AudioClip> corruptionReadySound;
+        public Image GearSwapPointsUI;
+
+        private bool CanWeaponSwap()
+        {
+            return GearSwapPoints >= GearSwapPointMin;
+        }
+
+        public void AddGearSwapPoints(int value)
+        {
+            if (GearSwapPoints < 100)
+            {
+                GearSwapPoints += value;
+                if (GearSwapPoints > 100)
+                {
+                    GearSwapPoints = 100;
+                }
+            }
+        }
 
         public void CheckCurroptionAndRun()
         {
+            if (!CanWeaponSwap())
+            {
+                return;
+            }
             if (BattleManager.eyeSkill != null && BattleManager.eyeSkill.curroptionRequired <= MainGameManager.instance.exploreManager.GetCurroption())
             {
                 ShowChoices();
@@ -48,11 +69,11 @@ namespace AssemblyCSharp
                 power = curroptionAmount * 1.2f;
             }
             DealHealDmg(skill, GetTargets(skill), power);
-            var eM = new EventModel()
+            /*var eM = new EventModel()
             {
-                eventName = "OnEyeSkillCast"
+                eventName = EventTriggerEnum.OnEyeSkillCast.ToString()
             };
-            BattleManager.eventManager.BuildEvent(eM);
+            BattleManager.eventManager.BuildEvent(eM);*/
             SwapGear();
             choiceHolder.SetActive(false);
             MainGameManager.instance.exploreManager.ResetCurroption();
@@ -174,7 +195,7 @@ namespace AssemblyCSharp
         {
             //var skillactive = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
             var isAttacking = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
-            if (swapReady /*&& !skillactive*/ && !isAttacking && BattleManager.battleStarted && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
+            if (!isAttacking && BattleManager.battleStarted && BattleManager.turn == BattleManager.TurnEnum.PlayerTurn)
             {
                 var allRoles = BattleManager.characterSelectManager.friendlyCharacters;
                 for (int i = 0; i < allRoles.Count; i++)
@@ -201,8 +222,7 @@ namespace AssemblyCSharp
                     BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<CharacterInteractionManager>().DisplaySkills();
                 }
                 CheckGearType();
-                swapReady = false;
-                GearSwapTimer(gearSwapTime);
+                ResetGearSwapPoints();
                 MainGameManager.instance.soundManager.playSound("gearSwapSound");
             }
             else
@@ -216,12 +236,13 @@ namespace AssemblyCSharp
             }*/
         }
 
-        void GearSwapTimer(float time)
+        void ResetGearSwapPoints()
         {
-            BattleManager.taskManager.CallTask(time, () =>
+            GearSwapPoints =- GearSwapPointMin;
+            if (GearSwapPoints < 0)
             {
-                swapReady = true;
-            });
+                GearSwapPoints = 0;
+            }
             //Battle_Manager.soundManager.playSound("gearSwapReady");
         }
 
@@ -234,7 +255,7 @@ namespace AssemblyCSharp
                 var playerSkeletonAnim = bm.animationManager;
                 var currentWSlot = (PlayerSkillManager)bm.skillManager;
                 var weaponType = currentWSlot.weaponSlot == PlayerSkillManager.weaponSlotEnum.Main ? currentWeaponData.primaryWeapon : currentWeaponData.secondaryWeapon;
-                if (weaponType.type != weaponModel.weaponType.heavyHanded && weaponType.type != weaponModel.weaponType.cursedGlove && weaponType.type != weaponModel.weaponType.clawAndCannon)
+                if (weaponType.type != WeaponModel.weaponType.heavyHanded && weaponType.type != WeaponModel.weaponType.cursedGlove && weaponType.type != WeaponModel.weaponType.clawAndCannon)
                 {
                     if (playerRole.name == "Stalker")
                     {
@@ -276,6 +297,10 @@ namespace AssemblyCSharp
 
         void Update()
         {
+            if (GearSwapPointsUI)
+            {
+                GearSwapPointsUI.fillAmount = GearSwapPoints / 100;
+            }
             /*var skillactive = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.skillManager.isSkillactive);
             var isAttacking = BattleManager.characterSelectManager.friendlyCharacters.Any(x => x.baseManager.autoAttackManager.isAttacking);
             if (!swapReady || skillactive || isAttacking)

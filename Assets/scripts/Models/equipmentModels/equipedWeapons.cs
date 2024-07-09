@@ -5,8 +5,8 @@ namespace AssemblyCSharp
 {
 	public class equipedWeapons : MonoBehaviour
 	{
-		public weaponModel primaryWeapon;
-		public weaponModel secondaryWeapon;
+		public WeaponModel primaryWeapon;
+		public WeaponModel secondaryWeapon;
 		public SkillModel classSkill;
 		//private skill_effects skillEffectScript;
 		public currentWeapon currentWeaponEnum;

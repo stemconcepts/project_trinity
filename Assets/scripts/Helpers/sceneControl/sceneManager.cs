@@ -44,7 +44,7 @@ namespace AssemblyCSharp
             }
 			if (mode == LoadSceneMode.Additive)
 			{
-				MainGameManager.instance.exploreManager.explorerCamera.gameObject.SetActive(false);
+				MainGameManager.instance.exploreManager?.explorerCamera.gameObject.SetActive(false);
 				MainGameManager.instance.SaveScene(scene.name);
 			} else
 			{
@@ -80,8 +80,11 @@ namespace AssemblyCSharp
 
 		public void LoadScene(string sceneName, bool additive)
         {
-			SceneManager.LoadScene(sceneName, additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
-			MainGameManager.instance.SaveScene(sceneName);
+            MainGameManager.instance.gameEffectManager.TransitionToScene(battleTransition, 1f, () => {
+                SceneManager.LoadScene(sceneName, additive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+                //MainGameManager.instance.soundManager.ChangeMainMusicTrack(MainGameManager.instance.TutorialExploreTrack);
+                MainGameManager.instance.SaveScene(sceneName);
+            });
 		}
 
         public void UnLoadScene(string sceneName)
@@ -104,7 +107,7 @@ namespace AssemblyCSharp
 
 		public bool TeamReady()
         {
-			return tankReady && healerReady && dpsReady;
+            return tankReady && healerReady && dpsReady;
 		}
 
 		public void LoadBattle(List<GameObject> enemies, StatusModel[] playerStatuses = null, StatusModel[] enemyStatuses = null)

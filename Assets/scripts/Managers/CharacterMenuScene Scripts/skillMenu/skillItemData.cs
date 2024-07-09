@@ -9,8 +9,8 @@ namespace AssemblyCSharp
 	{
 		public string skillName;
 		public string displayName;
-		[Multiline]
-		public string skillDetails;
+        [TextArea]
+        public string skillDetails;
 		public string skillCost;
 		public enum skillQuality
 		{

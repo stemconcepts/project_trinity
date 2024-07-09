@@ -55,7 +55,7 @@ namespace Assets.scripts.Managers.Crafting
         /// Add item to crafting combination list
         /// </summary>
         /// <param name="item"></param>
-        void AddToCraftingCombination(ItemBase item)
+        public void AddToCraftingCombination(ItemBase item)
         {
             itemCombinationToCraft.Add(item);
         }
@@ -127,14 +127,16 @@ namespace Assets.scripts.Managers.Crafting
                         case MixMode.requiresAllOf:
                             itemCombinationToCraft.ForEach(itemBase =>
                             {
-                                var fieldItem = fieldItems.FindAll(f => f.GetComponent<ExplorerItemsController>().itemBase == itemBase);
-                                fieldItem.ForEach(itemGameObject =>
+                                var fieldItem = fieldItems.FirstOrDefault(f => f.GetComponent<ExplorerItemsController>().itemBase == itemBase);
+                                //fieldItem.ForEach(itemGameObject =>
+                                //{
+                                if (fieldItem)
                                 {
-                                    var explorerController = itemGameObject.GetComponent<ExplorerItemsController>();
+                                    var explorerController = fieldItem.GetComponent<ExplorerItemsController>();
                                     if (explorerController.total <= 1)
                                     {
-                                        fieldItems.Remove(itemGameObject);
-                                        Destroy(itemGameObject);
+                                        fieldItems.Remove(fieldItem);
+                                        Destroy(fieldItem);
                                         return;
                                     }
                                     else
@@ -142,7 +144,8 @@ namespace Assets.scripts.Managers.Crafting
                                         --explorerController.total;
                                         return;
                                     }
-                                });
+                                }   
+                                //});
                             });
                             break;
                         case MixMode.requiresAnyOf:

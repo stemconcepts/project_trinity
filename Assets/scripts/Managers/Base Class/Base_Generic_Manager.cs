@@ -14,7 +14,6 @@ namespace AssemblyCSharp
         public Game_Effects_Manager GameEffectsManager;
         public Event_Manager EventManager;
         public sceneManager SceneManager;
-        public AssetFinder AssetFinder;
         public SavedDataManager SavedDataManager;
         //public SavedDataManager SavedDataManager;
         public Character_Select_Manager characterSelectManager;
@@ -34,7 +33,6 @@ namespace AssemblyCSharp
             GameEffectsManager = gameObject.GetComponent<Game_Effects_Manager>();
             EventManager = gameObject.GetComponent<Event_Manager>();
             BattleManager = gameObject.GetComponent<BattleManager>();
-            AssetFinder = gameObject.GetComponent<AssetFinder>();
             SceneManager = gameObject.GetComponent<sceneManager>();
         }
     }

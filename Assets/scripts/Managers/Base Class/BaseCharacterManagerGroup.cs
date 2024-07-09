@@ -4,7 +4,6 @@ using UnityEngine;
 namespace AssemblyCSharp
 {
     public class BaseCharacterManagerGroup : MonoBehaviour
-        //where TCharModel : Base_Character_Model where TManagerGrp : Base_Character_Manager_Group<TCharModel, TManagerGrp>
     {
         public BaseCharacterManager characterManager;
         public StatusManager statusManager;
@@ -14,8 +13,8 @@ namespace AssemblyCSharp
         public BaseDamageManager damageManager;
         public EquipmentManager equipmentManager;
         public BaseSkillManager skillManager;
+        public EventManagerV2 EventManagerV2;
         public BaseAutoAttackManager autoAttackManager;
-        //public Auto_Attack_Manager<TCharModel, TManagerGrp, Base_Character_Model, Base_Character_Manager_Group<TCharModel, TManagerGrp>> autoAttackManager;
         public CharacterInteractionManager characterInteractionManager;
     }
 }

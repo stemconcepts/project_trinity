@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEditor;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -42,15 +41,26 @@ namespace AssemblyCSharp
             toolTipList = new List<ToolTipItem>();
         }
 
-        public void AddtoolTip(string id, string title, string desc)
+        public void EditToolTip(string id, string title = null, string desc = null)
         {
-            var t = new ToolTipItem()
+            var relevantToolTip = toolTipList.Find(tooltip => tooltip.id == id);
+            if (relevantToolTip != null)
             {
-                id = id,
+                relevantToolTip.toolTipName = title ?? relevantToolTip.toolTipName;
+                relevantToolTip.toolTipDesc = desc ?? relevantToolTip.toolTipDesc;
+            }
+        }
+
+        public string AddtoolTip(string id, string title, string desc)
+        {
+            var tooltip = new ToolTipItem()
+            {
+                id = $"{id}_{toolTipList.Count}",
                 toolTipName = title,
                 toolTipDesc = desc
             };
-            toolTipList.Add(t);
+            toolTipList.Add(tooltip);
+            return tooltip.id;
         }
 
         void GenerateToolTips()
@@ -90,7 +100,7 @@ namespace AssemblyCSharp
             });
         }
 
-        public void OnMouseExit()
+        void OnMouseExit()
         {
             DestroyAllToolTips();
         }
@@ -100,10 +110,15 @@ namespace AssemblyCSharp
             DestroyAllToolTips();
         }
 
+        /*void OnDestroy()
+        {
+            DestroyAllToolTips();
+        }*/
+
         // Use this for initialization
         void Start()
         {
-            hoverObj = MainGameManager.instance.exploreManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/helpers/tooltipHoverObject.prefab");
+            hoverObj = MainGameManager.instance.ItemFinder.ToolTipItem;
             hoverObj.GetComponent<ToolTipBehaviour>().canvas = MainGameManager.instance.tooltipManager.canvasTooltip.GetComponent<RectTransform>();
         }
 

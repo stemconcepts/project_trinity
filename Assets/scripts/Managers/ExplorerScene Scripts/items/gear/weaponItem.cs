@@ -5,7 +5,7 @@ namespace AssemblyCSharp
 {
     public class weaponItem : ItemBase
     {
-        public weaponModel weapon;
+        public WeaponModel weapon;
 
         public void SetGearData()
         {
@@ -14,22 +14,22 @@ namespace AssemblyCSharp
             quality = weapon.quality;
             switch (weapon.type)
             {
-                case weaponModel.weaponType.bladeAndBoard:
+                case WeaponModel.weaponType.bladeAndBoard:
                     classReq = classRestriction.Guardian;
                     break;
-                case weaponModel.weaponType.heavyHanded:
+                case WeaponModel.weaponType.heavyHanded:
                     classReq = classRestriction.Guardian;
                     break;
-                case weaponModel.weaponType.dualBlades:
+                case WeaponModel.weaponType.dualBlades:
                     classReq = classRestriction.Stalker;
                     break;
-                case weaponModel.weaponType.clawAndCannon:
+                case WeaponModel.weaponType.clawAndCannon:
                     classReq = classRestriction.Stalker;
                     break;
-                case weaponModel.weaponType.glove:
+                case WeaponModel.weaponType.glove:
                     classReq = classRestriction.Walker;
                     break;
-                case weaponModel.weaponType.cursedGlove:
+                case WeaponModel.weaponType.cursedGlove:
                     classReq = classRestriction.Walker;
                     break;
                 default:

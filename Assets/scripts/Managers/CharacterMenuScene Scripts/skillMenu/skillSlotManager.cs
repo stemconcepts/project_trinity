@@ -12,7 +12,6 @@ namespace AssemblyCSharp
         public GameObject slotPrefab;
         public GameObject skillPrefab;
         public int slotAmount;
-        AssetFinder assetFinder;
         public GameObject tankEquipSlot;
         public GameObject dpsEquipSlot;
         public GameObject healerEquipSlot;
@@ -78,9 +77,7 @@ namespace AssemblyCSharp
         // Use this for initialization
         void Awake()
         {
-            assetFinder = MainGameManager.instance.assetFinder;
-            var allSkills = assetFinder.GetAllSkills();
-
+            var allSkills = MainGameManager.instance.SkillFinder.GetAllSkills(true);
             for (int i = 0; i < allSkills.Count; i++)
             {
                 if (allSkills[i].learned)

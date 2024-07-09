@@ -36,13 +36,14 @@ namespace AssemblyCSharp
                 case frontPanelNum:
                     if (!isInFrontRow)
                     {
-                        var eventModelFront = new EventModel
+                        /*var eventModelFront = new EventModel
                         {
-                            eventName = "OnFirstRow",
+                            eventName = EventTriggerEnum.OnFirstRow.ToString(),
                             extTarget = baseManager.characterManager,
                             eventCaller = baseManager.characterManager
                         };
-                        BattleManager.eventManager.BuildEvent(eventModelFront);
+                        BattleManager.eventManager.BuildEvent(eventModelFront);*/
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnFirstRow);
                     }
                     isInBackRow = false;
                     isInMiddleRow = false;
@@ -51,13 +52,14 @@ namespace AssemblyCSharp
                 case 1:
                     if (!isInMiddleRow)
                     {
-                        var eventModelMiddle = new EventModel
+                        /*var eventModelMiddle = new EventModel
                         {
-                            eventName = "OnMiddleRow",
+                            eventName = EventTriggerEnum.OnMiddleRow.ToString(),
                             extTarget = baseManager.characterManager,
                             eventCaller = baseManager.characterManager
                         };
-                        BattleManager.eventManager.BuildEvent(eventModelMiddle);
+                        BattleManager.eventManager.BuildEvent(eventModelMiddle);*/
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnMiddleRow);
                     }
                     isInBackRow = false;
                     isInMiddleRow = true;
@@ -66,13 +68,14 @@ namespace AssemblyCSharp
                 case backPanelNum:
                     if (!isInBackRow)
                     {
-                        var eventModelBack = new EventModel
+                       /* var eventModelBack = new EventModel
                         {
-                            eventName = "OnLastRow",
+                            eventName = EventTriggerEnum.OnLastRow.ToString(),
                             extTarget = baseManager.characterManager,
                             eventCaller = baseManager.characterManager
                         };
-                        BattleManager.eventManager.BuildEvent(eventModelBack);
+                        BattleManager.eventManager.BuildEvent(eventModelBack);*/
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnLastRow);
                     }
                     isInBackRow = true;
                     isInMiddleRow = false;

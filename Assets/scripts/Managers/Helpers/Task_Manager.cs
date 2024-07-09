@@ -5,6 +5,7 @@ using Spine.Unity;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using Spine;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -56,25 +57,24 @@ namespace AssemblyCSharp
 
         public void CallChangePointsTask(StatusModel statusModel, System.Action action = null)
         {
-            /*if( statusModel.singleStatus.canStack ){
-                statusModel.power = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
-            }*/
-
-            //var newPower = statusModel.stacks > 0 ? statusModel.power * statusModel.stacks : statusModel.power;
+            if (statusModel.singleStatus.statusTypeEnum != StatusTypeEnum.ValueOverTime)
+            {
+                return;
+            }
 
             var currentStat = statusModel.baseManager.characterManager.GetAttributeValue(statusModel.singleStatus.attributeName, statusModel.baseManager.characterManager.characterModel);
             var maxStat = statusModel.baseManager.characterManager.GetAttributeValue("max" + statusModel.singleStatus.attributeName, statusModel.baseManager.characterManager.characterModel);
             var damageManager = statusModel.baseManager.damageManager;
             if (currentStat <= maxStat && currentStat > 0)
             {
-                if (statusModel.singleStatus.name == "regen")
+                if (statusModel.singleStatus.name == StatusNameEnum.Regen.ToString())
                 {
                     var damageModel = new BaseDamageModel()
                     {
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         showExtraInfo = true,
-                        incomingHeal = statusModel.power,
+                        incomingHeal = statusModel.power * statusModel.stacks,
                         damageImmidiately = true,
                         fontSize = 150
                     };
@@ -87,7 +87,7 @@ namespace AssemblyCSharp
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         showExtraInfo = true,
-                        incomingDmg = statusModel.power,
+                        incomingDmg = statusModel.power * statusModel.stacks,
                         damageImmidiately = true,
                         element = statusModel.singleStatus.element,
                         textColor = statusModel.dmgTextColor,
@@ -279,15 +279,8 @@ namespace AssemblyCSharp
             var bm = player.GetComponent<CharacterManagerGroup>();
             var target = bm.skillManager.currenttarget;
             while( target == null ) {
-                //Cant be stunned mid cast anymore
-                /*if( bm.statusManager.DoesStatusExist("stun") ){
-                    ((PlayerSkillManager)bm.skillManager).SkillActiveSet(classSkill, false);
-                    BattleManager.waitingForSkillTarget = false;
-                    //bm.skillManager.finalTargets.Clear();
-                    Time.timeScale = 1f;
-                    yield break;
-                }*/
-                target = player.GetComponent<PlayerSkillManager>().currenttarget;
+                //target = player.GetComponent<PlayerSkillManager>().currenttarget;
+                target = bm.skillManager.currenttarget;
                 yield return 0;
             }
             BattleManager.waitingForSkillTarget = false;

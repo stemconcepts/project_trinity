@@ -16,6 +16,7 @@ namespace AssemblyCSharp
 
         public void Setup()
         {
+            this.EventManagerV2 = new EventManagerV2();
             this.characterManager = this.gameObject.GetComponent<CharacterManager>();
             this.statusManager = this.gameObject.GetComponent<StatusManager>();
             this.animationManager = this.gameObject.GetComponent<Animation_Manager>();

@@ -10,6 +10,10 @@ using Assets.scripts.Managers;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Assets.scripts.Models.skillModels.swapSkills;
+using Assets.scripts.Models.statusModels;
+using UnityEditor;
+using Assets.scripts.Helpers.Assets;
+using DG.Tweening.Core.Easing;
 
 namespace AssemblyCSharp
 {
@@ -19,12 +23,14 @@ namespace AssemblyCSharp
         static int startingTankHealth;
         static int startingHealerHealth;
         static int startingDpsHealth;
-        static List<SingleStatusModel> tankStatus = new List<SingleStatusModel>();
-        static List<SingleStatusModel> healerStatus = new List<SingleStatusModel>();
-        static List<SingleStatusModel> dpsStatus = new List<SingleStatusModel>();
+        static List<StatusItem> tankStatus = new List<StatusItem>();
+        static List<StatusItem> healerStatus = new List<StatusItem>();
+        static List<StatusItem> dpsStatus = new List<StatusItem>();
         public static EyeSkill eyeSkill;
 
         public static Event_Manager eventManager;
+        public static GenericEventManager<GenericEventEnum> GenericEventManager = new GenericEventManager<GenericEventEnum>();
+
         public static GameManager gameManager;
         public static GameObject UICanvas;
         public static GameObject tooltipCanvas;
@@ -36,7 +42,6 @@ namespace AssemblyCSharp
         public static BattleDetailsManager battleDetailsManager;
         public static List<BattleInterfaceManager> battleInterfaceManager = new List<BattleInterfaceManager>();
         public static Character_Select_Manager characterSelectManager;
-        public static AssetFinder assetFinder;
         public static bool waitingForSkillTarget;
         public static bool offensiveSkill;
         public static bool battleStarted = false;
@@ -44,12 +49,17 @@ namespace AssemblyCSharp
         public static bool disableActions = true;
         public static bool turnTimerOn = false;
 
+        //Used to balance how defense works
+        public static float DefenceConstant = 10;
+        public static float ThornsWeight = 25;
+
         //Player ActionPoints
         public static float vigor = 6;
         public static float originalvigor = 6;
         public static float actionPoints = 6;
         public static float maxActionPoints = 6;
         public static float originalActionPoints;
+
         //Enemy ActionPoints
         public static float enemyVigor = 6;
         public static float originalEnemyVigor = 6;
@@ -61,19 +71,21 @@ namespace AssemblyCSharp
         private static int totalEXP;
         private static List<ItemBase> loot = new List<ItemBase>();
         //Turn properties
-        //public static GameObject turnScreenHolder;
-        static Image turnTimer;
         static Text playerTurnText;
         public static bool gamePaused;
         public static float turnTime = 30f;
         public static TurnEnum turn;
-        public GearSwapManager gearSwapManager;
+        public GearSwapManager _gearSwapManager;
+        public static GearSwapManager GearSwapManager;
         public enum TurnEnum
         {
             EnemyTurn,
             PlayerTurn
         }
         public static int turnCount = 0;
+
+        [Header("Use to add enemies to test")]
+        public List<GameObject> SpawnEnemyForTesting;
 
         void Awake() {
             gameManager = gameObject.GetComponent<GameManager>();
@@ -82,10 +94,10 @@ namespace AssemblyCSharp
             characterSelectManager = gameManager.characterSelectManager;
             gameEffectManager = gameManager.GameEffectsManager;
             eventManager = gameManager.EventManager;
-            assetFinder = gameManager.AssetFinder;
             UICanvas = GameObject.Find("Canvas - UI");
             tooltipCanvas = tooltipCanvasTarget;
-            gearSwapManager = gameObject.GetComponent<GearSwapManager>();
+            _gearSwapManager = gameObject.GetComponent<GearSwapManager>();
+            GearSwapManager = _gearSwapManager;
             //pauseScreenHolder = GameObject.Find("PauseOverlayUI");
             /*turnTimer = GameObject.Find("TurnTimer").GetComponent<Image>();
             turnTimer.gameObject.SetActive(false);*/
@@ -118,7 +130,52 @@ namespace AssemblyCSharp
             UpdateAPAmount();
             SetStartingHealthAndStats();
             taskManager.taskList.Add("actionQueue", new Task(MainGameManager.instance.StartActionQueue()));
-            //characterSelectManager.UpdateCharacters();
+            characterSelectManager.UpdateCharacters();
+
+            GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.GameOver);
+            GenericEventManager.AddDelegateToEvent(GenericEventEnum.GameOver, DoGameOver);
+        }
+
+        public void DamageAllFriendly(float value, bool trueDamage = false)
+        {
+            var friendly = GetFriendlyCharacterManagers();
+
+            foreach (var character in friendly)
+            {
+                var damageController = character.baseManager.damageManager;
+
+                var damageModel = new BaseDamageModel();
+                damageModel.damageImmidiately = true;
+                damageModel.element = trueDamage ? elementType.trueDmg : elementType.none;
+                damageModel.damageTaken = value;
+                damageModel.baseManager = character.baseManager;
+                damageModel.dueDmgTargets = new List<BaseCharacterManager>(){
+                                    character
+                                };
+                damageModel.dmgSource = character;
+                damageController.TakeDmg(damageModel, "DamageAllFriendlyTest");
+            }
+        }
+
+        public void DamageAllEnemy(float value, bool trueDamage = false)
+        {
+            var friendly = GetFriendlyCharacterManagers();
+
+            foreach (var character in friendly)
+            {
+                var damageController = character.baseManager.damageManager;
+
+                var damageModel = new BaseDamageModel();
+                damageModel.damageImmidiately = true;
+                damageModel.element = trueDamage ? elementType.trueDmg : elementType.none;
+                damageModel.incomingDmg = value;
+                damageModel.baseManager = character.baseManager;
+                damageModel.dueDmgTargets = new List<BaseCharacterManager>(){
+                                    character
+                                };
+                damageModel.dmgSource = character;
+                damageController.TakeDmg(damageModel, "DamageAllEnemyTest");
+            }
         }
 
         void SetActionPoints()
@@ -151,16 +208,16 @@ namespace AssemblyCSharp
         {
             if (battleStarted && CheckIfActionsComplete())
             {
-                battleStarted = false;
-                BattleManager.taskManager.ScheduleAction(() => {
-                    battleStarted = true;
-                    ResetCharactersAndSetTurn();
-                }, 2f);
-                /*taskManager.CallTask(1f, () =>
+                GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.GameOver);
+
+                if (GetFriendlyCharacterManagers().Count > 0)
                 {
-                    battleStarted = true;
-                    ResetCharactersAndSetTurn();
-                });*/
+                    battleStarted = false;
+                    taskManager.ScheduleAction(() => {
+                        battleStarted = true;
+                        ResetCharactersAndSetTurn();
+                    }, 2f);
+                }
             }
             CheckBattleOver();
         }
@@ -168,6 +225,11 @@ namespace AssemblyCSharp
         public static int GetEXPValue()
         {
             return totalEXP;
+        }
+
+        public static void AddToGearSwapPoints(int value)
+        {
+            GearSwapManager.AddGearSwapPoints(value);
         }
 
         public static List<ItemBase> GetLoot()
@@ -225,7 +287,7 @@ namespace AssemblyCSharp
                 }
             });
 
-            var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
+            var characters = characterSelectManager.GetCharacterScript<CharacterManager>(true);
             int tankHealth = 0;
             int healerHealth = 0;
             int dpsHealth = 0;
@@ -262,6 +324,7 @@ namespace AssemblyCSharp
         void LoadEnemies()
         {
             var enemies = MainGameManager.instance.SceneManager.enemies;
+            enemies.AddRange(SpawnEnemyForTesting);
             if (enemies.Count() > 0)
             {
                 SummonCreatures(enemies, "monster", false);
@@ -270,8 +333,8 @@ namespace AssemblyCSharp
 
         void LoadExplorerStatuses(bool player, List<ExplorerStatus> explorerStatuses)
         {
-            var targets = player ? characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList()).Select(character => character.baseManager).ToList() 
-                : characterSelectManager.GetCharacterManagers<EnemyCharacterManager>(GameObject.FindGameObjectsWithTag("Enemy").ToList()).Select(character => character.baseManager).ToList();
+            var targets = player ? characterSelectManager.GetCharacterScript<CharacterManager>(true).Select(character => character.baseManager).ToList() 
+                : characterSelectManager.GetCharacterScript<EnemyCharacterManager>(false).Select(character => character.baseManager).ToList();
 
             targets.ForEach(baseManager =>
             {
@@ -350,7 +413,7 @@ namespace AssemblyCSharp
         /// </summary>
         /// <param name="roles"></param>
         /// <param name="status"></param>
-        public static void AddToPlayerStatus(List<RoleEnum> roles, List<SingleStatusModel> status)
+        public static void AddToPlayerStatus(List<RoleEnum> roles, List<StatusItem> status)
         {
             roles.ForEach(o =>
             {
@@ -373,7 +436,7 @@ namespace AssemblyCSharp
 
         public void SetStartingHealthAndStats()
         {
-            var characters = characterSelectManager.GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList());
+            var characters = characterSelectManager.GetCharacterScript<CharacterManager>(true);
             characters.ForEach(c =>
             {
                 switch (c.characterModel.role)
@@ -384,13 +447,13 @@ namespace AssemblyCSharp
                             c.characterModel.Health = startingTankHealth;
                             //MainGameManager.instance.exploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.tank);
                         }
-                        tankStatus.ForEach(o =>
+                        tankStatus.ForEach(statusItem =>
                         {
                             var sm = new StatusModel
                             {
-                                singleStatus = o,
-                                power = 2,
-                                turnDuration = 4,
+                                singleStatus = statusItem.status,
+                                power = statusItem.power,
+                                turnDuration = statusItem.duration,
                                 baseManager = c.baseManager
                             };
                             c.baseManager.statusManager.RunStatusFunction(sm);
@@ -402,13 +465,13 @@ namespace AssemblyCSharp
                             c.characterModel.Health = startingHealerHealth;
                             //MainGameManager.instance.exploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.healer);
                         }
-                        healerStatus.ForEach(o =>
+                        healerStatus.ForEach(statusItem =>
                         {
                             var sm = new StatusModel
                             {
-                                singleStatus = o,
-                                power = 2,
-                                turnDuration = 4,
+                                singleStatus = statusItem.status,
+                                power = statusItem.power,
+                                turnDuration = statusItem.duration,
                                 baseManager = c.baseManager
                             };
                             c.baseManager.statusManager.RunStatusFunction(sm);
@@ -420,13 +483,13 @@ namespace AssemblyCSharp
                             c.characterModel.Health = startingDpsHealth;
                             //MainGameManager.instance.exploreManager.SetMaxHealth(c.characterModel.maxHealth, RoleEnum.dps);
                         }
-                        dpsStatus.ForEach(o =>
+                        dpsStatus.ForEach(statusItem =>
                         {
                             var sm = new StatusModel
                             {
-                                singleStatus = o,
-                                power = 2,
-                                turnDuration = 4,
+                                singleStatus = statusItem.status,
+                                power = statusItem.power,
+                                turnDuration = statusItem.duration,
                                 baseManager = c.baseManager
                             };
                             c.baseManager.statusManager.RunStatusFunction(sm);
@@ -456,34 +519,39 @@ namespace AssemblyCSharp
                         .Any(s => s.turnToReset == 0 && s.skillCost <= enemyActionPoints && s.CanCastFromPosition(s.compatibleRows, o.baseManager))).ToList();
                 var enemiesThatHaventCasted = enemiesWithUseableSkills
                     .Where(o => !(o.gameObject.GetComponent<EnemySkillManager>().hasCasted || o.gameObject.GetComponent<EnemySkillManager>().isCasting)).ToList();
-                var enemiesNotStunned = enemiesThatHaventCasted.Where(o => !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun")).ToList();
+                var enemiesNotStunned = enemiesThatHaventCasted.Where(o => !o.gameObject.GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun)).ToList();
 
                 var enemiesCanCast = enemiesNotStunned.Count > 0;
 
-                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist("stun"))
+                var canAffordSkills = enemiesNotStunned
+                    .Where(o => o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(p => p.skillCost <= enemyActionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any();
+
+                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
                     .Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) && characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting);
 
                 var enemiesAnimating = characterSelectManager.enemyCharacters
                     .Select(enemy => !enemy.GetComponent<Animation_Manager>().inAnimation).FirstOrDefault();
 
-                return (!enemiesAnimating && enemyActionPoints == 0) || (!enemiesCanAttack && !enemiesCanCast);
+                return (!enemiesAnimating && enemyActionPoints == 0) || (!enemiesCanAttack && !enemiesCanCast && !canAffordSkills);
             }
             else
             {
                 var charsWithTurnsLeft = characterSelectManager.friendlyCharacters
                     .Where(o => o.gameObject.GetComponent<CharacterManager>().characterModel.Haste > o.gameObject.GetComponent<PlayerSkillManager>().turnsTaken && !o.gameObject.GetComponent<PlayerSkillManager>().isCasting &&
-                        !o.gameObject.GetComponent<StatusManager>().DoesStatusExist("stun")).ToList();
-                var hasTurnsLeft = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().classSkillModel.skillCost <= actionPoints).Any() : false;
+                        !o.gameObject.GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun)).ToList();
+                var hasTurnsLeft = charsWithTurnsLeft.Count() > 0;
+                var canUseClassSkill = charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().classSkillModel.skillCost <= actionPoints).Any();
                 var canAffordPrimarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft
                     .Where(o => o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= actionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any() : false;
                 var canAffordSecondarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft
                     .Where(o => o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= actionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any() : false;
+
                 var canUseEquippedSkill = charsWithTurnsLeft.Count() > 0 ? (charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<EquipmentManager>().currentWeaponEnum == EquipmentManager.currentWeapon.Primary) ? canAffordPrimarySkills : canAffordSecondarySkills) : false;
 
                 var charactersAnimating = characterSelectManager.friendlyCharacters
                     .Select(enemy => !enemy.GetComponent<Animation_Manager>().inAnimation).FirstOrDefault();
 
-                return (!charactersAnimating && actionPoints == 0) || (!hasTurnsLeft && !canUseEquippedSkill /*&& !charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<PlayerSkillManager>().isSkillactive)*/ );
+                return (!charactersAnimating && actionPoints == 0) || (!canUseClassSkill && !canUseEquippedSkill && !(hasTurnsLeft && actionPoints > 0));
             }
         }
 
@@ -523,6 +591,7 @@ namespace AssemblyCSharp
         public static void CheckAndSetTurn()
         {
             disableActions = true;
+
             if (turnCount > 0)
             {
                 turn = (turn == TurnEnum.EnemyTurn) ? TurnEnum.PlayerTurn : TurnEnum.EnemyTurn;
@@ -538,9 +607,9 @@ namespace AssemblyCSharp
             {
                 battleDetailsManager.BattleWarning($"Turn {turnCount + 1}", 3f);
                 gameEffectManager.PanCamera(turn == TurnEnum.PlayerTurn);
-                if (characterSelectManager.GetSelectedClassObject().GetComponent<StatusManager>().DoesStatusExist("stun"))
+                if (characterSelectManager.GetSelectedClassObject().GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun))
                 {
-                    var validChar = characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist("stun")).FirstOrDefault();
+                    var validChar = characterSelectManager.friendlyCharacters.Where(o => o.characterModel.isAlive && !o.baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun)).FirstOrDefault();
                     characterSelectManager.SetSelectedCharacter(validChar.gameObject.name);
                 }
 
@@ -656,7 +725,7 @@ namespace AssemblyCSharp
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.bauble, characterSelectManager.stalkerObject);
                 AttachClassSkill(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.classSkill, characterSelectManager.stalkerObject);
                 //Attach Eye Skill
-                AttachEyeSkill(MainGameManager.instance.assetFinder.GetEyeSkillbyName(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.eyeSkillName));
+                AttachEyeSkill(MainGameManager.instance.SkillFinder.GetEyeSkill(SavedDataManager.SavedDataManagerInstance.persistentData.playerData.eyeSkillName));
             }
         }
 
@@ -723,16 +792,25 @@ namespace AssemblyCSharp
             charData.GetComponent<EquipmentManager>().classSkill = equipedSkill;
         }
 
-        public void AttachWeapon(weaponModel equipedWeapon, weaponModel secondEquipedWeapon, bauble equipedBauble, GameObject charData)
+        public void AttachWeapon(WeaponModel equipedWeapon, WeaponModel secondEquipedWeapon, Bauble equipedBauble, GameObject charData)
         {
-            charData.GetComponent<EquipmentManager>().primaryWeapon = equipedWeapon;
-            charData.GetComponent<EquipmentManager>().secondaryWeapon = secondEquipedWeapon;
-            charData.GetComponent<EquipmentManager>().bauble = equipedBauble;
+            if (equipedWeapon)
+            {
+                charData.GetComponent<EquipmentManager>().primaryWeapon = equipedWeapon;
+            }
+            if (secondEquipedWeapon)
+            {
+                charData.GetComponent<EquipmentManager>().secondaryWeapon = secondEquipedWeapon;
+            }
+            if (equipedBauble)
+            {
+                charData.GetComponent<EquipmentManager>().bauble = equipedBauble;
+            }
         }
 
         public static void GenerateLifeBars(GameObject creature)
         {
-            var singleMinionDataItem = assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
+            var singleMinionDataItem = MainGameManager.instance.ItemFinder.MinionDataItem;
 
             var minionBaseManager = creature.GetComponent<EnemyCharacterManagerGroup>();
             var selectorController = (minionBaseManager.characterManager as EnemyCharacterManager).enemyCharacterSelector.GetComponent<EnemySelectorController>();
@@ -747,11 +825,6 @@ namespace AssemblyCSharp
 
             minionBaseManager.autoAttackManager.hasAttacked = true;
             minionBaseManager.characterManager.healthBar = creatureData.transform.Find("Panel Minion HP").Find("Slider_enemy").gameObject;
-
-            //Not needed anymore due to hard setting the status location
-            //var statusHolder = creatureData.transform.Find("Panel Minion Status").Find("minionstatus");
-            //minionBaseManager.statusManager.buffHolder = statusHolder.Find("Panel buffs").gameObject;
-            //minionBaseManager.statusManager.debuffHolder = statusHolder.Find("Panel debuffs").gameObject;
         }
 
         public static void GenerateEnemySelector(GameObject creature)
@@ -776,22 +849,23 @@ namespace AssemblyCSharp
             Transform postion = friendly ? GameObject.Find("playerHolder").transform : GameObject.Find("enemyHolder").transform;
             for (int i = 0; i < summonedObjects.Count; i++)
             {
-                    var enemyIndex = characterSelectManager.enemyCharacters.Count() + i;
-                    var newCreature = Instantiate(summonedObjects[i], postion);
-                    newCreature.name = $"{creaturTag}_{enemyIndex}";
-                    if (panel)
-                    {
-                        var panelManager = panel.GetComponent<PanelsManager>();
-                        panelManager.currentOccupier = newCreature;
-                        panelManager.SetStartingPanel(newCreature);
-                        panelManager.SaveCharacterPositionFromPanel();
-                    }
+                var enemyIndex = characterSelectManager.enemyCharacters.Count() + i;
+                var newCreature = Instantiate(summonedObjects[i], postion);
+                newCreature.name = $"{creaturTag}_{enemyIndex}";
+                if (panel)
+                {
+                    var panelManager = panel.GetComponent<PanelsManager>();
+                    panelManager.currentOccupier = newCreature;
+                    panelManager.SetStartingPanel(newCreature);
+                    panelManager.SaveCharacterPositionFromPanel();
+                }
             }
         }
 
         public static bool IsTankInThreatZone()
         {
-            return (characterSelectManager.guardianObject.GetComponent<CharacterManagerGroup>().characterManager.characterModel as CharacterModel).inThreatZone;
+            var tank = characterSelectManager.guardianObject.GetComponent<CharacterManagerGroup>().characterManager.characterModel as CharacterModel;
+            return tank.isAlive && tank.inThreatZone;
         }
 
         public void EndTurn()
@@ -808,10 +882,24 @@ namespace AssemblyCSharp
             {
                 LoadExplorerStatuses(true, MainGameManager.instance.SceneManager.playerStatuses);
                 LoadExplorerStatuses(false, MainGameManager.instance.SceneManager.enemyStatuses);
-                gearSwapManager.CheckGearType();
-                BattleManager.battleStarted = true;
+                _gearSwapManager.CheckGearType();
+                battleStarted = true;
                 CheckAndSetTurn();
             });
+        }
+
+        void DoGameOver()
+        {
+            if (GetFriendlyCharacterManagers().Count == 0)
+            {
+                StopAllCoroutines();
+                battleStarted = false;
+                MainGameManager.instance.DisableEnableLiveBoxColliders(false);
+                taskManager.CallTask(1f, () =>
+                {
+                    MainGameManager.instance.SceneManager.LoadScene("GameOver", true);
+                });
+            }
         }
     }
 }

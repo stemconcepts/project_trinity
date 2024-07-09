@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
-using System.Linq;
 using System.Collections.Generic;
-using Spine.Unity;
-using ModularMotion;
-using DG.Tweening.Core.Easing;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -48,7 +45,7 @@ namespace AssemblyCSharp
                 characterModel.isAlive = false;
                 BattleManager.characterSelectManager.UpdateCharacters(this.gameObject.name);
                 characterModel.Health = 0;
-                var trackEntry = baseManager.animationManager.PlaySetAnimation("death");
+                var trackEntry = baseManager.animationManager.PlaySetAnimation("toDeath");
 
                 if(baseManager.animationManager.skeletonAnimationMulti != null)
                 {
@@ -71,7 +68,7 @@ namespace AssemblyCSharp
                 if (this is EnemyCharacterManager)
                 {
                     var enemyCharacterManager = (EnemyCharacterManager)this;
-                    if (trackEntry != null)
+                    if (trackEntry != null && this.gameObject)
                     {
                         Destroy(this.gameObject, trackEntry.Animation.Duration);
                         var dataUI = GameObject.Find(this.gameObject.name + "_data");
@@ -97,15 +94,15 @@ namespace AssemblyCSharp
 
         public void ResetAbsorbPoints(BaseCharacterModel characterModel)
         {
-            if (characterModel.absorbPoints <= 0 && baseManager.statusManager.DoesStatusExist("damageAbsorb"))
+            if (characterModel.absorbPoints <= 0 && baseManager.statusManager.DoesStatusExist(StatusNameEnum.DamageAbsorb))
             {
                 characterModel.absorbPoints = 0;
-                baseManager.statusManager.ForceStatusOff(baseManager.statusManager.GetStatus("damageAbsorb"));
+                baseManager.statusManager.ForceStatusOff(baseManager.statusManager.GetStatus(StatusNameEnum.DamageAbsorb));
             }
-            if (characterModel.blockPoints <= 0 && baseManager.statusManager.DoesStatusExist("block"))
+            if (characterModel.blockPoints <= 0 && baseManager.statusManager.DoesStatusExist(StatusNameEnum.Block))
             {
                 characterModel.blockPoints = 0;
-                baseManager.statusManager.ForceStatusOff(baseManager.statusManager.GetStatus("block"));
+                baseManager.statusManager.ForceStatusOff(baseManager.statusManager.GetStatus(StatusNameEnum.Block));
             }
         }
 
@@ -184,6 +181,7 @@ namespace AssemblyCSharp
             {
                 return BattleManager.characterSelectManager.guardianObject.GetComponent<T>();
             }
+
             var enemyCharacters = BattleManager.GetEnemyCharacterManagers();
             var friendlyCharacters = BattleManager.GetFriendlyCharacterManagers();
             var targetCount = this.tag == "Player" ? enemyCharacters.Count : friendlyCharacters.Count;

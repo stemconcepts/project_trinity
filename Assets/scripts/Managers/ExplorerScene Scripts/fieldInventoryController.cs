@@ -13,10 +13,21 @@ namespace Assets.scripts.Managers.ExplorerScene_Scripts
         public GameObject fieldItemTemplate;
         public List<GameObject> fieldItems = new List<GameObject>();
         public UIMotion inventoryHolderUIController;
-        public List<ItemBase> testingLoot = new List<ItemBase>();
+        [Header("Starting Items")]
+        public List<ItemBase> StartingLoot = new List<ItemBase>();
         [Header("Inventory Sounds")]
         public List<AudioClip> openCraftingSounds = new List<AudioClip>();
         public List<AudioClip> showInventorySounds = new List<AudioClip>();
+        [Header("Loot to add for testing")]
+        public List<ItemBase> testingLoot = new List<ItemBase>();
+
+        private void Start()
+        {
+            StartingLoot.ForEach(o =>
+            {
+                AddToObtainedItems(o);
+            });
+        }
 
         /// <summary>
         /// Add field Items from testingLoot for testing

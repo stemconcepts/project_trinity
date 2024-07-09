@@ -24,18 +24,4 @@ namespace AssemblyCSharp
             turnToReset = BattleManager.turnCount + (turnDuration * 2);
         }
     }
-
-    public enum triggerGrp
-    {
-        None,
-        Passive,
-        OnTakingDmg,
-        OnDealingDmg,
-        OnHeal,
-        OnMove,
-        OnSkillCast,
-        OnFirstRow,
-        OnMiddleRow,
-        OnLastRow
-    };
 }

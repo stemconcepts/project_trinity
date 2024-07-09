@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -41,11 +42,11 @@ namespace AssemblyCSharp
             } else {
                 ClearCD();
             }
-            iconImageScript.sprite = skill.skillIcon;
+            iconImageScript.sprite = skill?.skillIcon;
             iconImageScript.type = Image.Type.Filled;
             //skillName.text = skill.skillName;
             skillCost.text = skill.skillCost.ToString();
-            toolTip.AddtoolTip(skill.skillName, skill.skillName, skill.skillDesc);
+            toolTip.AddtoolTip(skill.skillName, skill.skillName, skill.skillDesc + skill.GetExtraDesc());
             //toolTip.toolTipName = skill.skillName;
             //toolTip.toolTipDesc = skill.skillDesc;
 
@@ -96,7 +97,7 @@ namespace AssemblyCSharp
                 if(skill != null && (skill.skillCost > BattleManager.actionPoints))
                 {
                     iconImageScript.color = new Color(0.9f, 0.4f, 0.4f);
-                } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist("stun") || !skill.CanCastFromPosition(skill.compatibleRows, baseManager))
+                } else if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn || baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) || !skill.CanCastFromPosition(skill.compatibleRows, baseManager))
                 {
                     iconImageScript.color = new Color(0.3f, 0.3f, 0.3f);
                 } else {
@@ -105,10 +106,10 @@ namespace AssemblyCSharp
             }
         }
     
-        bool IsCharBusy(){
+        public bool IsCharBusy(){
             var charSelected = BattleManager.characterSelectManager.GetSelectedClassObject();
             var charStatus = charSelected.GetComponent<StatusManager>();
-            var stunned = charStatus.DoesStatusExist("stun");
+            var stunned = charStatus.DoesStatusExist(StatusNameEnum.Stun);
             var bm = BattleManager.characterSelectManager.GetSelectedClassObject().GetComponent<BaseCharacterManagerGroup>();
             return bm.animationManager.inAnimation || bm.skillManager.isCasting || stunned;
         }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using DG.Tweening;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -19,6 +20,8 @@ namespace AssemblyCSharp
                     o.state.Event += OnEventMove;
                 });
             }
+
+            baseManager.EventManagerV2.AddDelegateToEvent(EventTriggerEnum.OnMove, () => BattleManager.AddToGearSwapPoints(2));
         }
 
         public override void CheckPanelPosition()
@@ -36,13 +39,14 @@ namespace AssemblyCSharp
                 case frontPanelNum:
                     if (!isInFrontRow)
                     {
-                        var eventModelFront = new EventModel
+                        /*var eventModelFront = new EventModel
                         {
-                            eventName = "OnFirstRow",
+                            eventName = EventTriggerEnum.OnFirstRow.ToString(),
                             extTarget = baseManager.characterManager,
                             eventCaller = baseManager.characterManager
                         };
-                        BattleManager.eventManager.BuildEvent(eventModelFront);
+                        BattleManager.eventManager.BuildEvent(eventModelFront);*/
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnFirstRow);
                     }
                     isInBackRow = false;
                     isInMiddleRow = false;
@@ -51,13 +55,14 @@ namespace AssemblyCSharp
                 case 1:
                     if (!isInMiddleRow)
                     {
-                        var eventModelMiddle = new EventModel
+                        /*var eventModelMiddle = new EventModel
                         {
-                            eventName = "OnMiddleRow",
+                            eventName = EventTriggerEnum.OnMiddleRow.ToString(),
                             extTarget = baseManager.characterManager,
                             eventCaller = baseManager.characterManager
                         };
-                        BattleManager.eventManager.BuildEvent(eventModelMiddle);
+                        BattleManager.eventManager.BuildEvent(eventModelMiddle);*/
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnMiddleRow);
                     }
                     isInBackRow = false;
                     isInMiddleRow = true;
@@ -66,13 +71,14 @@ namespace AssemblyCSharp
                 case backPanelNum:
                     if (!isInBackRow)
                     {
-                        var eventModelBack = new EventModel
+                        /*var eventModelBack = new EventModel
                         {
-                            eventName = "OnLastRow",
+                            eventName = EventTriggerEnum.OnLastRow.ToString(),
                             extTarget = baseManager.characterManager,
                             eventCaller = baseManager.characterManager
                         };
-                        BattleManager.eventManager.BuildEvent(eventModelBack);
+                        BattleManager.eventManager.BuildEvent(eventModelBack);*/
+                        baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnLastRow);
                     }
                     isInBackRow = true;
                     isInMiddleRow = false;
@@ -96,7 +102,7 @@ namespace AssemblyCSharp
         //Spawn Move Pointer
         public void OnMouseDown()
         {
-            if (!baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
+            if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 var distance = Vector2.Distance(transform.position, Camera.main.transform.position);
@@ -123,7 +129,7 @@ namespace AssemblyCSharp
                 BattleManager.taskManager.taskList["draggingTask_" + baseManager.name].Stop();
                 BattleManager.taskManager.taskList.Remove("draggingTask_" + baseManager.name);
             }
-            if (positionArrow && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
+            if (positionArrow && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
             {
                 var positionArrowManager = positionArrow.GetComponent<MovementArrowManager>();
                 if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && BattleManager.actionPoints >= 1)

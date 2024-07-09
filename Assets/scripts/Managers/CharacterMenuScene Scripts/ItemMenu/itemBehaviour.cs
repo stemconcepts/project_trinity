@@ -11,8 +11,8 @@ namespace AssemblyCSharp
     {
 		hoverManager hoverControlScript;
 		InventoryManager equipmentManagerScript;
-		public weaponModel weaponItemScript;
-		public bauble baubleItemScript;
+		public WeaponModel weaponItemScript;
+		public Bauble baubleItemScript;
 		public Sprite itemIcon;
 		public string itemName;
 		public GameObject itemHoverObj;
@@ -124,36 +124,29 @@ namespace AssemblyCSharp
 			}
 		}
 
-		weaponModel EquipItemAndReturnWeaponModel(bool primaryWeapon, GameObject slot = null)
+		WeaponModel EquipItemAndReturnWeaponModel(bool primaryWeapon, GameObject slot = null)
 		{
             equipControl equipControl = null;
             if (slot != null && hoverControlScript != null)
 			{
                 equipControl = slot.GetComponent<equipControl>();
                 this.transform.SetParent(slot.transform);
+                hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot?.gameObject;
             } else
 			{
                 equipControl = hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>();
                 this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
             }
+
             weaponItemScript.isEquipped = true;
 			SavedDataManager.SavedDataManagerInstance.AddWeaponModel(weaponItemScript, primaryWeapon);
             equipControl.equippedWeapon = this.gameObject;
 			equipControl.ShowItemQuality();
-            hoverControlScript.OriginalSlot = hoverControlScript.hoveredEquipSlot.gameObject;
-			//equipControl.qualityDisplay = hoverControlScript.hoveredEquipSlot.transform.Find("itemQuality").GetComponent<Image>();
-			/*if (slot != null)
-			{
-				this.transform.SetParent(slot.transform);
-            } else
-			{
-                this.transform.SetParent(hoverControlScript.hoveredEquipSlot.transform);
-            }*/
             MainGameManager.instance.soundManager.playSound(MainGameManager.instance.soundManager.uiSounds[4]);
 			return weaponItemScript;
         }
 
-		bauble EquipBauble(classType classType)
+		Bauble EquipBauble(classType classType)
 		{
             baubleItemScript.isEquipped = true;
             hoverControlScript.hoveredEquipSlot.GetComponent<equipControl>().equippedBauble = this.gameObject;
@@ -283,7 +276,8 @@ namespace AssemblyCSharp
 				}
 			}
 
-			return false;
+            MainGameManager.instance.GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.EquipmentReady);
+            return false;
 		}
 
 		void OnMouseUp()

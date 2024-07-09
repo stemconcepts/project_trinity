@@ -8,7 +8,7 @@ namespace AssemblyCSharp
     {
         public KeyItem key;
         public string lockName = "Locked";
-        [Multiline]
+        [TextArea]
         public string lockDesc = "Path is locked or blocked, you'll need to find another way through.";
         public bool locked;
     }

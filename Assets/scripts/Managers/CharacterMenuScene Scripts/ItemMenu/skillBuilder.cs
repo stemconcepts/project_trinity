@@ -28,11 +28,20 @@ namespace AssemblyCSharp
 			charData.GetComponent<EquipmentManager>().PopulateSkills();
 		}
 
-		public void AttachWeapon(weaponModel equipedWeapon, weaponModel secondEquipedWeapon, bauble equipedBauble, GameObject charData)
+		public void AttachWeapon(WeaponModel equipedWeapon, WeaponModel secondEquipedWeapon, Bauble equipedBauble, GameObject charData)
 		{
-			charData.GetComponent<EquipmentManager>().primaryWeapon = equipedWeapon;
-			charData.GetComponent<EquipmentManager>().secondaryWeapon = secondEquipedWeapon;
-			charData.GetComponent<EquipmentManager>().bauble = equipedBauble;
+			if (equipedWeapon)
+			{
+                charData.GetComponent<EquipmentManager>().primaryWeapon = equipedWeapon;
+            }
+			if (secondEquipedWeapon)
+			{
+				charData.GetComponent<EquipmentManager>().secondaryWeapon = secondEquipedWeapon;
+			}
+			if (equipedBauble)
+			{
+				charData.GetComponent<EquipmentManager>().bauble = equipedBauble;
+			}
 		}
 
 		// Use this for initialization

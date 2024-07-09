@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Spine.Unity;
 using Spine;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -119,12 +120,14 @@ namespace AssemblyCSharp
         public void SkillComplete(List<BaseCharacterManager> targets, enemySkill enemySkillModel)
         {
             var power = 0.0f;
-            var eM = new EventModel()
+            baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnSkillCast);
+            baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnAction);
+            /*var eM = new EventModel()
             {
-                eventName = "OnSkillCast",
+                eventName = EventTriggerEnum.OnSkillCast.ToString(),
                 eventCaller = baseManager.characterManager
             };
-            BattleManager.eventManager.BuildEvent(eM);
+            BattleManager.eventManager.BuildEvent(eM);*/
             if (enemySkillModel != null && enemySkillModel.isFlat)
             {
                 power = enemySkillModel.isSpell ? enemySkillModel.magicPower : enemySkillModel.skillPower;
@@ -150,11 +153,17 @@ namespace AssemblyCSharp
             finalTargets.Clear();
             var enemyPlayers = BattleManager.GetFriendlyCharacterManagers();
             var friendlyPlayers = BattleManager.GetEnemyCharacterManagers();
-            if (skillModel.self) { 
+            if (skillModel.Self && !skillModel.ExcludeSelf) { 
                 finalTargets.Add(baseManager.characterManager); 
             }
-            if (skillModel.allFriendly) { 
-                finalTargets.AddRange(friendlyPlayers); 
+            if (skillModel.allFriendly) {
+                finalTargets.AddRange(friendlyPlayers);
+                if (skillModel.ExcludeSelf)
+                {
+                    finalTargets = finalTargets
+                        .Where(target => target.name != this.name)
+                        .ToList();
+                }
             }
             if (skillModel.allEnemy) { 
                 finalTargets.AddRange(enemyPlayers);
@@ -179,7 +188,7 @@ namespace AssemblyCSharp
                 }
             }
             finalTargets.Capacity = finalTargets.Count;
-            if (!baseManager.statusManager.DoesStatusExist("stun"))
+            if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
             {
                 SetAnimations(skillModel);
             }
@@ -201,6 +210,58 @@ namespace AssemblyCSharp
 
         private void DealHealDmg(enemySkill enemySkillModel, List<BaseCharacterManager> targets, float power)
         {
+            //Add status to self if applicable
+            AddStatusToSelf(enemySkillModel);
+
+            if (enemySkillModel.hasVoidzone)
+            {
+                var tankTarget = targets.Where(o => o.characterModel.role == RoleEnum.tank).FirstOrDefault();
+                if (tankTarget && (tankTarget.characterModel as CharacterModel).inVoidCounter)
+                {
+                    if (tankTarget.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
+                    {
+                        tankTarget.baseManager.damageManager.skillDmgModels.Remove(gameObject.name);
+                    }
+
+                    var didHit = enemySkillModel.isSpell ? true : tankTarget.GetChanceToBeHit(baseManager.characterManager.characterModel.Accuracy);
+                    var dmgModel = new BaseDamageModel()
+                    {
+                        baseManager = tankTarget.baseManager,
+                        incomingDmg = enemySkillModel.useModifier ? power + (power * enemySkillModel.modifierAmount) : power,
+                        enemySkillModel = enemySkillModel,
+                        dmgSource = baseManager.characterManager,
+                        textColor = enemySkillModel.dmgTextColor,
+                        dueDmgTargets = targets,
+                        hitEffectPositionScript = tankTarget.baseManager.effectsManager.fxCenter.transform,
+                        modifiedDamage = enemySkillModel.useModifier
+                    };
+                    finalTargets = new List<BaseCharacterManager>()
+                    {
+                        tankTarget
+                    };
+                    dmgModel.modifiedDamage = true;
+                    dmgModel.incomingDmg = dmgModel.incomingDmg * 1.5f;
+                    tankTarget.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
+                    tankTarget.baseManager.damageManager.calculatedamage(dmgModel);
+
+                    enemySkillModel.skillEffects.ForEach(effect =>
+                    {
+                        MainGameManager.instance.gameEffectManager.CallEffectOnTarget(tankTarget.baseManager.effectsManager.GetGameObjectByFXPos(effect.fxPos), effect);
+                    });
+
+                    AddStatuses(tankTarget, enemySkillModel, didHit);
+
+                    if (enemySkillModel.forcedMoveAmount > 0 && didHit)
+                    {
+                        ForcedMove(finalTargets, enemySkillModel);
+                    }
+
+                    BattleManager.ClearAllVoidZones();
+                    return;
+                }
+            }
+
+            //Add status to targets if applicable
             foreach (var target in targets)
             {
                 if (target.baseManager.damageManager.skillDmgModels.ContainsKey(gameObject.name))
@@ -230,44 +291,17 @@ namespace AssemblyCSharp
                         hitEffectPositionScript = target.baseManager.effectsManager.fxCenter.transform,
                         modifiedDamage = enemySkillModel.useModifier
                     };
-                    if (enemySkillModel.hasVoidzone)
+                    if (didHit)
                     {
-                        var tankData = targets.Where(o => o.characterModel.role == RoleEnum.tank).FirstOrDefault();
-                        if (!tankData || !(tankData.characterModel as CharacterModel).inVoidCounter)
-                        {
-                            target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
-                            target.baseManager.damageManager.calculatedamage(dmgModel);
-                        }
-                        else
-                        {
-                            if (target.characterModel.role == RoleEnum.tank)
-                            {
-                                finalTargets = new List<BaseCharacterManager>()
-                                {
-                                    target
-                                };
-                                dmgModel.modifiedDamage = true;
-                                dmgModel.incomingDmg = dmgModel.incomingDmg * 1.5f;
-                                tankData.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
-                                tankData.baseManager.damageManager.calculatedamage(dmgModel);
-                            }
-                        }
-                        BattleManager.ClearAllVoidZones();
+                        target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
+                        target.baseManager.damageManager.calculatedamage(dmgModel);
                     }
                     else
                     {
-                        if (didHit)
-                        {
-                            target.baseManager.damageManager.skillDmgModels.Add(gameObject.name, dmgModel);
-                            target.baseManager.damageManager.calculatedamage(dmgModel);
-                        }
-                        else
-                        {
-                            dmgModel.incomingDmg = 0;
-                            dmgModel.showDmgNumber = false;
-                            MainGameManager.instance.soundManager.PlayMissSound();
-                            BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
-                        }
+                        dmgModel.incomingDmg = 0;
+                        dmgModel.showDmgNumber = false;
+                        MainGameManager.instance.soundManager.PlayMissSound();
+                        BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
                     }
                 };
                 if (enemySkillModel.healsDamage)
@@ -300,6 +334,8 @@ namespace AssemblyCSharp
                     ForcedMove(new List<BaseCharacterManager> { target }, enemySkillModel);
                 }
             }
+
+            BattleManager.ClearAllVoidZones();
         }
 
         enemySkill SkillToRun(List<enemySkill> bossSkillList)
@@ -325,7 +361,7 @@ namespace AssemblyCSharp
             if (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn)
             {
                 if (!hasCasted && !BattleManager.disableActions && baseManager.characterManager.characterModel.isAlive
-                     && !baseManager.statusManager.DoesStatusExist("stun") && !baseManager.autoAttackManager.isAttacking)
+                     && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) && !baseManager.autoAttackManager.isAttacking)
                 {
                         PrepSkill(randomSkill);
                 }
@@ -423,33 +459,12 @@ namespace AssemblyCSharp
                             if (damageModel != null)
                             {
                                 targetDamageManager.TakeDmg(damageModel, e.Data.Name);
-                                var eventModel = new EventModel
-                                {
-                                    eventName = "OnDealingDmg",
-                                    extTarget = target,
-                                    eventCaller = baseManager.characterManager,
-                                    extraInfo = damageModel.damageTaken
-                                };
-                                BattleManager.eventManager.BuildEvent(eventModel);
+                                baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnDealingDmg);
                             }
                         }
                     }
                 });
             }
-
-
-            /*if (e.Data.Name == "endEvent")
-            {
-                foreach (var target in finalTargets)
-                {
-                    var targetDamageManager = target.baseManager.damageManager;
-                    if (targetDamageManager.skillDmgModels.ContainsKey(gameObject.name))
-                    {
-                        targetDamageManager.skillDmgModels.Remove(gameObject.name);
-                    }
-                }
-            }*/
-            //MainGameManager.instance.soundManager.OnEventHit(state, e);
         }
 
         private bool CheckSkillAvail(enemySkill skillModel)
@@ -496,7 +511,7 @@ namespace AssemblyCSharp
             if (randomSkill)
             {
                 var endAnim = baseManager.animationManager.GetAnimationDuration(randomSkill.EndAnimation.ToString());
-                BattleManager.taskManager.ScheduleAction(() => BeginSkillRotation(randomSkill), endAnim + 0.5f);
+                BattleManager.taskManager.ScheduleAction(() => BeginSkillRotation(randomSkill), endAnim + 1.2f);
             }
         }
 

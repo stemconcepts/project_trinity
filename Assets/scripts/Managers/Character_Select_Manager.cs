@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
@@ -39,11 +40,47 @@ namespace AssemblyCSharp
             classStates.Add( new BattleManager.classState( "Walker", walkerObject.GetComponent<CharacterManager>().characterModel.isAlive, characterSelected == characterSelect.walkerSelected, true ) );
         }
 
-        public List<T> GetCharacterManagers<T>(List<GameObject> go){
-            var y = go.Select(o => o.GetComponent<T>()).ToList();
+        public List<T> GetCharacterScript<T>(bool friendly){
+
+            if (friendly)
+            {
+                var friendlies = new List<T>()
+                {
+                    guardianObject.GetComponent<T>(),
+                    stalkerObject.GetComponent<T>(),
+                    walkerObject.GetComponent<T>()
+                };
+
+                if (friendlies.Any(script => script is CharacterManager))
+                {
+                    return friendlies.Where(character =>
+                    {
+                        var characterManager = (CharacterManager)(object)character;
+                        return characterManager.characterModel.isAlive;
+                    }).ToList();
+                }
+
+                return friendlies;
+            } else
+            {
+                var enemyGameObjects = GameObject.FindGameObjectsWithTag("Enemy").ToList();
+                var enemies = enemyGameObjects.Select(o => o.GetComponent<T>()).ToList();
+
+                if (enemies.Any(script => script is EnemyCharacterManager))
+                {
+                    return enemies.Where(character =>
+                    {
+                        var characterManager = (EnemyCharacterManager)(object)character;
+                        return characterManager.characterModel.isAlive;
+                    }).ToList();
+                }
+
+                return enemies;
+            }
+            //var y = go.Select(o => o.GetComponent<T>()).ToList();
             //var y = go.Select(o => o.GetComponent<T>()).Where(c => c.characterModel.isAlive).ToList();
-            y.Capacity = y.Count;
-            return y;
+            //y.Capacity = y.Count;
+            //return y;
         }
 
         public void SelectCharacterWithTurnsLeft()
@@ -62,7 +99,24 @@ namespace AssemblyCSharp
             }
         }
 
+        public bool IsSelectedCharAvailable(string characterClass)
+        {
+            var charSelected = friendlyCharacters.Where(character => character.name == characterClass).FirstOrDefault(); //GetSelectedClassObject();
+            if (charSelected != null)
+            {
+                var charStatus = charSelected.GetComponent<StatusManager>();
+                var stunned = charStatus.DoesStatusExist(StatusNameEnum.Stun);
+                var bm = charSelected.GetComponent<BaseCharacterManagerGroup>();
+                return !stunned && !bm.animationManager.inAnimation || (bm.animationManager.inAnimation && bm.skillManager.isCasting);
+            }
+            return false;
+        }
+
         public void SetSelectedCharacter( string characterClass ){
+            if (!IsSelectedCharAvailable(characterClass))
+            {
+                return;
+            }
             classStates.ForEach(o => o.LastSelected = false);
             classStates.Where(o => o.Name == GetSelectedClassRole()).FirstOrDefault().LastSelected = true;
             if ( characterClass == "Guardian" ){
@@ -85,10 +139,9 @@ namespace AssemblyCSharp
                     return classStates[i].Name;
                 }
             }
-            return "bla";
+            return null;
         }
 
-        //returns what character is selected as a ?
         public string GetSelectedClassRole(){
             if( characterSelected == characterSelect.guardianSelected ){
                 return "Guardian";
@@ -131,10 +184,10 @@ namespace AssemblyCSharp
 
         public void UpdateCharacters(string deadCharacterName = null)
         {
-            enemyCharacters = GetCharacterManagers<EnemyCharacterManager>(GameObject.FindGameObjectsWithTag("Enemy").ToList()).Where(o => o.characterModel.isAlive).ToList();
-            enemyCharacters.Capacity = enemyCharacters.Count;
-            friendlyCharacters = GetCharacterManagers<CharacterManager>(GameObject.FindGameObjectsWithTag("Player").ToList()).Where(o => o.characterModel.isAlive).ToList();
-            friendlyCharacters.Capacity = friendlyCharacters.Count;
+            enemyCharacters = GetCharacterScript<EnemyCharacterManager>(false).Where(o => o.characterModel.isAlive).ToList();
+            //enemyCharacters.Capacity = enemyCharacters.Count;
+            friendlyCharacters = GetCharacterScript<CharacterManager>(true).Where(o => o.characterModel.isAlive).ToList();
+            //friendlyCharacters.Capacity = friendlyCharacters.Count;
 
             if (deadCharacterName != null)
             {

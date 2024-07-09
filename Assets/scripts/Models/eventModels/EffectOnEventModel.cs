@@ -7,66 +7,69 @@ using Random = UnityEngine.Random;
 
 namespace AssemblyCSharp
 {
-    public class EffectOnEventModel : ScriptableObject {
+    public enum EffectGrpEnum
+    {
+        None,
+        Heal,
+        Damage,
+        Status,
+        StatChange,
+        EquipmentStatChange,
+        EditCorruption,
+        Reset
+    };
+
+    [Serializable]
+    public class EffectOnEventModel {
+        [HideInInspector]
         public GameObject owner;
+        [HideInInspector]
         public BaseCharacterManager target;
-        public bool affectSelf;
-        public float power;
-        public float coolDown;
-        public bool ready = true;
-        public int turnDuration;
-        public bool dispellable;
+        //public bool affectSelf;
+        [Tooltip("Dont use apply to Status")]
+        [ConditionalHide("effect", (int)EffectGrpEnum.None, true)]
+        public float effectPower;
+        //public float coolDown;
+        //public bool ready = true;
+        //public int turnDuration;
+        //public bool dispellable;
         public Action eventAction;
-        public effectGrp effect;
-        //private Task effectCDTask;
-        public enum effectGrp {
-            None,
-            Heal,
-            Damage,
-            Status,
-            StatChange,
-            EquipmentStatChange,
-            EditCorruption,
-            Reset
-        };
-        public string focusAttribute;
-        public string trigger;
+        public EffectGrpEnum EffectGrp;
+        [ConditionalHide("effect", (int)EffectGrpEnum.StatChange, false)]
+        public CharacterStats FocusAttribute;
+        //public string trigger;
+        [ConditionalHide("effect", (int)EffectGrpEnum.None, true)]
         [Range(0.0f,1.0f)]
         public float triggerChance = 1.0f;
         [Header("Status Effects:")]
-        public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
-        public bool statusDispellable = true;
+        //public List<SingleStatusModel> singleStatusGroup = new List<SingleStatusModel>();
+        [Tooltip("Dont use if Effect is not Status")]
+        public List<StatusItem> singleStatusGroup = new List<StatusItem>();
+        //public bool statusDispellable = true;
         [Header("Friendly Status Effects:")]
-        public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
-        public bool statusFriendlyDispellable = true;
-        /*[Header("Reset Effect:")]
-        public ResetEvent resetEvent;*/
-
-        public bool CheckChance(float chance)
-        {
-            var chanceNum = Random.Range(0.0f, 1.0f);
-            bool result = chance >= chanceNum ? true : false;
-            return result;
-        }
+        [Tooltip("Dont use if Effect is not Status")]
+        //public List<SingleStatusModel> singleStatusGroupFriendly = new List<SingleStatusModel>();
+        public List<StatusItem> singleStatusGroupFriendly = new List<StatusItem>();
+        //public bool statusFriendlyDispellable = true;
 
         void RunEffectFromItemToRole(RoleEnum role, ItemBase item)
         {
-            switch (effect)
+            switch (EffectGrp)
             {
-                case effectGrp.None:
+                case EffectGrpEnum.None:
                     break;
-                case effectGrp.Heal:
-                    MainGameManager.instance.exploreManager.AddToSliderHealth((int)power, role);
+                case EffectGrpEnum.Heal:
+                    MainGameManager.instance.exploreManager.AddToSliderHealth((int)effectPower, role);
                     break;
-                case effectGrp.Damage:
-                    MainGameManager.instance.exploreManager.AddToSliderHealth(-(int)power, role);
+                case EffectGrpEnum.Damage:
+                    MainGameManager.instance.exploreManager.AddToSliderHealth(-(int)effectPower, role);
                     break;
-                case effectGrp.EditCorruption:
-                    MainGameManager.instance.exploreManager.EditCurroption((int)power);
+                case EffectGrpEnum.EditCorruption:
+                    MainGameManager.instance.exploreManager.EditCurroption((int)effectPower);
                     break;
-                case effectGrp.StatChange:
-                    var r = new List<RoleEnum>() { role };
-                    BattleManager.AddToPlayerStatus(r, singleStatusGroupFriendly);
+                case EffectGrpEnum.StatChange:
+                    var roles = new List<RoleEnum>() { role };
+                    BattleManager.AddToPlayerStatus(roles, singleStatusGroupFriendly);
                     break;
             }
             MainGameManager.instance.exploreManager.RemoveObtainedItem(item);
@@ -95,84 +98,82 @@ namespace AssemblyCSharp
             }
         }
 
-        public void RunEffectAction()
-        {
-            eventAction?.Invoke();
-        }
-
         public void RunEffectFromSkill(){
-            if ( BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready && CheckChance( triggerChance ) ){
-                target = affectSelf ? BattleManager.eventManager.eventModel.eventCaller : BattleManager.eventManager.eventModel.extTarget;
+            /*if ( BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready 
+                && MainGameManager.instance.GetChanceByPercentage(triggerChance)*/
+            if (MainGameManager.instance.GetChanceByPercentage(triggerChance))
+            {
+               // target = affectSelf ? BattleManager.eventManager.eventModel.eventCaller : BattleManager.eventManager.eventModel.extTarget;
                 var baseManager = target.GetComponent<BaseCharacterManagerGroup>();
-                var extraPower = BattleManager.eventManager.eventModel.extraInfo != 0 ? BattleManager.eventManager.eventModel.extraInfo * power : power;
+                //var extraPower = BattleManager.eventManager.eventModel.extraInfo != 0 ? BattleManager.eventManager.eventModel.extraInfo * power : power;
                 var targetDmgCalc = baseManager.damageManager; //add functionality to effect multiple targets
                 var targetStatus = baseManager.statusManager;
                 PlayerDamageModel dm = new PlayerDamageModel();
-                switch( effect ) {
-                    case effectGrp.None:
+                switch( EffectGrp ) {
+                    case EffectGrpEnum.None:
                         break;
-                    case effectGrp.Reset:
-                        var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute, baseManager.characterManager.characterModel);
-                        baseManager.characterManager.SetAttribute(focusAttribute, origAttribute, baseManager.characterManager.characterModel);
+                    case EffectGrpEnum.Reset:
+                        var origAttribute = baseManager.characterManager.GetAttributeValue("original" + FocusAttribute, baseManager.characterManager.characterModel);
+                        baseManager.characterManager.SetAttribute(FocusAttribute.ToString(), origAttribute, baseManager.characterManager.characterModel);
                         break;
-                    case effectGrp.Heal:
-                        dm.incomingHeal = extraPower != 0 ? extraPower : power;
+                    case EffectGrpEnum.Heal:
+                        dm.incomingHeal = effectPower;
                         dm.damageImmidiately = true;
                         targetDmgCalc.calculateHdamage( dm );
                         break;
-                    case effectGrp.Damage:
-                        dm.incomingDmg = power;
-                        dm.skillSource = "event: "+effect.ToString();
+                    case EffectGrpEnum.Damage:
+                        dm.incomingDmg = effectPower;
+                        dm.skillSource = "event: "+EffectGrp.ToString();
                         dm.damageImmidiately = true;
-                        targetDmgCalc.calculateFlatDmg( dm );
+                        targetDmgCalc.calculatedamage( dm );
                         break;
-                    case effectGrp.StatChange:
-                        baseManager.characterManager.SetAttribute(focusAttribute, power, baseManager.characterManager.characterModel);
+                    case EffectGrpEnum.StatChange:
+                        baseManager.characterManager.SetAttribute(FocusAttribute.ToString(), effectPower, baseManager.characterManager.characterModel);
                         break;
-                    case effectGrp.EquipmentStatChange:
-                        baseManager.characterManager.SetAttribute("original" + focusAttribute, power, baseManager.characterManager.characterModel);
-                        baseManager.characterManager.SetAttribute(focusAttribute, power, baseManager.characterManager.characterModel);
+                    case EffectGrpEnum.EquipmentStatChange:
+                        baseManager.characterManager.SetAttribute("original" + FocusAttribute, effectPower, baseManager.characterManager.characterModel);
+                        baseManager.characterManager.SetAttribute(FocusAttribute.ToString(), effectPower, baseManager.characterManager.characterModel);
                         break;
-                    case effectGrp.Status:
+                    case EffectGrpEnum.Status:
                         if( singleStatusGroupFriendly.Count > 0 ){
-                            for( int i = 0; i < singleStatusGroupFriendly.Count; i++ ){
+                            foreach (var statusItem in singleStatusGroupFriendly)
+                            {
                                 var sm = new StatusModel
                                 {
-                                    singleStatus = singleStatusGroupFriendly[i],
-                                    power = power,
-                                    turnDuration = turnDuration,
+                                    singleStatus = statusItem.status,
+                                    power = statusItem.power,
+                                    turnDuration = statusItem.duration,
                                     baseManager = target.baseManager
                                 };
-                                sm.singleStatus.dispellable = dispellable;
+                                sm.singleStatus.dispellable = statusItem.dispellable;
                                 targetStatus.RunStatusFunction(sm);
                             }
                         }
                         if( singleStatusGroup.Count > 0 ){
-                            for( int i = 0; i < singleStatusGroup.Count; i++ ){
+                            foreach (var statusItem in singleStatusGroup)
+                            {
                                 var sm = new StatusModel
                                 {
-                                    singleStatus = singleStatusGroup[i],
-                                    power = power,
-                                    turnDuration = turnDuration,
+                                    singleStatus = statusItem.status,
+                                    power = statusItem.power,
+                                    turnDuration = statusItem.duration,
                                     baseManager = target.baseManager
                                 };
-                                sm.singleStatus.dispellable = dispellable;
+                                sm.singleStatus.dispellable = statusItem.dispellable;
                                 targetStatus.RunStatusFunction(sm);
                             }
                         }
                         break;
                 }
-                BattleManager.taskManager.CallTask(coolDown, () =>
-                {
-                    ready = true;
-                });
             }
         }
 
-        public void RunResetEffect()
+        /*public void RunResetEffect()
         {
-            if (BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready && CheckChance(triggerChance))
+            if (BattleManager.eventManager.eventModel.eventName == trigger && owner.name == BattleManager.eventManager.eventModel.eventCaller.name && ready 
+                && MainGameManager.instance.GetChanceByPercentage(triggerChance))
             {
+                Debug.Log("worked");
                 target = affectSelf ? BattleManager.eventManager.eventModel.eventCaller : BattleManager.eventManager.eventModel.extTarget;
                 var baseManager = target.GetComponent<BaseCharacterManagerGroup>();
                 var extraPower = BattleManager.eventManager.eventModel.extraInfo != 0 ? BattleManager.eventManager.eventModel.extraInfo * power : power;
@@ -181,9 +182,9 @@ namespace AssemblyCSharp
                 PlayerDamageModel dm = new PlayerDamageModel();
                 switch (effect)
                 {
-                    case effectGrp.None:
+                    case EffectGrpEnum.None:
                         break;
-                    case effectGrp.Reset:
+                    case EffectGrpEnum.Reset:
                         var origAttribute = baseManager.characterManager.GetAttributeValue("original" + focusAttribute, baseManager.characterManager.characterModel);
                         baseManager.characterManager.SetAttribute(focusAttribute, origAttribute, baseManager.characterManager.characterModel);
                         break;
@@ -194,7 +195,7 @@ namespace AssemblyCSharp
                     ready = true;
                 });
             }
-        }
+        }*/
 
         /// <summary>
         /// Load the starting data for an effectevent
@@ -207,17 +208,17 @@ namespace AssemblyCSharp
         /// <param name="affectSelf"></param>
         /// <param name="owner"></param>
         /// <param name="cooldown"></param>
-        public void LoadEffectData(float power, int turnDuration, int triggerChance, bool ready, effectGrp effectType, bool affectSelf, GameObject owner, float cooldown)
+        public void LoadEffectData(float power, int turnDuration, int triggerChance, bool ready, EffectGrpEnum effectType, bool affectSelf, GameObject owner, float cooldown)
         {
-            this.power = power;
-            this.turnDuration = turnDuration;
-            this.trigger = "OnTakingDmg";
+            this.effectPower = power;
+            //this.turnDuration = turnDuration;
+            //this.trigger = "OnTakingDmg";
             this.triggerChance = triggerChance; //comes from status
-            this.ready = ready;
-            effect = effectType;
-            this.affectSelf = affectSelf; //comes from status
+           // this.ready = ready;
+            EffectGrp = effectType;
+           // this.affectSelf = affectSelf; //comes from status
             this.owner = owner;
-            this.coolDown = cooldown;
+            //this.coolDown = cooldown;
         }
     }
 }

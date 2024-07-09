@@ -148,7 +148,7 @@ namespace AssemblyCSharp
             for (int i = 0; i < summonedObjects.Count; i++)
             {
                 var enemyIndex = BattleManager.characterSelectManager.enemyCharacters.Count() + i;
-                var singleMinionDataItem = BattleManager.assetFinder.GetGameObjectFromPath("Assets/prefabs/combatInfo/character_info/singleMinionData.prefab");
+                var singleMinionDataItem = MainGameManager.instance.ItemFinder.MinionDataItem;
                 var creatureData = Instantiate(singleMinionDataItem, GameObject.Find("Panel MinionData").transform);
                 creatureData.name = "minion_" + enemyIndex + "_data";
                 var panel = GetRandomPanelFromPanels();

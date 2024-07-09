@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.scripts.Models.statusModels;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,7 +39,7 @@ namespace AssemblyCSharp
         {
             var turnType = BattleManager.TurnEnum.EnemyTurn;
             return baseManager.characterManager.characterModel.isAlive &&
-                baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist("stun") &&
+                baseManager.characterManager.characterModel.canAutoAttack && !isAttacking && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) &&
                 !baseManager.animationManager.inAnimation && /*!baseManager.skillManager.isSkillactive &&*/ (BattleManager.turn == turnType);
         }
 
@@ -117,14 +118,8 @@ namespace AssemblyCSharp
                         targetDamageManager.TakeDmg(damageModel, e.Data.Name);
                         MainGameManager.instance.soundManager.PlayAAHitSound();
                     }
-                    var eventModel = new EventModel
-                    {
-                        eventName = "OnDealingDmg",
-                        extTarget = autoAttackTarget.characterManager,
-                        eventCaller = baseManager.characterManager,
-                        extraInfo = damageModel.damageTaken
-                    };
-                    BattleManager.eventManager.BuildEvent(eventModel);
+
+                    baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnAction);
                     targetDamageManager.autoAttackDmgModels.Remove(gameObject.name);
                 }
             }

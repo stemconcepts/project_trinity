@@ -5,19 +5,19 @@ using UnityEngine;
 namespace AssemblyCSharp
 {
     [System.Serializable]
-    public class bauble : ScriptableObject {
+    public class Bauble : ScriptableObject {
         public string baubleName;
         public bool dispellable;
         public bool owned;
         public Sprite itemIcon;
         public bool isEquipped;
-        public string focusAttribute;
+        public CharacterStats FocusAttribute;
         public float flatAmount;
         public int turnDuration;
         public float coolDown;
         public float triggerChance;
-        public triggerGrp trigger;
-        [Multiline]
+        public EventTriggerEnum trigger;
+        [TextArea]
         public string baubleDesc;
         public itemQuality quality;
         public enum itemQuality {
