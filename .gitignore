@@ -5,3 +5,5 @@ Assets/Ultimate SFX Bundle - HD Remaster
 *.log
 *.apiupaterconfigs
 [Ll]ibrary/
+/Library
+Library/ArtifactDB
