@@ -51,6 +51,47 @@ namespace AssemblyCSharp
             };
         }
 
+        public lineDirectionEnum CorrectDirection(lineDirectionEnum direction)
+        {
+            if (direction == lineDirection || lineDirection == lineDirectionEnum.down)
+            {
+                return direction;
+            } else 
+            {
+
+                var randomDirection = Random.Range(0, 1);
+
+                switch (lineDirection)
+                {
+                    case lineDirectionEnum.right:
+                        return randomDirection == 0 ? lineDirectionEnum.down : lineDirectionEnum.right;
+                    case lineDirectionEnum.left:
+                        return randomDirection == 0 ? lineDirectionEnum.down : lineDirectionEnum.left;
+                    case lineDirectionEnum.none:
+                        return lineDirectionEnum.none;
+                    default:
+                        return lineDirectionEnum.none;
+                }
+            }
+        }
+
+        public lineDirectionEnum GetFreeDirection()
+        {
+            var randomDirection = Random.Range(0, 1);
+
+            switch (lineDirection)
+            {
+                case lineDirectionEnum.right:
+                    return randomDirection == 0 ? (lineDirectionEnum)randomDirection : lineDirectionEnum.right;
+                case lineDirectionEnum.left:
+                    return randomDirection == 0 ? (lineDirectionEnum)randomDirection : lineDirectionEnum.left;
+                case lineDirectionEnum.none:
+                    return lineDirectionEnum.none;
+                default:
+                    return lineDirectionEnum.none;
+            }
+        }
+
         public void ShowLine(lineDirectionEnum lineDirection)
         {
             this.lineDirection = lineDirection;

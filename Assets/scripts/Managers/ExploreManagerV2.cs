@@ -8,6 +8,7 @@ using TMPro;
 using AssemblyCSharp;
 using static AssemblyCSharp.miniMapIconBase;
 using System.Reflection;
+using Spine;
 
 namespace Assets.scripts.Managers
 {
@@ -211,24 +212,6 @@ namespace Assets.scripts.Managers
                         r.id = $"room_detour_connector_{i}_{room.id}";
                         GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
 
-                        /*var direction = MainGameManager.instance.ReturnRandom(2);
-
-                        switch (direction)
-                        {
-                            case 0:
-                                GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
-                                break;
-                            case 1:
-                                GenerateRoomIcon(r, lineDirectionEnum.left, false, o.start.depth, o.start.masterDepth + 1);
-                                break;
-                            case 2:
-                                GenerateRoomIcon(r, lineDirectionEnum.right, false, o.start.depth, o.start.masterDepth + 1);
-                                break;
-                            default:
-                                GenerateRoomIcon(r, lineDirectionEnum.down, false, o.start.depth, o.start.masterDepth + 1);
-                                break;
-                        }*/
-
                         r.roomIcon.SetDetourConnectorColour();
                         r.roomIcon.SetObjectName($"RoomIcon_Detour_Connector_Parent-{o.start.label}");
                         detourRooms.Add(r);
@@ -322,6 +305,36 @@ namespace Assets.scripts.Managers
             roomIconGroup.transform.position = new Vector3(lastRoomLocation.position.x, lastRoomLocation.position.y + 0.4f);
         }
 
+        void ChooseDirection(GameObject roomIcon, miniMapIconController miniMapIcon, Transform iconParentTransform)
+        {
+            var parentRoomIcon = iconParentTransform.gameObject.GetComponent<miniMapIconController>();
+            var direction = (lineDirectionEnum)MainGameManager.instance.ReturnRandom(3);
+
+           // Check Direction isnt taken
+            if (parentRoomIcon != null )
+            {
+                direction = parentRoomIcon.CorrectDirection(direction);
+            }
+
+            switch (direction)
+            {
+                case lineDirectionEnum.down:
+                    miniMapIcon.ShowLine(lineDirectionEnum.down);
+                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x, iconParentTransform.position.y + 0.4f);
+                    break;
+                case lineDirectionEnum.right:
+                    miniMapIcon.ShowLine(lineDirectionEnum.right);
+                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x - 0.4f, iconParentTransform.position.y);
+                    break;
+                case lineDirectionEnum.left:
+                    miniMapIcon.ShowLine(lineDirectionEnum.left);
+                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x + 0.4f, iconParentTransform.position.y);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void GenerateRoomIcon(DungeonRoom dr, lineDirectionEnum direction, bool isMainIcon, int depth, int masterDepth = 0)
         {
             GameObject roomIcon = Instantiate(roomIconTemplate, miniMap.transform);
@@ -339,34 +352,21 @@ namespace Assets.scripts.Managers
                 dr.parentRoom.roomIcon.ShowLine(direction);
                 mmc.ShowLine(direction);
                 roomIcon.transform.position = new Vector3(parentRoomTransform.position.x, parentRoomTransform.position.y - 0.4f);
-
-                /*float x = lineDirectionEnum.left == direction ? parentRoomTransform.position.x - 0.4f : parentRoomTransform.position.x + 0.4f;
-
-                switch (direction)
-                {
-                    case lineDirectionEnum.down:
-                        roomIcon.transform.position = new Vector3(parentRoomTransform.position.x, parentRoomTransform.position.y - 0.4f);
-                        break;
-                    case lineDirectionEnum.right:
-                        roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
-                        break;
-                    case lineDirectionEnum.left:
-                        roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
-                        break;
-                    case lineDirectionEnum.none:
-                        break;
-                    default:
-                        break;
-                }*/
             }
             else if (iconControllers.Count > 0)
             {
                 Transform lastRoomLocation = iconControllers[iconControllers.Count - 1].transform;
                 if (dr.isDetour)
                 {
+
                     Transform parentRoomTransform = iconControllers.Where(o => o.label == dr.parentRoom.gameObject.name).FirstOrDefault().transform;
-                    float x = lineDirectionEnum.left == direction ? parentRoomTransform.position.x - 0.4f : parentRoomTransform.position.x + 0.4f;
-                    //mmc.ShowLine(direction);
+
+                    ChooseDirection(roomIcon, mmc, parentRoomTransform ?? lastRoomLocation);
+
+                    /*float x = lineDirectionEnum.left == direction ? parentRoomTransform.position.x - 0.4f : parentRoomTransform.position.x + 0.4f;
+
+                    mmc.ShowLine(direction);
+
                     if (parentRoomTransform)
                     {
                         roomIcon.transform.position = new Vector3(x, parentRoomTransform.position.y);
@@ -374,13 +374,36 @@ namespace Assets.scripts.Managers
                     else
                     {
                         roomIcon.transform.position = new Vector3(x, lastRoomLocation.position.y);
-                    }
+                    }*/
                 }
                 else
                 {
-                    mmc.ShowLine(lineDirectionEnum.down);
+
                     Transform trueLocation = roomIconPosition != null ? roomIconPosition : iconControllers[iconControllers.Count - 1].transform;
-                    roomIcon.transform.position = new Vector3(trueLocation.position.x, trueLocation.position.y + 0.4f);
+
+                    ChooseDirection(roomIcon, mmc, trueLocation);
+
+                    /*var maindirection = MainGameManager.instance.ReturnRandom(2);
+                    switch (maindirection)
+                    {
+                        case 0:
+                            mmc.ShowLine(lineDirectionEnum.down);
+                            roomIcon.transform.position = new Vector3(trueLocation.position.x, trueLocation.position.y + 0.4f);
+                            break;
+                        case 1:
+                            mmc.ShowLine(lineDirectionEnum.right);
+                            roomIcon.transform.position = new Vector3(trueLocation.position.x - 0.4f, trueLocation.position.y);
+                            break;
+                        case 2:
+                            mmc.ShowLine(lineDirectionEnum.left);
+                            roomIcon.transform.position = new Vector3(trueLocation.position.x + 0.4f, trueLocation.position.y);
+                            break;
+                        default:
+                            mmc.ShowLine(lineDirectionEnum.down);
+                            roomIcon.transform.position = new Vector3(trueLocation.position.x, trueLocation.position.y + 0.4f);
+                            break;
+                    }*/
+
                     roomIconPosition = roomIconPosition != null ? null : roomIconPosition;
                 }
             }
