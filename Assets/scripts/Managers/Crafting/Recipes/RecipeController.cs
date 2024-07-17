@@ -60,9 +60,9 @@ namespace Assets.scripts.Managers.Crafting.Recipes
 
         public RecipeResult HasCombination(List<ItemBase> items, CraftingCatalyst catalyst)
         {
-
+            var successful = false;
             RecipeResult res = new RecipeResult();
-            Recipes.ForEach(recipe =>
+            foreach (var recipe in Recipes)
             {
                 var requiredItems = recipe.GetRequiredItemList();
 
@@ -76,6 +76,7 @@ namespace Assets.scripts.Managers.Crafting.Recipes
                                 res.items.AddRange(recipe.results);
                                 recipe.SetDiscovered();
                                 RefreshDiscoveredPanel();
+                                successful = true;
                             };
                             break;
                         case MixMode.requiresAnyOf:
@@ -84,14 +85,19 @@ namespace Assets.scripts.Managers.Crafting.Recipes
                                 res.items.AddRange(recipe.results);
                                 recipe.SetDiscovered();
                                 RefreshDiscoveredPanel();
+                                successful = true;
                             };
                             break;
                         default:
                             break;
                     }
                 }
-            });
-            return res;
+                if (successful)
+                {
+                    return res;
+                }
+            }
+            return null;
         }
     }
 }

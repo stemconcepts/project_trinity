@@ -6,7 +6,7 @@ namespace AssemblyCSharp
 {
     public class miniMapIconBase : MonoBehaviour
     {
-        public string id;
+        public string LocationId;
         public bool isCurrent;
         public string label;
         public Color startColor;
@@ -29,7 +29,7 @@ namespace AssemblyCSharp
             left = 2,
             none = 3
         }
-        public bool isMainIcon, isCustomIcon;
+        public bool isMainRoute, isCustomRoute;
         public int depth;
         public int masterDepth;
 
@@ -49,6 +49,13 @@ namespace AssemblyCSharp
                 lineLeft = mmb.lineLeft,
                 lineDirection = mmb.lineDirection
             };
+        }
+
+        public (string alphabet, int index) GetLocationId()
+        {
+            var letter = LocationId.Substring(0, 1);
+            var index = LocationId.Length > 2 ? LocationId.Substring(1, 2) : LocationId.Substring(1, 1);
+            return (letter, int.Parse(index));
         }
 
         public lineDirectionEnum CorrectDirection(lineDirectionEnum direction)
@@ -90,6 +97,38 @@ namespace AssemblyCSharp
                 default:
                     return lineDirectionEnum.none;
             }
+        }
+
+        public lineDirectionEnum ChooseDirection(GameObject roomIcon, Transform iconParentTransform, lineDirectionEnum forceDirection = lineDirectionEnum.none)
+        {
+            var parentRoomIcon = iconParentTransform.gameObject.GetComponent<miniMapIconController>();
+            var direction = forceDirection == lineDirectionEnum.none ? (lineDirectionEnum)MainGameManager.instance.ReturnRandom(3) : forceDirection;
+
+            // Check Direction isnt taken
+            if (parentRoomIcon != null)
+            {
+                direction = parentRoomIcon.CorrectDirection(direction);
+            }
+
+            switch (direction)
+            {
+                case lineDirectionEnum.down:
+                    ShowLine(lineDirectionEnum.down);
+                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x, iconParentTransform.position.y + 0.4f);
+                    break;
+                case lineDirectionEnum.right:
+                    ShowLine(lineDirectionEnum.right);
+                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x - 0.4f, iconParentTransform.position.y);
+                    break;
+                case lineDirectionEnum.left:
+                    ShowLine(lineDirectionEnum.left);
+                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x + 0.4f, iconParentTransform.position.y);
+                    break;
+                default:
+                    break;
+            }
+
+            return direction;
         }
 
         public void ShowLine(lineDirectionEnum lineDirection)

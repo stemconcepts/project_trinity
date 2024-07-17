@@ -15,6 +15,7 @@ namespace AssemblyCSharp
         public CharacterTemplate template;
         public bool useStats;
         public bool useResistance;
+        [ConditionalHide("useResistance")]
         [Header("Character Resistances")]
         public Resistances resistances;
         [Header("Health Object:")]
@@ -45,18 +46,7 @@ namespace AssemblyCSharp
                 characterModel.isAlive = false;
                 BattleManager.characterSelectManager.UpdateCharacters(this.gameObject.name);
                 characterModel.Health = 0;
-                var trackEntry = baseManager.animationManager.PlaySetAnimation("toDeath");
-
-                if(baseManager.animationManager.skeletonAnimationMulti != null)
-                {
-                    baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(skeleton =>
-                    {
-                        BattleManager.gameEffectManager.FadeOutSpine(skeleton);
-                    });
-                } else
-                {
-                    BattleManager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
-                }
+                //var trackEntry = baseManager.animationManager.PlaySetAnimation("toDeath");
 
                 foreach (var task in BattleManager.taskManager.taskList)
                 {
@@ -68,15 +58,18 @@ namespace AssemblyCSharp
                 if (this is EnemyCharacterManager)
                 {
                     var enemyCharacterManager = (EnemyCharacterManager)this;
-                    if (trackEntry != null && this.gameObject)
+                    if (this.gameObject)
                     {
-                        Destroy(this.gameObject, trackEntry.Animation.Duration);
+                        Destroy(this.gameObject, 3f);
                         var dataUI = GameObject.Find(this.gameObject.name + "_data");
-                        Destroy(dataUI, trackEntry.Animation.Duration);
+                        Destroy(dataUI, 3f);
                     }
 
                     //Remove enemy selector if it exists
-                    if(enemyCharacterManager.enemyCharacterSelector) Destroy(enemyCharacterManager.enemyCharacterSelector);
+                    if (enemyCharacterManager.enemyCharacterSelector)
+                    {
+                        Destroy(enemyCharacterManager.enemyCharacterSelector);
+                    }
 
                     BattleManager.AddToEXP((baseManager.characterManager.characterModel as EnemyCharacterModel).experience);
 
@@ -88,6 +81,30 @@ namespace AssemblyCSharp
                         }
                     });
 
+                    if (baseManager.animationManager.skeletonAnimationMulti != null)
+                    {
+                        baseManager.animationManager.skeletonAnimationMulti.GetSkeletonAnimations().ForEach(skeleton =>
+                        {
+                            BattleManager.gameEffectManager.FadeOutSpine(skeleton);
+                        });
+                    }
+                    else
+                    {
+                        BattleManager.gameEffectManager.FadeOutSpine(baseManager.animationManager.skeletonAnimation);
+                    }
+                } else if (this is CharacterManager)
+                {
+                    var KOsingleStatus = baseManager.statusManager.singleStatusList.Find(s => s.statusName == StatusNameEnum.KnockedOut);
+                    var KOstatusModel = new StatusModel
+                    {
+                        singleStatus = KOsingleStatus,
+                        turnDuration = ((CharacterManager)this).RecoverTime,
+                        baseManager = baseManager
+                    };
+                    baseManager.statusManager.StatusOn(KOstatusModel);
+
+                    var characterManager = (CharacterManager)this;
+                    BattleManager.GenericEventManager.AddDelegateToEvent(GenericEventEnum.PlayerTurn, characterManager.Ressurect);
                 }
             }
         }

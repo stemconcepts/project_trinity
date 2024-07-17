@@ -32,7 +32,6 @@ namespace AssemblyCSharp
         public Color enemyPanelColor;
         public Color voidZoneColor;
         public Color counterZoneColor;
-        public bool friendlyPanel;
         //private bool dragging = false;
         public GameObject positionArrowType;
         //private float distance;
@@ -51,23 +50,7 @@ namespace AssemblyCSharp
         };
         public bool moved = false;
         public GameObject SelectedEffect;
-
-        void Start()
-        {
-            imageScript = GetComponent<Image>();
-            voidZoneColor = new Color(0.9f, 0.1f, 0.1f, 1f);
-            panelColor = new Color(1f, 1f, 1f, fadeAmount);
-            enemyPanelColor = new Color(0.6f, 0.4f, 0.4f, fadeAmount);
-            counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
-            threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 0.8f);
-            imageScript.color = isVoidZone ? voidZoneColor : isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
-            panelTransform = GetComponent<RectTransform>();
-            Invoke("SetPosition", 0.5f);
-            if (!isThreatPanel)
-            {
-                //SetFade(0f, 2f);
-            }
-        }
+        public GameObject CastingEffect;
 
         bool IsBackPanel()
         {
@@ -263,6 +246,11 @@ namespace AssemblyCSharp
             SelectedEffect?.SetActive(show);
         }
 
+        public void ShowCasting(bool show)
+        {
+            CastingEffect?.SetActive(show);
+        }
+
         public void OnMouseEnter()
         {
             //SetFade(0.8f, 0.5f);
@@ -275,8 +263,17 @@ namespace AssemblyCSharp
             }
         }
 
-        public void Update()
+        void Start()
         {
+            imageScript = GetComponent<Image>();
+            voidZoneColor = new Color(0.9f, 0.1f, 0.1f, 1f);
+            panelColor = new Color(1f, 1f, 1f, fadeAmount);
+            enemyPanelColor = new Color(0.6f, 0.4f, 0.4f, fadeAmount);
+            counterZoneColor = new Color(0.1f, 0.9f, 0.1f, 1f);
+            threatPanelColor = new Color(0.9f, 0.9f, 0.1f, 0.8f);
+            imageScript.color = isVoidZone ? voidZoneColor : isThreatPanel ? threatPanelColor : isEnemyPanel ? enemyPanelColor : panelColor;
+            panelTransform = GetComponent<RectTransform>();
+            Invoke("SetPosition", 0.5f);
         }
     }
 }

@@ -377,6 +377,11 @@ namespace AssemblyCSharp
         public void StartCasting(SkillModel skillModel)
         {
             isCasting = true;
+            var currentPanel = baseManager.movementManager.currentPanel?.GetComponent<PanelsManager>();
+            if (currentPanel)
+            {
+                currentPanel.ShowCasting(true);
+            }
             baseManager.animationManager.inAnimation = true;
             baseManager.animationManager.PlaySetAnimation(skillModel.BeginCastingAnimation.ToString(), false);
             baseManager.animationManager.PlayAddAnimation(skillModel.CastingAnimation.ToString(), true);
@@ -447,6 +452,11 @@ namespace AssemblyCSharp
             {
                 hasCasted = true;
                 isCasting = false;
+                var currentPanel = baseManager.movementManager.currentPanel?.GetComponent<PanelsManager>();
+                if (currentPanel)
+                {
+                    currentPanel.ShowCasting(false);
+                }
                 SetAnimations((SkillModel)activeSkill);
             }
         }

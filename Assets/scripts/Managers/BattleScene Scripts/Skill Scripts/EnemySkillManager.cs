@@ -54,7 +54,8 @@ namespace AssemblyCSharp
             if (skillModel.castingSounds.Count > 0)
             {
                 MainGameManager.instance.soundManager.playAllSounds(skillModel.castingSounds, 0.3f);
-            } else if (skillModel.isSpell)
+            }
+            else if (skillModel.isSpell)
             {
                 MainGameManager.instance.soundManager.playAllSounds(MainGameManager.instance.soundManager.magicChargeSounds, 0.3f);
             }
@@ -63,6 +64,9 @@ namespace AssemblyCSharp
                 skillModel.ShowVoidPanel(skillModel.voidZoneTypes, skillModel.monsterPanel);
             }
             skillModel.SaveTurnToComplete((int)baseManager.characterManager.characterModel.insight);
+
+            var currentPanel = baseManager.movementManager.currentPanel?.GetComponent<PanelsManager>();
+            currentPanel.ShowCasting(true);
         }
 
         private bool ArePreRequisitesMet(enemySkill skill)
@@ -490,6 +494,11 @@ namespace AssemblyCSharp
                         if (o.CompleteSkillOnCurrentTurn())
                         {
                             isCasting = false;
+                            var currentPanel = baseManager.movementManager.currentPanel?.GetComponent<PanelsManager>();
+                            if (currentPanel)
+                            {
+                                currentPanel.ShowCasting(false);
+                            }
                             if (o.summon)
                             {
                                 o.SummonCreatures(summonList);

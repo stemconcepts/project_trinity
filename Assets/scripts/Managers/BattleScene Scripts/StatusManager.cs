@@ -214,35 +214,40 @@ namespace AssemblyCSharp
         }
 
         public bool DoesStatusExist(StatusNameEnum statusName){
-                Transform statusPanel;
-                SingleStatusModel status;
-                for (int i = 0; i < singleStatusList.Count; i++)
+            Transform statusPanel;
+            SingleStatusModel status;
+            for (int i = 0; i < singleStatusList.Count; i++)
+            {
+                if (singleStatusList[i].statusName == statusName)
                 {
-                    if (singleStatusList[i].statusName == statusName)
+                    status = singleStatusList[i];
+                    if (status.buff)
                     {
-                        status = singleStatusList[i];
-                        if (status.buff)
+                        statusPanel = buffHolder.transform;
+                    }
+                    else
+                    {
+                        statusPanel = debuffHolder.transform;
+                    }
+                    int statusCount = statusPanel.childCount;
+                    for (int x = 0; x < statusCount; x++)
+                    {
+                        var statusLabelScript = statusPanel.GetChild(x).GetComponent<StatusLabelModel>();
+                        if (statusLabelScript.statusName == statusName)
                         {
-                            statusPanel = buffHolder.transform;
-                        }
-                        else
-                        {
-                            statusPanel = debuffHolder.transform;
-                        }
-                        int statusCount = statusPanel.childCount;
-                        for (int x = 0; x < statusCount; x++)
-                        {
-                            var statusLabelScript = statusPanel.GetChild(x).GetComponent<StatusLabelModel>();
-                            if (statusLabelScript.statusName == statusName)
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
+            }
             return false;
         }
 
+        /// <summary>
+        /// Gets possible statuses that can exist on the character
+        /// </summary>
+        /// <param name="statusName"></param>
+        /// <returns></returns>
         public SingleStatusModel GetStatus(StatusNameEnum statusName)
         {
             for( int i = 0; i < singleStatusList.Count; i++ ){            
@@ -253,6 +258,11 @@ namespace AssemblyCSharp
             return null;
         }
 
+        /// <summary>
+        /// Gets a status if it is currently Active on the character
+        /// </summary>
+        /// <param name="statusName"></param>
+        /// <returns></returns>
         public StatusLabelModel GetStatusIfExist(StatusNameEnum statusName)
         {
             Transform statusPanel;
@@ -303,6 +313,10 @@ namespace AssemblyCSharp
 
         //check immunity
         public bool CheckImmunity( string statusName ){
+            if (String.IsNullOrEmpty(statusName))
+            {
+                return false;
+            }
             for (int i = 0; i < immunityList.Count; i++) {
                 if( immunityList[i].name == statusName ){
                     return true;
@@ -326,7 +340,7 @@ namespace AssemblyCSharp
         }
 
         public void StatusOn( StatusModel statusModel ){
-            if( !statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName) && !CheckImmunity(statusModel.singleStatus.attributeName))
+            if(!statusModel.turnOff && !DoesStatusExist(statusModel.singleStatus.statusName) && !CheckImmunity(statusModel.singleStatus.attributeName))
             {
                 battleDetailsManager.ShowLabel(statusModel, statusModel.singleStatus.buff ? buffHolder : debuffHolder);
                 if (statusModel.singleStatus.hitAnim != animationOptionsEnum.none && statusModel.singleStatus.holdAnim != animationOptionsEnum.none)

@@ -14,6 +14,7 @@ using Assets.scripts.Models.statusModels;
 using UnityEditor;
 using Assets.scripts.Helpers.Assets;
 using DG.Tweening.Core.Easing;
+using UnityEngine.TextCore.Text;
 
 namespace AssemblyCSharp
 {
@@ -36,6 +37,7 @@ namespace AssemblyCSharp
         public static GameObject tooltipCanvas;
         public GameObject tooltipCanvasTarget;
         public static List<PanelsManager> allPanelManagers;
+        public static List<PanelsManager> AllEnemyPanelManagers;
         public static Sound_Manager soundManager;
         public static Game_Effects_Manager gameEffectManager;
         public static Task_Manager taskManager;
@@ -120,7 +122,10 @@ namespace AssemblyCSharp
             {
                 MainGameManager.instance.gameMessanger.DisplayMessage(MainGameManager.instance.GetText("Battle"), headerText: "A Battle has begun", waitTime: 2f, pauseGame: true);
             }
+
             allPanelManagers = GameObject.FindGameObjectsWithTag("movementPanels").Select(o => o.GetComponent<PanelsManager>()).ToList();
+            AllEnemyPanelManagers = GameObject.FindGameObjectsWithTag("enemyMovementPanels").Select(o => o.GetComponent<PanelsManager>()).ToList();
+
             taskManager.battleDetailsManager = battleDetailsManager;
             var bi = GameObject.FindGameObjectsWithTag("skillDisplayControl").ToList();
             battleInterfaceManager = bi.Select(x => x.GetComponent<BattleInterfaceManager>()).ToList();
@@ -134,6 +139,26 @@ namespace AssemblyCSharp
 
             GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.GameOver);
             GenericEventManager.AddDelegateToEvent(GenericEventEnum.GameOver, DoGameOver);
+
+            GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.PlayerTurn);
+        }
+
+        public void DamagePlayer(float value, bool trueDamage = false)
+        {
+            var character = characterSelectManager.walkerObject.GetComponent<CharacterManager>();
+
+            var damageController = character.baseManager.damageManager;
+
+            var damageModel = new BaseDamageModel();
+            damageModel.damageImmidiately = true;
+            damageModel.element = trueDamage ? elementType.trueDmg : elementType.none;
+            damageModel.damageTaken = value;
+            damageModel.baseManager = character.baseManager;
+            damageModel.dueDmgTargets = new List<BaseCharacterManager>(){
+                                    character
+                                };
+            damageModel.dmgSource = character;
+            damageController.TakeDmg(damageModel, "DamageHealerTest");
         }
 
         public void DamageAllFriendly(float value, bool trueDamage = false)
@@ -195,13 +220,16 @@ namespace AssemblyCSharp
                 {
                     character.baseManager.statusManager.RunStatusActions(turn);
                 }
+                GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.EnemyTurn);
             } else
             {
                 foreach (var character in characterSelectManager.friendlyCharacters)
                 {
                     character.baseManager.statusManager.RunStatusActions(turn);
                 }
+                GenericEventManager.CreateGenericEventOrTriggerEvent(GenericEventEnum.PlayerTurn);
             }
+
         }
 
         void Update()
@@ -759,6 +787,14 @@ namespace AssemblyCSharp
             }
             var randomPanelNumber = UnityEngine.Random.Range(0, chosenPanels.Count);
             return chosenPanels[randomPanelNumber];
+        }
+
+        public static List<PanelsManager> GetAllFreePanels(bool playerPanels)
+        {
+            var allPanels = playerPanels ? allPanelManagers : AllEnemyPanelManagers;
+
+            return allPanels.Where(panel => panel.currentOccupier == null)
+                .ToList();
         }
 
         public static void HitBoxControl(bool hitBoxSwitch, RoleEnum role = RoleEnum.none)

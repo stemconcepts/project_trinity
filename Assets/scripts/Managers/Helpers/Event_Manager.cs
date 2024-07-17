@@ -24,6 +24,8 @@ namespace AssemblyCSharp
     {
         None,
         GameOver,
+        PlayerTurn,
+        EnemyTurn,
         EquipmentReady
     };
 

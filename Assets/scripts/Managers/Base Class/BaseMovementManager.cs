@@ -129,12 +129,10 @@ namespace AssemblyCSharp
             if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.SteadFast) && skill.forcedMove == GenericSkillModel.moveType.Back)
             {
                 targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + GetMoveAmount(skill.forcedMoveAmount);
-                //targetPanelNum = currentPanelNum == 2 ? currentPanelNum : currentPanelNum + skill.forcedMoveAmount;
             }
             else if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.SteadFast) && skill.forcedMove == GenericSkillModel.moveType.Forward)
             {
                 targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - GetMoveAmount(skill.forcedMoveAmount);
-                //targetPanelNum = currentPanelNum == 0 ? currentPanelNum : currentPanelNum - skill.forcedMoveAmount;
             }
 
             targetPanelNum = targetPanelNum > 2 ? 2 : targetPanelNum;

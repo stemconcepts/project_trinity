@@ -17,11 +17,15 @@ namespace AssemblyCSharp
             GameManager gameManager = (GameManager)target;
 
             GUILayout.Space(30);
-           //GUILayout.Label("Damage Value");
+            //GUILayout.Label("Damage Value");
 
             //string damage = "";
             //damage = GUILayout.TextField(damage.ToString(), 4, "textfield");
 
+            if (GUILayout.Button("Damage Player"))
+            {
+                gameManager.BattleManager.DamagePlayer(50, true);
+            }
 
             if (GUILayout.Button("Damage All Friendly"))
             {

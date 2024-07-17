@@ -1,14 +1,24 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.Analytics;
+using Assets.scripts.Models.statusModels;
 
 namespace AssemblyCSharp
 {
     public class CharacterManager : BaseCharacterManager
     {
-        //public override Character_Model characterModelTest { get; set; }
-        //[Header("Character Model")]
-        //public Character_Model characterModel;
+        public int RecoverTime;
+        int TurnsToRecover;
+
+        public void Ressurect()
+        {
+            if (!characterModel.isAlive && BattleManager.turnCount >= TurnsToRecover)
+            {
+                characterModel.isAlive = true;
+                characterModel.Health = characterModel.maxHealth * 0.3f;
+            }
+        }
 
         void Awake()
         {
@@ -18,6 +28,7 @@ namespace AssemblyCSharp
             {
                 resistances = useResistance ? template.resistances : resistances;
             }
+            TurnsToRecover = BattleManager.turnCount + RecoverTime;
         }
 
         void Update()

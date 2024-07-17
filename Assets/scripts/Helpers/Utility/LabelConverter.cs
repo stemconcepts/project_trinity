@@ -9,6 +9,29 @@ namespace Assets.scripts.Helpers.Utility
 {
     public static class LabelConverter
     {
+        public static Dictionary<int, string> Alphabet {
+            get
+            {
+                Dictionary<int, string> results = new Dictionary<int, string>();
+                for (var i = 0; i < 26; i++)
+                {
+                    results.Add(
+                        i,
+                        Convert.ToChar(i + 97).ToString()
+                    );
+                }
+
+                return results;
+            }      
+        }
+
+        public static string GetLetterFromCalculation(string letter, int value)
+        {
+            var item = Alphabet.Where(a => a.Value.ToUpper() == letter.ToUpper()).FirstOrDefault();
+            var newIndex = item.Key + value;
+            return newIndex > -1 ? Alphabet[newIndex].ToUpper() : Alphabet[0].ToUpper();
+        }
+
         /// <summary>
         /// Convert camelcase words to readable text and capitalises first letter
         /// </summary>

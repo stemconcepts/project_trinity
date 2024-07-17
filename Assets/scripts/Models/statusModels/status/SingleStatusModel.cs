@@ -62,7 +62,7 @@ namespace AssemblyCSharp
     	public animationOptionsEnum hitAnim;
     	public animationOptionsEnum holdAnim;
     	public StatusTypeEnum statusTypeEnum;
-        [ConditionalHide("statusTypeEnum", (int)StatusTypeEnum.Immunity, false)]
+        //[ConditionalHide("statusTypeEnum", (int)StatusTypeEnum.Immunity, false)]
         public List<SingleStatusModel> immunityList;
         public subStatus subStatus;
 

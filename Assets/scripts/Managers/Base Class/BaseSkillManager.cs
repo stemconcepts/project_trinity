@@ -1,13 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using System.Linq;
-using static AssemblyCSharp.PhaseManager;
-using static AssemblyCSharp.GenericSkillModel;
 using Spine;
-using Unity.Burst.CompilerServices;
-using System;
 
 namespace AssemblyCSharp
 {

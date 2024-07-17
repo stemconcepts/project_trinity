@@ -9,6 +9,7 @@ using Assets.scripts.Managers;
 using System;
 using static AssemblyCSharp.PanelsManager;
 using Assets.scripts.Helpers.Assets;
+using Assets.scripts.Helpers.Utility;
 
 namespace AssemblyCSharp
 {
@@ -165,12 +166,12 @@ namespace AssemblyCSharp
             PlayerData playerData = SavedDataManager.SavedDataManagerInstance.LoadPlayerData();
             if (playerData != null)
             {
-                /*SceneManager.tankReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.weapon &&
+                SceneManager.tankReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.weapon &&
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.tankEquipment.classSkill;
                 SceneManager.dpsReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.weapon &&
                     SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.dpsEquipment.classSkill;
                 SceneManager.healerReady = SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.weapon &&
-                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill;*/
+                    SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.secondWeapon && SavedDataManager.SavedDataManagerInstance.persistentData.playerData.healerEquipment.classSkill;
             }
         }
 

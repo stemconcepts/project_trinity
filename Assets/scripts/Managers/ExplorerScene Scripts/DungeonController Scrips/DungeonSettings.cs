@@ -25,7 +25,7 @@ namespace AssemblyCSharp
         public float chanceToGenerateCustomRoute;
         public int minRoomsBeforeCustomRoutes;
         [Header("Detour Settings")]
-        public detourAmount maxDetours;
+        public detourAmount MaxDetourPerMainRoute;
         public enum detourAmount
         {
             One = 1,

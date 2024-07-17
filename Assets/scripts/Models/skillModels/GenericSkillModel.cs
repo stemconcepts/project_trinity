@@ -20,6 +20,14 @@ namespace AssemblyCSharp
         top
     }
 
+    public enum CompatibleRow
+    {
+        All,
+        Front,
+        Middle,
+        Back
+    }
+
     public class SkillData
     {
         public BaseCharacterManager target;
@@ -126,14 +134,7 @@ namespace AssemblyCSharp
             RunSkill,
             TakeDmgFromCast
         }
-        public List<CompatibleRow> compatibleRows;
-        public enum CompatibleRow
-        {
-            All,
-            Front,
-            Middle,
-            Back
-        }
+        public List<CompatibleRow> compatibleRows = new List<CompatibleRow>();
         [ConditionalHide("ExtraEffect", (int)ExtraEffectEnum.BonusDamage, false)]
         public BonusPrerequisite bonusPrerequisite;
         public enum BonusPrerequisite

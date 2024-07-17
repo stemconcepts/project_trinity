@@ -19,14 +19,13 @@ namespace AssemblyCSharp
 
         public void CheckAndChangePhase()
         {
-            if (!BattleManager.disableActions && (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn) && !baseManager.autoAttackManager.isAttacking
-                /*&& !baseManager.skillManager.isSkillactive*/ && baseManager.characterManager.characterModel.isAlive)
+            if (!BattleManager.disableActions && (BattleManager.turn == BattleManager.TurnEnum.EnemyTurn) && !baseManager.autoAttackManager.isAttacking && baseManager.characterManager.characterModel.isAlive)
             {
                 ChangeBossPhase();
             }
         }
 
-        private void ChangeBossPhase()
+        public void ChangeBossPhase()
         {
             var healthPercentage = (baseManager.characterManager.characterModel.Health/baseManager.characterManager.characterModel.maxHealth) * 100;
             phases.ForEach(o =>
