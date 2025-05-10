@@ -17,7 +17,7 @@ namespace AssemblyCSharp
         {
             PanelsManager validPanel = null;
             var availableRows = BattleManager.GetAllFreePanels(false);
-            while (validPanel == null)
+            while (validPanel == null && availableRows.Count > 0)
             {
 
                 if (SpawnableRows.Count == 0 || SpawnableRows.Any(row => CompatibleRow.All == row))
@@ -38,26 +38,28 @@ namespace AssemblyCSharp
                         case 0:
                             if (row.Equals(CompatibleRow.Back)) {
                                 validPanel = randomPanel;
+                                availableRows.Remove(randomPanel);
                             }
                             break;
                         case 1:
                             if (row.Equals(CompatibleRow.Middle))
                             {
                                 validPanel = randomPanel;
+                                availableRows.Remove(randomPanel);
                             }
                             break;
                         case 2:
                             if (row.Equals(CompatibleRow.Front))
                             {
                                 validPanel = randomPanel;
+                                availableRows.Remove(randomPanel);
                             }
                             break;
                         default:
                             validPanel = randomPanel;
+                            availableRows.Remove(randomPanel);
                             break;
                     }
-
-                    availableRows.Remove(randomPanel);
                 }
             }
 

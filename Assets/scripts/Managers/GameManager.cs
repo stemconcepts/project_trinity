@@ -65,8 +65,6 @@ namespace AssemblyCSharp
         public Vector3 dragOrigin;
         Vector3 lastMousePosition = new Vector3();
 
-        //int rand;
-
         void Awake()
         {
             SoundManager = gameObject.GetComponent<Sound_Manager>();

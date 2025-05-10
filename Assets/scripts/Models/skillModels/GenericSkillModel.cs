@@ -65,8 +65,8 @@ namespace AssemblyCSharp
             }
             set{}
         }
-        [HideInInspector]
         public bool skillActive;
+        [HideInInspector]
         public int skillCost;
         public float skillPower;
         [HideInInspector]
@@ -283,18 +283,25 @@ namespace AssemblyCSharp
 
         void GenerateStatusModelAndRun(StatusItem statusItem, BaseCharacterManagerGroup baseManager, GenericSkillModel skillModel)
         {
-            var sm = new StatusModel
+            var existingStatusModel = baseManager.statusManager.GetStatusIfExist(statusItem.status.statusName);
+            if (existingStatusModel)
             {
-                singleStatus = statusItem.status,
-                power = statusItem.power,
-                turnDuration = statusItem.duration, //skillModel.turnDuration,
-                baseManager = baseManager,
-                isFlat = statusItem.status.isFlat,
-                dmgTextColor = skillModel.dmgTextColor,
-                triggerChance = statusItem.status.TriggerChance
-            };
-            sm.singleStatus.dispellable = statusItem.dispellable;
-            baseManager.statusManager.RunStatusFunction(sm);
+                baseManager.statusManager.RunStatusFunction(existingStatusModel.statusModel);
+            } else
+            {
+                var sm = new StatusModel
+                {
+                    singleStatus = statusItem.status,
+                    power = statusItem.power,
+                    turnDuration = statusItem.duration, //skillModel.turnDuration,
+                    baseManager = baseManager,
+                    isFlat = statusItem.status.isFlat,
+                    dmgTextColor = skillModel.dmgTextColor,
+                    triggerChance = statusItem.status.TriggerChance
+                };
+                sm.singleStatus.dispellable = statusItem.dispellable;
+                baseManager.statusManager.RunStatusFunction(sm);
+            }   
         }
 
         public void RunExtraEffect(SkillData data)

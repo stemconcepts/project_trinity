@@ -38,6 +38,9 @@ namespace AssemblyCSharp
         ValueOverTime
     }
 
+
+    [CreateAssetMenu(fileName = "NewStatus", menuName = "Battle/Status")]
+
     public class SingleStatusModel : ScriptableObject {
         public string attributeName;
         public StatusNameEnum statusName
@@ -52,7 +55,7 @@ namespace AssemblyCSharp
     	public Sprite labelIcon;
         public bool canStack;
         [ConditionalHide("canStack", true)]
-        public int maxStacks = 20;
+        public int maxStacks = 5;
     	public bool dispellable;
         public bool isFlat;
         public bool buff;
@@ -65,9 +68,11 @@ namespace AssemblyCSharp
         //[ConditionalHide("statusTypeEnum", (int)StatusTypeEnum.Immunity, false)]
         public List<SingleStatusModel> immunityList;
         public subStatus subStatus;
-
         public elementType element;
+        [Header("What happens when status is assigned")]
         public StatusFunctionEnum selectedStatusFunction;
+
+        [Header("What events trigger while status is active?")]
         [Range(0.0f,1.0f)]
         public float TriggerChance;
         public List<StatusEventTrigger> StatusTriggers = new List<StatusEventTrigger>();

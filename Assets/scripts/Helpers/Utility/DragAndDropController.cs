@@ -84,11 +84,12 @@ namespace Assets.scripts.Helpers.Utility
             newParent = parent;
         }
 
-        void SetOrigParent(Transform parent)
+        public void SetOrigParent(Transform parent)
         {
             if (parent)
             {
                 this.transform.SetParent(parent);
+                origParent = parent;
                 newParent = null;
             } else
             {

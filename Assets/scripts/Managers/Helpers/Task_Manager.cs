@@ -74,9 +74,10 @@ namespace AssemblyCSharp
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         showExtraInfo = true,
-                        incomingHeal = statusModel.power * statusModel.stacks,
+                        //incomingHeal = statusModel.power * statusModel.stacks,
+                        incomingHeal = statusModel.power,
                         damageImmidiately = true,
-                        fontSize = 150
+                        //fontSize = 150
                     };
                     damageManager.calculateHdamage(damageModel);
                 }
@@ -87,11 +88,11 @@ namespace AssemblyCSharp
                         baseManager = statusModel.baseManager,
                         skillSource = statusModel.singleStatus.name,
                         showExtraInfo = true,
-                        incomingDmg = statusModel.power * statusModel.stacks,
+                        incomingDmg = statusModel.power,
                         damageImmidiately = true,
                         element = statusModel.singleStatus.element,
                         textColor = statusModel.dmgTextColor,
-                        fontSize = 100
+                        //fontSize = 100
                     };
                     damageManager.calculatedamage(damageModel);
                 }

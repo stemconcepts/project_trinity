@@ -10,6 +10,13 @@ namespace AssemblyCSharp
         public bool affectAll;
         public List<SingleStatusModel> status = new List<SingleStatusModel>();
     }*/
+    [System.Serializable]
+    public class CustomRouteSetting
+    {
+        public List<GameObject> customRouteObjects;
+        public int minRoomsBeforeCustomRoutes;
+        public bool MainPathOnly;
+    }
 
     public class DungeonSettings : ScriptableObject
     {
@@ -19,11 +26,16 @@ namespace AssemblyCSharp
         [Header("Environment Status Settings")]
         public List<ExplorerStatus> playertStatuses = new List<ExplorerStatus>();
         public List<ExplorerStatus> enemyStatuses = new List<ExplorerStatus>();
+
         [Header("Custom Route Settings")]
-        public List<GameObject> customRouteObjects;
+        public List<CustomRouteSetting> customRouteSettings = new List<CustomRouteSetting>();
         [Range(0.0f, 1.0f)]
         public float chanceToGenerateCustomRoute;
-        public int minRoomsBeforeCustomRoutes;
+
+        /*public List<GameObject> customRouteObjects;
+        [Range(0.0f, 1.0f)]
+        public int minRoomsBeforeCustomRoutes;*/
+
         [Header("Detour Settings")]
         public detourAmount MaxDetourPerMainRoute;
         public enum detourAmount

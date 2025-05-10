@@ -133,6 +133,7 @@ namespace AssemblyCSharp
                         dmgModel.showDmgNumber = false;
                         MainGameManager.instance.soundManager.PlayMissSound();
                         BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
+                        BattleManager.combatLogManager.GetSkillMissedDescription(dmgModel);
                     }
                 };
                 if (skill.healsDamage)

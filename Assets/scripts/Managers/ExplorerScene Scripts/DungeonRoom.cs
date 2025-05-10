@@ -130,7 +130,7 @@ namespace AssemblyCSharp
         public void AddEncounter(enemyEncounter encounter, GameObject encounterTemplate)
         {
             GameObject encounterObj = Instantiate(encounterTemplate, encounterHolder.transform);
-            enemyEncounterController encounterController = encounterObj.GetComponent<enemyEncounterController>();
+            //enemyEncounterController encounterController = encounterObj.GetComponent<enemyEncounterController>();
             encounter.instanciatedObject = encounterObj;
             this.encounter = encounter;
         }

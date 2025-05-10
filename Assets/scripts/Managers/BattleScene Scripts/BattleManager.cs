@@ -44,6 +44,7 @@ namespace AssemblyCSharp
         public static BattleDetailsManager battleDetailsManager;
         public static List<BattleInterfaceManager> battleInterfaceManager = new List<BattleInterfaceManager>();
         public static Character_Select_Manager characterSelectManager;
+        public static CombatLogManager combatLogManager;
         public static bool waitingForSkillTarget;
         public static bool offensiveSkill;
         public static bool battleStarted = false;
@@ -94,6 +95,7 @@ namespace AssemblyCSharp
             battleDetailsManager = gameManager.battleDetailsManager;
             taskManager = gameManager.TaskManager;
             characterSelectManager = gameManager.characterSelectManager;
+            combatLogManager = gameObject.GetComponent<CombatLogManager>();
             gameEffectManager = gameManager.GameEffectsManager;
             eventManager = gameManager.EventManager;
             UICanvas = GameObject.Find("Canvas - UI");
@@ -277,7 +279,7 @@ namespace AssemblyCSharp
 
         void CheckBattleOver()
         {
-            if (characterSelectManager.enemyCharacters.Count == 0 && battleStarted)
+            if (characterSelectManager && characterSelectManager.enemyCharacters.Count == 0 && battleStarted)
             {
                 foreach (KeyValuePair<string, Task> t in taskManager.taskList)
                 {
@@ -346,6 +348,7 @@ namespace AssemblyCSharp
             loot.Clear();
             SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(tankHealth, dpsHealth, healerHealth);
             StopAllCoroutines();
+            combatLogManager.ClearLogItems();
             MainGameManager.instance.SceneManager.UnLoadScene("battle");
         }
 
@@ -542,42 +545,61 @@ namespace AssemblyCSharp
         {
             if (turn == TurnEnum.EnemyTurn)
             {
+                // Ensure all conditions are correctly handled for EnemyTurn
                 var enemiesWithUseableSkills = characterSelectManager.enemyCharacters
                     .Where(o => o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList
                         .Any(s => s.turnToReset == 0 && s.skillCost <= enemyActionPoints && s.CanCastFromPosition(s.compatibleRows, o.baseManager))).ToList();
+
                 var enemiesThatHaventCasted = enemiesWithUseableSkills
                     .Where(o => !(o.gameObject.GetComponent<EnemySkillManager>().hasCasted || o.gameObject.GetComponent<EnemySkillManager>().isCasting)).ToList();
-                var enemiesNotStunned = enemiesThatHaventCasted.Where(o => !o.gameObject.GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun)).ToList();
+
+                var enemiesNotStunned = enemiesThatHaventCasted
+                    .Where(o => !o.gameObject.GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun)).ToList();
 
                 var enemiesCanCast = enemiesNotStunned.Count > 0;
 
                 var canAffordSkills = enemiesNotStunned
-                    .Where(o => o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList.Any(p => p.skillCost <= enemyActionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any();
+                    .Where(o => o.gameObject.GetComponent<EnemySkillManager>().copiedSkillList
+                        .Any(p => p.skillCost <= enemyActionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any();
 
-                var enemiesCanAttack = characterSelectManager.enemyCharacters.Where(x => x.characterModel.canAutoAttack && enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
-                    .Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) && characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting);
+                var enemiesCanAttack = characterSelectManager.enemyCharacters
+                    .Where(x => x.characterModel.canAutoAttack && enemyActionPoints >= 1 && !x.baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
+                    .Any(o => !o.gameObject.GetComponent<EnemyAutoAttackManager>().hasAttacked) 
+                    && characterSelectManager.enemyCharacters.Any(o => !o.gameObject.GetComponent<EnemySkillManager>().isCasting);
 
                 var enemiesAnimating = characterSelectManager.enemyCharacters
-                    .Select(enemy => !enemy.GetComponent<Animation_Manager>().inAnimation).FirstOrDefault();
+                    .All(enemy => !enemy.GetComponent<Animation_Manager>().inAnimation);
 
                 return (!enemiesAnimating && enemyActionPoints == 0) || (!enemiesCanAttack && !enemiesCanCast && !canAffordSkills);
             }
             else
             {
+                // Ensure all conditions are correctly handled for PlayerTurn
                 var charsWithTurnsLeft = characterSelectManager.friendlyCharacters
-                    .Where(o => o.gameObject.GetComponent<CharacterManager>().characterModel.Haste > o.gameObject.GetComponent<PlayerSkillManager>().turnsTaken && !o.gameObject.GetComponent<PlayerSkillManager>().isCasting &&
-                        !o.gameObject.GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun)).ToList();
-                var hasTurnsLeft = charsWithTurnsLeft.Count() > 0;
-                var canUseClassSkill = charsWithTurnsLeft.Where(o => o.gameObject.GetComponent<PlayerSkillManager>().classSkillModel.skillCost <= actionPoints).Any();
-                var canAffordPrimarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft
-                    .Where(o => o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills.Any(p => p.skillCost <= actionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any() : false;
-                var canAffordSecondarySkills = charsWithTurnsLeft.Count() > 0 ? charsWithTurnsLeft
-                    .Where(o => o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills.Any(p => p.skillCost <= actionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager))).Any() : false;
+                    .Where(o => o.gameObject.GetComponent<CharacterManager>().characterModel.Haste > o.gameObject.GetComponent<PlayerSkillManager>().turnsTaken 
+                        && !o.gameObject.GetComponent<PlayerSkillManager>().isCasting 
+                        && !o.gameObject.GetComponent<StatusManager>().DoesStatusExist(StatusNameEnum.Stun)).ToList();
 
-                var canUseEquippedSkill = charsWithTurnsLeft.Count() > 0 ? (charsWithTurnsLeft.Any(o => o.gameObject.GetComponent<EquipmentManager>().currentWeaponEnum == EquipmentManager.currentWeapon.Primary) ? canAffordPrimarySkills : canAffordSecondarySkills) : false;
+                var hasTurnsLeft = charsWithTurnsLeft.Count > 0;
+
+                var canUseClassSkill = charsWithTurnsLeft
+                    .Any(o => o.gameObject.GetComponent<PlayerSkillManager>().classSkillModel.skillCost <= actionPoints);
+
+                var canAffordPrimarySkills = charsWithTurnsLeft
+                    .Any(o => o.gameObject.GetComponent<PlayerSkillManager>().primaryWeaponSkills
+                        .Any(p => p.skillCost <= actionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager)));
+
+                var canAffordSecondarySkills = charsWithTurnsLeft
+                    .Any(o => o.gameObject.GetComponent<PlayerSkillManager>().secondaryWeaponSkills
+                        .Any(p => p.skillCost <= actionPoints && p.CanCastFromPosition(p.compatibleRows, o.baseManager)));
+
+                var canUseEquippedSkill = charsWithTurnsLeft
+                    .Any(o => o.gameObject.GetComponent<EquipmentManager>().currentWeaponEnum == EquipmentManager.currentWeapon.Primary 
+                        ? canAffordPrimarySkills 
+                        : canAffordSecondarySkills);
 
                 var charactersAnimating = characterSelectManager.friendlyCharacters
-                    .Select(enemy => !enemy.GetComponent<Animation_Manager>().inAnimation).FirstOrDefault();
+                    .All(character => !character.GetComponent<Animation_Manager>().inAnimation);
 
                 return (!charactersAnimating && actionPoints == 0) || (!canUseClassSkill && !canUseEquippedSkill && !(hasTurnsLeft && actionPoints > 0));
             }

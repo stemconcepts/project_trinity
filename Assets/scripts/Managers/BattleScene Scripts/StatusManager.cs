@@ -113,8 +113,7 @@ namespace AssemblyCSharp
                 {
                     this.baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, this.baseManager.characterManager.characterModel);
                 });*/
-            } else 
-            if(statusModel.turnOff){
+            } else if(statusModel.turnOff){
                 EndStatusAndTriggerEffectsOnEvent(true, statusModel, () =>
                  baseManager.characterManager.SetAttribute(statusModel.singleStatus.attributeName, originalStat, baseManager.characterManager.characterModel));
             }
@@ -143,13 +142,6 @@ namespace AssemblyCSharp
 
         private void CheckAndRunDot(StatusModel statusModel, BattleManager.TurnEnum relevantTurn)
         {
-            //stop status effect if turn to reset is greater than turn count
-            if (statusModel.turnToReset <= BattleManager.turnCount && statusModel.turnToReset != 0)
-            {
-                EndStatusAndTriggerEffectsOnEvent(false, statusModel);
-                return;
-            }
-
             if(BattleManager.turnCount <= (BattleManager.turnCount + statusModel.turnDuration * 2) && BattleManager.turn == relevantTurn)
             {
                  StatusLabelModel currentStatusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
@@ -159,6 +151,13 @@ namespace AssemblyCSharp
                      BattleManager.taskManager.CallChangePointsTask(statusModel);
                  }
             };
+
+            //stop status effect if turn to reset is greater than turn count
+            if (statusModel.turnToReset <= BattleManager.turnCount && statusModel.turnToReset != 0)
+            {
+                EndStatusAndTriggerEffectsOnEvent(false, statusModel);
+                return;
+            }
         }
 
         public void EndStatusAndTriggerEffectsOnEvent(bool stoppedManually, StatusModel statusModel, Action actionOnStop = null)
@@ -199,7 +198,7 @@ namespace AssemblyCSharp
                     StatusLabelModel currentStatusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
                     if (currentStatusLabel != null && statusModel.singleStatus.canStack)
                     {
-                        currentStatusLabel.stacks = currentStatusLabel.stacks < statusModel.singleStatus.maxStacks ? currentStatusLabel.stacks + 1 : currentStatusLabel.stacks;
+                        currentStatusLabel.stacks = statusModel.stacks = currentStatusLabel.stacks < statusModel.singleStatus.maxStacks ? currentStatusLabel.stacks + 1 : currentStatusLabel.stacks;
                         battleDetailsManager.AddStacks(currentStatusLabel);
                         statusModel.power += currentStatusLabel.buffPower;
                         currentStatusLabel.buffPower = statusModel.power;
@@ -431,6 +430,7 @@ namespace AssemblyCSharp
                     //var statusLabel = GetStatusIfExist(statusModel.singleStatus.statusName);
                     var effect = new EffectOnEventModel();
                     effect.effectPower = statusModel.power;
+                    effect.StatusName = statusModel.singleStatus.statusName;
                     effect.triggerChance = statusModel.triggerChance;
                     effect.FocusAttribute = (CharacterStats)Enum.Parse(typeof(CharacterStats), statusModel.singleStatus.attributeName);
                     effect.owner = gameObject;

@@ -54,9 +54,9 @@ namespace Assets.scripts.Helpers.Utility
             }
 
             //Remove (Clone) text from object copy logic
-            if (result.Contains("(Clone)"))
+            if (result.Contains("( Clone)"))
             {
-                result = result.Replace("(Clone)", "");
+                result = result.Replace("( Clone)", "");
             }
 
             return result;

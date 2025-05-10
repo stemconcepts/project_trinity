@@ -4,14 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.scripts.Managers.ExplorerScene_Scripts;
 using UnityEngine.UI;
-using TMPro;
 using AssemblyCSharp;
 using static AssemblyCSharp.miniMapIconBase;
-using System.Reflection;
-using Spine;
 using Assets.scripts.Helpers.Utility;
-using static UnityEngine.Rendering.VolumeComponent;
-using UnityEditor.Experimental.GraphView;
 
 namespace Assets.scripts.Managers
 {
@@ -143,9 +138,10 @@ namespace Assets.scripts.Managers
             GetTotalRoomsAndHide();
             AddRandomEncounters();
             AddCurroptionToRoutes();
+            MainGameManager.instance.DisableEnableLiveBoxColliders(false);
             SetCurrentRoom(mainRooms[mainRooms.Count - 1].gameObject.name);
             //SavedDataManager.SavedDataManagerInstance.SaveIconPos(iconControllers);
-            MainGameManager.instance.DisableEnableLiveBoxColliders(false);
+            
         }
 
         /// <summary>
@@ -196,7 +192,7 @@ namespace Assets.scripts.Managers
             detourLinks.ForEach(o =>
             {
                 DungeonRoom lastRoom = null;
-                Debug.Log(o.distance);
+
                 for (int i = 0; i <= o.distance; i++)
                 {
                     var room = lastRoom == null ? detourRooms.Find(a => a.name == o.start.label) : lastRoom;
@@ -293,22 +289,57 @@ namespace Assets.scripts.Managers
             //SavedDataManager.SavedDataManagerInstance.SaveCurrentRoomData(roomName);
         }
 
-        void AddCustomRoomIcon(GameObject roomIconGroupTemplate, miniMapIconBase startIconController)
+        /*GameObject AddCustomRoomIcon(GameObject roomIconGroupTemplate, miniMapIconBase startIconController)
         {
             GameObject roomIconGroup = Instantiate(roomIconGroupTemplate, miniMap.transform);
+            Transform startingIconLocation = startIconController.transform;
 
             for (int i = 0; i < roomIconGroup.transform.childCount; i++)
             {
                 miniMapCustomIcon mmc = roomIconGroup.transform.GetChild(i).gameObject.GetComponent<miniMapCustomIcon>();
+                mmc.gameObject.name += $"_{iconControllers.Count}";
                 mmc.isCustomRoute = true;
                 iconControllers.Add(mmc);
                 if (mmc.mapPosition == miniMapCustomIcon.mapPositionEnum.start)
                 {
-                    roomIconPosition = mmc.transform;
+                    mmc.ChooseCustomRouteDirection(startingIconLocation, roomIconGroup.transform);
                 }
             }
-            Transform lastRoomLocation = startIconController.transform;
-            roomIconGroup.transform.position = new Vector3(lastRoomLocation.position.x, lastRoomLocation.position.y + 0.4f);
+
+            return roomIconGroup;
+        }*/
+
+        GameObject AddCustomRouteIcon(GameObject roomIconGroupTemplate, DungeonRoom parentRoom)
+        {
+            GameObject roomIconGroup = Instantiate(roomIconGroupTemplate, miniMap.transform);
+            Transform startingIconLocation = parentRoom.roomIcon.transform;
+
+            var miniMapControls = roomIconGroup.transform.GetComponentsInChildren<miniMapCustomIcon>();
+            var direction = lineDirectionEnum.down;
+            foreach (var miniMapIconController in miniMapControls)
+            {
+                miniMapIconController.gameObject.name += $"_{iconControllers.Count}";
+                miniMapIconController.isCustomRoute = true;
+                iconControllers.Add(miniMapIconController);
+                if (miniMapIconController.mapPosition == miniMapCustomIcon.mapPositionEnum.start)
+                {
+                    var newRoomResult = CanGenerateRoom(parentRoom, miniMapControls);
+                    //Do this if no connection could be made
+                    if (newRoomResult.Item3 != null)
+                    {
+                        Destroy(roomIconGroup);
+                        return null;
+                        //continue;
+                    }
+                    miniMapIconController.LocationId = newRoomResult.Item1;
+                    direction = newRoomResult.Item2;
+                }
+            }
+            miniMapControls.Where(icon => icon.mapPosition == miniMapCustomIcon.mapPositionEnum.start)
+                .FirstOrDefault()
+                .ChooseCustomRouteDirection(startingIconLocation, direction);
+
+            return roomIconGroup;
         }
 
         string CreateLocationId(lineDirectionEnum finalDirection, (string alphabet, int index) parentLocationId)
@@ -333,6 +364,8 @@ namespace Assets.scripts.Managers
                     break;
             }
 
+            //System.Diagnostics.Debug.WriteLine($"{alphabet}{index}");
+
             return $"{alphabet}{index}";
         }
 
@@ -348,25 +381,23 @@ namespace Assets.scripts.Managers
 
             if (dr.isDetour)
             {
-                //Transform lastRoomLocation = iconControllers[iconControllers.Count - 1].transform;
-                Transform parentRoomTransform = iconControllers.Where(o => o.label == dr.parentRoom.gameObject.name).FirstOrDefault().transform;
-
-                parentLocationId = parentRoomTransform.gameObject.GetComponent<miniMapIconController>().GetLocationId();
-
-                finalDirection = mmc.ChooseDirection(roomIcon, parentRoomTransform /*?? lastRoomLocation*/, direction);
-            }
+                roomIcon.name += $"_Detour_{iconControllers.Count}";
+                miniMapIconBase parentIcon = iconControllers.Where(o => o.label == dr.parentRoom.gameObject.name).FirstOrDefault();
+                Transform parentRoomTransform = parentIcon.transform;
+                parentLocationId = parentIcon.GetLocationId();
+                finalDirection = mmc.ChooseDirection(parentRoomTransform, direction);
+            } 
             else if (iconControllers.Count > 0)
             {
-                Transform trueLocation = roomIconPosition != null ? roomIconPosition : iconControllers[iconControllers.Count - 1].transform;
-
-                parentLocationId = trueLocation.gameObject.GetComponent<miniMapIconController>().GetLocationId();
-
-                finalDirection = mmc.ChooseDirection(roomIcon, trueLocation, direction);
-
+                roomIcon.name += $"_{iconControllers.Count}";
+                var iconController = iconControllers[iconControllers.Count - 1];
+                Transform trueLocation = roomIconPosition != null ? roomIconPosition : iconController.transform;
+                parentLocationId = trueLocation.gameObject.GetComponent<miniMapIconBase>().GetLocationId();
+                finalDirection = mmc.ChooseDirection(trueLocation, direction);
                 roomIconPosition = roomIconPosition != null ? null : roomIconPosition;
             }
-
-            mmc.LocationId = locationId != null ? locationId  : CreateLocationId(finalDirection, parentLocationId);
+            
+            mmc.LocationId = locationId != null ? locationId : CreateLocationId(finalDirection, parentLocationId);
 
             dr.roomIcon = mmc;
             iconControllers.Add(mmc);
@@ -381,16 +412,40 @@ namespace Assets.scripts.Managers
         /// Add custom route to main path, note.. route is generated backwards.
         /// </summary>
         /// <param name="parentRoom"></param>
-        void GenerateCustomRooms(DungeonRoom parentRoom)
+        /*void GenerateCustomRooms(DungeonRoom parentRoom)
         {
             int randomIndex = MainGameManager.instance.ReturnRandom(dungeonSettingsCopy.customRouteObjects.Count);
             GameObject customRoute = dungeonSettingsCopy.customRouteObjects[randomIndex];
             List<DungeonRoom> customRooms = new List<DungeonRoom>();
+
+            void GenerateLocationId(DungeonRoom room, miniMapCustomIcon controller)
+            {
+                var isNotFirstRoom = customRooms.Count > 0;
+                var previousCustomRoom = isNotFirstRoom ? customRooms[customRooms.Count - 1] : parentRoom;
+                var parentLocationId = previousCustomRoom.roomIcon.GetLocationId();
+                var lineDirection = previousCustomRoom.roomIcon.lineDirection;
+                room.roomIcon.LocationId = CreateLocationId(lineDirection, parentLocationId);
+                room.id = isNotFirstRoom ? $"custom_room_connector_{customRooms.Count}_{previousCustomRoom.id}" : $"custom_room_connector_0";
+
+                if (controller.nextRoomIcon && room.customRoute)
+                {
+                    room.SetCustomRouteToLocation(controller.nextRoomIcon.label);
+                }
+            }
+
+            void LinkUnlinkedCustomRooms()
+            {
+                for (int index = 1; index < customRooms.Count - 1; index++)
+                {
+                    var nextCustomRoom = customRooms[index];
+                    customRooms[index - 1].InheritRouteFromParent(nextCustomRoom, routeTemplate);
+                }
+            }
+
             if (customRoute)
             {
                 //Link custom rooms together first
-                var miniMapControls = customRoute.transform.GetComponentsInChildren<miniMapCustomIcon>();
-
+                var miniMapControls = customRoute.transform.GetComponentsInChildren<miniMapCustomIcon>().Reverse();
                 foreach (var controller in miniMapControls)
                 {
                     GameObject customRoom;
@@ -409,31 +464,17 @@ namespace Assets.scripts.Managers
                     controller.label = customRoom.name;
 
                     DungeonRoom dr = customRoom.GetComponent<DungeonRoom>();
-
-                    dr.isCustomRoom = true;
                     dr.roomIcon = controller;
+                    dr.isCustomRoom = true;
 
-                    //Allows you to set a specific room to add a route to
-                    if (controller.nextRoomIcon != null)
-                    {
-                        dr.SetCustomRouteToLocation(controller.nextRoomIcon.label);
-                    }
-                    else
-                    {
-                        if (customRooms.Count > 0)
-                        {
-                            dr.id = $"custom_room_connector_{customRooms.Count}_{customRooms[customRooms.Count - 1].id}";
-                            dr.InheritRouteFromParent(customRooms[customRooms.Count - 1], routeTemplate);
-                        }
-                        else
-                        {
-                            dr.id = $"custom_room_connector_0";
-                        }
-                    }
+                    GenerateLocationId(dr, controller);
                     GenerateRoomObject(dr, dungeonSettings.maxChestsPerRoom);
+
                     customRooms.Add(dr);
                     mainRooms.Add(dr);
                 }
+
+                LinkUnlinkedCustomRooms();
 
                 //Attach start point to main route
                 var startRoom = customRooms.FirstOrDefault(o => ((miniMapCustomIcon)o.GetComponent<DungeonRoom>().roomIcon).mapPosition == miniMapCustomIcon.mapPositionEnum.start);
@@ -457,19 +498,142 @@ namespace Assets.scripts.Managers
 
             int actualRoomPosition = dungeonSettings.minRooms - dungeonSettingsCopy.minRoomsBeforeCustomRoutes; //Do this because rooms are traversed backwards
             return roomCount > 0 && dungeonSettings.minRooms != (roomCount + 1) && actualRoomPosition >= roomCount && dungeonSettingsCopy.customRouteObjects.Count > 0;
+        }*/
+
+        void GenerateCustomRooms(DungeonRoom parentRoom, CustomRouteSetting setting)
+        {
+            int randomIndex = MainGameManager.instance.ReturnRandom(setting.customRouteObjects.Count);
+            GameObject customRoute = setting.customRouteObjects[randomIndex];
+            List<DungeonRoom> customRooms = new List<DungeonRoom>();
+
+            void GenerateChildLocationIds(DungeonRoom room, int index)
+            {
+                var controller = room.roomIcon as miniMapCustomIcon;
+                var isFirstRoom = index == 0;
+
+                if (!isFirstRoom)
+                {
+                    var previousCustomRoom = customRooms[index - 1];
+                    var parentLocationId = previousCustomRoom.roomIcon.GetLocationId();
+                    var lineDirection = controller.lineDirection;
+                    controller.LocationId = CreateLocationId(lineDirection, parentLocationId);
+                    room.id = isFirstRoom ? $"custom_room_connector_{customRooms.Count}_{previousCustomRoom.id}" : $"custom_room_connector_0";
+
+                    controller.ChooseDirection(previousCustomRoom.roomIcon.transform, lineDirection);
+
+                    if (controller.nextRoomIcon && room.customRoute)
+                    {
+                        room.SetCustomRouteToLocation(controller.nextRoomIcon.label);
+                    } else
+                    {
+                        previousCustomRoom.InheritRouteFromParent(room, routeTemplate);
+                    }
+                }
+            }
+
+            void LinkUnlinkedCustomRooms()
+            {
+                for (int index = 1; index < customRooms.Count - 1; index++)
+                {
+                    var nextCustomRoom = customRooms[index];
+                    customRooms[index - 1].InheritRouteFromParent(nextCustomRoom, routeTemplate);
+                }
+            }
+
+            if (customRoute)
+            {
+                //Link custom rooms together first
+                var instantiatedRoute = AddCustomRouteIcon(customRoute, parentRoom);
+
+                //leave method if no connection was made for the customRoute
+                if (!instantiatedRoute)
+                {
+                    return;
+                }
+
+                var miniMapControls = instantiatedRoute.transform.GetComponentsInChildren<miniMapCustomIcon>().Reverse();
+                foreach (var controller in miniMapControls)
+                {
+                    GameObject customRoom;
+                    //Creates or inserts the room for this location
+                    if (controller.customRoom != null)
+                    {
+                        customRoom = Instantiate(controller.customRoom, explorerCanvas.transform);
+                    }
+                    else
+                    {
+                        customRoom = Instantiate(dungeonSettings.ReturnRandomRoom(), explorerCanvas.transform);
+                    }
+                    customRoom.name = $"CustomRoom_{customRooms.Count}_{customRoute.name}";
+
+                    //Needed to let the route know where to go
+                    controller.label = customRoom.name;
+
+                    DungeonRoom dr = customRoom.GetComponent<DungeonRoom>();
+                    dr.roomIcon = controller;
+                    dr.isCustomRoom = true;
+
+                    customRooms.Add(dr);
+                    if ((dr.roomIcon as miniMapCustomIcon).mainPathOnly)
+                    {
+                        mainRooms.Add(dr);
+                    }
+                }
+
+                var i = 0;
+                foreach(var customRoom in customRooms)
+                {
+                    DungeonRoom dr = customRoom.GetComponent<DungeonRoom>();
+                    GenerateChildLocationIds(dr, i);
+                    GenerateRoomObject(dr, dungeonSettings.maxChestsPerRoom);
+                    i++;
+                }
+
+                LinkUnlinkedCustomRooms();
+
+                //Attach start point to main route
+                var startRoom = customRooms.FirstOrDefault(o => ((miniMapCustomIcon)o.GetComponent<DungeonRoom>().roomIcon).mapPosition == miniMapCustomIcon.mapPositionEnum.start);
+                var endRoom = customRooms.FirstOrDefault(o => ((miniMapCustomIcon)o.GetComponent<DungeonRoom>().roomIcon).mapPosition == miniMapCustomIcon.mapPositionEnum.end);
+
+                if (startRoom != null)
+                {
+                    startRoom.InheritRouteFromParent(parentRoom, routeTemplate);
+                }
+            }
+            //AddCustomRoomIcon(customRoute, iconControllers[iconControllers.Count - 1]);
+            setting.customRouteObjects.RemoveAt(randomIndex);
+        }
+
+        bool CanGenerateCustomRoute(int roomIndex, CustomRouteSetting setting)
+        {
+            /*if (mainRooms.Any(o => o.isCustomRoom) && mainRooms[mainRooms.Count - 1].isCustomRoom)
+            {
+                return false;
+            }*/
+
+            if (mainRooms.Count == 0)
+            {
+                return false;
+            }
+
+            //var isParentRoomValid = !mainRooms[roomIndex - 1].isCustomRoom;
+            var isParentRoomValid = !mainRooms[mainRooms.Count - 1].isCustomRoom;
+
+            return roomIndex > setting.minRoomsBeforeCustomRoutes && isParentRoomValid;
+
+            //var hasCustomRooms = setting.customRouteObjects.Count > 0;
+            //int actualRoomPosition = dungeonSettings.minRooms - setting.minRoomsBeforeCustomRoutes; //Do this because rooms are traversed backwards
+            //return roomCount > 0 && dungeonSettings.minRooms != (roomCount + 1) && actualRoomPosition >= roomCount; //&& setting.customRouteObjects.Count > 0;
         }
 
         bool CanLockDoor(int roomCount)
         {
             int actualLockedDoorPosition = dungeonSettings.minRooms - dungeonSettingsCopy.roomsBeforeLockedDoor; //Do this because rooms are traversed backwards
-                                                                                                                 //actualLockedDoorPosition = actualLockedDoorPosition == 2 ? 3 : actualLockedDoorPosition;
             return /*roomCount > 0 &&*/ dungeonSettings.minRooms != (roomCount + 1) && roomCount >= actualLockedDoorPosition && dungeonSettingsCopy.locks.Count > 0;
         }
 
         void DropKeysInRoom(List<KeyItem> keys, int roomIndex)
         {
-            // combinedRooms.Reverse();
-
             //Saved id of blocked paths
             var blockedRooms = new List<string>();
             var lockedRoom = roomsInOrder.Where(room => room.lockObj != null)
@@ -515,7 +679,7 @@ namespace Assets.scripts.Managers
         void AddEncounter(DungeonRoom dr)
         {
             int encounterIndex = MainGameManager.instance.ReturnRandom(dungeonSettingsCopy.enemyEncounters.Count);
-            enemyEncounter ee = UnityEngine.Object.Instantiate(dungeonSettingsCopy.enemyEncounters[encounterIndex]);
+            enemyEncounter ee = Instantiate(dungeonSettingsCopy.enemyEncounters[encounterIndex]);
             if (CanAddEncounter(ee))
             {
                 dr.AddEncounter(ee, enemyEncounterTemplate);
@@ -560,19 +724,24 @@ namespace Assets.scripts.Managers
             {
                 var endRoom = i == 0;
                 var startRoom = i == (numberOfRooms - 1);
-                if (CanGenerateCustomRoute(i) && MainGameManager.instance.GetChanceByPercentage(dungeonSettings.chanceToGenerateCustomRoute))
+
+                var settingsWithcustomObjects = dungeonSettings.customRouteSettings.Where(setting => setting.customRouteObjects.Count > 0).ToList();
+                int randomIndex = MainGameManager.instance.ReturnRandom(settingsWithcustomObjects.Count);
+                CustomRouteSetting customRouteSetting = settingsWithcustomObjects.Count > 0 ? settingsWithcustomObjects[randomIndex] : null;
+
+                if (customRouteSetting != null && CanGenerateCustomRoute(i, customRouteSetting) && MainGameManager.instance.GetChanceByPercentage(dungeonSettings.chanceToGenerateCustomRoute))
                 {
                     //Filter out the rooms that can be used to make the main path
                     var validRooms = mainRooms.Where(room => {
-                        return !room.isCustomRoom || ((miniMapCustomIcon)room.roomIcon).mainPathOnly;
+                        return !room.isCustomRoom || ((miniMapCustomIcon)room.roomIcon).mainPathOnly == customRouteSetting.MainPathOnly;
                     }).ToList();
 
-                    GenerateCustomRooms(validRooms[validRooms.Count - 1]);
+                    GenerateCustomRooms(validRooms[validRooms.Count - 1], customRouteSetting);
                 }
                 else
                 {
-                    GameObject room = Instantiate(ReturnRoomTemplate(i), explorerCanvas.transform);
-                    DungeonRoom dungeonRoom = room.GetComponent<DungeonRoom>();
+                    GameObject roomGameObject = Instantiate(ReturnRoomTemplate(i), explorerCanvas.transform);
+                    DungeonRoom dungeonRoom = roomGameObject.GetComponent<DungeonRoom>();
 
                     for (int index = 0; index <= dungeonSettings.maxResourcePerRoom; index++)
                     {
@@ -583,7 +752,7 @@ namespace Assets.scripts.Managers
                             dungeonRoom.AddResources(dungeonSettings.resources[randomResource], fieldItemTemplate);
                         }
                     }
-                    room.name = $"Room_{mainRooms.Count}" + (startRoom ? "_StartRoom" : endRoom ? "_EndRoom" : "");
+                    roomGameObject.name = $"Room_{mainRooms.Count}" + (startRoom ? "_StartRoom" : endRoom ? "_EndRoom" : "");
                     dungeonRoom.isStartingRoom = startRoom;
                     dungeonRoom.id = $"room_{i}" + (startRoom ? "_StartRoom" : endRoom ? "_EndRoom" : "");
 
@@ -592,7 +761,7 @@ namespace Assets.scripts.Managers
                         return !room.isCustomRoom || ((miniMapCustomIcon)room.roomIcon).mainPathOnly;
                     }).ToList();
 
-                    if (mainRooms.Count > 0)
+                    if (!endRoom)
                     {
                         //Get the last valid room to connect to
                         DungeonRoom parentRoom = validRooms[validRooms.Count - 1];
@@ -605,15 +774,24 @@ namespace Assets.scripts.Managers
                         {
                             dungeonRoom.InheritRouteFromParent(parentRoom, routeTemplate);
                         }
-                    }
 
-                    //Generate random room objects to interact with
-                    if(!startRoom && !endRoom) GenerateRoomObject(dungeonRoom, dungeonSettings.maxChestsPerRoom);
-
-                    mainRooms.Add(dungeonRoom);
-                    if (!dungeonRoom.isCustomRoom)
+                        var newRoomResult = CanGenerateRoom(parentRoom);
+                        if (newRoomResult.Item3 != null)
+                        {
+                            continue;
+                        }
+                        GenerateRoomIcon(dungeonRoom, newRoomResult.Item1, newRoomResult.Item2);
+                    } else
                     {
                         GenerateRoomIcon(dungeonRoom);
+                    }
+
+                    mainRooms.Add(dungeonRoom);
+
+                    //Generate random room objects to interact with
+                    if (!startRoom && !endRoom)
+                    {
+                        GenerateRoomObject(dungeonRoom, dungeonSettings.maxChestsPerRoom);
                     }
                 }
             }
@@ -708,13 +886,19 @@ namespace Assets.scripts.Managers
             // Check Direction isnt taken
             if (parentMiniMapIcon != null)
             {
-                direction = parentMiniMapIcon.CorrectDirection(direction);
+                if (parentMiniMapIcon is miniMapCustomIcon)
+                {
+                    direction = (parentMiniMapIcon as miniMapCustomIcon).CorrectDirectionCustom(direction);
+                } else
+                {
+                    direction = parentMiniMapIcon.CorrectDirection(direction);
+                }
             }
 
             return direction;
         }
 
-        (string LocationId, lineDirectionEnum Direction, DungeonRoom existingRoom) CanGenerateRoom(DungeonRoom room)
+        (string LocationId, lineDirectionEnum Direction, DungeonRoom existingRoom) CanGenerateRoom(DungeonRoom parentRoom, miniMapCustomIcon[] miniMapIconControllers = null)
         {
             var connectionCreated = false;
 
@@ -725,39 +909,75 @@ namespace Assets.scripts.Managers
             var loop = 0;
             while (!connectionCreated && loop <= iconControllers.Count)
             {
-                var randomDirection = GetPossibleDirection(room.roomIcon);
+                var randomDirection = GetPossibleDirection(parentRoom.roomIcon);
 
-                var parentlocationId = (
-                    alphabet: room.roomIcon.LocationId.Substring(0, 1),
-                    index: room.roomIcon.LocationId.Length > 2 ? int.Parse(room.roomIcon.LocationId.Substring(1, 2)) : int.Parse(room.roomIcon.LocationId.Substring(1, 1))
+                var parentlocationId = parentRoom.roomIcon.GetLocationId();
+                /*var parentlocationId = (
+                    alphabet: parentRoom.roomIcon.LocationId.Substring(0, 1),
+                    index: parentRoom.roomIcon.LocationId.Length > 2 ? int.Parse(parentRoom.roomIcon.LocationId.Substring(1, 2)) : int.Parse(parentRoom.roomIcon.LocationId.Substring(1, 1))
+                    );*/
+
+                (string alphabet, int index) ConvertLocationIdToCode(string locationId){
+                    return (
+                    alphabet: locationId.Substring(0, 1),
+                    index: locationId.Length > 2 ? int.Parse(locationId.Substring(1, 2)) : int.Parse(locationId.Substring(1, 1))
                     );
+                }
 
-                var locationId = CreateLocationId(randomDirection, parentlocationId);
+                var possiblelocationIds = new[] { CreateLocationId(randomDirection, parentlocationId) };
 
-                if (!iconControllers.Any(icon => icon.LocationId == locationId))
+                if (miniMapIconControllers != null && miniMapIconControllers.Length > 0)
+                {
+                    (string alphabet, int index) lastLocationId = (alphabet:"", index:0);
+                    possiblelocationIds = miniMapIconControllers.Reverse().Select((icon, i) => {
+
+                        var relevantLocationId = i > 0 ? lastLocationId : parentlocationId;
+                        var direction = i > 0 ? icon.lineDirection : randomDirection;
+                        var newLocationId = CreateLocationId(direction, relevantLocationId);
+                        lastLocationId = ConvertLocationIdToCode(newLocationId);
+
+                        return newLocationId;
+                    }).ToArray();
+                }
+
+                if (!iconControllers.Any(icon => possiblelocationIds.Contains(icon.LocationId)))
                 {
                     connectionCreated = true;
                     newDirection = randomDirection;
-                    newLocationId = locationId;
-                } else
+                    newLocationId = possiblelocationIds[0];
+                    existingRoom = null;
+                }
+                else
                 {
-                    connectionCreated = true;
+                    Debug.LogWarning($"Failed to get free locationId : {possiblelocationIds}");
                     var rooms = mainRooms.Concat(detourRooms);
-                    var existingIcon = iconControllers.Find(icon => icon.LocationId == locationId);
+                    var existingIcon = iconControllers.Find(icon => possiblelocationIds.Contains(icon.LocationId));
                     var relevantRoom = rooms.FirstOrDefault(room => room.gameObject.name == existingIcon.label);
                     newDirection = randomDirection;
                     existingRoom = relevantRoom;
+                    possiblelocationIds = null;
                 }
                 loop++;
             }
 
-            return (LocationId: newLocationId, Direction: newDirection, existingRoom);
+            return (newLocationId, newDirection, existingRoom);
         }
 
         void GenerateDetours(int detourLength)
         {
             var masterIndex = 0;
-            mainRooms.Where(mainRoom => !mainRoom.isCustomRoom && !mainRoom.isStartingRoom).ToList().ForEach(room =>
+            var filteredRooms = mainRooms.Where(room => {
+                if (room.roomIcon is miniMapCustomIcon)
+                {
+                    if ((room.roomIcon as miniMapCustomIcon).mainPathOnly)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            });
+            filteredRooms.Where(mainRoom => !mainRoom.isStartingRoom).ToList().ForEach(room =>
             {
                 //Used to add ordering to room
                 roomsInOrder.Add(room);
@@ -778,11 +998,8 @@ namespace Assets.scripts.Managers
                         {
                             //Logic to check that room can be created, will skip if a locationId already exists
                             var newRoomResult = CanGenerateRoom(room);
-                            if (newRoomResult.existingRoom != null)
+                            if (newRoomResult.Item3 != null || newRoomResult.Item1 == null)
                             {
-                                //newRoomResult.existingRoom.CreateRouteFromRoom(room, routeTemplate, null);
-                                //room.CreateRouteFromRoom(newRoomResult.existingRoom, routeTemplate, null);
-                                //newRoomResult.existingRoom.roomIcon.ShowLine(newRoomResult.Direction);
                                 continue;
                             } 
 
@@ -809,13 +1026,9 @@ namespace Assets.scripts.Managers
                                     DungeonRoom parentDetourRoom = detourRoom.detourRooms.Count == 0 ? detourRoom : detourRoom.detourRooms[detourRoom.detourRooms.Count - 1];
 
                                     var newDetourRoomResult = CanGenerateRoom(parentDetourRoom);
-                                    if (newDetourRoomResult.existingRoom != null) 
+                                    if (newDetourRoomResult.Item3 != null) 
                                     {
-                                       // newDetourRoomResult.existingRoom.CreateRouteFromRoom(parentDetourRoom, routeTemplate, null);
-                                        //parentDetourRoom.CreateRouteFromRoom(newDetourRoomResult.existingRoom, routeTemplate, null);
-                                       // newDetourRoomResult.existingRoom.roomIcon.ShowLine(newDetourRoomResult.Direction);
-                                        
-                                        continue;
+                                       continue;
                                     }
 
                                     DungeonRoom detourRoomOfDetour = AddRoomFromParentRoom(parentDetourRoom, "Detour", i, $"_{x}");

@@ -37,6 +37,8 @@ namespace AssemblyCSharp
         {
             var stackLabel = singleStatusLabel.gameObject.GetComponentInChildren<TextMeshPro>();
             stackLabel.text = singleStatusLabel.stacks < 1 ? "" : singleStatusLabel.stacks.ToString();
+
+            BattleManager.combatLogManager.GetStatusGainDescription(singleStatusLabel.statusModel);
         }
 
         public void ShowLabel(StatusModel status, GameObject statusHolder){
@@ -49,20 +51,30 @@ namespace AssemblyCSharp
             getprefab.buffPower = status.power;
             getprefab.statusModel = status;
             getprefab.dispellable = status.singleStatus.dispellable;
+
+            BattleManager.combatLogManager.GetStatusGainDescription(status); 
         }
 
         public void RemoveLabel(StatusLabelModel statusLabel){
             if (statusLabel)
             {
                 statusLabel.DestroyMe();
+
+                BattleManager.combatLogManager.GetStatusExpireDescription(statusLabel.statusModel);
             }
         }
 
         public void getDmg(BaseDamageModel damageModel, string extraInfo = ""){
-            ShowDamageNumber(damageModel, extraInfo: extraInfo);
+
+            BattleManager.combatLogManager.GetDamageDescription(damageModel, extraInfo);
+
+            ShowDamageNumber(damageModel);
         }
     
         public void getHeal(BaseDamageModel damageModel){
+
+            BattleManager.combatLogManager.GetHealingDescription(damageModel);
+
             ShowHealNumber(damageModel);
         }
     
@@ -99,14 +111,16 @@ namespace AssemblyCSharp
             damageData.isDmg = false;
         }
     
-        public void ShowAbsorbNumber(BaseDamageModel damageModel, float absorbAmount ){
+        public void ShowAbsorbNumber(BaseDamageModel damageModel, float initialAbsorbAmount ){
             GameObject charObject = damageModel.baseManager.gameObject;
             var gameDetails = (GameObject)Instantiate( gameDetailsObject, new Vector2 ( charObject.transform.position.x + 1f , charObject.transform.position.y + 6f ) , charObject.transform.rotation );
             var damageData = gameDetails.GetComponent<Floating_Combat_Text>();
             damageData.fontSize = damageModel.fontSize;
-            damageData.extraInfo = "<size=100><i>absorbed: " + (int)damageModel.damageAbsorbed + "/" + (int)absorbAmount + "</i></size>";
+            damageData.extraInfo = $"absorbed: {(int)damageModel.damageAbsorbed}/{(int)initialAbsorbAmount}";
             damageData.isAbsorb = true;
             damageData.skillLabel = damageModel.skillSource;
+
+            BattleManager.combatLogManager.GetAbsorbDescription(damageModel, damageModel.damageAbsorbed.ToString());
         }
     
         public void ShowImmune(BaseDamageModel damageModel){

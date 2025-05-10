@@ -10,6 +10,7 @@ using System;
 using static AssemblyCSharp.PanelsManager;
 using Assets.scripts.Helpers.Assets;
 using Assets.scripts.Helpers.Utility;
+using UnityEngine.SceneManagement;
 
 namespace AssemblyCSharp
 {
@@ -150,6 +151,14 @@ namespace AssemblyCSharp
             }
         }
 
+        public void LoadTestBattle()
+        {
+            SavedDataManager.SavedDataManagerInstance.ResetPlayerData();
+            var health = GetStartingHealth();
+            SavedDataManager.SavedDataManagerInstance.SavePlayerHealth(health["guardian"], health["stalker"], health["walker"]);
+            SceneManager.LoadScene("battle", false);
+        }
+
         public void GetCanvasAndMainCamera()
         {
             //GlobalCanvas = GameObject.Find("Canvas - Message").GetComponent<Canvas>();
@@ -199,7 +208,7 @@ namespace AssemblyCSharp
 
         public List<BoxCollider2D> GetActiveBoxColliders()
         {
-            return FindObjectsOfType<BoxCollider2D>().ToList();
+            return FindObjectsByType<BoxCollider2D>(FindObjectsSortMode.None).ToList();
         }
 
         public void DisableEnableLiveBoxColliders(bool enable)

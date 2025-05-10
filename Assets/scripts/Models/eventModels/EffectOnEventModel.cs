@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.scripts.Models.statusModels;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +17,15 @@ namespace AssemblyCSharp
         StatChange,
         EquipmentStatChange,
         EditCorruption,
-        Reset
+        Reset,
+        DoDamageTarget
     };
 
     [Serializable]
     public class EffectOnEventModel {
         [HideInInspector]
         public GameObject owner;
+        public StatusNameEnum StatusName;
         [HideInInspector]
         public BaseCharacterManager target;
         //public bool affectSelf;
@@ -70,6 +73,13 @@ namespace AssemblyCSharp
                 case EffectGrpEnum.StatChange:
                     var roles = new List<RoleEnum>() { role };
                     BattleManager.AddToPlayerStatus(roles, singleStatusGroupFriendly);
+                    break;
+
+                case EffectGrpEnum.EquipmentStatChange:
+                case EffectGrpEnum.Status:
+                case EffectGrpEnum.Reset:
+                case EffectGrpEnum.DoDamageTarget:
+                    new NotImplementedException();
                     break;
             }
             MainGameManager.instance.exploreManager.RemoveObtainedItem(item);
@@ -123,7 +133,7 @@ namespace AssemblyCSharp
                         break;
                     case EffectGrpEnum.Damage:
                         dm.incomingDmg = effectPower;
-                        dm.skillSource = "event: "+EffectGrp.ToString();
+                        dm.skillSource = StatusName.ToString();
                         dm.damageImmidiately = true;
                         targetDmgCalc.calculatedamage( dm );
                         break;

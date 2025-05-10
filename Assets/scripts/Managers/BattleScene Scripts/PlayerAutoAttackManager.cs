@@ -104,6 +104,7 @@ namespace AssemblyCSharp
                     if (damageModel.isMiss)
                     {
                         BattleManager.battleDetailsManager.ShowDamageNumber(damageModel, extraInfo: "Miss");
+                        BattleManager.combatLogManager.GetSkillMissedDescription(damageModel);
                     } else
                     {
                         targetDamageManager.TakeDmg(damageModel as PlayerDamageModel, e.Data.Name);

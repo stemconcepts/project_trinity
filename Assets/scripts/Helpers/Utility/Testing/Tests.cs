@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Assets.scripts.Managers.ExplorerScene_Scripts.RouteEditor;
+using static AssemblyCSharp.miniMapIconBase;
 
 #if UNITY_EDITOR // => Ignore from here to next endif if not in editor
 using UnityEditor;

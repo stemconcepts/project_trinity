@@ -197,6 +197,8 @@ namespace AssemblyCSharp
 
         public void SkillComplete(List<BaseCharacterManager> targets, SkillModel skillModel)
         {
+            BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
+            BattleManager.combatLogManager.GetSkillCastingDescription(skillModel, this.baseManager);
             var power = 0.0f;
             if (skillModel.isFlat)
             {
@@ -217,9 +219,6 @@ namespace AssemblyCSharp
             {
                 SkillActiveSet(skillModel, false);
             });
-
-            BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} casts {skillModel.skillName}", 3f);
-            
             baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnSkillCast);
             //baseManager.EventManagerV2.AddDelegateToEvent(EventTriggerEnum.OnSkillCast, () => BattleManager.AddToGearSwapPoints(6));
         }
@@ -270,6 +269,7 @@ namespace AssemblyCSharp
                         dmgModel.showDmgNumber = false;
                         MainGameManager.instance.soundManager.PlayMissSound();
                         BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
+                        BattleManager.combatLogManager.GetSkillMissedDescription(dmgModel);
                     }
                 };
                 if (skillModel.healsDamage)
@@ -396,6 +396,7 @@ namespace AssemblyCSharp
             skillModel.SaveTurnToComplete((int)baseManager.characterManager.characterModel.insight);
             
             BattleManager.battleDetailsManager.BattleWarning($"{gameObject.name} is casting {skillModel.skillName} in {skillModel.castTurnTime} turns", 3f);
+            BattleManager.combatLogManager.GetSkillCastingDescription(skillModel, this.baseManager);
         }
 
         public void OnEventSkillTrigger(Spine.TrackEntry spineEntry, Spine.Event spineEvent)

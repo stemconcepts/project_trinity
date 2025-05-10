@@ -19,6 +19,7 @@ namespace AssemblyCSharp
         public float MdamageTaken;
         public float incomingDmg;
         public float incomingMDmg;
+        public float resistedDmg;
         public float incomingHeal;
         public float healAmount;
         public float healAmountTaken;

@@ -48,7 +48,7 @@ namespace AssemblyCSharp
     
         void CreateData() {
             displayText = textObject.GetComponent<Text>();
-            displayText.fontSize = fontSize == 0 ? 200 : fontSize;
+            //displayText.fontSize = fontSize == 0 ? 200 : fontSize;
             if (isDmg){
                 //displayText.text = skillLabel + ": -" + damageData.ToString();
                 displayText.text = string.IsNullOrEmpty(extraInfo) ? (showDmgNumber ? damageData.ToString() : "") : (showDmgNumber ? damageData.ToString() : "") + extraInfo;

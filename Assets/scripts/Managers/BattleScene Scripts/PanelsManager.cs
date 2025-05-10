@@ -5,6 +5,7 @@ using System.Linq;
 using DG.Tweening;
 using DG.Tweening.Core.Easing;
 using Unity.IO.Archive;
+using System.Collections.Generic;
 
 namespace AssemblyCSharp
 {
@@ -241,6 +242,53 @@ namespace AssemblyCSharp
             }
         }
 
+        public List<PanelsManager> GetNeighbours()
+        {
+
+            List<voidZoneType> verticalNeighbours = new List<voidZoneType>()
+            {
+                voidZonesTypes
+            };
+
+            List<int> horizontalNeighbours = new List<int>()
+            {
+                panelNumber
+            };
+
+            switch (voidZonesTypes)
+            {
+                case voidZoneType.VerticalA:
+                case voidZoneType.VerticalC:
+                    verticalNeighbours.Add(voidZoneType.VerticalB);
+                    break;
+                case voidZoneType.VerticalB:
+                    verticalNeighbours.Add(voidZoneType.VerticalA);
+                    verticalNeighbours.Add(voidZoneType.VerticalC);
+                    break;
+                default:
+                    break;
+            }
+
+            switch (panelNumber)
+            {
+                case 0:
+                case 2:
+                    horizontalNeighbours.Add(1);
+                    break;
+                case 1:
+                    horizontalNeighbours.Add(0);
+                    horizontalNeighbours.Add(2);
+                    break;
+                default:
+                    break;
+            }
+
+            var result = BattleManager.allPanelManagers
+                    .Where(panelManager => horizontalNeighbours.Contains(panelManager.panelNumber) && verticalNeighbours.Contains(panelManager.voidZonesTypes) && panelManager != this).ToList();
+
+            return result;
+        }
+
         public void ShowSelected(bool show)
         {
             SelectedEffect?.SetActive(show);
@@ -260,6 +308,15 @@ namespace AssemblyCSharp
         {
             if (!isThreatPanel) {
                 //SetFade(fadeAmount, 0.5f);
+            }
+        }
+
+        private void Update()
+        {
+            if (!currentOccupier && SelectedEffect.activeSelf)
+            {
+                ShowSelected(false);
+                ShowCasting(false);
             }
         }
 

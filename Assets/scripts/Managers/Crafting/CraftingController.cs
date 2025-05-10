@@ -107,6 +107,7 @@ namespace Assets.scripts.Managers.Crafting
                 dd.mouseUpActionRemove += RemoveFromCraftingCombination;
                 dd.dragAndDropMaster = craftingGroupHolder.GetComponent<DragAndDropMasterController>();
                 dd.enabled = true;
+                dd.SetOrigParent(itemHolder.transform);
             }
             item.GetComponent<BoxCollider2D>().enabled = true;
         }
@@ -120,7 +121,7 @@ namespace Assets.scripts.Managers.Crafting
             {
                 var fieldItems = this.fieldInventoryController.GetFieldItems();
                 var result = recipeController.HasCombination(itemCombinationToCraft, activeCatalyst);
-                if (result.items.Count() > 0)
+                if (result?.items.Count() > 0)
                 {
                     switch (result.mixMode)
                     {

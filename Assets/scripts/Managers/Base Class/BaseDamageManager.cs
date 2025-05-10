@@ -20,7 +20,7 @@ namespace AssemblyCSharp
             BattleManager.gameEffectManager.ScreenShake(0.6f, 2);
             if (eventName == "hit" && hitFX)
             {
-                var skillEffect = new SkillEffect(1, hitFX, fxPosEnum.center);
+                var skillEffect = new SkillEffect(5, hitFX, fxPosEnum.center);
                 MainGameManager.instance.gameEffectManager.CallEffectOnTarget(baseManager.effectsManager.fxCenter, skillEffect);
             }
 
@@ -48,7 +48,7 @@ namespace AssemblyCSharp
                 var damageBlocked = damageModel.damageTaken * 0.5f;
                 damageModel.damageTaken -= damageBlocked;
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
-                battleDetailsManager.getDmg(damageModel, extraInfo: "<size=100><i>(block:" + damageBlocked + ")</i></size>");
+                battleDetailsManager.getDmg(damageModel, extraInfo: "<i>(block:" + damageBlocked + ")</i>");
                 MainGameManager.instance.soundManager.playSound("block");
                 PlayDamagedSounds();
             }
@@ -56,6 +56,7 @@ namespace AssemblyCSharp
             {
                 baseManager.characterManager.characterModel.Health = baseManager.characterManager.characterModel.Health - damageModel.damageTaken;
                 battleDetailsManager.getDmg(damageModel);
+
                 PlayDamagedSounds();
             }
 
@@ -115,13 +116,14 @@ namespace AssemblyCSharp
 
         public void calculatedamage(BaseDamageModel damageModel)
         {
+            //Need to clean up what skillSource does because this is MESSY
             damageModel.baseManager = damageModel.baseManager ?? this.baseManager;
-            if (damageModel.skillModel != null)
+            if (damageModel.skillModel != null || !string.IsNullOrEmpty(damageModel.skillSource))
             {
                 damageModel.skillSource = damageModel.skillModel != null ? damageModel.skillModel.skillName : damageModel.skillSource;
             } else if (damageModel.enemySkillModel != null)
             {
-                damageModel.skillSource = damageModel.enemySkillModel != null ? damageModel.enemySkillModel.skillName : damageModel.skillSource;
+                damageModel.skillSource = damageModel.enemySkillModel.skillName;
             }
 
             if (baseManager != null)
@@ -132,14 +134,15 @@ namespace AssemblyCSharp
                 } else
                 {
                     var resistance = damageModel.element != elementType.none ? baseManager.characterManager.GetResistanceValue(damageModel.element.ToString()) : 0;
-                    var damageTaken = GetValueAfterDefence(damageModel.incomingDmg, damageModel.isMagicDmg);
+                    var isMagicDamage = damageModel.element != elementType.none && damageModel.element != elementType.physical ? true : damageModel.isMagicDmg;
+                    var damageTaken = GetValueAfterDefence(damageModel.incomingDmg, isMagicDamage);
 
                     //Remove additional damage based off resistance
                     if (damageModel.element != elementType.none)
                     {
                         var result = GetValueAfterResist(damageTaken, resistance);
-                        damageModel.showExtraInfo = true;
-                        damageModel.skillSource = $": {result.resisted} Resisted";
+                        //damageModel.showExtraInfo = result.resisted > 0;
+                        damageModel.resistedDmg = result.resisted;
                         damageTaken = result.damage;
                     }
 
@@ -223,6 +226,7 @@ namespace AssemblyCSharp
             if (damageModel.incomingHeal > 0)
             {
                 baseManager.characterManager.characterModel.Health += damageModel.incomingHeal;
+
                 battleDetailsManager.getHeal(damageModel);
 
                 /*var eventModel = new EventModel

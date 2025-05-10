@@ -67,6 +67,7 @@ namespace AssemblyCSharp
 
             var currentPanel = baseManager.movementManager.currentPanel?.GetComponent<PanelsManager>();
             currentPanel.ShowCasting(true);
+            BattleManager.combatLogManager.GetSkillCastingDescription(skillModel, this.baseManager);
         }
 
         private bool ArePreRequisitesMet(enemySkill skill)
@@ -123,6 +124,7 @@ namespace AssemblyCSharp
 
         public void SkillComplete(List<BaseCharacterManager> targets, enemySkill enemySkillModel)
         {
+            BattleManager.combatLogManager.GetSkillCastingDescription(enemySkillModel, this.baseManager);
             var power = 0.0f;
             baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnSkillCast);
             baseManager.EventManagerV2.CreateEventOrTriggerEvent(EventTriggerEnum.OnAction);
@@ -169,45 +171,48 @@ namespace AssemblyCSharp
                         .ToList();
                 }
             }
-            if (skillModel.allEnemy) { 
-                finalTargets.AddRange(enemyPlayers);
-                currenttarget = finalTargets[Random.Range(0, finalTargets.Count())];
-            }
             if (skillModel.friendly)
             {
                 finalTargets.Add((baseManager.characterManager).GetTarget<EnemyCharacterManagerGroup>().characterManager);
             }
-            else if (skillModel.enemy)
-            {
-                finalTargets.Add(baseManager.characterManager.GetTarget<CharacterManagerGroup>().characterManager);
-                currenttarget = finalTargets[0];
-            }
             if (skillModel.hasVoidzone)
             {
                 var p = enemyPlayers.Where(o => o.characterModel.inVoidZone || ((CharacterModel)o.characterModel).inVoidCounter).ToList();
-                if(p.Count() > 0)
+                if (p.Count() > 0)
                 {
                     finalTargets.AddRange(enemyPlayers.Where(o => o.characterModel.inVoidZone || ((CharacterModel)o.characterModel).inVoidCounter).ToList());
                     currenttarget = finalTargets[Random.Range(0, finalTargets.Count())];
                 }
+            } else
+            {
+                if (skillModel.allEnemy)
+                {
+                    finalTargets.AddRange(enemyPlayers);
+                    currenttarget = finalTargets[Random.Range(0, finalTargets.Count())];
+                }
+                else if (skillModel.enemy)
+                {
+                    finalTargets.Add(baseManager.characterManager.GetTarget<CharacterManagerGroup>().characterManager);
+                    currenttarget = finalTargets[0];
+                }
             }
+            
             finalTargets.Capacity = finalTargets.Count;
             if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun))
             {
                 SetAnimations(skillModel);
+                copiedSkillList.ForEach(s =>
+                {
+                    if (s.skillName == skillModel.skillName)
+                    {
+                        s = skillModel;
+                    }
+                });
             }
             else
             {
                 finalTargets.Clear();
             }
-
-            copiedSkillList.ForEach(s =>
-            {
-                if (s.skillName == skillModel.skillName)
-                {
-                    s = skillModel;
-                }
-            });
 
             BattleManager.enemyActionPoints -= skillModel.skillCost;
         }
@@ -306,6 +311,7 @@ namespace AssemblyCSharp
                         dmgModel.showDmgNumber = false;
                         MainGameManager.instance.soundManager.PlayMissSound();
                         BattleManager.battleDetailsManager.ShowDamageNumber(dmgModel, extraInfo: "Miss");
+                        BattleManager.combatLogManager.GetSkillMissedDescription(dmgModel);
                     }
                 };
                 if (enemySkillModel.healsDamage)

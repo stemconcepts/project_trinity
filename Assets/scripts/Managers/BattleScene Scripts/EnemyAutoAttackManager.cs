@@ -111,6 +111,7 @@ namespace AssemblyCSharp
                     if (damageModel.isMiss)
                     {
                         BattleManager.battleDetailsManager.ShowDamageNumber(damageModel, extraInfo: "Miss");
+                        BattleManager.combatLogManager.GetSkillMissedDescription(damageModel);
                         MainGameManager.instance.soundManager.PlayMissSound();
                     }
                     else

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace AssemblyCSharp
@@ -33,6 +34,21 @@ namespace AssemblyCSharp
         public int depth;
         public int masterDepth;
 
+        public GameObject GetGameObjectByDirection(lineDirectionEnum direction)
+        {
+            switch (lineDirection)
+            {
+                case lineDirectionEnum.right:
+                    return lineRight;
+                case lineDirectionEnum.left:
+                    return lineLeft;
+                case lineDirectionEnum.down:
+                    return lineDown;
+                default:
+                    return null;
+            }
+        }
+
         public miniMapIconController ConvertToIconController(miniMapIconBase mmb)
         {
             return new miniMapIconController()
@@ -53,6 +69,10 @@ namespace AssemblyCSharp
 
         public (string alphabet, int index) GetLocationId()
         {
+            if (LocationId == "")
+            {
+                print($"Icon {name} has no location Id? mainRoute: {isMainRoute}"); 
+            }
             var letter = LocationId.Substring(0, 1);
             var index = LocationId.Length > 2 ? LocationId.Substring(1, 2) : LocationId.Substring(1, 1);
             return (letter, int.Parse(index));
@@ -65,7 +85,6 @@ namespace AssemblyCSharp
                 return direction;
             } else 
             {
-
                 var randomDirection = Random.Range(0, 1);
 
                 switch (lineDirection)
@@ -99,7 +118,74 @@ namespace AssemblyCSharp
             }
         }
 
-        public lineDirectionEnum ChooseDirection(GameObject roomIcon, Transform iconParentTransform, lineDirectionEnum forceDirection = lineDirectionEnum.none)
+        public lineDirectionEnum ChooseDirection(Transform iconParentTransform, lineDirectionEnum forceDirection = lineDirectionEnum.none)
+        {
+            var parentRoomIcon = iconParentTransform.gameObject.GetComponent<miniMapIconBase>();
+            var direction = forceDirection == lineDirectionEnum.none ? (lineDirectionEnum)MainGameManager.instance.ReturnRandom(3) : forceDirection;
+
+            // Check Direction isnt taken
+            if (parentRoomIcon != null)
+            {
+                direction = parentRoomIcon.CorrectDirection(direction);
+            }
+
+            switch (direction)
+            {
+                case lineDirectionEnum.down:
+                    ShowLine(lineDirectionEnum.down);
+                    this.gameObject.transform.position = new Vector3(iconParentTransform.position.x, iconParentTransform.position.y + 0.4f);
+                    break;
+                case lineDirectionEnum.right:
+                    ShowLine(lineDirectionEnum.right);
+                    this.gameObject.transform.position = new Vector3(iconParentTransform.position.x - 0.4f, iconParentTransform.position.y);
+                    break;
+                case lineDirectionEnum.left:
+                    ShowLine(lineDirectionEnum.left);
+                    this.gameObject.transform.position = new Vector3(iconParentTransform.position.x + 0.4f, iconParentTransform.position.y);
+                    break;
+                default:
+                    break;
+            }
+
+            return direction;
+        }
+
+        public lineDirectionEnum ChooseCustomRouteDirection(Transform iconParentTransform, lineDirectionEnum forceDirection = lineDirectionEnum.none)
+        {
+            var parentRoomIcon = iconParentTransform.gameObject.GetComponent<miniMapIconBase>();
+            var direction = forceDirection == lineDirectionEnum.none ? (lineDirectionEnum)MainGameManager.instance.ReturnRandom(3) : forceDirection;
+            var customRouteGroupHolder = this.gameObject.transform.parent;
+
+            // Check Direction isnt taken
+            if (parentRoomIcon != null)
+            {
+                direction = parentRoomIcon.CorrectDirection(direction);
+            }
+
+            switch (direction)
+            {
+                case lineDirectionEnum.down:
+                    ShowLine(lineDirectionEnum.down);
+                    customRouteGroupHolder.position = new Vector3(iconParentTransform.position.x, iconParentTransform.position.y + 0.4f);
+                    break;
+                case lineDirectionEnum.right:
+                    ShowLine(lineDirectionEnum.right);
+                    customRouteGroupHolder.position = new Vector3(iconParentTransform.position.x - 0.4f, iconParentTransform.position.y);
+                    break;
+                case lineDirectionEnum.left:
+                    ShowLine(lineDirectionEnum.left);
+                    customRouteGroupHolder.position = new Vector3(iconParentTransform.position.x + 0.4f, iconParentTransform.position.y);
+                    break;
+                default:
+                    break;
+            }
+
+            return direction;
+        }
+
+        //THIS SUCKS .. should be using the above call ChooseDirection but for some reason the value i adjust by varies on live than it does in edit mode.. possibly because of the parent.... will have to fix with
+        //in EDIT MODE catch or something so they use the same method
+        public lineDirectionEnum ChooseDirectionEditor(Transform iconParentTransform, lineDirectionEnum forceDirection = lineDirectionEnum.none)
         {
             var parentRoomIcon = iconParentTransform.gameObject.GetComponent<miniMapIconController>();
             var direction = forceDirection == lineDirectionEnum.none ? (lineDirectionEnum)MainGameManager.instance.ReturnRandom(3) : forceDirection;
@@ -114,15 +200,15 @@ namespace AssemblyCSharp
             {
                 case lineDirectionEnum.down:
                     ShowLine(lineDirectionEnum.down);
-                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x, iconParentTransform.position.y + 0.4f);
+                    this.gameObject.transform.position = new Vector3(iconParentTransform.position.x, iconParentTransform.position.y + 20.6f);
                     break;
                 case lineDirectionEnum.right:
                     ShowLine(lineDirectionEnum.right);
-                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x - 0.4f, iconParentTransform.position.y);
+                    this.gameObject.transform.position = new Vector3(iconParentTransform.position.x - 20.6f, iconParentTransform.position.y);
                     break;
                 case lineDirectionEnum.left:
                     ShowLine(lineDirectionEnum.left);
-                    roomIcon.transform.position = new Vector3(iconParentTransform.position.x + 0.4f, iconParentTransform.position.y);
+                    this.gameObject.transform.position = new Vector3(iconParentTransform.position.x + 20.6f, iconParentTransform.position.y);
                     break;
                 default:
                     break;
@@ -178,22 +264,6 @@ namespace AssemblyCSharp
         public void SetHighlighted(bool highlight)
         {
             this.gameObject.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
-            /*switch (lineDirection)
-            {
-                case lineDirectionEnum.down:
-                    lineDown.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
-                    break;
-                case lineDirectionEnum.right:
-                    lineRight.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
-                    break;
-                case lineDirectionEnum.left:
-                    lineLeft.GetComponent<SpriteRenderer>().color = highlight ? highlightColor : origColor;
-                    break;
-                case lineDirectionEnum.none:
-                    break;
-                default:
-                    break;
-            }*/
         }
 
         public void SetDetourColour()

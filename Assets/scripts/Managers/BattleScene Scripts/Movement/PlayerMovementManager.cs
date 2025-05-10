@@ -94,30 +94,30 @@ namespace AssemblyCSharp
 
         bool PlayerCanMove()
         {
-            return BattleManager.turn == BattleManager.TurnEnum.PlayerTurn &&
-                baseManager.characterManager.characterModel.characterType == CharacterModel.CharacterTypeEnum.Player &&
-                baseManager.characterManager.characterModel.Haste > ((PlayerSkillManager)baseManager.skillManager).turnsTaken;
+            var isStunned = baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun);
+            var isAttacking = baseManager.autoAttackManager.isAttacking;
+            var isCasting = baseManager.skillManager.isCasting;
+            var isPlayerTurn = BattleManager.turn == BattleManager.TurnEnum.PlayerTurn;
+            var isPlayer = baseManager.characterManager.characterModel.characterType == CharacterModel.CharacterTypeEnum.Player;
+            var hasTurnsLeft = ((PlayerSkillManager)baseManager.skillManager).turnsTaken < baseManager.characterManager.characterModel.Haste;
+            return !isStunned && !isAttacking && !isCasting && isPlayerTurn && isPlayer && hasTurnsLeft;
         }
 
         //Spawn Move Pointer
         public void OnMouseDown()
         {
-            if (!baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
+            if (PlayerCanMove())
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 var distance = Vector2.Distance(transform.position, Camera.main.transform.position);
                 BattleManager.taskManager.CallTask(0.4f, () =>
                 {
-                    if (PlayerCanMove())
-                    {
-                        BattleManager.HitBoxControl(false);
-                        positionArrow = (GameObject)Instantiate(BattleManager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
-                        var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
-                        //movementArrowManager.originalPanel = baseManager.movementManager.currentPanel.GetComponent<PanelsManager>();
-                        movementArrowManager.distance = distance;
-                        movementArrowManager.occupier = baseManager;
-                        //BattleManager.SetFadeOnAllPanels(0.5f, 0.5f);
-                    }
+                    BattleManager.HitBoxControl(false);
+                    positionArrow = Instantiate(BattleManager.battleDetailsManager.movementArrowObject, ray.GetPoint(distance), Quaternion.identity);
+                    var movementArrowManager = positionArrow.GetComponent<MovementArrowManager>();
+                    movementArrowManager.distance = distance;
+                    movementArrowManager.occupier = baseManager;
+                    //BattleManager.SetFadeOnAllPanels(0.5f, 0.5f);
                 }, "draggingTask_" + baseManager.name);
             }
         }
@@ -129,7 +129,7 @@ namespace AssemblyCSharp
                 BattleManager.taskManager.taskList["draggingTask_" + baseManager.name].Stop();
                 BattleManager.taskManager.taskList.Remove("draggingTask_" + baseManager.name);
             }
-            if (positionArrow && !baseManager.statusManager.DoesStatusExist(StatusNameEnum.Stun) && !baseManager.autoAttackManager.isAttacking /*&& !baseManager.skillManager.isSkillactive*/)
+            if (positionArrow && PlayerCanMove())
             {
                 var positionArrowManager = positionArrow.GetComponent<MovementArrowManager>();
                 if (positionArrowManager.hoveredPanel && !positionArrowManager.hoveredPanel.currentOccupier && BattleManager.actionPoints >= 1)
@@ -142,6 +142,10 @@ namespace AssemblyCSharp
                     positionArrowManager.occupier.animationManager.meshRenderer.sortingOrder = origSortingOrder = positionArrowManager.hoveredPanel.sortingLayerNumber;
                     positionArrowManager.occupier.characterManager.characterModel.rowNumber = positionArrowManager.hoveredPanel.sortingLayerNumber;
                     //BattleManager.SetFadeOnAllPanels(0f, 0.5f);
+                }
+                else
+                {
+                    BattleManager.battleDetailsManager.BattleWarning("Panel is too far away", 3f);
                 }
                 Destroy(positionArrow);
                 BattleManager.HitBoxControl(true);

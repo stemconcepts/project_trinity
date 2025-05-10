@@ -111,7 +111,7 @@ namespace AssemblyCSharp
         {
             if (panels.Count > 0)
             {
-                panels.ForEach(panel => panel.ClearCurrentPanel());
+                //panels.ForEach(panel => panel.ClearCurrentPanel());
                 panels.Clear();
             }
         }

@@ -38,5 +38,6 @@ namespace AssemblyCSharp
     	public SkillModel skillTwo;
         public SkillModel skillThree;
         public List<WeaponEffect> weaponEffects;
+        public WeaponTalent weaponTalentTree;
     }
 }
